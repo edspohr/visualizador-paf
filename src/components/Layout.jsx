@@ -29,7 +29,7 @@ export default function Layout({ children }) {
               <img src="/logo-paf.png" alt="Programa Aprender en Familia · Fundación CAP" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-sky-100 tracking-wider font-semibold leading-none">FUNDACIÓN CAP · FOCUS</p>
+              <p className="text-xs text-sky-100 tracking-wider font-semibold leading-none">FUNDACIÓN CAP</p>
               <h1 className="text-base md:text-lg font-bold text-white leading-snug truncate">Visualizador PAF 2026</h1>
             </div>
           </div>
@@ -142,7 +142,7 @@ export default function Layout({ children }) {
       <footer className="border-t border-border bg-white py-3 mt-8">
         <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
           <span>Visualizador PAF · Mock v1 — Datos sintéticos para validación</span>
-          <img src="/logo-focus.svg" alt="Consultora Focus" className="h-5 w-auto opacity-40" />
+          <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-60" />
         </div>
       </footer>
     </div>

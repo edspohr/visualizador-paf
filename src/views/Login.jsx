@@ -33,7 +33,7 @@ export default function Login() {
               <img src="/logo-paf.png" alt="Aprender en Familia" className="w-full h-full object-contain" />
             </div>
             <div>
-              <span className="text-sm tracking-wider font-semibold opacity-90">FUNDACIÓN CAP · CONSULTORA FOCUS</span>
+              <span className="text-sm tracking-wider font-semibold opacity-90">FUNDACIÓN CAP</span>
               <h1 className="text-3xl md:text-4xl font-bold text-white mt-1">Visualizador PAF 2026</h1>
               <p className="text-sky-50 mt-1 text-lg">Programa Aprender en Familia</p>
             </div>
@@ -84,8 +84,8 @@ export default function Login() {
 
       <footer className="border-t border-border bg-white py-4">
         <div className="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
-          <span>Growth Buddies · Visualizador PAF 2026 · Mock v1</span>
-          <span>Consultora Focus · Fundación CAP</span>
+          <span>Visualizador PAF 2026 · Mock v1 — Datos sintéticos para validación</span>
+          <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-60" />
         </div>
       </footer>
     </div>

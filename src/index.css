@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-family: 'Inter', system-ui, sans-serif; }
+  body { @apply bg-bg text-ink antialiased; }
+  h1, h2, h3, h4 { @apply text-navy font-bold tracking-tight; }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-xl border border-border shadow-card p-5;
+  }
+  .card-tight {
+    @apply bg-white rounded-xl border border-border shadow-card p-4;
+  }
+  .btn-primary {
+    @apply bg-navy text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-navy-700 transition;
+  }
+  .btn-secondary {
+    @apply bg-sky text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-sky-500 transition;
+  }
+  .tag {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+  .tag-navy  { @apply bg-navy-50 text-navy; }
+  .tag-sky   { @apply bg-sky-50 text-sky-600; }
+  .tag-lime  { @apply bg-lime-50 text-lime-600; }
+  .tag-amber { @apply bg-amber-50 text-amber-700; }
+  .tag-red   { @apply bg-red-50 text-red-700; }
+}
+
+/* scrollbar suave */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #F4F6F7; }
+::-webkit-scrollbar-thumb { background: #C5D1E2; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #9DB1CC; }

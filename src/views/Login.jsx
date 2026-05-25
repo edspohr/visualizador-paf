@@ -29,12 +29,11 @@ export default function Login() {
       <header className="bg-sky text-white">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex items-center gap-4 mb-2">
-            <div className="w-20 h-20 rounded-xl bg-white flex items-center justify-center p-1 shadow-sm shrink-0">
-              <img src="/logo-paf.png" alt="Aprender en Familia" className="w-full h-full object-contain" />
+            <div className="rounded-lg bg-white flex items-center justify-center p-1.5 shadow-sm shrink-0">
+              <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-24 w-auto object-contain" />
             </div>
             <div>
-              <span className="text-sm tracking-wider font-semibold opacity-90">FUNDACIÓN CAP</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-white mt-1">Visualizador PAF 2026</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-white">Visualizador PAF 2026</h1>
               <p className="text-sky-50 mt-1 text-lg">Programa Aprender en Familia</p>
             </div>
           </div>

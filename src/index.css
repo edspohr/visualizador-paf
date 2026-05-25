@@ -2,37 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fundación CAP brand tokens */
+:root {
+  --color-cyan:     rgb(0, 138, 201);
+  --color-magenta:  rgb(228, 21, 105);
+  --color-yellow:   rgb(255, 220, 0);
+  --color-pink:     rgb(226, 64, 142);
+  --color-red:      rgb(229, 53, 23);
+  --color-purple-1: rgb(179, 67, 120);
+  --color-purple-2: rgb(142, 69, 112);
+  --color-gray-light: rgb(160, 165, 169);
+  --color-gray-dark:  rgb(51, 51, 51);
+}
+
 @layer base {
-  html { font-family: 'Inter', system-ui, sans-serif; }
-  body { @apply bg-bg text-ink antialiased; }
-  h1, h2, h3, h4 { @apply text-navy font-bold tracking-tight; }
+  html { font-family: 'Space Grotesk', system-ui, sans-serif; }
+  body { @apply bg-bg text-gray-ui antialiased; font-weight: 300; }
+
+  /* Title hierarchy — SpaceGrotesk Medium */
+  h1, h2, h3 { color: var(--color-gray-dark); font-weight: 500; letter-spacing: -0.02em; }
+
+  /* Subheadings — SpaceGrotesk Regular */
+  h4, h5, h6 { color: var(--color-gray-dark); font-weight: 400; }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl border border-border shadow-card p-5;
+    @apply bg-white rounded-2xl border border-border shadow-card p-5;
   }
   .card-tight {
-    @apply bg-white rounded-xl border border-border shadow-card p-4;
+    @apply bg-white rounded-2xl border border-border shadow-card p-4;
   }
+
+  /* Primary button — cyan */
   .btn-primary {
-    @apply bg-navy text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-navy-700 transition;
+    @apply px-4 py-2.5 rounded-xl font-medium transition text-white;
+    background: var(--color-cyan);
   }
+  .btn-primary:hover { background: rgb(0, 112, 163); }
+
+  /* Secondary button — magenta accent */
   .btn-secondary {
-    @apply bg-sky text-white px-4 py-2.5 rounded-lg font-semibold hover:bg-sky-500 transition;
+    @apply px-4 py-2.5 rounded-xl font-medium transition text-white;
+    background: var(--color-magenta);
   }
+  .btn-secondary:hover { background: rgb(185, 14, 84); }
+
+  /* Tags */
   .tag {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold;
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
   }
-  .tag-navy  { @apply bg-navy-50 text-navy; }
-  .tag-sky   { @apply bg-sky-50 text-sky-600; }
-  .tag-lime  { @apply bg-lime-50 text-lime-600; }
-  .tag-amber { @apply bg-amber-50 text-amber-700; }
-  .tag-red   { @apply bg-red-50 text-red-700; }
+  .tag-cyan    { background: rgb(230,245,252); color: var(--color-cyan); }
+  .tag-magenta { background: rgb(252,230,240); color: var(--color-magenta); }
+  .tag-yellow  { background: rgb(255,251,204); color: rgb(153,132,0); }
+  .tag-amber   { @apply bg-amber-50 text-amber-700; }
+  .tag-red     { background: rgb(252,235,231); color: var(--color-red); }
+
+  /* Legacy aliases used in views — mapped to CAP palette */
+  .tag-navy  { background: rgb(230,245,252); color: var(--color-cyan); }
+  .tag-sky   { background: rgb(230,245,252); color: var(--color-cyan); }
+  .tag-lime  { background: rgb(230,245,252); color: var(--color-cyan); }
 }
 
-/* scrollbar suave */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #F4F6F7; }
-::-webkit-scrollbar-thumb { background: #C5D1E2; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #9DB1CC; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #F5F6F8; }
+::-webkit-scrollbar-thumb { background: rgb(160,165,169); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(0,138,201); }

@@ -49,22 +49,22 @@ export default function VistaSostenedor() {
   return (
     <>
       {/* Banner navy con identidad sostenedor */}
-      <div className="bg-navy text-white rounded-xl px-5 py-5 mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="text-white rounded-2xl px-5 py-5 mb-6 flex flex-wrap items-end justify-between gap-3" style={{ background: "var(--color-magenta)" }}>
         <div>
-          <p className="text-xs text-sky-200 tracking-wider font-semibold mb-1">SOSTENEDOR · SLEP</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">{slep.nombre}</h2>
-          <div className="flex items-center gap-2 text-sky-100 mt-1 text-sm">
+          <p className="text-xs text-white/60 tracking-wider font-medium mb-1">SOSTENEDOR · SLEP</p>
+          <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">{slep.nombre}</h2>
+          <div className="flex items-center gap-2 text-white/70 mt-1 text-sm">
             <MapPin size={14} /> {slep.comuna}
           </div>
         </div>
         <div className="flex items-center gap-2 text-sm flex-wrap">
-          <div className="bg-white/10 px-3 py-2 rounded-lg">
-            <p className="text-xs text-sky-200 leading-none">ESTABLECIMIENTOS</p>
-            <p className="font-semibold mt-1">{escuelasSlep.length + jardinesSlep.length}</p>
+          <div className="bg-white/10 px-3 py-2 rounded-xl">
+            <p className="text-xs text-white/60 leading-none">ESTABLECIMIENTOS</p>
+            <p className="font-medium mt-1">{escuelasSlep.length + jardinesSlep.length}</p>
           </div>
-          <div className="bg-white/10 px-3 py-2 rounded-lg">
-            <p className="text-xs text-sky-200 leading-none">LOGRO PROMEDIO</p>
-            <p className="font-semibold mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
+          <div className="bg-white/10 px-3 py-2 rounded-xl">
+            <p className="text-xs text-white/60 leading-none">LOGRO PROMEDIO</p>
+            <p className="font-medium mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
           </div>
         </div>
       </div>
@@ -97,8 +97,8 @@ export default function VistaSostenedor() {
       {/* Comparativa radial vs otros SLEPs */}
       <div className="card mb-8">
         <div className="mb-4">
-          <p className="text-xs text-sky-600 font-semibold tracking-wider uppercase">Comparativa intersostenedores</p>
-          <h3 className="text-lg text-navy">Tu SLEP vs promedio del resto</h3>
+          <p className="text-xs font-medium tracking-wider uppercase">Comparativa intersostenedores</p>
+          <h3 className="text-lg text-gray-dark">Tu SLEP vs promedio del resto</h3>
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -110,8 +110,8 @@ export default function VistaSostenedor() {
               <PolarGrid stroke="#E5E7EB"/>
               <PolarAngleAxis dataKey="ambito" tick={{ fill: '#333333', fontSize: 12, fontWeight: 600 }}/>
               <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#6B7280' }} />
-              <Radar name={slep.nombre} dataKey={slep.nombre} stroke="#1A365D" fill="#1A365D" fillOpacity={0.4}/>
-              <Radar name="Otros SLEP" dataKey="Otros SLEP" stroke="#8CC63F" fill="#8CC63F" fillOpacity={0.25}/>
+              <Radar name={slep.nombre} dataKey={slep.nombre} stroke="#1A365D" fill="rgb(0,138,201)" fillOpacity={0.4}/>
+              <Radar name="Otros SLEP" dataKey="Otros SLEP" stroke="#8CC63F" fill="rgb(255,220,0)" fillOpacity={0.25}/>
               <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }} formatter={(v) => `${v}%`}/>
               <Legend wrapperStyle={{ fontSize: 12 }}/>
             </RadarChart>
@@ -122,28 +122,28 @@ export default function VistaSostenedor() {
       {/* Ranking de establecimientos */}
       <div className="card">
         <div className="mb-4">
-          <p className="text-xs text-sky-600 font-semibold tracking-wider uppercase">Detalle de la red</p>
-          <h3 className="text-lg text-navy">Establecimientos del sostenedor</h3>
-          <p className="text-sm text-muted mt-1">Ordenados por logro promedio. Cada barra muestra el % de logro por ámbito.</p>
+          <p className="text-xs font-medium tracking-wider uppercase">Detalle de la red</p>
+          <h3 className="text-lg text-gray-dark">Establecimientos del sostenedor</h3>
+          <p className="text-sm text-gray-ui mt-1">Ordenados por logro promedio. Cada barra muestra el % de logro por ámbito.</p>
         </div>
 
         <div className="space-y-3">
           {ranking.map(({ est, logros, promedio }, idx) => (
-            <div key={est.id} className="p-4 rounded-lg border border-border hover:shadow-card transition">
+            <div key={est.id} className="p-4 rounded-xl border border-border hover:shadow-card transition">
               <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-navy text-white font-bold flex items-center justify-center text-sm shrink-0">
+                  <div className="w-8 h-8 rounded-full font-medium text-white flex items-center justify-center text-sm shrink-0" style={{ background: "var(--color-cyan)" }}>
                     {idx + 1}
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-sm text-navy truncate">{est.nombre}</h4>
-                    <p className="text-xs text-muted">{est.tipo} · Cohorte {est.cohorte}</p>
+                    <h4 className="text-sm text-gray-dark truncate">{est.nombre}</h4>
+                    <p className="text-xs text-gray-ui">{est.tipo} · Cohorte {est.cohorte}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-navy leading-none">{Math.round(promedio * 100)}%</p>
-                    <p className="text-xs text-muted mt-1">logro global</p>
+                    <p className="text-2xl font-medium text-gray-dark leading-none">{Math.round(promedio * 100)}%</p>
+                    <p className="text-xs text-gray-ui mt-1">logro global</p>
                   </div>
                   <SemaforoBadge logro={promedio}/>
                 </div>
@@ -152,8 +152,8 @@ export default function VistaSostenedor() {
                 {AMBITOS.map(a => (
                   <div key={a.id}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-muted">{a.codigo}</span>
-                      <span className="text-xs font-bold text-navy">{Math.round(logros[a.id] * 100)}%</span>
+                      <span className="text-xs text-gray-ui">{a.codigo}</span>
+                      <span className="text-xs font-medium text-gray-dark">{Math.round(logros[a.id] * 100)}%</span>
                     </div>
                     <ProgressBar logro={logros[a.id]}/>
                   </div>

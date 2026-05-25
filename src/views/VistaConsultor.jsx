@@ -62,42 +62,42 @@ export default function VistaConsultor() {
   return (
     <>
       {/* Banner navy con vista completa */}
-      <div className="bg-navy text-white rounded-xl px-5 py-5 mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="text-white rounded-2xl px-5 py-5 mb-6 flex flex-wrap items-end justify-between gap-3" style={{ background: "var(--color-cyan)" }}>
         <div>
-          <p className="text-xs text-sky-200 tracking-wider font-semibold mb-1">VISTA COMPLETA · CONSULTORÍA / FUNDACIÓN CAP</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight">Programa {programa === 'escolar' ? 'Aprender en Familia · Educación Básica' : 'Aprender en Familia · Educación Parvularia'}</h2>
-          <p className="text-sky-100 mt-1 text-sm">Vista agregada con acceso a todos los cruces (cohorte, año, sostenedor, comuna).</p>
+          <p className="text-xs text-white/60 tracking-wider font-medium mb-1">VISTA COMPLETA · CONSULTORÍA / FUNDACIÓN CAP</p>
+          <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">Programa {programa === 'escolar' ? 'Aprender en Familia · Educación Básica' : 'Aprender en Familia · Educación Parvularia'}</h2>
+          <p className="text-white/70 mt-1 text-sm">Vista agregada con acceso a todos los cruces (cohorte, año, sostenedor, comuna).</p>
         </div>
-        <div className="bg-white/10 px-3 py-2 rounded-lg text-sm">
-          <p className="text-xs text-sky-200 leading-none">LOGRO PROMEDIO</p>
-          <p className="font-semibold mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
+        <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
+          <p className="text-xs text-white/60 leading-none">LOGRO PROMEDIO</p>
+          <p className="font-medium mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
         </div>
       </div>
 
       {/* Filtros */}
       <div className="card mb-6">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2 text-navy font-semibold text-sm">
+          <div className="flex items-center gap-2 font-medium text-sm">
             <Filter size={16}/> Filtros
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 min-w-0">
             <div>
-              <label className="block text-xs text-muted font-semibold mb-1 uppercase tracking-wider">Sostenedor</label>
-              <select value={filtroSlep} onChange={(e) => setFiltroSlep(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-ink focus:ring-2 focus:ring-sky focus:border-sky outline-none">
+              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Sostenedor</label>
+              <select value={filtroSlep} onChange={(e) => setFiltroSlep(e.target.value)} className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none">
                 <option value="TODOS">Todos los sostenedores</option>
                 {slepsDisponibles.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-muted font-semibold mb-1 uppercase tracking-wider">Cohorte</label>
-              <select value={filtroCohorte} onChange={(e) => setFiltroCohorte(e.target.value)} className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-ink focus:ring-2 focus:ring-sky focus:border-sky outline-none">
+              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Cohorte</label>
+              <select value={filtroCohorte} onChange={(e) => setFiltroCohorte(e.target.value)} className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none">
                 <option value="TODAS">Todas las cohortes</option>
                 {cohortesDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs text-muted font-semibold mb-1 uppercase tracking-wider">Año implementación</label>
-              <select className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-ink focus:ring-2 focus:ring-sky focus:border-sky outline-none" defaultValue="2026">
+              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Año implementación</label>
+              <select className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none" defaultValue="2026">
                 <option>2026 (Año 1)</option>
                 <option disabled>2027 (Año 2)</option>
               </select>
@@ -129,8 +129,8 @@ export default function VistaConsultor() {
       {/* Comparación entre SLEP */}
       <div className="card mb-8">
         <div className="mb-4">
-          <p className="text-xs text-sky-600 font-semibold tracking-wider uppercase">Comparativa entre sostenedores</p>
-          <h3 className="text-lg text-navy">Logro por SLEP y ámbito</h3>
+          <p className="text-xs font-medium tracking-wider uppercase">Comparativa entre sostenedores</p>
+          <h3 className="text-lg text-gray-dark">Logro por SLEP y ámbito</h3>
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -147,7 +147,7 @@ export default function VistaConsultor() {
               <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }} formatter={(v) => `${v}%`}/>
               <Legend wrapperStyle={{ fontSize: 12 }}/>
               {AMBITOS.map((a, i) => {
-                const colors = ['#1A365D', '#5B9BD5', '#8CC63F', '#2D5489'];
+                const colors = ['rgb(0,138,201)', 'rgb(228,21,105)', 'rgb(255,220,0)', 'rgb(179,67,120)'];
                 return <Bar key={a.id} dataKey={a.codigo} fill={colors[i % colors.length]} radius={[4,4,0,0]}/>;
               })}
             </BarChart>
@@ -158,39 +158,39 @@ export default function VistaConsultor() {
       {/* Tabla de todos los establecimientos */}
       <div className="card">
         <div className="mb-4">
-          <p className="text-xs text-sky-600 font-semibold tracking-wider uppercase">Detalle por establecimiento</p>
-          <h3 className="text-lg text-navy">Todos los establecimientos filtrados</h3>
+          <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
+          <h3 className="text-lg text-gray-dark">Todos los establecimientos filtrados</h3>
         </div>
 
         <div className="overflow-x-auto -mx-5 px-5">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-border text-left text-xs text-muted uppercase tracking-wider">
-                <th className="py-2 pr-3 font-semibold">#</th>
-                <th className="py-2 pr-3 font-semibold">Establecimiento</th>
-                <th className="py-2 pr-3 font-semibold">Sostenedor</th>
-                <th className="py-2 pr-3 font-semibold">Cohorte</th>
-                {AMBITOS.map(a => <th key={a.id} className="py-2 px-2 font-semibold text-center">{a.codigo}</th>)}
-                <th className="py-2 pl-3 font-semibold text-right">Global</th>
+              <tr className="border-b-2 border-border text-left text-xs text-gray-ui uppercase tracking-wider">
+                <th className="py-2 pr-3 font-medium">#</th>
+                <th className="py-2 pr-3 font-medium">Establecimiento</th>
+                <th className="py-2 pr-3 font-medium">Sostenedor</th>
+                <th className="py-2 pr-3 font-medium">Cohorte</th>
+                {AMBITOS.map(a => <th key={a.id} className="py-2 px-2 font-medium text-center">{a.codigo}</th>)}
+                <th className="py-2 pl-3 font-medium text-right">Global</th>
               </tr>
             </thead>
             <tbody>
               {conLogros.sort((a, b) => b.promedio - a.promedio).map((c, idx) => (
                 <tr key={c.est.id} className="border-b border-border hover:bg-bg transition">
-                  <td className="py-3 pr-3 text-muted text-xs">{idx + 1}</td>
+                  <td className="py-3 pr-3 text-gray-ui text-xs">{idx + 1}</td>
                   <td className="py-3 pr-3">
-                    <p className="text-navy font-semibold">{c.est.nombre}</p>
+                    <p className="font-medium">{c.est.nombre}</p>
                   </td>
-                  <td className="py-3 pr-3 text-ink">{SLEPS.find(s => s.id === c.est.slep)?.nombre.replace('SLEP ','')}</td>
-                  <td className="py-3 pr-3 text-muted text-xs">{c.est.cohorte}</td>
+                  <td className="py-3 pr-3 text-gray-dark">{SLEPS.find(s => s.id === c.est.slep)?.nombre.replace('SLEP ','')}</td>
+                  <td className="py-3 pr-3 text-gray-ui text-xs">{c.est.cohorte}</td>
                   {AMBITOS.map(a => {
                     const v = Math.round(c.logros[a.id] * 100);
                     const color = c.logros[a.id] >= 0.85 ? 'text-lime-600' : c.logros[a.id] >= 0.6 ? 'text-amber-700' : 'text-red-700';
-                    return <td key={a.id} className={`py-3 px-2 text-center font-semibold ${color}`}>{v}%</td>;
+                    return <td key={a.id} className={`py-3 px-2 text-center font-medium ${color}`}>{v}%</td>;
                   })}
                   <td className="py-3 pl-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <span className="font-bold text-navy">{Math.round(c.promedio * 100)}%</span>
+                      <span className="font-medium text-gray-dark">{Math.round(c.promedio * 100)}%</span>
                       <SemaforoBadge logro={c.promedio}/>
                     </div>
                   </td>

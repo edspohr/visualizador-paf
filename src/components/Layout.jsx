@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Repeat } from 'lucide-react';
+import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
 import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
 
-const ICONOS = { school: School, baby: Baby, building: Building2, shield: ShieldCheck };
+const ICONOS = { school: School, baby: Baby, building: Building2, shield: ShieldCheck, award: Award };
+
+// Per-profile accent for dropdown icons
+const PERFIL_ICON_STYLE = {
+  escuela:    { bg: 'rgb(230,245,252)',  color: 'var(--color-cyan)'     },
+  jardin:     { bg: 'rgb(255,245,210)',  color: 'rgb(180,130,0)'        },
+  sostenedor: { bg: 'rgb(252,230,241)',  color: 'var(--color-magenta)'  },
+  consultor:  { bg: 'rgb(240,235,252)',  color: 'var(--color-purple-1)' },
+  cap:        { bg: 'rgb(252,235,231)',  color: 'var(--color-red)'      },
+};
 
 export default function Layout({ children }) {
   const { perfil, cerrarSesion, seleccionarPerfil, cambiarEntidad, cambiarPrograma } = useApp();
@@ -73,7 +82,7 @@ export default function Layout({ children }) {
                           style={entidad?.id === e.id ? { color: 'var(--color-cyan)' } : {}}
                         >
                           <p className="truncate">{e.nombre}</p>
-                          {e.slep && <p className="text-xs text-gray-ui font-light truncate">{SLEPS.find(s => s.id === e.slep)?.nombre}</p>}
+                          {e.slep && <p className="text-xs text-gray-ui font-light truncate">{SLEPS.find(s => s.id === e.slep)?.nombre.replace(/^SLEP\s+/, '')}</p>}
                           {e.comuna && !e.slep && <p className="text-xs text-gray-ui font-light truncate">{e.comuna}</p>}
                         </button>
                       ))}
@@ -107,9 +116,9 @@ export default function Layout({ children }) {
                         <button
                           key={p.id}
                           onClick={() => { seleccionarPerfil(p); setMenuPerfil(false); }}
-                          className={`w-full text-left px-4 py-3 hover:bg-bg flex items-center gap-3 border-b border-border last:border-0 transition ${isActive ? 'bg-cyan-50' : ''}`}
+                          className={`w-full text-left px-4 py-3 hover:bg-bg flex items-center gap-3 border-b border-border last:border-0 transition ${isActive ? 'bg-bg' : ''}`}
                         >
-                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgb(230,245,252)', color: 'var(--color-cyan)' }}>
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={PERFIL_ICON_STYLE[p.id] ?? PERFIL_ICON_STYLE.escuela}>
                             <PIcon size={16} />
                           </div>
                           <div className="min-w-0">
@@ -144,7 +153,7 @@ export default function Layout({ children }) {
 
       <footer className="border-t border-border bg-white py-4 mt-8">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Mock v1 — Datos sintéticos para validación</span>
+          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Mock v2 — Datos sintéticos para validación</span>
           <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-50" />
         </div>
       </footer>

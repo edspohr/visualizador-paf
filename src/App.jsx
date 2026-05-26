@@ -24,7 +24,8 @@ export default function App() {
       case 'escuela':
       case 'jardin':      return VistaEscuela;
       case 'sostenedor':  return VistaSostenedor;
-      case 'consultor':   return VistaConsultor;
+      case 'consultor':
+      case 'cap':         return VistaConsultor;
       default:            return VistaEscuela;
     }
   })();

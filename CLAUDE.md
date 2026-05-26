@@ -31,7 +31,7 @@ src/data/establecimientos.js
   └─ logroPorAmbito() / promedioSlepAmbito() / evolucionAmbito() — agregadores
 ```
 
-## Modelo de los 4 perfiles (RLS)
+## Modelo de los 5 perfiles (RLS)
 
 Definidos en `src/lib/context.jsx → PERFILES`:
 
@@ -41,6 +41,7 @@ Definidos en `src/lib/context.jsx → PERFILES`:
 | `jardin` | VistaEscuela | 1 establecimiento (de JARDINES) |
 | `sostenedor` | VistaSostenedor | Toda su red de un SLEP |
 | `consultor` | VistaConsultor | Vista nacional con filtros |
+| `cap` | VistaConsultor | Vista nacional, mes cerrado, banner magenta |
 
 El login es simulado (selector visual en `/src/views/Login.jsx`). El perfil se guarda en `localStorage` con clave `paf_perfil`. El header tiene un switcher que permite cambiar de perfil en cualquier momento (útil para demos).
 
@@ -66,11 +67,36 @@ Tailwind tiene estos colores configurados con escala 50-900 para navy/sky/lime.
 4. ✅ **Vista móvil** — banner pills con `flex-wrap` en VistaEscuela y VistaSostenedor. Filas de indicadores en VistaEscuela pasan a `flex-col` en mobile y `flex-row` en `sm:` con metadata en `flex-wrap`.
 5. ✅ **Logos integrados** — `logo-paf.png` en header (badge `w-20 h-20` blanco redondeado), Login (mismo badge con título a la derecha) y favicon. `logo-focus.svg` en footer con `opacity-40`.
 6. ✅ **Firebase configurado y deployado** — proyecto `visualizador-paf`, URL: https://visualizador-paf.web.app. Archivos `.firebaserc` y `firebase.json` creados. Para redesployar: `npm run deploy`.
+7. ✅ **"SLEP" → "Sostenedor" en UI** — todo texto visible renombrado (banners, subtítulos, leyendas de charts, KPI sublabels, dropdown de entidades). Campos internos `slep`, `idSlep`, `SLEPS` sin tocar. Patterns `.replace('SLEP ','')` actualizados a regex `/^SLEP\s+/` para display limpio.
+8. ✅ **Etiqueta semáforo rojo** — `labelSemaforo` cambia `'Bajo lo esperado'` → `'En camino'` para la banda `< 0.6`. KPI card "Bajo lo esperado" en VistaConsultor actualizado a "En camino" también.
+9. ✅ **Modelo de 5 perfiles** — añadido perfil `cap` (Fundación CAP, `icono: 'award'`) en `context.jsx`. Login muestra 5 cards en `lg:grid-cols-5`. `App.jsx` enruta `cap` → `VistaConsultor`. `Award` registrado en `ICONOS` de `Login.jsx` y `Layout.jsx`.
+10. ✅ **Helpers temporales** — `currentMonth()` y `lastClosedMonth()` en `establecimientos.js`. `MES_ACTUAL` ahora llama `currentMonth()`. `evolucionAmbito` acepta `mesHasta` param.
+12. ✅ **`IndicatorProgress` component** — `src/components/Shared.jsx`. Horizontal bar showing actual (filled, semáforo color), expected-to-date (vertical tick at computed position), and annual target (right label with Target icon). Bottom row: Actual / Esperado / Meta. Binary shows Sí/No; % formats as percentage; conteo/promedio rounds to 1 decimal. Hover `title` explains tick semantics. Used in VistaEscuela indicator detail replacing `ProgressBar`.
+14. ✅ **`IndicatorDrilldown` modal** — `src/components/IndicatorDrilldown.jsx`. Click any indicator row in VistaEscuela to open. Contains: header (name, code, ámbito/tipo/semáforo badges, metadata), hero `IndicatorProgress` (large), monthly evolution LineChart (actual solid + expected dashed in gray), and sostenedor comparison table (consultor/cap only). Closes on Escape, backdrop click, or X. Mobile: full-screen, scrollable with bottom close button.
+13. ✅ **`expectedValue.js`** — `src/data/expectedValue.js`. `expectedToDate(indicador, mes)` computes accrued expected value by frequency (mensual=linear, trimestral/semestral=step, anual=0 until Dec, binario=0 until midyear). `formatValue(indicador, v)` formats raw value by unit.
+11. ✅ **Filtro temporal por perfil en VistaConsultor** — `effectiveMonth`: consultor → mes actual, CAP → mes cerrado anterior. Todas las agregaciones (`logroPorAmbito`) reciben `effectiveMonth`. Banner CAP: fondo magenta, título "Vista de cierre · Fundación CAP", subtítulo con "validados" en `text-lime-300`. Banner consultor: subtítulo muestra fecha dinámica del día.
+
+## Mejoras realizadas (post-demo 25 mayo, CAP-ready)
+
+15. ✅ **YoY toggle en VistaConsultor** — state `yoy` (boolean). Default: `true` para CAP, `false` para consultor. Toggle UI en sección de filtros. Cuando ON: ámbito cards muestran "2025: XX%" + delta en pp (cyan si positivo, red si negativo) en esquina inferior derecha. Bar chart de sostenedores agrega serie 2025 con `fillOpacity: 0.35`.
+16. ✅ **Año en `generarValorIndicador`** — parámetro `anio` (default 2026) incluido en `hashSeed` para datos determinísticos por año. `biasBySlep(slep, anio)` resta 0.10 a todos los sostenedores cuando `anio === 2025`, produciendo resultados visiblemente menores. `logroPorAmbito`, `evolucionAmbito`, `promedioSlepAmbito` reciben `anio` opcional.
+17. ✅ **Comparador side-by-side en VistaConsultor** — sección "Comparación entre períodos" con dos dropdowns (opciones Enero–Diciembre 2025 y 2026). Defaults: CAP → Abril 2025 vs Abril 2026; consultor → Mayo 2025 vs Mayo 2026. Layout: dos columnas de AmbitoCards + bar chart comparativo con ambos períodos como series.
+18. ✅ **Decisiones no especificadas**: icono CAP = `Award` de lucide-react (elegido por connotación de "financiador"); comparador de períodos colocado antes de la tabla de establecimientos (mejor flujo narrativo: primero big picture → detalle); 2025 en bar chart usa mismo color con opacidad reducida (más limpio que barras de color distinto).
+
+## Mejoras realizadas (sesión 6 — post-demo, sub-indicadores en todos los perfiles)
+
+19. ✅ **Colores distintos por perfil** — Login usa `PERFIL_ACCENT` keyed by `p.id` (no `p.color`). Layout dropdown usa `PERFIL_ICON_STYLE` por `p.id`. Escuela=cyan, Jardín=yellow, Sostenedor=magenta, Consultor=purple-1, CAP=red.
+20. ✅ **Consultor card corregida** — Nombre cambiado a `'Consultor'` (sin "/CAP"). Descripción: `'Coordinación Focus'`.
+21. ✅ **YoY siempre visible** — Toggle eliminado. AmbitoCards en VistaConsultor siempre muestran "2025: XX%" + delta en pp en esquina inferior. Bar chart de sostenedores siempre incluye serie 2025.
+22. ✅ **Comparador de períodos colapsable** — Envuelto en componente `Collapsible` (`defaultOpen=false`). Se expande/colapsa con chevron. Consultor y CAP pueden comparar cualquier mes/año contra otro.
+23. ✅ **`IndicatorPanel` extraído a componente compartido** — `src/components/IndicatorPanel.jsx`. Props: `INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown`. Cada ámbito es colapsable; cada indicador muestra metadata + `IndicatorProgress` y abre drilldown al hacer clic.
+24. ✅ **Sub-indicadores en VistaConsultor y CAP** — `EstablecimientoList` renderiza cada establecimiento como fila colapsable; cuando se abre, muestra `IndicatorPanel` con el filtro correcto por establecimiento.
+25. ✅ **Sub-indicadores en VistaSostenedor** — Ranking de establecimientos ahora colapsable. Al expandir cada fila, muestra `IndicatorPanel`. `drilldown` state es `{ ind, estId, slepId }`. `IndicatorDrilldown` renderizado al final.
+26. ✅ **Sub-indicadores en VistaEscuela** — Inline loop reemplazado por `<IndicatorPanel>`. Imports `TipoBadge, IndicatorProgress` removidos de VistaEscuela (ahora están solo en IndicatorPanel y Shared).
 
 ## Cosas pendientes
 
 - **1-pager de modelo de datos** — Doc/PDF con las 3 tablas principales para llevar a la reunión (se trabaja en Claude chat por separado).
-- **VistaConsultor filtro a 1 SLEP** — el BarChart queda solitario pero se decidió dejarlo así: en un mock es mejor mostrar el dato que ocultar el chart.
 
 ## Cosas que NO tocar sin pensar
 

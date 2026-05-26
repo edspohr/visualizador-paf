@@ -1,15 +1,17 @@
-import { School, Baby, Building2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { School, Baby, Building2, ShieldCheck, Award, ArrowRight } from 'lucide-react';
 import { useApp, PERFILES } from '../lib/context.jsx';
 
-const ICONOS = { school: School, baby: Baby, building: Building2, shield: ShieldCheck };
+const ICONOS = { school: School, baby: Baby, building: Building2, shield: ShieldCheck, award: Award };
 
-// Per-profile accent colors mapped to CAP palette
+// One distinct accent per profile id
 const PERFIL_ACCENT = {
-  navy: { border: 'var(--color-cyan)',    bg: 'var(--color-cyan)',    text: '#fff' },
-  sky:  { border: 'var(--color-magenta)', bg: 'var(--color-magenta)', text: '#fff' },
-  lime: { border: 'var(--color-yellow)',  bg: 'var(--color-yellow)',  text: 'var(--color-gray-dark)' },
+  escuela:   { border: 'var(--color-cyan)',      bg: 'var(--color-cyan)',      text: '#fff' },
+  jardin:    { border: 'var(--color-yellow)',    bg: 'var(--color-yellow)',    text: 'var(--color-gray-dark)' },
+  sostenedor:{ border: 'var(--color-magenta)',   bg: 'var(--color-magenta)',   text: '#fff' },
+  consultor: { border: 'var(--color-purple-1)',  bg: 'var(--color-purple-1)',  text: '#fff' },
+  cap:       { border: 'var(--color-red)',       bg: 'var(--color-red)',       text: '#fff' },
 };
-const PERFIL_DEFAULT = { border: 'var(--color-purple-1)', bg: 'var(--color-purple-1)', text: '#fff' };
+const PERFIL_DEFAULT = { border: 'var(--color-cyan)', bg: 'var(--color-cyan)', text: '#fff' };
 
 export default function Login() {
   const { seleccionarPerfil } = useApp();
@@ -40,10 +42,10 @@ export default function Login() {
           <p className="text-gray-ui font-light mt-1">Cada perfil ve únicamente los datos correspondientes a su rol en el programa.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5">
           {PERFILES.map((p) => {
             const Icon = ICONOS[p.icono] ?? School;
-            const accent = PERFIL_ACCENT[p.color] ?? PERFIL_DEFAULT;
+            const accent = PERFIL_ACCENT[p.id] ?? PERFIL_DEFAULT;
             return (
               <button
                 key={p.id}

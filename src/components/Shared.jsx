@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
 import { colorSemaforo, labelSemaforo } from '../data/establecimientos.js';
+import { expectedToDate, formatValue } from '../data/expectedValue.js';
 
 // CAP brand semaforo mapping
 // verde → cyan, amber → yellow, red → crimson
@@ -38,7 +39,7 @@ export function SemaforoBadge({ logro }) {
   );
 }
 
-export function AmbitoCard({ ambito, logro, deltaPromedio = null }) {
+export function AmbitoCard({ ambito, logro, deltaPromedio = null, yoy = null }) {
   const c = colorSemaforo(logro);
   const s = COLOR_STYLE[c];
   const pct = Math.round(logro * 100);
@@ -64,13 +65,26 @@ export function AmbitoCard({ ambito, logro, deltaPromedio = null }) {
 
       {deltaPromedio !== null && (
         <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
-          <span className="text-gray-ui font-light">vs promedio SLEP</span>
+          <span className="text-gray-ui font-light">vs promedio sostenedor</span>
           <span
             className="font-medium flex items-center gap-1"
             style={{ color: deltaPromedio > 0 ? 'var(--color-cyan)' : deltaPromedio < 0 ? 'var(--color-red)' : 'var(--color-gray-light)' }}
           >
             {deltaPromedio > 0 ? <TrendingUp size={14}/> : deltaPromedio < 0 ? <TrendingDown size={14}/> : <Minus size={14}/>}
             {deltaPromedio > 0 ? '+' : ''}{Math.round(deltaPromedio * 100)} pp
+          </span>
+        </div>
+      )}
+
+      {yoy !== null && (
+        <div className="mt-3 pt-3 border-t border-border flex items-center justify-between text-xs">
+          <span className="text-gray-ui font-light">2025: {Math.round(yoy.logro2025 * 100)}%</span>
+          <span
+            className="font-medium flex items-center gap-1"
+            style={{ color: yoy.delta >= 0 ? 'var(--color-cyan)' : 'var(--color-red)' }}
+          >
+            {yoy.delta >= 0 ? <TrendingUp size={14}/> : <TrendingDown size={14}/>}
+            {yoy.delta >= 0 ? '+' : ''}{yoy.delta} pp
           </span>
         </div>
       )}
@@ -150,6 +164,77 @@ export function PageHeader({ eyebrow, title, subtitle, action }) {
         {subtitle && <p className="text-gray-ui font-light mt-1">{subtitle}</p>}
       </div>
       {action}
+    </div>
+  );
+}
+
+export function IndicatorProgress({ indicador, valor, mes, large = false }) {
+  const { metaNum, unidad } = indicador;
+
+  // For binary: use 0/1 scale; for others: use raw numeric scale
+  const isBinary = unidad === 'binario';
+  const scale = isBinary ? 1 : metaNum;
+  const rawValue = isBinary ? (valor ? 1 : 0) : valor;
+  const expected = expectedToDate(indicador, mes);
+
+  // Clamp positions to [0%, 100%] of bar width
+  const filledPct  = Math.min(100, scale > 0 ? (rawValue / scale) * 100 : 0);
+  const expectedPct = Math.min(100, scale > 0 ? (expected / scale) * 100 : 0);
+
+  const semaforo = colorSemaforo(scale > 0 ? rawValue / scale : 0);
+  const barColor = {
+    lime:  'var(--color-cyan)',
+    amber: 'var(--color-yellow)',
+    red:   'var(--color-red)',
+  }[semaforo];
+
+  // Shift "Esperado" label left if tick is near the right edge
+  const labelAlign = expectedPct > 80 ? 'right' : expectedPct < 20 ? 'left' : 'center';
+  const labelTranslate = { right: '-100%', center: '-50%', left: '0%' }[labelAlign];
+
+  return (
+    <div
+      className="w-full"
+      title="Cumplimiento esperado a la fecha según frecuencia del indicador"
+    >
+      {/* Bar area with tick */}
+      <div className="relative mb-1">
+        {/* "Esperado" label above tick */}
+        <div
+          className="absolute -top-4 text-[10px] text-gray-ui whitespace-nowrap"
+          style={{ left: `${expectedPct}%`, transform: `translateX(${labelTranslate})` }}
+        >
+          Esperado
+        </div>
+
+        {/* Track */}
+        <div className={`relative w-full ${large ? 'h-4' : 'h-3'} bg-bg rounded-full overflow-visible mt-4`}>
+          {/* Filled segment */}
+          <div
+            className={`absolute left-0 top-0 ${large ? 'h-4' : 'h-3'} rounded-full transition-all`}
+            style={{ width: `${filledPct}%`, background: barColor }}
+          />
+          {/* Expected tick mark — overlaid, not clipped */}
+          <div
+            className={`absolute top-0 ${large ? 'h-4' : 'h-3'} w-0.5 bg-ink rounded-full`}
+            style={{ left: `calc(${expectedPct}% - 1px)` }}
+          />
+        </div>
+      </div>
+
+      {/* Bottom labels */}
+      <div className="flex items-baseline justify-between gap-1 mt-2 flex-wrap sm:flex-nowrap">
+        <span className="text-sm font-semibold text-gray-dark">
+          Actual: {formatValue(indicador, rawValue)}
+        </span>
+        <span className="text-xs text-gray-ui">
+          Esperado: {formatValue(indicador, expected)}
+        </span>
+        <span className="text-xs text-gray-ui flex items-center gap-0.5">
+          <Target size={10} className="shrink-0" />
+          {formatValue(indicador, metaNum)}
+        </span>
+      </div>
     </div>
   );
 }

@@ -57,13 +57,14 @@ function hashSeed(...parts) {
 
 // Genera un valor para un indicador dado en un establecimiento y período
 // Sesgo: SLEP Los Parques rinde mejor (cohorte más antigua), Santa Rosa intermedio, otros más bajo
-function biasBySlep(slep) {
-  return ({ 'SLEP-LP': 0.88, 'SLEP-SR': 0.82, 'SLEP-DP': 0.75, 'SLEP-SC': 0.73 })[slep] ?? 0.7;
+function biasBySlep(slep, anio = 2026) {
+  const base = ({ 'SLEP-LP': 0.88, 'SLEP-SR': 0.82, 'SLEP-DP': 0.75, 'SLEP-SC': 0.73 })[slep] ?? 0.7;
+  return anio === 2025 ? base - 0.10 : base;
 }
 
-export function generarValorIndicador(indicador, establecimientoId, slep, mes) {
-  const rng = mulberry32(hashSeed(indicador.id, establecimientoId, mes));
-  const base = biasBySlep(slep);
+export function generarValorIndicador(indicador, establecimientoId, slep, mes, anio = 2026) {
+  const rng = mulberry32(hashSeed(indicador.id, establecimientoId, mes, anio));
+  const base = biasBySlep(slep, anio);
   // Pequeño jitter por establecimiento, tendencia ascendente leve por mes
   const jitter = (rng() - 0.5) * 0.20;
   const monthBoost = (mes / 12) * 0.08;
@@ -102,20 +103,30 @@ export function colorSemaforo(logro) {
 
 // Etiqueta del semáforo
 export function labelSemaforo(logro) {
-  if (logro < 0.6) return 'Bajo lo esperado';
+  if (logro < 0.6) return 'Requiere atención';
   if (logro < 0.85) return 'En desarrollo';
   return 'En meta';
 }
 
-// Datos sintéticos preconfigurados: el mes actual del programa (mayo = mes 5)
-export const MES_ACTUAL = 5;
+// Helpers temporales
+export function currentMonth() {
+  return new Date().getMonth() + 1; // getMonth() is 0-based
+}
+
+export function lastClosedMonth() {
+  const m = currentMonth();
+  return m === 1 ? 12 : m - 1;
+}
+
+// Backwards-compat constant
+export const MES_ACTUAL = currentMonth();
 
 // Agregado: % logro por ámbito para un establecimiento dado
-export function logroPorAmbito(indicadores, establecimientoId, slep, mes = MES_ACTUAL) {
+export function logroPorAmbito(indicadores, establecimientoId, slep, mes = MES_ACTUAL, anio = 2026) {
   const porAmbito = {};
   for (const ind of indicadores) {
     if (!porAmbito[ind.ambito]) porAmbito[ind.ambito] = { suma: 0, n: 0 };
-    const { valor } = generarValorIndicador(ind, establecimientoId, slep, mes);
+    const { valor } = generarValorIndicador(ind, establecimientoId, slep, mes, anio);
     const logro = calcularLogro(valor, ind);
     porAmbito[ind.ambito].suma += Math.min(1, logro);
     porAmbito[ind.ambito].n += 1;
@@ -126,14 +137,14 @@ export function logroPorAmbito(indicadores, establecimientoId, slep, mes = MES_A
 }
 
 // Para timeseries: % logro de un ámbito mes a mes
-export function evolucionAmbito(indicadores, establecimientoId, slep, ambitoId) {
+export function evolucionAmbito(indicadores, establecimientoId, slep, ambitoId, mesHasta = MES_ACTUAL, anio = 2026) {
   const data = [];
   const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
   const indsAmbito = indicadores.filter(i => i.ambito === ambitoId);
-  for (let m = 1; m <= MES_ACTUAL; m++) {
+  for (let m = 1; m <= mesHasta; m++) {
     let suma = 0, n = 0;
     for (const ind of indsAmbito) {
-      const { valor } = generarValorIndicador(ind, establecimientoId, slep, m);
+      const { valor } = generarValorIndicador(ind, establecimientoId, slep, m, anio);
       suma += Math.min(1, calcularLogro(valor, ind));
       n += 1;
     }
@@ -143,14 +154,14 @@ export function evolucionAmbito(indicadores, establecimientoId, slep, ambitoId) 
 }
 
 // Promedio SLEP para un ámbito (para comparativa)
-export function promedioSlepAmbito(indicadores, establecimientos, slepId, ambitoId, mes = MES_ACTUAL) {
+export function promedioSlepAmbito(indicadores, establecimientos, slepId, ambitoId, mes = MES_ACTUAL, anio = 2026) {
   const filtrados = establecimientos.filter(e => e.slep === slepId);
   if (!filtrados.length) return 0;
   let suma = 0, n = 0;
   for (const est of filtrados) {
     const indsAmbito = indicadores.filter(i => i.ambito === ambitoId);
     for (const ind of indsAmbito) {
-      const { valor } = generarValorIndicador(ind, est.id, est.slep, mes);
+      const { valor } = generarValorIndicador(ind, est.id, est.slep, mes, anio);
       suma += Math.min(1, calcularLogro(valor, ind));
       n += 1;
     }

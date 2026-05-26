@@ -10,7 +10,7 @@ export const PERFILES = [
     nombre: 'Escuela',
     descripcion: 'Directora, equipo directivo',
     icono: 'school',
-    color: 'navy',
+    color: 'cyan',
     rol: 'Acceso a tu establecimiento',
     contexto: { tipo: 'establecimiento', id: 'ESC-001', programa: 'escolar' }
   },
@@ -19,26 +19,35 @@ export const PERFILES = [
     nombre: 'Jardín Infantil',
     descripcion: 'Directora, equipo educativo',
     icono: 'baby',
-    color: 'lime',
+    color: 'yellow',
     rol: 'Acceso a tu jardín',
     contexto: { tipo: 'establecimiento', id: 'JAR-001', programa: 'parvulario' }
   },
   {
     id: 'sostenedor',
     nombre: 'Sostenedor',
-    descripcion: 'SLEP',
+    descripcion: 'Sostenedor',
     icono: 'building',
-    color: 'sky',
+    color: 'magenta',
     rol: 'Acceso a tu red de establecimientos',
     contexto: { tipo: 'slep', id: 'SLEP-LP', programa: 'escolar' }
   },
   {
     id: 'consultor',
-    nombre: 'Consultor / CAP',
-    descripcion: 'Coordinación, Fundación CAP',
+    nombre: 'Consultor',
+    descripcion: 'Coordinación Focus',
     icono: 'shield',
-    color: 'navy',
+    color: 'purple',
     rol: 'Acceso completo a todos los programas',
+    contexto: { tipo: 'total', programa: 'escolar' }
+  },
+  {
+    id: 'cap',
+    nombre: 'Fundación CAP',
+    descripcion: 'Financiador del programa',
+    icono: 'award',
+    color: 'crimson',
+    rol: 'Acceso a datos cerrados del mes anterior',
     contexto: { tipo: 'total', programa: 'escolar' }
   },
 ];

@@ -2,7 +2,7 @@
 
 ## Qué es esto
 
-Prototipo navegable de los dashboards del **Programa Aprender en Familia (PAF)** que opera Consultora Focus con financiamiento de Fundación CAP. Cliente: **Luis Agurto · Consultora Focus**. Reunión clave: **lunes 25 mayo en la tarde**.
+Prototipo navegable de los dashboards del **Programa Aprender en Familia (PAF)** que opera Consultora Focus junto a Fundación CAP. Cliente: **Luis Agurto · Consultora Focus**. Reunión clave: **lunes 25 mayo en la tarde**.
 
 El objetivo del mock NO es producto final. Es **validar look & feel, modelo de visualización y arquitectura de accesos** con el cliente antes de implementar en Superset + Supabase. Los datos son sintéticos pero consistentes con la estructura real de indicadores y establecimientos del programa.
 
@@ -81,7 +81,7 @@ Tailwind tiene estos colores configurados con escala 50-900 para navy/sky/lime.
 15. ✅ **YoY toggle en VistaConsultor** — state `yoy` (boolean). Default: `true` para CAP, `false` para consultor. Toggle UI en sección de filtros. Cuando ON: ámbito cards muestran "2025: XX%" + delta en pp (cyan si positivo, red si negativo) en esquina inferior derecha. Bar chart de sostenedores agrega serie 2025 con `fillOpacity: 0.35`.
 16. ✅ **Año en `generarValorIndicador`** — parámetro `anio` (default 2026) incluido en `hashSeed` para datos determinísticos por año. `biasBySlep(slep, anio)` resta 0.10 a todos los sostenedores cuando `anio === 2025`, produciendo resultados visiblemente menores. `logroPorAmbito`, `evolucionAmbito`, `promedioSlepAmbito` reciben `anio` opcional.
 17. ✅ **Comparador side-by-side en VistaConsultor** — sección "Comparación entre períodos" con dos dropdowns (opciones Enero–Diciembre 2025 y 2026). Defaults: CAP → Abril 2025 vs Abril 2026; consultor → Mayo 2025 vs Mayo 2026. Layout: dos columnas de AmbitoCards + bar chart comparativo con ambos períodos como series.
-18. ✅ **Decisiones no especificadas**: icono CAP = `Award` de lucide-react (elegido por connotación de "financiador"); comparador de períodos colocado antes de la tabla de establecimientos (mejor flujo narrativo: primero big picture → detalle); 2025 en bar chart usa mismo color con opacidad reducida (más limpio que barras de color distinto).
+18. ✅ **Decisiones no especificadas**: icono CAP = `Award` de lucide-react; comparador de períodos colocado antes de la tabla de establecimientos (mejor flujo narrativo: primero big picture → detalle); 2025 en bar chart usa mismo color con opacidad reducida (más limpio que barras de color distinto).
 
 ## Mejoras realizadas (sesión 6 — post-demo, sub-indicadores en todos los perfiles)
 

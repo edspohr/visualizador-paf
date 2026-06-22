@@ -1,22 +1,22 @@
 import { useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { X } from 'lucide-react';
-import { ESCUELAS, JARDINES, SLEPS, generarValorIndicador, calcularLogro, colorSemaforo } from '../data/establecimientos.js';
-import { expectedToDate, formatValue } from '../data/expectedValue.js';
-import { IndicatorProgress, SemaforoBadge, TipoBadge } from './Shared.jsx';
+import { ESCUELAS, JARDINES, SLEPS, generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
+import { formatValue } from '../data/expectedValue.js';
+import { IndicatorProgress } from './Shared.jsx';
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
-// Average raw value for an indicator across all establishments of a sostenedor
-function promedioSlepIndicador(indicador, slepId, mes) {
-  const todos = [...ESCUELAS, ...JARDINES].filter(e => e.slep === slepId);
-  if (!todos.length) return 0;
-  let suma = 0;
-  for (const est of todos) {
-    const { valor } = generarValorIndicador(indicador, est.id, est.slep, mes);
-    suma += valor;
+// Average raw value for an indicator across all establishments of a sostenedor (same tipo)
+function promedioSostenedorIndicador(indicador, slepId, mes, tipo) {
+  const todos = [...ESCUELAS, ...JARDINES].filter(e => e.slep === slepId && e.tipo === tipo);
+  if (!todos.length) return null;
+  let suma = 0, n = 0;
+  for (const e of todos) {
+    const { valor } = generarValorIndicador(indicador, e.id, e.slep, mes);
+    if (valor !== null) { suma += valor; n++; }
   }
-  return suma / todos.length;
+  return n ? suma / n : null;
 }
 
 function yAxisFormatter(unidad) {
@@ -27,43 +27,41 @@ function yAxisFormatter(unidad) {
   };
 }
 
-function semColorHex(semaforo) {
-  return { lime: 'rgb(0,138,201)', amber: 'rgb(255,180,0)', red: 'rgb(228,21,105)' }[semaforo] ?? 'rgb(0,138,201)';
-}
-
 export default function IndicatorDrilldown({ indicador, establecimientoId, slep, effectiveMonth, perfil, onClose }) {
-  // Escape key closes modal
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
+  const est = [...ESCUELAS, ...JARDINES].find(e => e.id === establecimientoId);
+
   // Current value
   const { valor } = generarValorIndicador(indicador, establecimientoId, slep, effectiveMonth);
-  const logro = calcularLogro(valor, indicador);
-  const semaforo = colorSemaforo(logro);
-  const lineColor = semColorHex(semaforo);
+  const promTerritorio = est ? promedioTerritorioIndicador(indicador, est, effectiveMonth) : null;
 
-  // Evolution data: one point per month from 1 to effectiveMonth
+  // Evolution data: este establecimiento vs promedio mensual del territorio
   const evol = [];
   for (let m = 1; m <= effectiveMonth; m++) {
     const { valor: v } = generarValorIndicador(indicador, establecimientoId, slep, m);
+    const promMes = est ? promedioTerritorioIndicador(indicador, est, m) : null;
+
+    const fmt = (raw) => {
+      if (raw === null) return null;
+      if (indicador.unidad === '%') return Math.round(raw * 100) / 100;
+      if (indicador.unidad === 'binario') return raw ? 1 : 0;
+      return Math.round(raw * 10) / 10;
+    };
+
     evol.push({
       mes: MESES[m - 1],
-      Actual: indicador.unidad === '%' ? Math.round(v * 100) / 100
-             : indicador.unidad === 'binario' ? (v ? 1 : 0)
-             : Math.round(v * 10) / 10,
-      Esperado: (() => {
-        const exp = expectedToDate(indicador, m);
-        if (indicador.unidad === '%') return Math.round(exp * 100) / 100;
-        if (indicador.unidad === 'binario') return exp;
-        return Math.round(exp * 10) / 10;
-      })(),
+      'Este establecimiento': fmt(v),
+      'Promedio del territorio': fmt(promMes),
     });
   }
 
   const showSostenedorTable = perfil === 'consultor' || perfil === 'cap';
+  const tipo = est?.tipo ?? 'Escuela';
 
   return (
     <div
@@ -81,8 +79,6 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
               <div className="flex items-center gap-2 flex-wrap mb-1">
                 <span className="text-xs font-mono text-gray-ui">{indicador.id}</span>
                 <span className="tag tag-navy">{indicador.ambito}</span>
-                <TipoBadge tipo={indicador.tipo}/>
-                <SemaforoBadge logro={logro}/>
               </div>
               <h2 className="text-lg font-medium text-gray-dark leading-snug">{indicador.nombre}</h2>
               <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-ui mt-1.5">
@@ -101,16 +97,23 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
           </div>
         </div>
 
-        {/* Hero: enlarged IndicatorProgress */}
+        {/* Hero: two-bar IndicatorProgress */}
         <div className="px-6 py-5 border-b border-border">
-          <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-3">Situación actual · {MESES[effectiveMonth - 1]} {new Date().getFullYear()}</p>
-          <IndicatorProgress indicador={indicador} valor={valor} mes={effectiveMonth} large/>
+          <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-3">
+            Situación actual · {MESES[effectiveMonth - 1]} {new Date().getFullYear()}
+          </p>
+          <IndicatorProgress
+            indicador={indicador}
+            valor={valor}
+            promedioTerritorio={promTerritorio}
+            large
+          />
         </div>
 
-        {/* Evolution chart */}
+        {/* Evolution chart: este establecimiento vs promedio del territorio */}
         <div className="px-6 py-5 border-b border-border">
           <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Evolución mensual</p>
-          <p className="text-sm text-gray-dark mb-4">Valor real vs esperado acumulado según frecuencia</p>
+          <p className="text-sm text-gray-dark mb-4">Este establecimiento vs promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio</p>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={evol} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
@@ -127,8 +130,23 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                   ]}
                 />
                 <Legend wrapperStyle={{ fontSize: 12 }}/>
-                <Line type="monotone" dataKey="Actual" stroke={lineColor} strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }}/>
-                <Line type="monotone" dataKey="Esperado" stroke="#9CA3AF" strokeWidth={1.5} strokeDasharray="5 5" dot={false}/>
+                <Line
+                  type="monotone"
+                  dataKey="Este establecimiento"
+                  stroke="var(--color-cyan)"
+                  strokeWidth={2.5}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                  connectNulls
+                />
+                <Line
+                  type="monotone"
+                  dataKey="Promedio del territorio"
+                  stroke="var(--color-gray-light)"
+                  strokeWidth={2}
+                  dot={false}
+                  connectNulls
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -138,28 +156,23 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
         {showSostenedorTable && (
           <div className="px-6 py-5">
             <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre sostenedores</p>
-            <p className="text-sm text-gray-dark mb-3">Promedio de establecimientos por red</p>
+            <p className="text-sm text-gray-dark mb-3">Promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} por red</p>
             <div className="overflow-x-auto -mx-1">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-border text-left text-xs text-gray-ui uppercase tracking-wider">
                     <th className="py-2 pr-3 font-medium">Sostenedor</th>
-                    <th className="py-2 px-3 font-medium text-right">Actual</th>
-                    <th className="py-2 px-3 font-medium text-right">Esperado</th>
-                    <th className="py-2 pl-3 font-medium">Estado</th>
+                    <th className="py-2 pl-3 font-medium text-right">Promedio</th>
                   </tr>
                 </thead>
                 <tbody>
                   {SLEPS.map(s => {
-                    const avg = promedioSlepIndicador(indicador, s.id, effectiveMonth);
-                    const exp = expectedToDate(indicador, effectiveMonth);
-                    const logroS = calcularLogro(avg, indicador);
+                    const avg = promedioSostenedorIndicador(indicador, s.id, effectiveMonth, tipo);
+                    if (avg === null) return null;
                     return (
                       <tr key={s.id} className="border-b border-border hover:bg-bg transition">
                         <td className="py-2.5 pr-3 font-medium text-gray-dark">{s.nombre.replace(/^SLEP\s+/, '')}</td>
-                        <td className="py-2.5 px-3 text-right font-medium">{formatValue(indicador, avg)}</td>
-                        <td className="py-2.5 px-3 text-right text-gray-ui">{formatValue(indicador, exp)}</td>
-                        <td className="py-2.5 pl-3"><SemaforoBadge logro={logroS}/></td>
+                        <td className="py-2.5 pl-3 text-right font-medium text-gray-dark">{formatValue(indicador, avg)}</td>
                       </tr>
                     );
                   })}

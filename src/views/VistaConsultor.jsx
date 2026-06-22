@@ -1,12 +1,15 @@
 import { useState, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useApp } from '../lib/context.jsx';
 import { AMBITOS_ESCOLAR, AMBITOS_PARVULARIO, INDICADORES_ESCOLAR, INDICADORES_PARVULARIO } from '../data/indicadores.js';
-import { ESCUELAS, JARDINES, SLEPS, logroPorAmbito, currentMonth, lastClosedMonth } from '../data/establecimientos.js';
-import { AmbitoCard, KpiCard, SemaforoBadge, PageHeader } from '../components/Shared.jsx';
+import { ESCUELAS, JARDINES, SLEPS, logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth, anioImplementacion } from '../data/establecimientos.js';
+import { KpiCard } from '../components/Shared.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
-import { Filter, Users, Building2, Award, TrendingUp, TrendingDown, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
+import IndicatorRanking from '../components/IndicatorRanking.jsx';
+import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
+import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows, ToggleLeft, ToggleRight } from 'lucide-react';
+import Glosario from '../components/Glosario.jsx';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -18,61 +21,6 @@ function fechaFormateada(mes) {
   const year = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
   const lastDay = new Date(year, mes, 0).getDate();
   return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${year}`;
-}
-
-function logrosNacionales(INDS, AMBITOS, filtrados, mes, anio) {
-  return Object.fromEntries(
-    AMBITOS.map(a => {
-      const vals = filtrados.map(e => {
-        const r = logroPorAmbito(INDS, e.id, e.slep, mes, anio);
-        return r[a.id] ?? 0;
-      });
-      return [a.id, vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : 0];
-    })
-  );
-}
-
-function buildPeriodOptions() {
-  const opts = [];
-  for (const anio of [2025, 2026]) {
-    for (let m = 1; m <= 12; m++) {
-      opts.push({ value: `${anio}-${m}`, label: `${NOMBRES_MES[m - 1]} ${anio}`, mes: m, anio });
-    }
-  }
-  return opts;
-}
-const PERIOD_OPTIONS = buildPeriodOptions();
-
-// Single-bar tooltip — only shows the hovered series
-function SingleBarTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null;
-  const item = payload[0];
-  return (
-    <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 12px', fontSize: 12 }}>
-      <p style={{ color: '#6B7280', marginBottom: 4 }}>{label}</p>
-      <p style={{ fontWeight: 600, color: '#333' }}>{item.name}: {item.value}%</p>
-    </div>
-  );
-}
-
-// Collapsible wrapper
-function Collapsible({ title, eyebrow, defaultOpen = false, children }) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="card mb-8">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between gap-3 text-left"
-      >
-        <div>
-          <p className="text-xs font-medium tracking-wider uppercase text-gray-ui">{eyebrow}</p>
-          <h3 className="text-lg text-gray-dark">{title}</h3>
-        </div>
-        {open ? <ChevronUp size={18} className="text-gray-ui shrink-0"/> : <ChevronDown size={18} className="text-gray-ui shrink-0"/>}
-      </button>
-      {open && <div className="mt-5">{children}</div>}
-    </div>
-  );
 }
 
 export default function VistaConsultor() {
@@ -87,61 +35,29 @@ export default function VistaConsultor() {
 
   const [filtroSlep, setFiltroSlep] = useState('TODOS');
   const [filtroCohorte, setFiltroCohorte] = useState('TODAS');
-  const [drilldown, setDrilldown] = useState(null); // { ind, estId, slepId }
-
-  const defaultLeft  = isCAP ? `2025-${lastClosedMonth()}` : `2025-${currentMonth()}`;
-  const defaultRight = isCAP ? `2026-${lastClosedMonth()}` : `2026-${currentMonth()}`;
-  const [periodoA, setPeriodoA] = useState(defaultLeft);
-  const [periodoB, setPeriodoB] = useState(defaultRight);
+  const [filtroAnio, setFiltroAnio] = useState('TODOS');
+  const [filtroComuna, setFiltroComuna] = useState('TODAS');
+  const [drilldown, setDrilldown] = useState(null);
+  const [comparadorOpen, setComparadorOpen] = useState(false);
+  const [agruparConsultor, setAgruparConsultor] = useState(false);
 
   const filtrados = useMemo(() => todos.filter(e =>
     (filtroSlep === 'TODOS' || e.slep === filtroSlep) &&
-    (filtroCohorte === 'TODAS' || e.cohorte === filtroCohorte)
-  ), [todos, filtroSlep, filtroCohorte]);
+    (filtroCohorte === 'TODAS' || e.cohorte === filtroCohorte) &&
+    (filtroAnio === 'TODOS' || anioImplementacion(e, effectiveMonth <= 4 ? 2025 : 2026) === Number(filtroAnio)) &&
+    (filtroComuna === 'TODAS' || e.comuna === filtroComuna)
+  ), [todos, filtroSlep, filtroCohorte, filtroAnio, filtroComuna, effectiveMonth]);
 
   const slepsDisponibles = [...new Set(todos.map(e => e.slep))].map(id => SLEPS.find(s => s.id === id)).filter(Boolean);
   const cohortesDisponibles = [...new Set(todos.map(e => e.cohorte))];
+  const aniosDisponibles = [...new Set(todos.map(e => anioImplementacion(e, effectiveMonth <= 4 ? 2025 : 2026)))].sort();
+  const comunasDisponibles = [...new Set(todos.map(e => e.comuna))].sort();
 
-  // 2026 logros
-  const conLogros = filtrados.map(e => {
+  const conLogros = useMemo(() => filtrados.map(e => {
     const logros = logroPorAmbito(INDS, e.id, e.slep, effectiveMonth, 2026);
     const promedio = Object.values(logros).reduce((a, b) => a + b, 0) / AMBITOS.length;
     return { est: e, logros, promedio };
-  });
-
-  const logrosNacional = Object.fromEntries(
-    AMBITOS.map(a => {
-      const vals = conLogros.map(c => c.logros[a.id]);
-      return [a.id, vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : 0];
-    })
-  );
-  const logroGlobal = Object.values(logrosNacional).reduce((a, b) => a + b, 0) / AMBITOS.length;
-
-  // 2025 logros — always computed for YoY display
-  const logrosNacional2025 = useMemo(() =>
-    logrosNacionales(INDS, AMBITOS, filtrados, effectiveMonth, 2025),
-    [INDS, AMBITOS, filtrados, effectiveMonth]
-  );
-
-  // Sostenedor bar chart — always shows both years
-  const porSlep = slepsDisponibles.map(s => {
-    const ests = conLogros.filter(c => c.est.slep === s.id);
-    if (!ests.length) return null;
-    const logrosA26 = Object.fromEntries(
-      AMBITOS.map(a => [a.id, ests.reduce((sum, e) => sum + e.logros[a.id], 0) / ests.length])
-    );
-    const ests25 = filtrados.filter(e => e.slep === s.id);
-    const logrosA25 = Object.fromEntries(
-      AMBITOS.map(a => {
-        const vals = ests25.map(e => {
-          const r = logroPorAmbito(INDS, e.id, e.slep, effectiveMonth, 2025);
-          return r[a.id] ?? 0;
-        });
-        return [a.id, vals.length ? vals.reduce((x, y) => x + y, 0) / vals.length : 0];
-      })
-    );
-    return { slep: s, logros: logrosA26, logros2025: logrosA25 };
-  }).filter(Boolean);
+  }), [filtrados, INDS, AMBITOS, effectiveMonth]);
 
   const distribucion = {
     enMeta: conLogros.filter(c => c.promedio >= 0.85).length,
@@ -149,30 +65,31 @@ export default function VistaConsultor() {
     bajo: conLogros.filter(c => c.promedio < 0.6).length,
   };
 
-  // Best and worst ámbito nationally
-  const ambitosSorted = AMBITOS.map(a => ({ ambito: a, logro: logrosNacional[a.id] ?? 0 }))
-    .sort((a, b) => b.logro - a.logro);
-  const mejorAmbito  = ambitosSorted[0];
-  const criticoAmbito = ambitosSorted[ambitosSorted.length - 1];
+  // Ranking items: average each indicator across all filtered establishments
+  const rankingItems = useMemo(() => INDS
+    .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+    .map(ind => {
+      const vals = filtrados.map(e => {
+        const { valor } = generarValorIndicador(ind, e.id, e.slep, effectiveMonth);
+        return { valor, logro: calcularLogro(valor, ind) ?? 0 };
+      });
+      const valor = vals.length ? vals.reduce((s, v) => s + (v.valor ?? 0), 0) / vals.length : 0;
+      const ratio = vals.length ? vals.reduce((s, v) => s + v.logro, 0) / vals.length : 0;
+      return { indicador: ind, valor, ratio };
+    }), [INDS, filtrados, effectiveMonth]);
 
-  // Sostenedor with highest average YoY improvement
-  const mayorAvanceSlep = porSlep.length ? porSlep.map(p => {
-    const delta = AMBITOS.reduce((s, a) => s + ((p.logros[a.id] ?? 0) - (p.logros2025[a.id] ?? 0)), 0) / AMBITOS.length;
-    return { nombre: p.slep.nombre.replace(/^SLEP\s+/, ''), delta };
-  }).sort((a, b) => b.delta - a.delta)[0] : null;
+  // Totals strip (reacts to filters)
+  const totales = useMemo(() => ({
+    establecimientos: filtrados.length,
+    ninos: filtrados.reduce((s, e) => s + (e.nNinos ?? 0), 0),
+    agentes: filtrados.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
+    comunas: new Set(filtrados.map(e => e.comuna)).size,
+  }), [filtrados]);
 
-  // Period comparator
-  const parsePeriod = (v) => PERIOD_OPTIONS.find(o => o.value === v) ?? { mes: effectiveMonth, anio: 2026 };
-  const pA = parsePeriod(periodoA);
-  const pB = parsePeriod(periodoB);
-  const logrosPA = useMemo(() => logrosNacionales(INDS, AMBITOS, filtrados, pA.mes, pA.anio), [INDS, AMBITOS, filtrados, pA.mes, pA.anio]);
-  const logosPB = useMemo(() => logrosNacionales(INDS, AMBITOS, filtrados, pB.mes, pB.anio), [INDS, AMBITOS, filtrados, pB.mes, pB.anio]);
+  // breakdownBy: use sostenedor when viewing all, establecimiento when filtered to one
+  const breakdownBy = filtroSlep === 'TODOS' ? 'sostenedor' : 'establecimiento';
 
-  const ambitoColors = ['rgb(0,138,201)', 'rgb(228,21,105)', 'rgb(255,220,0)', 'rgb(179,67,120)'];
   const selectCls = "w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none";
-
-  const labelA = PERIOD_OPTIONS.find(o => o.value === periodoA)?.label ?? 'A';
-  const labelB = PERIOD_OPTIONS.find(o => o.value === periodoB)?.label ?? 'B';
 
   return (
     <>
@@ -187,8 +104,8 @@ export default function VistaConsultor() {
             </p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
-            <p className="text-xs text-white/60 leading-none">LOGRO PROMEDIO</p>
-            <p className="font-medium mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
+            <p className="text-xs text-white/60 leading-none">ESTABLECIMIENTOS</p>
+            <p className="font-medium mt-1 text-lg leading-none">{filtrados.length}</p>
           </div>
         </div>
       ) : (
@@ -199,178 +116,114 @@ export default function VistaConsultor() {
             <p className="text-white/70 mt-1 text-sm">Datos actualizados al {fechaFormateada(effectiveMonth)} · Vista agregada con acceso a todos los cruces.</p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
-            <p className="text-xs text-white/60 leading-none">LOGRO PROMEDIO</p>
-            <p className="font-medium mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
+            <p className="text-xs text-white/60 leading-none">ESTABLECIMIENTOS</p>
+            <p className="font-medium mt-1 text-lg leading-none">{filtrados.length}</p>
           </div>
         </div>
       )}
 
       {/* Filtros */}
       <div className="card mb-6">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-2 font-medium text-sm">
+        <div className="flex flex-wrap items-start gap-4">
+          <div className="flex items-center gap-2 font-medium text-sm pt-6">
             <Filter size={16}/> Filtros
           </div>
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-0">
             <div>
               <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Sostenedor</label>
               <select value={filtroSlep} onChange={(e) => setFiltroSlep(e.target.value)} className={selectCls}>
-                <option value="TODOS">Todos los sostenedores</option>
+                <option value="TODOS">Todos</option>
                 {slepsDisponibles.map(s => <option key={s.id} value={s.id}>{s.nombre.replace(/^SLEP\s+/, '')}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Cohorte</label>
               <select value={filtroCohorte} onChange={(e) => setFiltroCohorte(e.target.value)} className={selectCls}>
-                <option value="TODAS">Todas las cohortes</option>
+                <option value="TODAS">Todas</option>
                 {cohortesDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Año de implementación</label>
+              <select value={filtroAnio} onChange={(e) => setFiltroAnio(e.target.value)} className={selectCls}>
+                <option value="TODOS">Todos</option>
+                {aniosDisponibles.map(a => <option key={a} value={a}>Año {a}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Comuna</label>
+              <select value={filtroComuna} onChange={(e) => setFiltroComuna(e.target.value)} className={selectCls}>
+                <option value="TODAS">Todas</option>
+                {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <KpiCard
-          label="Establecimientos"
-          value={filtrados.length}
-          sublabel={`${distribucion.enMeta} en meta · ${distribucion.enDesarrollo} en desarrollo · ${distribucion.bajo} requieren atención`}
-          icon={Building2}
-        />
-        <KpiCard
-          label="Mejor ámbito"
-          value={mejorAmbito ? `${Math.round(mejorAmbito.logro * 100)}%` : '—'}
-          sublabel={mejorAmbito?.ambito.nombre ?? ''}
-          icon={Award}
-          color="lime"
-        />
-        <KpiCard
-          label="Ámbito crítico"
-          value={criticoAmbito ? `${Math.round(criticoAmbito.logro * 100)}%` : '—'}
-          sublabel={criticoAmbito?.ambito.nombre ?? ''}
-          icon={AlertTriangle}
-          color="magenta"
-        />
-        <KpiCard
-          label="Mayor avance YoY"
-          value={mayorAvanceSlep ? `${mayorAvanceSlep.delta >= 0 ? '+' : ''}${Math.round(mayorAvanceSlep.delta * 100)} pp` : '—'}
-          sublabel={mayorAvanceSlep?.nombre ?? 'Sin datos'}
-          icon={TrendingUp}
-          color="sky"
-        />
+      {/* Totals strip — reacts to active filters */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <TotalCard label="Establecimientos" value={totales.establecimientos} sub={`${distribucion.enMeta} en meta · ${distribucion.enDesarrollo} en desarrollo · ${distribucion.bajo} en camino`} Icon={Building2}/>
+        <TotalCard label="Niños y niñas" value={totales.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
+        <TotalCard label="Agentes educativos" value={totales.agentes} sub="en el programa" Icon={Users}/>
+        <TotalCard label="Comunas" value={totales.comunas} sub="con cobertura activa" Icon={MapPin}/>
       </div>
 
-      {/* Ámbito cards — YoY always shown */}
-      <PageHeader
-        eyebrow="VISTA EJECUTIVA"
-        title="Logro nacional por ámbito · 2026 vs 2025"
-        subtitle={`Promedio agregado de ${filtrados.length} establecimientos. Los valores 2025 muestran la evolución año a año.`}
+      {/* Top-3 / Bottom-3 por indicador (promedio del conjunto filtrado) */}
+      <IndicatorRanking items={rankingItems} title="Indicadores del programa"/>
+
+      {/* Selector de indicador + gráfico comparativo */}
+      <IndicatorAveragePicker
+        INDS={INDS}
+        establecimientos={filtrados}
+        mes={effectiveMonth}
+        breakdownBy={breakdownBy}
       />
-      <div className={`grid grid-cols-1 sm:grid-cols-2 ${AMBITOS.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 mb-8`}>
-        {AMBITOS.map(a => {
-          const logro2026 = logrosNacional[a.id];
-          const logro2025 = logrosNacional2025[a.id] ?? 0;
-          const delta = Math.round((logro2026 - logro2025) * 100);
-          return (
-            <AmbitoCard key={a.id} ambito={a} logro={logro2026} yoy={{ logro2025, delta }}/>
-          );
-        })}
+
+      {/* Comparador por indicador */}
+      <div className="card mb-6">
+        <button
+          onClick={() => setComparadorOpen(o => !o)}
+          className="w-full flex items-center justify-between text-left"
+        >
+          <div className="flex items-center gap-2">
+            <GitCompareArrows size={16} style={{ color: 'var(--color-cyan)' }}/>
+            <span className="text-sm font-medium text-gray-dark">Comparación por indicador</span>
+          </div>
+          {comparadorOpen ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
+        </button>
+        {comparadorOpen && (
+          <ComparadorIndicador
+            INDS={INDS}
+            AMBITOS={AMBITOS}
+            todos={todos}
+            slepsDisponibles={slepsDisponibles}
+            cohortesDisponibles={cohortesDisponibles}
+            aniosDisponibles={aniosDisponibles}
+            comunasDisponibles={comunasDisponibles}
+            defaultMes={effectiveMonth}
+          />
+        )}
       </div>
 
-      {/* Sostenedor comparison bar chart — always 2025+2026 */}
-      <div className="card mb-8">
-        <div className="mb-4">
-          <p className="text-xs font-medium tracking-wider uppercase">Comparativa entre sostenedores</p>
-          <h3 className="text-lg text-gray-dark">Logro por sostenedor y ámbito · 2025 vs 2026</h3>
-        </div>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={porSlep.map(p => {
-                const row = { slep: p.slep.nombre.replace(/^SLEP\s+/, '') };
-                AMBITOS.forEach(a => {
-                  row[`${a.codigo} 2026`] = Math.round(p.logros[a.id] * 100);
-                  row[`${a.codigo} 2025`] = Math.round(p.logros2025[a.id] * 100);
-                });
-                return row;
-              })}
-              margin={{ top: 10, right: 20, bottom: 0, left: -10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
-              <XAxis dataKey="slep" stroke="#6B7280" fontSize={12}/>
-              <YAxis stroke="#6B7280" fontSize={12} domain={[0, 100]} unit="%"/>
-              <Tooltip content={<SingleBarTooltip />}/>
-              <Legend wrapperStyle={{ fontSize: 12 }}/>
-              {AMBITOS.map((a, i) => (
-                <Bar key={`${a.id}-2026`} dataKey={`${a.codigo} 2026`} fill={ambitoColors[i % ambitoColors.length]} radius={[4,4,0,0]}/>
-              ))}
-              {AMBITOS.map((a, i) => (
-                <Bar key={`${a.id}-2025`} dataKey={`${a.codigo} 2025`} fill={ambitoColors[i % ambitoColors.length]} fillOpacity={0.35} radius={[4,4,0,0]}/>
-              ))}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Period comparator — collapsible */}
-      <Collapsible eyebrow="Análisis temporal" title="Comparación entre períodos" defaultOpen={false}>
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Período A</label>
-            <select value={periodoA} onChange={e => setPeriodoA(e.target.value)} className={selectCls}>
-              {PERIOD_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Período B</label>
-            <select value={periodoB} onChange={e => setPeriodoB(e.target.value)} className={selectCls}>
-              {PERIOD_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <p className="text-xs font-medium text-gray-ui uppercase tracking-wider mb-3">{labelA}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {AMBITOS.map(a => <AmbitoCard key={a.id} ambito={a} logro={logrosPA[a.id]}/>)}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-gray-ui uppercase tracking-wider mb-3">{labelB}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {AMBITOS.map(a => <AmbitoCard key={a.id} ambito={a} logro={logosPB[a.id]}/>)}
-            </div>
-          </div>
-        </div>
-        <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={AMBITOS.map(a => ({
-                ambito: a.codigo,
-                [labelA]: Math.round(logrosPA[a.id] * 100),
-                [labelB]: Math.round(logosPB[a.id] * 100),
-              }))}
-              margin={{ top: 4, right: 16, bottom: 0, left: -10 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
-              <XAxis dataKey="ambito" stroke="#6B7280" fontSize={12}/>
-              <YAxis stroke="#6B7280" fontSize={12} domain={[0, 100]} unit="%"/>
-              <Tooltip content={<SingleBarTooltip />}/>
-              <Legend wrapperStyle={{ fontSize: 12 }}/>
-              <Bar dataKey={labelA} fill="rgb(0,138,201)" radius={[4,4,0,0]}/>
-              <Bar dataKey={labelB} fill="rgb(228,21,105)" radius={[4,4,0,0]}/>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Collapsible>
-
-      {/* Establishment table with collapsible indicator drill-down per row */}
+      {/* Lista de establecimientos */}
       <div className="card">
-        <div className="mb-4">
-          <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
-          <h3 className="text-lg text-gray-dark">Todos los establecimientos filtrados</h3>
-          <p className="text-sm text-gray-ui mt-1">Haz clic en un establecimiento para ver sus indicadores.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
+            <h3 className="text-lg text-gray-dark">Todos los establecimientos filtrados</h3>
+            <p className="text-sm text-gray-ui mt-1">Haz clic en un establecimiento para ver sus indicadores.</p>
+          </div>
+          <button
+            onClick={() => setAgruparConsultor(v => !v)}
+            className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-xl border border-border hover:bg-bg transition shrink-0"
+            style={agruparConsultor ? { borderColor: 'var(--color-cyan)', color: 'var(--color-cyan)' } : {}}
+          >
+            {agruparConsultor
+              ? <ToggleRight size={16} style={{ color: 'var(--color-cyan)' }}/>
+              : <ToggleLeft size={16} className="text-gray-ui"/>}
+            Agrupar por consultor
+          </button>
         </div>
         <EstablecimientoList
           conLogros={conLogros}
@@ -378,9 +231,12 @@ export default function VistaConsultor() {
           INDS={INDS}
           effectiveMonth={effectiveMonth}
           perfil={perfil.id}
+          agruparConsultor={agruparConsultor}
           onDrilldown={(ind, estId, slepId) => setDrilldown({ ind, estId, slepId })}
         />
       </div>
+
+      <Glosario />
 
       {drilldown && (
         <IndicatorDrilldown
@@ -396,66 +252,347 @@ export default function VistaConsultor() {
   );
 }
 
-// Establishment rows with collapsible indicator panel per row
-function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, onDrilldown }) {
-  const [openEst, setOpenEst] = useState({});
-  const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
+// ─── TotalCard ───────────────────────────────────────────────────────────────
+
+function TotalCard({ label, value, sub, Icon }) {
+  return (
+    <div className="card py-4 px-4 flex items-start gap-3 mb-0">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-cyan-50">
+        <Icon size={16} style={{ color: 'var(--color-cyan)' }}/>
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-ui leading-none mb-1">{label}</p>
+        <p className="text-2xl font-medium text-gray-dark leading-none">{value}</p>
+        {sub && <p className="text-[10px] text-gray-ui mt-1 leading-snug">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Comparador por indicador ────────────────────────────────────────────────
+
+const MESES_OPTS = [
+  { v: 1, l: 'Enero' }, { v: 2, l: 'Febrero' }, { v: 3, l: 'Marzo' },
+  { v: 4, l: 'Abril' }, { v: 5, l: 'Mayo' }, { v: 6, l: 'Junio' },
+  { v: 7, l: 'Julio' }, { v: 8, l: 'Agosto' }, { v: 9, l: 'Septiembre' },
+  { v: 10, l: 'Octubre' }, { v: 11, l: 'Noviembre' }, { v: 12, l: 'Diciembre' },
+];
+
+function filtrarEstablecimientos(todos, { slep, cohorte, anio, comuna, mes, year }) {
+  return todos.filter(e =>
+    (slep === 'TODOS' || e.slep === slep) &&
+    (cohorte === 'TODAS' || e.cohorte === cohorte) &&
+    (anio === 'TODOS' || anioImplementacion(e, year) === Number(anio)) &&
+    (comuna === 'TODAS' || e.comuna === comuna)
+  );
+}
+
+function buildLabel({ slep, cohorte, anio, comuna, mes, year }) {
+  const parts = [];
+  if (slep !== 'TODOS') parts.push(SLEPS.find(s => s.id === slep)?.nombre.replace(/^SLEP\s+/, '') ?? slep);
+  if (cohorte !== 'TODAS') parts.push(`Cohorte ${cohorte}`);
+  if (anio !== 'TODOS') parts.push(`Año ${anio}`);
+  if (comuna !== 'TODAS') parts.push(comuna);
+  parts.push(`${NOMBRES_MES[mes - 1]} ${year}`);
+  return parts.join(' · ');
+}
+
+function computeSideData(todos, filters, INDS, ambitoScope) {
+  const ests = filtrarEstablecimientos(todos, filters);
+  const inds = INDS.filter(ind =>
+    ind.unidad !== 'sin_meta' &&
+    ind.metaNum !== null &&
+    (ambitoScope === 'TODOS' || ind.ambito === ambitoScope)
+  );
+  return inds.map(ind => {
+    const logros = ests.map(e => {
+      const { valor } = generarValorIndicador(ind, e.id, e.slep, filters.mes, filters.year);
+      return calcularLogro(valor, ind) ?? 0;
+    });
+    const ratio = logros.length ? logros.reduce((s, v) => s + v, 0) / logros.length : 0;
+    return { id: ind.id, nombre: ind.id, ratio: Math.round(ratio * 100) };
+  });
+}
+
+function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohortesDisponibles, aniosDisponibles, comunasDisponibles, AMBITOS }) {
+  const sc = "w-full px-2 py-1.5 border border-border rounded-lg text-xs bg-white text-gray-dark outline-none";
+  return (
+    <div className="flex-1 min-w-0 border rounded-xl p-3" style={{ borderColor: color }}>
+      <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color }}>{label}</p>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Mes</label>
+          <select value={filters.mes} onChange={e => onChange({ ...filters, mes: Number(e.target.value) })} className={sc}>
+            {MESES_OPTS.map(m => <option key={m.v} value={m.v}>{m.l}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Año</label>
+          <select value={filters.year} onChange={e => onChange({ ...filters, year: Number(e.target.value) })} className={sc}>
+            <option value={2025}>2025</option>
+            <option value={2026}>2026</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Sostenedor</label>
+          <select value={filters.slep} onChange={e => onChange({ ...filters, slep: e.target.value })} className={sc}>
+            <option value="TODOS">Todos</option>
+            {slepsDisponibles.map(s => <option key={s.id} value={s.id}>{s.nombre.replace(/^SLEP\s+/, '')}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Cohorte</label>
+          <select value={filters.cohorte} onChange={e => onChange({ ...filters, cohorte: e.target.value })} className={sc}>
+            <option value="TODAS">Todas</option>
+            {cohortesDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Año impl.</label>
+          <select value={filters.anio} onChange={e => onChange({ ...filters, anio: e.target.value })} className={sc}>
+            <option value="TODOS">Todos</option>
+            {aniosDisponibles.map(a => <option key={a} value={a}>Año {a}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Comuna</label>
+          <select value={filters.comuna} onChange={e => onChange({ ...filters, comuna: e.target.value })} className={sc}>
+            <option value="TODAS">Todas</option>
+            {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div className="col-span-2">
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Ámbito (alcance)</label>
+          <select value={filters.ambitoScope} onChange={e => onChange({ ...filters, ambitoScope: e.target.value })} className={sc}>
+            <option value="TODOS">Todos los ámbitos</option>
+            {AMBITOS.map(a => <option key={a.id} value={a.id}>{a.id} · {a.nombre}</option>)}
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, aniosDisponibles, comunasDisponibles, defaultMes }) {
+  const defaultYear = new Date().getFullYear();
+  const initA = { mes: defaultMes, year: defaultYear, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+  const initB = { mes: defaultMes, year: defaultYear - 1, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+  const [filtersA, setFiltersA] = useState(initA);
+  const [filtersB, setFiltersB] = useState(initB);
+
+  const dataA = useMemo(() => computeSideData(todos, filtersA, INDS, filtersA.ambitoScope), [todos, filtersA, INDS]);
+  const dataB = useMemo(() => computeSideData(todos, filtersB, INDS, filtersB.ambitoScope), [todos, filtersB, INDS]);
+
+  const chartData = useMemo(() => {
+    const idsA = new Set(dataA.map(d => d.id));
+    const idsB = new Set(dataB.map(d => d.id));
+    const ids = [...new Set([...idsA, ...idsB])];
+    return ids.map(id => ({
+      nombre: id,
+      A: dataA.find(d => d.id === id)?.ratio ?? null,
+      B: dataB.find(d => d.id === id)?.ratio ?? null,
+    }));
+  }, [dataA, dataB]);
+
+  const labelA = buildLabel(filtersA);
+  const labelB = buildLabel(filtersB);
+
+  const estsA = filtrarEstablecimientos(todos, filtersA).length;
+  const estsB = filtrarEstablecimientos(todos, filtersB).length;
 
   return (
-    <div className="space-y-2">
-      {[...conLogros].sort((a, b) => b.promedio - a.promedio).map((c, idx) => (
-        <div key={c.est.id} className="border border-border rounded-xl overflow-hidden">
-          {/* Row header — click to expand */}
-          <button
-            onClick={() => toggle(c.est.id)}
-            className="w-full text-left px-4 py-3 hover:bg-bg transition"
-          >
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="w-7 h-7 rounded-full font-medium text-white flex items-center justify-center text-xs shrink-0" style={{ background: "var(--color-cyan)" }}>
-                {idx + 1}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-dark truncate">{c.est.nombre}</p>
-                <p className="text-xs text-gray-ui">{SLEPS.find(s => s.id === c.est.slep)?.nombre.replace(/^SLEP\s+/, '')} · Cohorte {c.est.cohorte}</p>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="hidden sm:grid grid-cols-4 gap-2">
-                  {AMBITOS.map(a => {
-                    const v = Math.round(c.logros[a.id] * 100);
-                    const color = c.logros[a.id] >= 0.85 ? 'text-lime-600' : c.logros[a.id] >= 0.6 ? 'text-amber-700' : 'text-red-700';
-                    return (
-                      <div key={a.id} className="text-center">
-                        <p className={`text-xs font-medium ${color}`}>{v}%</p>
-                        <p className="text-[10px] text-gray-ui">{a.codigo}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(c.promedio * 100)}%</p>
-                  <p className="text-[10px] text-gray-ui mt-0.5">global</p>
-                </div>
-                <SemaforoBadge logro={c.promedio}/>
-                {openEst[c.est.id] ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
-              </div>
-            </div>
-          </button>
-          {/* Indicator panel — collapses per establishment */}
-          {openEst[c.est.id] && (
-            <div className="border-t border-border px-4 py-4 bg-bg">
-              <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-3">Indicadores del programa</p>
-              <IndicatorPanel
-                INDS={INDS}
-                AMBITOS={AMBITOS}
-                establecimientoId={c.est.id}
-                slep={c.est.slep}
-                mes={effectiveMonth}
-                onDrilldown={(ind) => onDrilldown(ind, c.est.id, c.est.slep)}
+    <div className="mt-5">
+      {/* Side selectors */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-5">
+        <SideSelector
+          label="Grupo A"
+          color="var(--color-cyan)"
+          filters={filtersA}
+          onChange={setFiltersA}
+          slepsDisponibles={slepsDisponibles}
+          cohortesDisponibles={cohortesDisponibles}
+          aniosDisponibles={aniosDisponibles}
+          comunasDisponibles={comunasDisponibles}
+          AMBITOS={AMBITOS}
+        />
+        <SideSelector
+          label="Grupo B"
+          color="var(--color-magenta)"
+          filters={filtersB}
+          onChange={setFiltersB}
+          slepsDisponibles={slepsDisponibles}
+          cohortesDisponibles={cohortesDisponibles}
+          aniosDisponibles={aniosDisponibles}
+          comunasDisponibles={comunasDisponibles}
+          AMBITOS={AMBITOS}
+        />
+      </div>
+
+      {/* Legend summary */}
+      <div className="flex flex-wrap gap-4 text-xs text-gray-ui mb-3">
+        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-cyan)' }}/>A: {labelA} <span className="text-gray-dark font-medium">({estsA} establ.)</span></span>
+        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-magenta)' }}/>B: {labelB} <span className="text-gray-dark font-medium">({estsB} establ.)</span></span>
+      </div>
+
+      {chartData.length === 0 ? (
+        <p className="text-sm text-gray-ui text-center py-8">Sin indicadores en común para los filtros seleccionados.</p>
+      ) : (
+        <div style={{ height: Math.max(220, chartData.length * 28 + 60) }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{ top: 4, right: 48, bottom: 4, left: 52 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false}/>
+              <XAxis
+                type="number"
+                domain={[0, 100]}
+                tickFormatter={v => `${v}%`}
+                stroke="#6B7280"
+                fontSize={10}
               />
-            </div>
-          )}
+              <YAxis
+                type="category"
+                dataKey="nombre"
+                stroke="#6B7280"
+                fontSize={10}
+                width={50}
+                tick={{ fill: '#333333' }}
+              />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 11 }}
+                formatter={(v, name) => [`${v ?? '—'}%`, name === 'A' ? labelA : labelB]}
+                labelStyle={{ color: '#6B7280', marginBottom: 2, fontWeight: 600 }}
+              />
+              <Legend
+                formatter={(value) => value === 'A' ? labelA : labelB}
+                wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+              />
+              <Bar dataKey="A" fill="var(--color-cyan)" radius={[0, 3, 3, 0]} maxBarSize={16}
+                label={{ position: 'right', formatter: v => v !== null ? `${v}%` : '', fontSize: 10, fill: '#6B7280' }}/>
+              <Bar dataKey="B" fill="var(--color-magenta)" radius={[0, 3, 3, 0]} maxBarSize={16}
+                label={{ position: 'right', formatter: v => v !== null ? `${v}%` : '', fontSize: 10, fill: '#6B7280' }}/>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-      ))}
+      )}
+    </div>
+  );
+}
+
+function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown }) {
+  return (
+    <div key={c.est.id} className="border border-border rounded-xl overflow-hidden">
+      <button
+        onClick={() => toggle(c.est.id)}
+        className="w-full text-left px-4 py-3 hover:bg-bg transition"
+      >
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="w-7 h-7 rounded-full font-medium text-white flex items-center justify-center text-xs shrink-0" style={{ background: "var(--color-cyan)" }}>
+            {idx + 1}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-dark truncate">{c.est.nombre}</p>
+            <p className="text-xs text-gray-ui">{SLEPS.find(s => s.id === c.est.slep)?.nombre.replace(/^SLEP\s+/, '')} · Cohorte {c.est.cohorte} · {c.est.comuna}</p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-right">
+              <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(c.promedio * 100)}%</p>
+              <p className="text-[10px] text-gray-ui mt-0.5">global</p>
+            </div>
+            {openEst[c.est.id] ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
+          </div>
+        </div>
+      </button>
+      {openEst[c.est.id] && (
+        <div className="border-t border-border px-4 py-4 bg-bg">
+          <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-3">Indicadores del programa</p>
+          <IndicatorPanel
+            INDS={INDS}
+            AMBITOS={AMBITOS}
+            establecimientoId={c.est.id}
+            slep={c.est.slep}
+            mes={effectiveMonth}
+            onDrilldown={(ind) => onDrilldown(ind, c.est.id, c.est.slep)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, agruparConsultor, onDrilldown }) {
+  const [openEst, setOpenEst] = useState({});
+  const [openGrupo, setOpenGrupo] = useState({});
+  const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleGrupo = (email) => setOpenGrupo(prev => ({ ...prev, [email]: !prev[email] }));
+
+  const sorted = [...conLogros].sort((a, b) => b.promedio - a.promedio);
+
+  if (!agruparConsultor) {
+    return (
+      <div className="space-y-2">
+        {sorted.map((c, idx) => (
+          <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
+            INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}/>
+        ))}
+      </div>
+    );
+  }
+
+  // Grouped by consultorEmail
+  const grupos = {};
+  for (const c of sorted) {
+    const email = c.est.consultorEmail ?? 'Sin asignar';
+    if (!grupos[email]) grupos[email] = [];
+    grupos[email].push(c);
+  }
+  const gruposOrdenados = Object.entries(grupos).sort((a, b) => {
+    const avgA = a[1].reduce((s, c) => s + c.promedio, 0) / a[1].length;
+    const avgB = b[1].reduce((s, c) => s + c.promedio, 0) / b[1].length;
+    return avgB - avgA;
+  });
+
+  return (
+    <div className="space-y-3">
+      {gruposOrdenados.map(([email, items]) => {
+        const avg = items.reduce((s, c) => s + c.promedio, 0) / items.length;
+        const isOpen = openGrupo[email] ?? false;
+        return (
+          <div key={email} className="border border-border rounded-xl overflow-hidden">
+            <button
+              onClick={() => toggleGrupo(email)}
+              className="w-full text-left px-4 py-3 hover:bg-bg transition"
+            >
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--color-cyan)' }}>
+                  <Users size={13} className="text-white"/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-dark truncate">{email}</p>
+                  <p className="text-xs text-gray-ui">{items.length} establecimiento{items.length !== 1 ? 's' : ''}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right">
+                    <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(avg * 100)}%</p>
+                    <p className="text-[10px] text-gray-ui mt-0.5">promedio</p>
+                  </div>
+                  {isOpen ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
+                </div>
+              </div>
+            </button>
+            {isOpen && (
+              <div className="border-t border-border px-3 py-3 bg-bg space-y-2">
+                {items.map((c, idx) => (
+                  <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
+                    INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}/>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

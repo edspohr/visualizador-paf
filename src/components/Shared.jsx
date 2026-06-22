@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
 import { colorSemaforo, labelSemaforo } from '../data/establecimientos.js';
-import { expectedToDate, formatValue } from '../data/expectedValue.js';
+import { formatValue } from '../data/expectedValue.js';
 
 // CAP brand semaforo mapping
 // verde → cyan, amber → yellow, red → crimson
@@ -168,72 +168,71 @@ export function PageHeader({ eyebrow, title, subtitle, action }) {
   );
 }
 
-export function IndicatorProgress({ indicador, valor, mes, large = false }) {
+// Two-bar comparison: este establecimiento vs promedio del territorio.
+// No semáforo colors, no judgment labels, no "Esperado" tick.
+export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false }) {
   const { metaNum, unidad } = indicador;
 
-  // For binary: use 0/1 scale; for others: use raw numeric scale
+  // sin_meta: show a plain text notice with the raw value only
+  if (unidad === 'sin_meta' || metaNum === null || valor === null) {
+    return (
+      <div className="w-full text-xs text-gray-ui italic py-1">
+        Sin meta definida
+        {valor !== null && <span className="not-italic ml-2 text-gray-dark font-medium">{formatValue(indicador, valor)}</span>}
+      </div>
+    );
+  }
+
   const isBinary = unidad === 'binario';
+  // Scale: for binary 0→1; for others use metaNum (cap at 120% so overachievement is visible)
   const scale = isBinary ? 1 : metaNum;
   const rawValue = isBinary ? (valor ? 1 : 0) : valor;
-  const expected = expectedToDate(indicador, mes);
+  const peerValue = promedioTerritorio !== null
+    ? (isBinary ? (promedioTerritorio >= 0.5 ? 1 : 0) : promedioTerritorio)
+    : null;
 
-  // Clamp positions to [0%, 100%] of bar width
-  const filledPct  = Math.min(100, scale > 0 ? (rawValue / scale) * 100 : 0);
-  const expectedPct = Math.min(100, scale > 0 ? (expected / scale) * 100 : 0);
+  const barH = large ? 'h-3.5' : 'h-2.5';
+  const trackCls = `w-full ${barH} rounded-full overflow-hidden`;
 
-  const semaforo = colorSemaforo(scale > 0 ? rawValue / scale : 0);
-  const barColor = {
-    lime:  'var(--color-cyan)',
-    amber: 'var(--color-yellow)',
-    red:   'var(--color-red)',
-  }[semaforo];
+  const pct = (v) => `${Math.min(100, scale > 0 ? (v / scale) * 100 : 0)}%`;
 
-  // Shift "Esperado" label left if tick is near the right edge
-  const labelAlign = expectedPct > 80 ? 'right' : expectedPct < 20 ? 'left' : 'center';
-  const labelTranslate = { right: '-100%', center: '-50%', left: '0%' }[labelAlign];
+  // Territorio label — singular/plural handled by tipo stored on est, but here we use
+  // a generic phrase; callers that know tipo can override via a labelTerritorio prop
+  const peerLabel = 'Promedio del territorio';
 
   return (
-    <div
-      className="w-full"
-      title="Cumplimiento esperado a la fecha según frecuencia del indicador"
-    >
-      {/* Bar area with tick */}
-      <div className="relative mb-1">
-        {/* "Esperado" label above tick */}
-        <div
-          className="absolute -top-4 text-[10px] text-gray-ui whitespace-nowrap"
-          style={{ left: `${expectedPct}%`, transform: `translateX(${labelTranslate})` }}
-        >
-          Esperado
+    <div className="w-full space-y-2">
+      {/* Bar 1: este establecimiento */}
+      <div>
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span className="text-gray-ui">Este establecimiento</span>
+          <span className="font-medium text-gray-dark">{formatValue(indicador, rawValue)}</span>
         </div>
-
-        {/* Track */}
-        <div className={`relative w-full ${large ? 'h-4' : 'h-3'} bg-bg rounded-full overflow-visible mt-4`}>
-          {/* Filled segment */}
-          <div
-            className={`absolute left-0 top-0 ${large ? 'h-4' : 'h-3'} rounded-full transition-all`}
-            style={{ width: `${filledPct}%`, background: barColor }}
-          />
-          {/* Expected tick mark — overlaid, not clipped */}
-          <div
-            className={`absolute top-0 ${large ? 'h-4' : 'h-3'} w-0.5 bg-ink rounded-full`}
-            style={{ left: `calc(${expectedPct}% - 1px)` }}
-          />
+        <div className={`${trackCls} bg-bg`}>
+          <div className={barH + ' rounded-full'} style={{ width: pct(rawValue), background: 'var(--color-cyan)' }}/>
         </div>
       </div>
 
-      {/* Bottom labels */}
-      <div className="flex items-baseline justify-between gap-1 mt-2 flex-wrap sm:flex-nowrap">
-        <span className="text-sm font-semibold text-gray-dark">
-          Actual: {formatValue(indicador, rawValue)}
+      {/* Bar 2: promedio del territorio */}
+      {peerValue !== null && (
+        <div>
+          <div className="flex items-center justify-between text-xs mb-1">
+            <span className="text-gray-ui">{peerLabel}</span>
+            <span className="font-medium text-gray-dark">{formatValue(indicador, peerValue)}</span>
+          </div>
+          <div className={`${trackCls} bg-bg`}>
+            <div className={barH + ' rounded-full'} style={{ width: pct(peerValue), background: 'var(--color-gray-light)' }}/>
+          </div>
+        </div>
+      )}
+
+      {/* Footer: meta + frequency, no judgment */}
+      <div className="flex items-center gap-4 text-xs text-gray-ui pt-0.5">
+        <span className="flex items-center gap-1">
+          <Target size={10} className="shrink-0"/>
+          Meta anual: <span className="font-medium text-gray-dark ml-0.5">{formatValue(indicador, metaNum)}</span>
         </span>
-        <span className="text-xs text-gray-ui">
-          Esperado: {formatValue(indicador, expected)}
-        </span>
-        <span className="text-xs text-gray-ui flex items-center gap-0.5">
-          <Target size={10} className="shrink-0" />
-          {formatValue(indicador, metaNum)}
-        </span>
+        <span>Actualización: <span className="font-medium text-gray-dark">{indicador.frecuencia}</span></span>
       </div>
     </div>
   );

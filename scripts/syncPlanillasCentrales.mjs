@@ -140,7 +140,7 @@ function encontrarEstablecimiento(scjiTexto, tipoFiltro = null) {
 // Fallback: mapa manual de abreviaciones de tab-name a nombre del establecimiento.
 // El pipeline lo usa cuando la fila del sheet no tiene SCJI legible pero sí conocemos el jardín por el tab.
 const TAB_ABREV = {
-  // Cohorte 2025-2026 Santa Rosa (jardines en San Ramón, San Miguel, Pedro Aguirre Cerda)
+  // Cohorte 2025-2026 Santa Rosa — planilla "Año 2" (abreviaturas cortas)
   'AP':  'Akun Pichiwentxu',
   'PR':  'Príncipes del Reino',
   'MOD': 'Modelo',
@@ -159,14 +159,33 @@ const TAB_ABREV = {
   'LLS': 'Llano Subercaseaux',
   'LM':  'La Marina',
   'OCH': 'Ochagavía',
+  // Cohorte 2025-2026 Santa Rosa — planilla "Año 1" (abreviaturas largas)
+  'AKUN':       'Akun Pichiwentxu',
+  'MODE':       'Modelo',
+  'LA HOR':     'La Hormiguita',
+  'ENRIQ':      'Enrique Backausse',
+  'PRINCIP':    'Príncipes del Reino',
+  'CABALL':     'Caballito Feliz',
+  'ANDRÉS B':   'Andres Bello',
+  'ANDRES B':   'Andres Bello',
+  'PEQUEÑO AY': 'Pequeño Aymará',
+  'PEQUENO AY': 'Pequeño Aymará',
+  'LLANO S':    'Llano Subercaseaux',
+  'VILLA SAN':  'Villa San Miguel',
+  'POETAS':     'Poetas de Chile',
+  'CIUDAD B':   'Ciudad de Barcelona',
+  // (SANTA FE, OCHAGAVÍA, LA MARINA matchean solo con encontrarEstablecimiento)
   // Cohorte 2026-2027 Del Pino + Santa Corina
   'PJ':  'Paula Jaraquemada',
   'CED': 'Cedin',
   'ELU': 'Eluney',
   'AF':  'Angel Fantuzzi',
   'ET':  'El Tranque',
+  'ETR': 'El Tranque',
   'SS':  'Salomón Sack',
+  'SSA': 'Salomón Sack',
   'EA':  'Estación Alegría',
+  'EAL': 'Estación Alegría',
   'SDC': 'Sueño de Colores',
   'TDA': 'Tierra de Ángeles',
 };
@@ -308,8 +327,19 @@ async function parsearHoja(sheetId, hojaTitulo, planilla) {
   return { docs, warnings };
 }
 
-// Hojas que sabemos que son de resumen/coordinación/plantillas y hay que saltar
-const HOJAS_A_SALTAR = /^(RES\s|MON|CONS|COORDINADOR|LINKS|REPORTE|PLANTILLA|TEMPLATE|INSTRUCC|ACT\.|IDENTIFICAR)/i;
+// Hojas que sabemos que son de resumen/coordinación/plantillas y hay que saltar.
+// Dos categorías:
+//  (a) prefijos que empiezan con una palabra reservada (ej. "RES SF", "MON PA").
+//  (b) nombres exactos de hojas de resumen especiales (ej. "RA", "EA", "VOL", "Hoja 49").
+const HOJAS_A_SALTAR_PREFIJO = /^(RES\s|MON|CONS|COORDINADOR|LINKS|REPORTE|PLANTILLA|TEMPLATE|INSTRUCC|ACT\.|IDENTIFICAR|INDICAD|IND\s|NMON|CÁLCULO|CALCULO|HOJA\s|RESUMEN)/i;
+const HOJAS_A_SALTAR_EXACTO = new Set(['RA', 'EA', 'VOL', 'RP', 'RF']);
+
+function debeSaltarHoja(titulo) {
+  const t = titulo.trim();
+  if (HOJAS_A_SALTAR_EXACTO.has(t.toUpperCase())) return true;
+  if (HOJAS_A_SALTAR_PREFIJO.test(t)) return true;
+  return false;
+}
 
 // ─── Loop principal ────────────────────────────────────────────────────────
 
@@ -324,7 +354,7 @@ async function sincronizarPlanilla(planilla) {
     const warningsAcumulados = [];
 
     for (const titulo of hojas) {
-      if (HOJAS_A_SALTAR.test(titulo)) {
+      if (debeSaltarHoja(titulo)) {
         console.log(`   ⏭  ${titulo}: saltada (no es hoja de jardín)`);
         continue;
       }

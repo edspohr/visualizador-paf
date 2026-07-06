@@ -48,8 +48,8 @@ export const googleProvider = new GoogleAuthProvider();
 
 const SUPERADMIN_WHITELIST = new Set([
   'espohr@gmail.com',
-  'lagurto@focus.cl',      // TODO: reemplazar por email real de Luis Agurto
-  'seba@focus.cl',         // TODO: reemplazar por email real de Sebastián
+  'lagurto@focus.cl',   // Luis Agurto
+  'speters@focus.cl',   // Sebastián
 ]);
 
 export function esEmailSuperadmin(email) {

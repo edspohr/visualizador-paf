@@ -2,11 +2,13 @@
 // Escuelas: SLEP Los Parques (cohorte 2025-2027) — son las que tienen URLs verificadas
 // Jardines: SLEP Santa Rosa (cohorte 2025-2026), Del Pino y Santa Corina (2026-2027)
 
+// SLEPs con las comunas reales derivadas del roster
+// (columna COMUNA de las planillas maestras PAF Escolar y Parvulario)
 export const SLEPS = [
-  { id: 'SLEP-LP', nombre: 'SLEP Los Parques',  comuna: 'La Florida / Puente Alto' },
-  { id: 'SLEP-SR', nombre: 'SLEP Santa Rosa',   comuna: 'San Miguel / La Cisterna / PAC' },
-  { id: 'SLEP-DP', nombre: 'SLEP Del Pino',     comuna: 'San Bernardo / La Pintana' },
-  { id: 'SLEP-SC', nombre: 'SLEP Santa Corina', comuna: 'Maipú / Cerrillos' },
+  { id: 'SLEP-LP', nombre: 'SLEP Los Parques',  comuna: 'Quinta Normal' },
+  { id: 'SLEP-SR', nombre: 'SLEP Santa Rosa',   comuna: 'La Cisterna / Lo Espejo / Pedro Aguirre Cerda / San Miguel / San Ramón' },
+  { id: 'SLEP-DP', nombre: 'SLEP Del Pino',     comuna: 'El Bosque / La Pintana / San Bernardo' },
+  { id: 'SLEP-SC', nombre: 'SLEP Santa Corina', comuna: 'Cerrillos / Estación Central / Maipú' },
 ];
 
 // Deterministic PRNG (same seed = same data always)
@@ -63,59 +65,83 @@ export function anioImplementacion(est, anio = new Date().getFullYear()) {
   return Math.max(1, Math.min(maxYears, anio - startYear + 1));
 }
 
-// Build enriched ESCUELAS
+// Roster real de escuelas — fuente: "Planillas PAF Escolar" (planilla maestra Focus)
+// 19 escuelas · 3 SLEP · Cohortes 2025-2027 (Los Parques) y 2026-2028 (Santa Rosa, Santa Corina)
+// La comuna viene directamente del sheet maestro. nNinos, nAgentes y consultorEmail
+// siguen siendo sintéticos determinísticos hasta que se carguen los reales.
 const _rawEscuelas = [
-  { id: 'ESC-001', nombre: 'Escuela Gil de Castro',  slep: 'SLEP-LP', cohorte: '2025-2027', tipo: 'Escuela' },
-  { id: 'ESC-002', nombre: 'Escuela Abate Molina',   slep: 'SLEP-LP', cohorte: '2025-2027', tipo: 'Escuela' },
-  { id: 'ESC-003', nombre: 'Escuela Inglaterra',     slep: 'SLEP-LP', cohorte: '2025-2027', tipo: 'Escuela' },
-  { id: 'ESC-004', nombre: 'Escuela España',         slep: 'SLEP-LP', cohorte: '2025-2027', tipo: 'Escuela' },
-  { id: 'ESC-005', nombre: 'Escuela Platón',         slep: 'SLEP-LP', cohorte: '2025-2027', tipo: 'Escuela' },
+  // ── Los Parques · Cohorte 2025-2027 · Quinta Normal ──
+  { id: 'ESC-001', nombre: 'Escuela Gil de Castro',              slep: 'SLEP-LP', cohorte: '2025-2027', comuna: 'Quinta Normal',      tipo: 'Escuela' },
+  { id: 'ESC-002', nombre: 'Escuela Abate Molina',               slep: 'SLEP-LP', cohorte: '2025-2027', comuna: 'Quinta Normal',      tipo: 'Escuela' },
+  { id: 'ESC-003', nombre: 'Escuela Inglaterra',                 slep: 'SLEP-LP', cohorte: '2025-2027', comuna: 'Quinta Normal',      tipo: 'Escuela' },
+  { id: 'ESC-004', nombre: 'Escuela España',                     slep: 'SLEP-LP', cohorte: '2025-2027', comuna: 'Quinta Normal',      tipo: 'Escuela' },
+  { id: 'ESC-005', nombre: 'Escuela Platón',                     slep: 'SLEP-LP', cohorte: '2025-2027', comuna: 'Quinta Normal',      tipo: 'Escuela' },
+  // ── Santa Rosa · Cohorte 2026-2028 ──
+  { id: 'ESC-006', nombre: 'Escuela Esperanza Joven',            slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'La Cisterna',         tipo: 'Escuela' },
+  { id: 'ESC-007', nombre: 'Escuela República de las Filipinas', slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'Lo Espejo',           tipo: 'Escuela' },
+  { id: 'ESC-008', nombre: 'Escuela Ciudad de Barcelona',        slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'Pedro Aguirre Cerda', tipo: 'Escuela' },
+  { id: 'ESC-009', nombre: 'Escuela Ricardo Latcham',            slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'Pedro Aguirre Cerda', tipo: 'Escuela' },
+  { id: 'ESC-010', nombre: 'Escuela La Victoria',                slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'Pedro Aguirre Cerda', tipo: 'Escuela' },
+  { id: 'ESC-011', nombre: 'Escuela Lo Valledor',                slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'Pedro Aguirre Cerda', tipo: 'Escuela' },
+  { id: 'ESC-012', nombre: 'Escuela Territorio Antártico',       slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'San Miguel',          tipo: 'Escuela' },
+  { id: 'ESC-013', nombre: 'Escuela Villa San Miguel',           slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'San Miguel',          tipo: 'Escuela' },
+  { id: 'ESC-014', nombre: 'Escuela Básica Sendero del Saber',   slep: 'SLEP-SR', cohorte: '2026-2028', comuna: 'San Ramón',           tipo: 'Escuela' },
+  // ── Santa Corina · Cohorte 2026-2028 ──
+  { id: 'ESC-015', nombre: 'Escuela Pedro Aguirre Cerda',        slep: 'SLEP-SC', cohorte: '2026-2028', comuna: 'Cerrillos',           tipo: 'Escuela' },
+  { id: 'ESC-016', nombre: 'Escuela República de Austria',       slep: 'SLEP-SC', cohorte: '2026-2028', comuna: 'Estación Central',    tipo: 'Escuela' },
+  { id: 'ESC-017', nombre: 'Escuela Ramón del Río',              slep: 'SLEP-SC', cohorte: '2026-2028', comuna: 'Estación Central',    tipo: 'Escuela' },
+  { id: 'ESC-018', nombre: 'Escuela Ramón Freire',               slep: 'SLEP-SC', cohorte: '2026-2028', comuna: 'Maipú',               tipo: 'Escuela' },
 ];
 
-// Counts of escuelas per SLEP (for round-robin commune assignment)
-const _escBySlep = {};
-_rawEscuelas.forEach(e => { _escBySlep[e.slep] = (_escBySlep[e.slep] ?? 0); });
-
-export const ESCUELAS = _rawEscuelas.map((e, globalIdx) => {
-  // Index within its SLEP for round-robin
-  const idxInSlep = _rawEscuelas.filter((x, i) => x.slep === e.slep && i <= globalIdx).length - 1;
+export const ESCUELAS = _rawEscuelas.map(e => {
   const { nNinos, nAgentes } = syntheticCounts(e.id, true);
   return {
     ...e,
-    comuna: assignComuna(e.slep, idxInSlep),
     nNinos,
     nAgentes,
     consultorEmail: assignConsultorEmail(e.id),
   };
 });
 
-// Build enriched JARDINES
-// NOTE: Added JAR-014 (SLEP-LP) so that Los Parques has BOTH escuelas AND jardines,
-// enabling the sostenedor escuela/jardín toggle demo across all SLEPs.
+// Roster real de jardines infantiles — fuente: "Planillas PAF Parvulario" (planilla maestra Focus)
+// 24 jardines · 3 SLEP (Santa Rosa cohorte 2025-2026, Del Pino y Santa Corina cohorte 2026-2027)
+// Los Parques NO tiene jardines en el programa.
 const _rawJardines = [
-  { id: 'JAR-001', nombre: 'Jardín Pequeño Aymará',     slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-002', nombre: 'Jardín Enrique Backausse',  slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-003', nombre: 'Jardín Poetas de Chile',    slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-004', nombre: 'Jardín Ciudad de Barcelona',slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-005', nombre: 'Jardín Ochagavía',          slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-006', nombre: 'Jardín La Marina',          slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-007', nombre: 'Jardín Llano Subercaseaux', slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-008', nombre: 'Jardín Andrés Bello',       slep: 'SLEP-SR', cohorte: '2025-2026', tipo: 'Jardín' },
-  { id: 'JAR-009', nombre: 'Jardín Paula Jaraquemada',  slep: 'SLEP-DP', cohorte: '2026-2027', tipo: 'Jardín' },
-  { id: 'JAR-010', nombre: 'Jardín Cedin',              slep: 'SLEP-DP', cohorte: '2026-2027', tipo: 'Jardín' },
-  { id: 'JAR-011', nombre: 'Jardín Eluney',             slep: 'SLEP-DP', cohorte: '2026-2027', tipo: 'Jardín' },
-  { id: 'JAR-012', nombre: 'Jardín Angel Fantuzzi',     slep: 'SLEP-SC', cohorte: '2026-2027', tipo: 'Jardín' },
-  { id: 'JAR-013', nombre: 'Jardín El Tranque',         slep: 'SLEP-SC', cohorte: '2026-2027', tipo: 'Jardín' },
-  // Synthetic: gives Los Parques a jardín so every SLEP has both types
-  { id: 'JAR-014', nombre: 'Jardín Los Alamos',         slep: 'SLEP-LP', cohorte: '2025-2026', tipo: 'Jardín' },
+  // ── Santa Rosa · Cohorte 2025-2026 · Pedro Aguirre Cerda ──
+  { id: 'JAR-001', nombre: 'Jardín Pequeño Aymará',      slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  { id: 'JAR-002', nombre: 'Jardín Enrique Backausse',   slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  { id: 'JAR-003', nombre: 'Jardín Poetas de Chile',     slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  { id: 'JAR-004', nombre: 'Jardín Ciudad de Barcelona', slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  { id: 'JAR-005', nombre: 'Jardín Ochagavía',           slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  { id: 'JAR-006', nombre: 'Jardín La Marina',           slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  { id: 'JAR-007', nombre: 'Jardín Llano Subercaseaux',  slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'Pedro Aguirre Cerda', tipo: 'Jardín' },
+  // ── Santa Rosa · Cohorte 2025-2026 · San Miguel ──
+  { id: 'JAR-008', nombre: 'Jardín Villa San Miguel',    slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Miguel',          tipo: 'Jardín' },
+  { id: 'JAR-009', nombre: 'Jardín Andres Bello',        slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Miguel',          tipo: 'Jardín' },
+  { id: 'JAR-010', nombre: 'Jardín Santa Fe',            slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Miguel',          tipo: 'Jardín' },
+  { id: 'JAR-011', nombre: 'Jardín Akun Pichiwentxu',    slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Miguel',          tipo: 'Jardín' },
+  // ── Santa Rosa · Cohorte 2025-2026 · San Ramón ──
+  { id: 'JAR-012', nombre: 'Jardín La Hormiguita',       slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Ramón',           tipo: 'Jardín' },
+  { id: 'JAR-013', nombre: 'Jardín Caballito Feliz',     slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Ramón',           tipo: 'Jardín' },
+  { id: 'JAR-014', nombre: 'Jardín Príncipes del Reino', slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Ramón',           tipo: 'Jardín' },
+  { id: 'JAR-015', nombre: 'Jardín Modelo',              slep: 'SLEP-SR', cohorte: '2025-2026', comuna: 'San Ramón',           tipo: 'Jardín' },
+  // ── Del Pino · Cohorte 2026-2027 ──
+  { id: 'JAR-016', nombre: 'Jardín Paula Jaraquemada',   slep: 'SLEP-DP', cohorte: '2026-2027', comuna: 'El Bosque',           tipo: 'Jardín' },
+  { id: 'JAR-017', nombre: 'Jardín Cedin',               slep: 'SLEP-DP', cohorte: '2026-2027', comuna: 'La Pintana',          tipo: 'Jardín' },
+  { id: 'JAR-018', nombre: 'Jardín Eluney',              slep: 'SLEP-DP', cohorte: '2026-2027', comuna: 'San Bernardo',        tipo: 'Jardín' },
+  { id: 'JAR-019', nombre: 'Jardín Sueño de Colores',    slep: 'SLEP-DP', cohorte: '2026-2027', comuna: 'San Bernardo',        tipo: 'Jardín' },
+  { id: 'JAR-020', nombre: 'Jardín Tierra de Ángeles',   slep: 'SLEP-DP', cohorte: '2026-2027', comuna: 'San Bernardo',        tipo: 'Jardín' },
+  // ── Santa Corina · Cohorte 2026-2027 ──
+  { id: 'JAR-021', nombre: 'Jardín Angel Fantuzzi',      slep: 'SLEP-SC', cohorte: '2026-2027', comuna: 'Cerrillos',           tipo: 'Jardín' },
+  { id: 'JAR-022', nombre: 'Jardín Salomón Sack',        slep: 'SLEP-SC', cohorte: '2026-2027', comuna: 'Cerrillos',           tipo: 'Jardín' },
+  { id: 'JAR-023', nombre: 'Jardín Estación Alegría',    slep: 'SLEP-SC', cohorte: '2026-2027', comuna: 'Estación Central',    tipo: 'Jardín' },
+  { id: 'JAR-024', nombre: 'Jardín El Tranque',          slep: 'SLEP-SC', cohorte: '2026-2027', comuna: 'Maipú',               tipo: 'Jardín' },
 ];
 
-export const JARDINES = _rawJardines.map((j, globalIdx) => {
-  const idxInSlep = _rawJardines.filter((x, i) => x.slep === j.slep && i <= globalIdx).length - 1;
+export const JARDINES = _rawJardines.map(j => {
   const { nNinos, nAgentes } = syntheticCounts(j.id, false);
   return {
     ...j,
-    comuna: assignComuna(j.slep, idxInSlep),
     nNinos,
     nAgentes,
     consultorEmail: assignConsultorEmail(j.id),
@@ -126,7 +152,11 @@ export const JARDINES = _rawJardines.map((j, globalIdx) => {
 export const SALAS_ESCUELA = ['PK A', 'PK B', 'K A', 'K B', '1° A', '1° B', '2° A', '2° B', '3° A', '3° B', '4° A', '4° B', '5° A', '5° B', '6° A', '6° B', '7° A', '7° B', '8° A'];
 
 // Genera un valor para un indicador dado en un establecimiento y período
-// Sesgo: SLEP Los Parques rinde mejor (cohorte más antigua), Santa Rosa intermedio, otros más bajo
+// Sesgo por SLEP: las cohortes más antiguas (Los Parques 2025-2027, año 2 en 2026,
+// y Santa Rosa parvulario 2025-2026 año 2) rinden mejor. Las cohortes nuevas (Santa Rosa
+// escolar 2026-2028, Del Pino y Santa Corina 2026-2027, todas año 1 en 2026) tienen bias
+// más bajo — narrativa: llevan menos rodaje.
+// NOTA: valores sintéticos para la demo; se reemplazan al conectar Supabase.
 function biasBySlep(slep, anio = 2026) {
   const base = ({ 'SLEP-LP': 0.88, 'SLEP-SR': 0.82, 'SLEP-DP': 0.75, 'SLEP-SC': 0.73 })[slep] ?? 0.7;
   return anio === 2025 ? base - 0.10 : base;

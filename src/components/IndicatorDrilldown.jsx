@@ -61,6 +61,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
   }
 
   const showSostenedorTable = perfil === 'consultor' || perfil === 'cap';
+  const showEstablecimientoTable = perfil === 'sostenedor';
   const tipo = est?.tipo ?? 'Escuela';
 
   return (
@@ -152,7 +153,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
           </div>
         </div>
 
-        {/* Sostenedor comparison — consultor / cap only */}
+        {/* Comparación — cross-sostenedor para consultor/CAP, entre establecimientos de la propia red para sostenedor */}
         {showSostenedorTable && (
           <div className="px-6 py-5">
             <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre sostenedores</p>
@@ -176,6 +177,40 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                       </tr>
                     );
                   })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {showEstablecimientoTable && (
+          <div className="px-6 py-5">
+            <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre establecimientos</p>
+            <p className="text-sm text-gray-dark mb-3">Valor por {tipo === 'Jardín' ? 'jardín infantil' : 'escuela'} de la red</p>
+            <div className="overflow-x-auto -mx-1">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b-2 border-border text-left text-xs text-gray-ui uppercase tracking-wider">
+                    <th className="py-2 pr-3 font-medium">Establecimiento</th>
+                    <th className="py-2 pl-3 font-medium text-right">Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...ESCUELAS, ...JARDINES]
+                    .filter(e => e.slep === slep && e.tipo === tipo)
+                    .map(e => {
+                      const { valor: v } = generarValorIndicador(indicador, e.id, e.slep, effectiveMonth);
+                      if (v === null) return null;
+                      const isCurrent = e.id === establecimientoId;
+                      return (
+                        <tr key={e.id} className={`border-b border-border hover:bg-bg transition ${isCurrent ? 'bg-cyan-50/40' : ''}`}>
+                          <td className="py-2.5 pr-3 font-medium text-gray-dark">
+                            {e.nombre}{isCurrent && <span className="ml-2 text-xs text-cyan font-normal">(este)</span>}
+                          </td>
+                          <td className="py-2.5 pl-3 text-right font-medium text-gray-dark">{formatValue(indicador, v)}</td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>

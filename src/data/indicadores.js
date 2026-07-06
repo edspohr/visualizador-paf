@@ -1,7 +1,8 @@
 // Catálogo completo de indicadores PAF
-// Fuente: matriz_unica_PAF_Escolar.xlsx (hoja "Matriz Única") + Sistema_indicadores_TDC_PAF_Parvulario.xlsx
+// Fuente: Sistema_indicadores_PAF_Escolar_2026.xlsx (hoja "Indicadores año 1, 2026")
+//         + Sistema_indicadores_PAF_Parvulario.xlsx
 // Schema: { id, ambito, actividad, nombre, tipo, meta, metaNum, unidad, frecuencia, fuente, clasificacion }
-// clasificacion ∈ {'estrategia','producto'}
+// clasificacion ∈ {'estrategia','producto'}  ← columna "Comentario" del origen (actividad/producto)
 // unidad ∈ {'binario','%','conteo','promedio','sin_meta'}
 // indicadores con metaNum:null se excluyen del ratio pero se listan
 
@@ -20,330 +21,360 @@ export const AMBITOS_PARVULARIO = [
   { id: 'A3', codigo: 'A.3', nombre: 'Participación y formación de apoderados', color: 'lime' },
 ];
 
-// ─── INDICADORES ESCOLAR (52 total) ─────────────────────────────────────────
-// Ámbito A1 (14): Liderazgo — N° 1–14 de la matriz
-// Ámbito A2 (11): Formación equipos educativos — N° 15–25
-// Ámbito A3 (10): Participación apoderados — N° 26–35
-// Ámbito A4 (11): Fomento lector — N° 36–46
-// Ámbito A3 (ampliado): Talleres estudiantes (N°47) + Redcreando (N°48–50) → A3
-// clasificacion: N° 1–32 → 'estrategia'; N° 33–52 → 'producto' (per "Nº división" column)
-// Nota: indicadores 5 y 6 están marcados ELIMINAR en la matriz (solo 2025) — incluidos con
-//       frecuencia:'anual' y nota en nombre para completitud del catálogo.
-// Indicadores sin meta explícita para 2026 reciben metaNum:null, unidad:'sin_meta'.
-// Defaults aplicados: frecuencia='anual' cuando la columna estaba vacía o no aplica 2026.
+// ─── INDICADORES ESCOLAR (52 total, hoja 2026 Año 1) ───────────────────────
+// Estructura oficial:
+//   A1 (Liderazgo)                → I1–I10   (actividad)
+//   A2 (Formación equipos)        → I11–I20  (actividad)
+//   A3 (Participación apoderados) → I21–I27  (actividad)
+//   A4 (Fomento lector)           → I28–I32  (actividad)
+//   P1 (Liderazgo)                → I33–I35  (producto)
+//   P2 (Formación equipos)        → I36–I38  (producto)
+//   P2/P3 (Participación)         → I39–I42  (producto/actividad, según origen)
+//   P3 (Fomento lector)           → I43–I46  (producto)
+//   P4 (Participación)            → I47–I48  (producto)
+//   P5 (Fomento lector)           → I49–I52  (producto/actividad, según origen)
+// Los ámbitos P* se agrupan bajo el ámbito A* correspondiente (P1→A1, P2→A2, P3/P4→A3, P5→A4).
+// Clasificación (columna "Comentario" del origen):
+//   'actividad' → clasificacion: 'estrategia' (ámbitos A1–A4)
+//   'producto'  → clasificacion: 'producto' (ámbitos P1–P5)
+// Frecuencias: campo "Temporalidad de reporte"; cuando aparece "Anual" se conserva; cuando
+//   está vacío o dice "Primer año" se marca 'anual' salvo que la actividad implique cadencia mensual.
+// Notas de meta:
+//   - "SI" → binario metaNum:1.0
+//   - decimales ≤1 → % (metaNum = decimal)
+//   - decimales >1 → count/promedio
+//   - "-" o vacío → metaNum:null, unidad:'sin_meta'
 
 export const INDICADORES_ESCOLAR = [
 
-  // ── A1 · Liderazgo ── (estrategia: 1–14, todos ≤32)
+  // ═══ A1 · Liderazgo · Actividades (I1–I10) ══════════════════════════════
   {
-    id: 'E.1',  ambito: 'A1', actividad: 'Equipo de Gestión / EFE',
-    nombre: 'Se conforma el Equipo de Gestión Escolar / EFE',
+    id: 'E.1',  ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
+    nombre: 'Se conforma Equipo de Gestión',
+    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.2',  ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
+    nombre: 'Número de reuniones anuales del Equipo de Gestión',
+    tipo: 'operativo', meta: '10', metaNum: 10, unidad: 'conteo', frecuencia: 'mensual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.3',  ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
+    nombre: '% promedio de asistencia anual de directores a las reuniones del equipo de gestión',
+    tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'mensual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.4',  ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
+    nombre: '% promedio de asistencia de coordinadores a las reuniones del equipo de gestión',
+    tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'mensual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.5',  ambito: 'A1', actividad: '10 Reuniones de Coordinación',
+    nombre: 'Número de reuniones de coordinación',
+    tipo: 'operativo', meta: '10', metaNum: 10, unidad: 'conteo', frecuencia: 'mensual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.6',  ambito: 'A1', actividad: '2 Formaciones en liderazgo (directores y coordinadores)',
+    nombre: 'Director asiste a formación de liderazgo territorial',
+    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
+    fuente: 'Consultor', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.7',  ambito: 'A1', actividad: '2 Formaciones en liderazgo (directores y coordinadores)',
+    nombre: 'Coordinador asiste a formación de liderazgo territorial',
+    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
+    fuente: 'Consultor', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.8',  ambito: 'A1', actividad: '1 Encuentro anual en liderazgo para directores',
+    nombre: 'Director asiste a formación de liderazgo, por escuela',
     tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.2',  ambito: 'A1', actividad: 'Reuniones Equipo de Gestión / EFE',
-    nombre: 'Número de reuniones anuales del Equipo de Gestión',
-    tipo: 'operativo', meta: '10', metaNum: 10, unidad: 'conteo', frecuencia: 'mensual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.3',  ambito: 'A1', actividad: 'Reuniones Equipo de Gestión',
-    nombre: '% promedio de asistencia anual de directores/as a las reuniones del Equipo de Gestión',
-    tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'mensual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.4',  ambito: 'A1', actividad: 'Reuniones Equipo de Gestión',
-    nombre: '% promedio de asistencia de coordinadores a las reuniones del Equipo de Gestión',
-    tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'mensual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.5',  ambito: 'A1', actividad: 'Reuniones EFE',
-    nombre: '% promedio de asistencia anual de docentes a reuniones EFE [solo 2025]',
-    tipo: 'táctico', meta: '80%', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.6',  ambito: 'A1', actividad: 'Reuniones EFE',
-    nombre: '% promedio de asistencia de apoderados a reuniones EFE [solo 2025]',
-    tipo: 'táctico', meta: '80%', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.7',  ambito: 'A1', actividad: 'Plan de acción familia escuela',
+    id: 'E.9',  ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
     nombre: 'Existe plan de acción familia escuela diseñado',
     tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.8',  ambito: 'A1', actividad: 'Plan de acción familia escuela',
+    id: 'E.10', ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
     nombre: 'Existe plan de acción familia escuela actualizado',
-    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.9',  ambito: 'A1', actividad: 'Plan de acción familia escuela',
-    nombre: '% de cumplimiento del plan de acción familia escuela',
-    tipo: 'táctico', meta: '70%', metaNum: 0.70, unidad: '%', frecuencia: 'semestral',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.10', ambito: 'A1', actividad: 'Plan de acción (PME/PEI)',
-    nombre: 'Plan de acción diseñado e incorporado en PME y PEI',
-    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.11', ambito: 'A1', actividad: 'Formación en liderazgo directores',
-    nombre: 'Director asiste a formación de liderazgo',
-    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.12', ambito: 'A1', actividad: 'Formación en liderazgo directores',
-    nombre: 'Director cumple la meta propuesta para su liderazgo (revisión Estándares)',
-    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.13', ambito: 'A1', actividad: 'Formación en liderazgo coordinadores',
-    nombre: 'Coordinador asiste a formación de liderazgo',
-    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.14', ambito: 'A1', actividad: 'Encuentro anual liderazgo directores',
-    nombre: 'Director asiste a encuentro anual de liderazgo (por escuela)',
-    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
+    tipo: 'táctico', meta: '—', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
 
-  // ── A2 · Formación equipos educativos ── (estrategia: 15–25, todos ≤32)
+  // ═══ A2 · Formación equipos educativos · Actividades (I11–I20) ═══════════
   {
-    id: 'E.15', ambito: 'A2', actividad: 'Instancias formativas anuales docentes',
-    nombre: 'Número de módulos/instancias formativas realizados anualmente',
+    id: 'E.11', ambito: 'A2', actividad: '5 Instancias formativas anuales (por escuela)',
+    nombre: 'Número de módulos formativos realizados anualmente en la escuela',
     tipo: 'operativo', meta: '5', metaNum: 5, unidad: 'conteo', frecuencia: 'mensual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.16', ambito: 'A2', actividad: 'Instancias formativas anuales docentes',
-    nombre: '% de profesores jefes que asisten a módulos/instancias formativas',
+    id: 'E.12', ambito: 'A2', actividad: '5 Instancias formativas anuales (por escuela)',
+    nombre: '% de profesores jefe que asisten a módulos formativos',
     tipo: 'táctico', meta: '80%', metaNum: 0.80, unidad: '%', frecuencia: 'mensual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.17', ambito: 'A2', actividad: 'Instancias formativas anuales docentes',
-    nombre: 'Nota promedio que ponen los asistentes a instancias formativas para docentes',
-    tipo: 'táctico', meta: '6.0', metaNum: 6.0, unidad: 'promedio', frecuencia: 'mensual',
+    id: 'E.13', ambito: 'A2', actividad: '5 Instancias formativas anuales (por escuela)',
+    nombre: 'Director asiste a módulos formativos',
+    tipo: 'táctico', meta: '5', metaNum: 5, unidad: 'conteo', frecuencia: 'mensual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.18', ambito: 'A2', actividad: 'Consejos de profesores (CD3 y CD4)',
-    nombre: 'Número de consejos de profesores realizados anualmente – módulos comunicación con familias [solo 2025]',
-    tipo: 'operativo', meta: '2', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
+    id: 'E.14', ambito: 'A2', actividad: '5 Instancias formativas anuales (por escuela)',
+    nombre: 'Coordinador asiste a módulos formativos',
+    tipo: 'táctico', meta: '5', metaNum: 5, unidad: 'conteo', frecuencia: 'mensual',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.19', ambito: 'A2', actividad: 'Consejos de profesores (CD3 y CD4)',
-    nombre: '% promedio de asistencia anual de profesores jefes a consejos – módulos comunicación [solo 2025]',
-    tipo: 'táctico', meta: '75%', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
+    id: 'E.15', ambito: 'A2', actividad: '2 Instancias formativas territoriales anuales',
+    nombre: 'Número de formaciones territoriales anuales para docentes y asistentes de la educación',
+    tipo: 'operativo', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.20', ambito: 'A2', actividad: 'Consejos de profesores (CD3 y CD4)',
-    nombre: 'Nota promedio que ponen los asistentes a consejo de profesores (CD1–CD4) [solo 2025]',
-    tipo: 'táctico', meta: '6.0', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
+    id: 'E.16', ambito: 'A2', actividad: '2 Instancias formativas territoriales anuales',
+    nombre: '% de profesores jefe que asisten a formaciones territoriales',
+    tipo: 'táctico', meta: '80%', metaNum: 0.80, unidad: '%', frecuencia: 'semestral',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.21', ambito: 'A2', actividad: 'Consejos de profesores (CD1 y CD2)',
-    nombre: 'Número de consejos de profesores jefes realizados – módulos uso de herramientas [solo 2025]',
-    tipo: 'operativo', meta: '2', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
+    id: 'E.17', ambito: 'A2', actividad: '2 Instancias formativas territoriales anuales',
+    nombre: 'Director asiste a formaciones territoriales',
+    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.22', ambito: 'A2', actividad: 'Consejos de profesores (CD1 y CD2)',
-    nombre: '% promedio de asistencia anual de profesores jefes a consejos – módulos herramientas [solo 2025]',
-    tipo: 'táctico', meta: '75%', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
+    id: 'E.18', ambito: 'A2', actividad: '2 Instancias formativas territoriales anuales',
+    nombre: 'Coordinador asiste a formaciones territoriales',
+    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.23', ambito: 'A2', actividad: 'Docentes implementan estrategias IF',
-    nombre: '% promedio de familias entrevistadas por profesor jefe al menos 1 vez en el año por sala',
+    id: 'E.19', ambito: 'A2', actividad: 'Docentes implementan estrategias IF',
+    nombre: '% promedio de familias entrevistadas por profesor jefe al menos una vez en el año por sala',
     tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'semestral',
     fuente: 'UTP', clasificacion: 'estrategia',
   },
   {
-    id: 'E.24', ambito: 'A2', actividad: 'Docentes implementan estrategias IF',
-    nombre: '% promedio de familias entrevistadas por profesor jefe al menos 2 veces en el año por sala',
+    id: 'E.20', ambito: 'A2', actividad: 'Docentes implementan estrategias IF',
+    nombre: '% promedio de familias entrevistadas por profesor jefe al menos dos veces en el año por sala',
     tipo: 'táctico', meta: '50%', metaNum: 0.50, unidad: '%', frecuencia: 'semestral',
     fuente: 'UTP', clasificacion: 'estrategia',
   },
-  {
-    id: 'E.25', ambito: 'A2', actividad: 'Docentes implementan estrategias IF',
-    nombre: 'Existe sistema de planificación, pauta y monitoreo de entrevistas a apoderados con estándares PAF',
-    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
 
-  // ── A3 · Participación apoderados ── (estrategia: 26–32; producto: 33–35)
+  // ═══ A3 · Participación de apoderados · Actividades (I21–I27) ════════════
   {
-    id: 'E.26', ambito: 'A3', actividad: 'Talleres presenciales de parentalidad',
-    nombre: 'Número de Talleres para Apoderados realizados en promedio por sala',
-    tipo: 'operativo', meta: '4', metaNum: 4, unidad: 'conteo', frecuencia: 'mensual',
-    fuente: 'Docente', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.27', ambito: 'A3', actividad: 'Talleres digitales de parentalidad',
-    nombre: 'Número de Talleres digitales para Apoderados enviados en promedio por sala',
-    tipo: 'operativo', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'mensual',
-    fuente: 'Docente', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.28', ambito: 'A3', actividad: 'Talleres de parentalidad',
-    nombre: '% promedio por sala de asistencia anual de apoderados a Talleres para Apoderados',
-    tipo: 'táctico', meta: '60%', metaNum: 0.60, unidad: '%', frecuencia: 'mensual',
-    fuente: 'Docente', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.29', ambito: 'A3', actividad: 'Talleres digitales',
-    nombre: '% de apoderados que declara haber descargado y visualizado los Talleres digitales',
-    tipo: 'táctico', meta: '70%', metaNum: 0.70, unidad: '%', frecuencia: 'trimestral',
-    fuente: 'Consultor', clasificacion: 'estrategia',
-  },
-  {
-    id: 'E.30', ambito: 'A3', actividad: 'Formación de apoderados monitores',
-    nombre: 'Número de formaciones realizadas a apoderados monitores',
+    id: 'E.21', ambito: 'A3', actividad: '4 Talleres presenciales de parentalidad',
+    nombre: 'Número de talleres para apoderados presenciales realizados en promedio por sala',
     tipo: 'operativo', meta: '4', metaNum: 4, unidad: 'conteo', frecuencia: 'trimestral',
     fuente: 'Consultor', clasificacion: 'estrategia',
   },
   {
-    id: 'E.31', ambito: 'A3', actividad: 'Formación de apoderados monitores',
-    nombre: 'Nota promedio que ponen los asistentes a la instancia de formación de monitores',
-    tipo: 'táctico', meta: '6.0', metaNum: 6.0, unidad: 'promedio', frecuencia: 'trimestral',
-    fuente: 'Consultor', clasificacion: 'estrategia',
+    id: 'E.22', ambito: 'A3', actividad: '4 Talleres presenciales de parentalidad',
+    nombre: '% promedio de asistencia anual de apoderados a taller para apoderados presenciales',
+    tipo: 'táctico', meta: '60%', metaNum: 0.60, unidad: '%', frecuencia: 'trimestral',
+    fuente: 'Encuesta apoderados', clasificacion: 'estrategia',
   },
   {
-    id: 'E.32', ambito: 'A3', actividad: 'Formación de apoderados monitores',
-    nombre: 'Número de apoderados monitores formados (al menos 1 instancia de formación)',
+    id: 'E.23', ambito: 'A3', actividad: '2 Talleres digitales de parentalidad',
+    nombre: 'Número de Talleres digitales para Apoderados enviados en promedio por sala',
+    tipo: 'operativo', meta: '2', metaNum: 2, unidad: 'conteo', frecuencia: 'semestral',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.24', ambito: 'A3', actividad: '2 Talleres digitales de parentalidad',
+    nombre: 'Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados',
+    tipo: 'táctico', meta: '—', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.25', ambito: 'A3', actividad: 'Formación de apoderados monitores',
+    nombre: 'Número de formaciones realizadas a apoderados monitores',
+    tipo: 'operativo', meta: '4', metaNum: 4, unidad: 'conteo', frecuencia: 'trimestral',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+  {
+    id: 'E.26', ambito: 'A3', actividad: 'Formación de apoderados monitores',
+    nombre: 'Número de apoderados monitores formados (al menos una instancia de formación)',
     tipo: 'operativo', meta: '153', metaNum: 153, unidad: 'conteo', frecuencia: 'trimestral',
-    fuente: 'Consultor', clasificacion: 'estrategia',
+    fuente: 'Evaluación final actividad', clasificacion: 'estrategia',
   },
   {
-    id: 'E.33', ambito: 'A3', actividad: 'Formación de apoderados monitores',
+    id: 'E.27', ambito: 'A3', actividad: 'Formación de apoderados monitores',
     nombre: 'Número de salas cubiertas por apoderados monitores',
-    tipo: 'operativo', meta: '153', metaNum: 153, unidad: 'conteo', frecuencia: 'mensual',
-    fuente: 'Consultor', clasificacion: 'producto',
-  },
-  {
-    id: 'E.34', ambito: 'A3', actividad: 'Formación de apoderados monitores',
-    nombre: 'Número de apoderados monitores que implementaron taller (al menos 1 taller realizado)',
-    tipo: 'operativo', meta: '153', metaNum: 153, unidad: 'conteo', frecuencia: 'mensual',
-    fuente: 'Consultor', clasificacion: 'producto',
-  },
-  {
-    id: 'E.35', ambito: 'A3', actividad: 'Formación de apoderados monitores',
-    nombre: '% de talleres de apoderados liderados por la dupla monitor–profesor',
-    tipo: 'táctico', meta: '50%', metaNum: 0.50, unidad: '%', frecuencia: 'mensual',
-    fuente: 'Consultor', clasificacion: 'producto',
+    tipo: 'operativo', meta: '1', metaNum: 1, unidad: 'conteo', frecuencia: 'anual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
   },
 
-  // ── A4 · Fomento lector ── (producto: 36–46, todos >32)
+  // ═══ A4 · Fomento lector · Actividades (I28–I32) ═════════════════════════
   {
-    id: 'E.36', ambito: 'A4', actividad: 'Biblioteca viajera NT1–1°/2°',
-    nombre: 'Cantidad promedio de libros de biblioteca viajera recibidos por estudiante por sala',
-    tipo: 'táctico', meta: '10', metaNum: 10, unidad: 'promedio', frecuencia: 'mensual',
-    fuente: 'Docente', clasificacion: 'producto',
+    id: 'E.28', ambito: 'A4', actividad: 'Biblioteca viajera (NT1–2° básico)',
+    nombre: 'Cantidad de semanas de envío de Biblioteca Viajera por sala',
+    tipo: 'operativo', meta: '20', metaNum: 20, unidad: 'conteo', frecuencia: 'mensual',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
   },
   {
-    id: 'E.37', ambito: 'A4', actividad: 'Biblioteca viajera NT1–1°/2°',
-    nombre: 'Promedio de libros de biblioteca viajera utilizados por familias',
-    tipo: 'táctico', meta: '7', metaNum: 7, unidad: 'promedio', frecuencia: 'semestral',
-    fuente: 'Consultor', clasificacion: 'producto',
-  },
-  {
-    id: 'E.38', ambito: 'A4', actividad: 'Mediación biblioteca viajera en aula',
-    nombre: 'Cantidad promedio de actividades de mediación de biblioteca viajera realizadas por sala',
-    tipo: 'táctico', meta: '3', metaNum: 3, unidad: 'promedio', frecuencia: 'trimestral',
-    fuente: 'Docente', clasificacion: 'producto',
-  },
-  {
-    id: 'E.39', ambito: 'A4', actividad: 'Lecturas viajeras',
-    nombre: 'Cantidad promedio de días/envíos de lecturas viajeras (1° a 8°)',
-    tipo: 'táctico', meta: '15', metaNum: 15, unidad: 'promedio', frecuencia: 'mensual',
-    fuente: 'Docente', clasificacion: 'producto',
-  },
-  {
-    id: 'E.40', ambito: 'A4', actividad: 'Lecturas viajeras',
-    nombre: 'Promedio de lecturas viajeras utilizadas por familias',
+    id: 'E.29', ambito: 'A4', actividad: 'Biblioteca viajera (NT1–2° básico)',
+    nombre: 'Cantidad promedio de libros de Bibliotecas Viajeras recibidos por estudiante por sala',
     tipo: 'táctico', meta: '10', metaNum: 10, unidad: 'promedio', frecuencia: 'semestral',
-    fuente: 'Consultor', clasificacion: 'producto',
+    fuente: 'Encuesta apoderados', clasificacion: 'producto',
   },
   {
-    id: 'E.41', ambito: 'A4', actividad: 'Lecturas viajeras – mediación en aula',
-    nombre: 'Cantidad promedio de actividades de aula de Lecturas Viajeras desarrolladas en salas',
+    id: 'E.30', ambito: 'A4', actividad: 'Lecturas viajeras (3° a 8° básico)',
+    nombre: 'Cantidad promedio de envío de Lecturas Viajeras por sala',
     tipo: 'táctico', meta: '15', metaNum: 15, unidad: 'promedio', frecuencia: 'mensual',
-    fuente: 'Docente', clasificacion: 'producto',
+    fuente: 'Encuesta apoderados', clasificacion: 'estrategia',
   },
   {
-    id: 'E.42', ambito: 'A4', actividad: 'Mantel de Palabras',
+    id: 'E.31', ambito: 'A4', actividad: 'Mantel de Palabras',
     nombre: '% de salas que envían Mantel de Palabras',
     tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'semestral',
-    fuente: 'Docente', clasificacion: 'producto',
+    fuente: 'Encuesta apoderados', clasificacion: 'estrategia',
   },
   {
-    id: 'E.43', ambito: 'A4', actividad: 'Mantel de Palabras',
-    nombre: '% de apoderados que declara utilizar o haber utilizado el Mantel de Palabras',
-    tipo: 'táctico', meta: '80%', metaNum: 0.80, unidad: '%', frecuencia: 'semestral',
+    id: 'E.32', ambito: 'A3', actividad: '5 Talleres anuales de aprendizaje y desarrollo para estudiantes',
+    nombre: 'Número de talleres para estudiantes realizados por sala (1° a 8°)',
+    tipo: 'operativo', meta: '5', metaNum: 5, unidad: 'conteo', frecuencia: 'trimestral',
+    fuente: 'Registro establecimiento', clasificacion: 'estrategia',
+  },
+
+  // ═══ P1 · Liderazgo · Productos (I33–I35) ═══════════════════════════════
+  {
+    id: 'E.33', ambito: 'A1', actividad: '1 Encuentro anual en liderazgo para directores',
+    nombre: 'Director cumple la meta propuesta para su liderazgo (revisión estándares PAF)',
+    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
     fuente: 'Consultor', clasificacion: 'producto',
   },
   {
-    id: 'E.44', ambito: 'A4', actividad: 'Mantel de Palabras',
-    nombre: '% de salas que realizan actividad de mediación del Mantel de Palabras',
-    tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'semestral',
-    fuente: 'Docente', clasificacion: 'producto',
+    id: 'E.34', ambito: 'A1', actividad: '10 Reuniones Equipo de Gestión Escolar',
+    nombre: '% de cumplimiento del plan de acción familia escuela',
+    tipo: 'táctico', meta: '70%', metaNum: 0.70, unidad: '%', frecuencia: 'semestral',
+    fuente: 'Consultor', clasificacion: 'producto',
+  },
+  {
+    id: 'E.35', ambito: 'A1', actividad: 'Plan de acción (PME/PEI)',
+    nombre: 'Plan de acción diseñado e incorporado en PME y PEI',
+    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
+    fuente: 'PME y PEI', clasificacion: 'producto',
+  },
+
+  // ═══ P2 · Formación equipos · Productos (I36–I39) ═══════════════════════
+  {
+    id: 'E.36', ambito: 'A2', actividad: '5 Instancias formativas anuales',
+    nombre: 'Nota promedio que ponen los asistentes a los módulos formativos',
+    tipo: 'táctico', meta: '6.0', metaNum: 6.0, unidad: 'promedio', frecuencia: 'mensual',
+    fuente: 'Consultor', clasificacion: 'producto',
+  },
+  {
+    id: 'E.37', ambito: 'A2', actividad: '2 Instancias formativas territoriales',
+    nombre: 'Nota promedio que ponen los asistentes a las formaciones territoriales',
+    tipo: 'táctico', meta: '6.0', metaNum: 6.0, unidad: 'promedio', frecuencia: 'semestral',
+    fuente: 'Consultor', clasificacion: 'producto',
+  },
+  {
+    id: 'E.38', ambito: 'A2', actividad: 'Docentes implementan estrategias IF',
+    nombre: 'Existe sistema de planificación, pauta y monitoreo de entrevistas a apoderados con estándares PAF',
+    tipo: 'táctico', meta: 'Sí', metaNum: 1.0, unidad: 'binario', frecuencia: 'anual',
+    fuente: 'Consultor', clasificacion: 'producto',
+  },
+  {
+    id: 'E.39', ambito: 'A3', actividad: 'Formación de apoderados monitores',
+    nombre: 'Porcentaje de Talleres para Apoderados liderados por la dupla monitor–profesor',
+    tipo: 'táctico', meta: '50%', metaNum: 0.50, unidad: '%', frecuencia: 'trimestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
+  },
+
+  // ═══ P3 · Participación de apoderados · Actividades/Productos (I40–I46) ══
+  {
+    id: 'E.40', ambito: 'A3', actividad: '4 Talleres presenciales de parentalidad',
+    nombre: '% promedio de apoderados que participan de al menos un taller presencial',
+    tipo: 'táctico', meta: '70%', metaNum: 0.70, unidad: '%', frecuencia: 'trimestral',
+    fuente: 'Encuesta apoderados', clasificacion: 'producto',
+  },
+  {
+    id: 'E.41', ambito: 'A3', actividad: '4 Talleres presenciales de parentalidad',
+    nombre: '% promedio de apoderados que participan del 100% de los Talleres presenciales',
+    tipo: 'táctico', meta: '50%', metaNum: 0.50, unidad: '%', frecuencia: 'trimestral',
+    fuente: 'Encuesta apoderados', clasificacion: 'producto',
+  },
+  {
+    id: 'E.42', ambito: 'A3', actividad: '2 Talleres digitales de parentalidad',
+    nombre: '% de apoderados que declaran haber descargado y visualizado los dos Talleres digitales',
+    tipo: 'táctico', meta: '70%', metaNum: 0.70, unidad: '%', frecuencia: 'semestral',
+    fuente: 'Encuesta apoderados', clasificacion: 'producto',
+  },
+  {
+    id: 'E.43', ambito: 'A4', actividad: 'Biblioteca viajera (NT1–2° básico)',
+    nombre: 'Promedio de libros de Biblioteca Viajera que declaran utilizar las familias',
+    tipo: 'táctico', meta: '7', metaNum: 7, unidad: 'promedio', frecuencia: 'semestral',
+    fuente: 'Encuesta apoderados', clasificacion: 'producto',
+  },
+  {
+    id: 'E.44', ambito: 'A4', actividad: 'Lecturas viajeras (3° a 8° básico)',
+    nombre: 'Promedio de Lecturas Viajeras que declaran utilizar las familias',
+    tipo: 'táctico', meta: '10', metaNum: 10, unidad: 'promedio', frecuencia: 'semestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
   },
   {
     id: 'E.45', ambito: 'A4', actividad: 'Mantel de Palabras',
-    nombre: 'Cantidad promedio de actividades de mediación del Mantel de Palabras post envío por sala',
-    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'promedio', frecuencia: 'semestral',
-    fuente: 'Docente', clasificacion: 'producto',
+    nombre: '% de apoderados que declaran utilizar el Mantel de Palabras',
+    tipo: 'táctico', meta: '80%', metaNum: 0.80, unidad: '%', frecuencia: 'semestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
   },
   {
     id: 'E.46', ambito: 'A4', actividad: 'Apoderados usan estrategias IF',
     nombre: 'Cantidad promedio de instrumentos de fomento lector y lenguaje que declaran utilizar las familias',
     tipo: 'táctico', meta: '10', metaNum: 10, unidad: 'promedio', frecuencia: 'semestral',
-    fuente: 'Consultor', clasificacion: 'producto',
+    fuente: 'Encuesta apoderados', clasificacion: 'producto',
   },
 
-  // ── A3 (ampliado) · Talleres estudiantes + Redcreando ──────────────────────
-  // Talleres estudiantes → clasificacion 'producto' (N°47 > 32)
+  // ═══ P4 · Participación · Productos (I47–I48) ═══════════════════════════
   {
-    id: 'E.47', ambito: 'A3', actividad: 'Talleres anuales de aprendizaje y desarrollo',
-    nombre: 'Número de talleres para estudiantes realizados por sala (1° a 8°)',
-    tipo: 'operativo', meta: '5', metaNum: 5, unidad: 'conteo', frecuencia: 'trimestral',
-    fuente: 'Docente', clasificacion: 'producto',
-  },
-  // Redcreando → solo 2025, sin meta 2026 → sin_meta
-  {
-    id: 'E.48', ambito: 'A3', actividad: 'Comités comunales',
-    nombre: 'Número de comités comunales en los que participa la escuela [solo 2025]',
-    tipo: 'operativo', meta: '3', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'producto',
+    id: 'E.47', ambito: 'A3', actividad: 'Formación de apoderados monitores',
+    nombre: 'Número de apoderados monitores que implementaron Taller de Apoderados (al menos un taller)',
+    tipo: 'operativo', meta: '153', metaNum: 153, unidad: 'conteo', frecuencia: 'trimestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
   },
   {
-    id: 'E.49', ambito: 'A3', actividad: 'Fiesta de las familias',
-    nombre: 'Número de personas de la comunidad educativa que participan en Fiesta de la Familia por cada 100 estudiantes [solo 2025]',
-    tipo: 'operativo', meta: '20%', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'producto',
+    id: 'E.48', ambito: 'A3', actividad: 'Formación de apoderados monitores',
+    nombre: 'Nota promedio que ponen los asistentes a las formaciones de monitores',
+    tipo: 'táctico', meta: '6.0', metaNum: 6.0, unidad: 'promedio', frecuencia: 'trimestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
+  },
+
+  // ═══ P5 · Fomento lector · Actividades/Productos (I49–I52) ══════════════
+  {
+    id: 'E.49', ambito: 'A4', actividad: 'Biblioteca viajera (NT1–2° básico)',
+    nombre: 'Cantidad promedio de actividades de mediación de Biblioteca Viajera realizadas por sala',
+    tipo: 'táctico', meta: '3', metaNum: 3, unidad: 'promedio', frecuencia: 'trimestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
   },
   {
-    id: 'E.50', ambito: 'A3', actividad: 'Encuentros comunitarios',
-    nombre: '% de familias de la comunidad educativa que participan en algún encuentro comunitario [solo 2025]',
-    tipo: 'táctico', meta: '5%', metaNum: null, unidad: 'sin_meta', frecuencia: 'anual',
-    fuente: 'Consultor', clasificacion: 'producto',
+    id: 'E.50', ambito: 'A4', actividad: 'Lecturas viajeras (3° a 8° básico)',
+    nombre: 'Cantidad promedio de actividades de aula de Lecturas Viajeras desarrolladas en salas',
+    tipo: 'táctico', meta: '15', metaNum: 15, unidad: 'promedio', frecuencia: 'mensual',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
+  },
+  {
+    id: 'E.51', ambito: 'A4', actividad: 'Mantel de Palabras',
+    nombre: '% de salas que realizan mediación del Mantel de Palabras, previo al envío',
+    tipo: 'táctico', meta: '100%', metaNum: 1.0, unidad: '%', frecuencia: 'semestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
+  },
+  {
+    id: 'E.52', ambito: 'A4', actividad: 'Mantel de Palabras',
+    nombre: 'Cantidad promedio de actividades de mediación del Mantel post envío por sala',
+    tipo: 'táctico', meta: '2', metaNum: 2, unidad: 'promedio', frecuencia: 'semestral',
+    fuente: 'Registro establecimiento', clasificacion: 'producto',
   },
 ];
 

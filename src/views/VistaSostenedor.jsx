@@ -2,12 +2,11 @@ import { useState, useMemo } from 'react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
 import { AMBITOS_ESCOLAR, AMBITOS_PARVULARIO, INDICADORES_ESCOLAR, INDICADORES_PARVULARIO } from '../data/indicadores.js';
 import { ESCUELAS, JARDINES, SLEPS, logroPorAmbito, promedioSlepAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
-import { KpiCard } from '../components/Shared.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
 import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
-import { Building2, TrendingUp, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Building2, GraduationCap, Users, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 
 export default function VistaSostenedor() {
@@ -36,6 +35,13 @@ export default function VistaSostenedor() {
     AMBITOS.map(a => [a.id, promedioSlepAmbito(INDS, todosDelTipo, slep.id, a.id)])
   );
   const logroGlobal = Object.values(promediosSlep).reduce((a, b) => a + b, 0) / AMBITOS.length;
+
+  const todosSlep = [...escuelasSlep, ...jardinesSlep];
+  const totalesRed = {
+    ninos: todosSlep.reduce((s, e) => s + (e.nNinos ?? 0), 0),
+    agentes: todosSlep.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
+    comunas: new Set(todosSlep.map(e => e.comuna)).size,
+  };
 
   const ranking = establecimientos.map(e => {
     const logros = logroPorAmbito(INDS, e.id, slep.id);
@@ -79,21 +85,12 @@ export default function VistaSostenedor() {
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <KpiCard
-          label="Establecimientos"
-          value={escuelasSlep.length + jardinesSlep.length}
-          sublabel={`${ranking.filter(r => r.promedio >= 0.85).length} en meta · ${ranking.filter(r => r.promedio >= 0.6 && r.promedio < 0.85).length} en desarrollo · ${ranking.filter(r => r.promedio < 0.6).length} requieren atención`}
-          icon={Building2}
-        />
-        <KpiCard
-          label="En meta"
-          value={`${ranking.filter(r => r.promedio >= 0.85).length} de ${ranking.length}`}
-          sublabel={`${Math.round((ranking.filter(r => r.promedio >= 0.85).length / (ranking.length || 1)) * 100)}% de la red`}
-          icon={TrendingUp}
-          color="sky"
-        />
+      {/* Totales de la red */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <TotalCard label="Establecimientos" value={escuelasSlep.length + jardinesSlep.length} sub={`${escuelasSlep.length} escuelas · ${jardinesSlep.length} jardines`} Icon={Building2}/>
+        <TotalCard label="Niños y niñas" value={totalesRed.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
+        <TotalCard label="Agentes educativos" value={totalesRed.agentes} sub="en el programa" Icon={Users}/>
+        <TotalCard label="Comunas" value={totalesRed.comunas} sub="con cobertura activa" Icon={MapPin}/>
       </div>
 
       {/* Toggle Escuela / Jardín (solo cuando el SLEP tiene ambos tipos) */}
@@ -190,5 +187,20 @@ export default function VistaSostenedor() {
         />
       )}
     </>
+  );
+}
+
+function TotalCard({ label, value, sub, Icon }) {
+  return (
+    <div className="card py-4 px-4 flex items-start gap-3 mb-0">
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-cyan-50">
+        <Icon size={16} style={{ color: 'var(--color-cyan)' }}/>
+      </div>
+      <div className="min-w-0">
+        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-ui leading-none mb-1">{label}</p>
+        <p className="text-2xl font-medium text-gray-dark leading-none">{value}</p>
+        {sub && <p className="text-[10px] text-gray-ui mt-1 leading-snug">{sub}</p>}
+      </div>
+    </div>
   );
 }

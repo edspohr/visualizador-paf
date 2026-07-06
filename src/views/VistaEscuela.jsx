@@ -19,6 +19,9 @@ export default function VistaEscuela() {
   const entidad = resolverEntidad(perfil.contexto);
   if (!entidad) return <p>Establecimiento no encontrado.</p>;
 
+  const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const periodoLabel = `${NOMBRES_MES[MES_ACTUAL - 1]} ${new Date().getFullYear()}`;
+
   const slep = SLEPS.find(s => s.id === entidad.slep);
   const logros = logroPorAmbito(INDS, entidad.id, entidad.slep);
   const logroGlobal = Object.values(logros).reduce((a, b) => a + b, 0) / AMBITOS.length;
@@ -46,7 +49,7 @@ export default function VistaEscuela() {
         <div className="flex items-center gap-2 text-sm flex-wrap">
           <div className="bg-white/15 backdrop-blur px-3 py-2 rounded-xl">
             <p className="text-xs text-white/70 leading-none">PERÍODO</p>
-            <p className="font-medium mt-1">Mayo 2026</p>
+            <p className="font-medium mt-1">{periodoLabel}</p>
           </div>
           <div className="bg-white/15 backdrop-blur px-3 py-2 rounded-xl">
             <p className="text-xs text-white/70 leading-none">LOGRO GLOBAL</p>

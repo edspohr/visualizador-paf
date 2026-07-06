@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat } from 'lucide-react';
+import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Info, X } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
 import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
 
@@ -18,6 +18,7 @@ export default function Layout({ children }) {
   const { perfil, cerrarSesion, seleccionarPerfil, cambiarEntidad, cambiarPrograma } = useApp();
   const [menuPerfil, setMenuPerfil] = useState(false);
   const [menuEntidad, setMenuEntidad] = useState(false);
+  const [demoBanner, setDemoBanner] = useState(true);
 
   const Icon = ICONOS[perfil.icono] ?? School;
   const entidad = resolverEntidad(perfil.contexto);
@@ -147,13 +148,33 @@ export default function Layout({ children }) {
         </div>
       </header>
 
+      {demoBanner && (
+        <div className="border-b" style={{ background: 'rgb(255,249,225)', borderColor: 'rgb(240,220,140)' }}>
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-2.5 flex items-start gap-3 text-xs" style={{ color: 'rgb(120,90,10)' }}>
+            <Info size={14} className="shrink-0 mt-0.5" />
+            <p className="flex-1 leading-relaxed">
+              <span className="font-medium">Datos de demostración.</span> Los establecimientos, cohortes y comunas son reales.
+              Los valores por indicador (matrícula, agentes educativos y desempeño) son estimaciones sintéticas
+              y serán reemplazadas por datos en vivo desde Supabase.
+            </p>
+            <button
+              onClick={() => setDemoBanner(false)}
+              className="shrink-0 rounded-lg hover:bg-black/5 p-1 transition"
+              aria-label="Cerrar aviso"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 py-8 md:py-10">
         {children}
       </main>
 
       <footer className="border-t border-border bg-white py-4 mt-8">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Mock v2 — Datos sintéticos para validación</span>
+          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Mock v2 — Roster real · Valores por indicador de demostración</span>
           <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-50" />
         </div>
       </footer>

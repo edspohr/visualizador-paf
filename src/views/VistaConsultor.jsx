@@ -59,12 +59,6 @@ export default function VistaConsultor() {
     return { est: e, logros, promedio };
   }), [filtrados, INDS, AMBITOS, effectiveMonth]);
 
-  const distribucion = {
-    enMeta: conLogros.filter(c => c.promedio >= 0.85).length,
-    enDesarrollo: conLogros.filter(c => c.promedio >= 0.6 && c.promedio < 0.85).length,
-    bajo: conLogros.filter(c => c.promedio < 0.6).length,
-  };
-
   // Ranking items: average each indicator across all filtered establishments
   const rankingItems = useMemo(() => INDS
     .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
@@ -163,7 +157,7 @@ export default function VistaConsultor() {
 
       {/* Totals strip — reacts to active filters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <TotalCard label="Establecimientos" value={totales.establecimientos} sub={`${distribucion.enMeta} en meta · ${distribucion.enDesarrollo} en desarrollo · ${distribucion.bajo} en camino`} Icon={Building2}/>
+        <TotalCard label="Establecimientos" value={totales.establecimientos} sub={programa === 'escolar' ? 'escuelas del programa' : 'jardines infantiles'} Icon={Building2}/>
         <TotalCard label="Niños y niñas" value={totales.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
         <TotalCard label="Agentes educativos" value={totales.agentes} sub="en el programa" Icon={Users}/>
         <TotalCard label="Comunas" value={totales.comunas} sub="con cobertura activa" Icon={MapPin}/>

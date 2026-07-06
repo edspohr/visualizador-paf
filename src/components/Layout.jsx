@@ -153,9 +153,10 @@ export default function Layout({ children }) {
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-2.5 flex items-start gap-3 text-xs" style={{ color: 'rgb(120,90,10)' }}>
             <Info size={14} className="shrink-0 mt-0.5" />
             <p className="flex-1 leading-relaxed">
-              <span className="font-medium">Datos de demostración.</span> Los establecimientos, cohortes y comunas son reales.
-              Los valores por indicador (matrícula, agentes educativos y desempeño) son estimaciones sintéticas
-              y serán reemplazadas por datos en vivo desde Supabase.
+              <span className="font-medium">Datos de demostración.</span> Los establecimientos, cohortes, comunas y número
+              de salas por establecimiento son reales. La matrícula y agentes educativos son estimaciones basadas en
+              razones típicas (~30 niños/sala escolar, ~20 parvularia); los valores por indicador son sintéticos.
+              Todo será reemplazado por datos en vivo desde Supabase.
             </p>
             <button
               onClick={() => setDemoBanner(false)}

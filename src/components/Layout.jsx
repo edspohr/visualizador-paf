@@ -1,9 +1,17 @@
 import { useState } from 'react';
-import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Info, X } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Info, X, Users, BarChart3 } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
 import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
 
-const ICONOS = { school: School, baby: Baby, building: Building2, shield: ShieldCheck, award: Award };
+const ICONOS = {
+  school: School,
+  baby: Baby,
+  building: Building2,
+  shield: ShieldCheck,
+  'shield-check': ShieldCheck,
+  award: Award,
+};
 
 // Per-profile accent for dropdown icons
 const PERFIL_ICON_STYLE = {
@@ -12,6 +20,7 @@ const PERFIL_ICON_STYLE = {
   sostenedor: { bg: 'rgb(252,230,241)',  color: 'var(--color-magenta)'  },
   consultor:  { bg: 'rgb(240,235,252)',  color: 'var(--color-purple-1)' },
   cap:        { bg: 'rgb(252,235,231)',  color: 'var(--color-red)'      },
+  superadmin: { bg: 'rgb(220,240,240)',  color: 'var(--color-teal)'     },
 };
 
 export default function Layout({ children }) {
@@ -22,41 +31,85 @@ export default function Layout({ children }) {
 
   const Icon = ICONOS[perfil.icono] ?? School;
   const entidad = resolverEntidad(perfil.contexto);
+  const esSuperadmin = perfil.id === 'superadmin';
+  const permiteProgramaSwitch = perfil.id === 'consultor' || perfil.id === 'superadmin';
 
   let opcionesEntidad = [];
   if (perfil.id === 'escuela') opcionesEntidad = ESCUELAS;
   else if (perfil.id === 'jardin') opcionesEntidad = JARDINES;
   else if (perfil.id === 'sostenedor') opcionesEntidad = SLEPS;
 
+  // Base classes for pill controls on the white header
+  const pillBase = 'flex items-center gap-2 border border-border hover:bg-bg px-3 py-2 rounded-xl text-sm font-light text-gray-dark transition';
+
   return (
     <div className="min-h-screen flex flex-col bg-bg">
-      {/* Header — CAP cyan */}
-      <header className="text-white shadow-elev" style={{ background: 'var(--color-cyan)' }}>
+      {/* Header — white / neutral */}
+      <header className="bg-white border-b border-border">
         <div className="max-w-7xl mx-auto px-6 md:px-8 h-24 flex items-center justify-between gap-4">
 
-          {/* Logo — 3-unit clearance buffer per Area Autónoma */}
-          <div className="flex items-center gap-6 min-w-0">
-            <div className="shrink-0 rounded-xl bg-white flex items-center justify-center p-2 shadow-sm">
-              <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-14 w-auto object-contain" />
+          {/* Logo — directly on white header, no wrapping frame */}
+          <div className="flex items-center gap-5 min-w-0">
+            <img
+              src="/paf-cap-logo.jpg"
+              alt="Aprender en Familia · Fundación CAP"
+              className="h-14 w-auto object-contain shrink-0"
+            />
+            <div className="min-w-0">
+              <h1 className="text-base md:text-lg font-medium text-gray-dark leading-snug truncate tracking-tight">
+                Visualizador PAF 2026
+              </h1>
+              <p className="text-[11px] text-gray-ui font-light truncate">Programa Aprender en Familia · Fundación CAP</p>
             </div>
-            <h1 className="text-base md:text-lg font-medium text-white leading-snug truncate tracking-tight">
-              Visualizador PAF 2026
-            </h1>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Selector de programa — consultor only */}
-            {perfil.id === 'consultor' && (
-              <div className="hidden md:flex items-center gap-1 bg-white/15 rounded-xl p-1">
+            {/* Superadmin nav links */}
+            {esSuperadmin && (
+              <nav className="hidden md:flex items-center gap-1 mr-2">
+                <NavLink
+                  to="/"
+                  end
+                  className={({ isActive }) =>
+                    `px-3 py-2 rounded-xl text-sm font-medium transition ${isActive ? 'text-white' : 'text-gray-dark hover:bg-bg'}`
+                  }
+                  style={({ isActive }) => (isActive ? { background: 'var(--color-teal)' } : {})}
+                >
+                  Panel
+                </NavLink>
+                <NavLink
+                  to="/usuarios"
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition ${isActive ? 'text-white' : 'text-gray-dark hover:bg-bg'}`
+                  }
+                  style={({ isActive }) => (isActive ? { background: 'var(--color-teal)' } : {})}
+                >
+                  <Users size={14} /> Usuarios
+                </NavLink>
+                <NavLink
+                  to="/consultores"
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition ${isActive ? 'text-white' : 'text-gray-dark hover:bg-bg'}`
+                  }
+                  style={({ isActive }) => (isActive ? { background: 'var(--color-teal)' } : {})}
+                >
+                  <BarChart3 size={14} /> Consultores
+                </NavLink>
+              </nav>
+            )}
+
+            {/* Selector de programa — consultor / superadmin */}
+            {permiteProgramaSwitch && (
+              <div className="hidden md:flex items-center gap-1 border border-border rounded-xl p-1 bg-white">
                 <button
                   onClick={() => cambiarPrograma('escolar')}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'escolar' ? 'bg-white' : 'text-white hover:bg-white/15'}`}
-                  style={perfil.contexto.programa === 'escolar' ? { color: 'var(--color-cyan)' } : {}}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'escolar' ? 'text-white' : 'text-gray-ui hover:bg-bg'}`}
+                  style={perfil.contexto.programa === 'escolar' ? { background: 'var(--color-cyan)' } : {}}
                 >Escolar</button>
                 <button
                   onClick={() => cambiarPrograma('parvulario')}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'parvulario' ? 'bg-white' : 'text-white hover:bg-white/15'}`}
-                  style={perfil.contexto.programa === 'parvulario' ? { color: 'var(--color-cyan)' } : {}}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'parvulario' ? 'text-white' : 'text-gray-ui hover:bg-bg'}`}
+                  style={perfil.contexto.programa === 'parvulario' ? { background: 'var(--color-cyan)' } : {}}
                 >Parvulario</button>
               </div>
             )}
@@ -66,7 +119,7 @@ export default function Layout({ children }) {
               <div className="relative">
                 <button
                   onClick={() => setMenuEntidad(!menuEntidad)}
-                  className="flex items-center gap-2 bg-white/15 hover:bg-white/25 px-3 py-2 rounded-xl text-sm font-light transition"
+                  className={pillBase}
                 >
                   <span className="max-w-[160px] md:max-w-[240px] truncate">{entidad?.nombre || 'Seleccionar'}</span>
                   <ChevronDown size={14} />
@@ -97,9 +150,14 @@ export default function Layout({ children }) {
             <div className="relative">
               <button
                 onClick={() => setMenuPerfil(!menuPerfil)}
-                className="flex items-center gap-2 bg-white/15 hover:bg-white/25 px-3 py-2 rounded-xl text-sm font-light transition"
+                className={pillBase}
               >
-                <Icon size={16} />
+                <div
+                  className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"
+                  style={PERFIL_ICON_STYLE[perfil.id] ?? PERFIL_ICON_STYLE.escuela}
+                >
+                  <Icon size={13} />
+                </div>
                 <span className="hidden md:inline">{perfil.nombre}</span>
                 <ChevronDown size={14} />
               </button>

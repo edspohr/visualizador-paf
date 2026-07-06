@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
+import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth } from './firebase.js';
 
 const AppCtx = createContext(null);
 
@@ -50,11 +51,31 @@ export const PERFILES = [
     rol: 'Acceso a datos cerrados del mes anterior',
     contexto: { tipo: 'total', programa: 'escolar' }
   },
+  {
+    id: 'superadmin',
+    nombre: 'Superadministrador',
+    descripcion: 'Coordinación Focus + gestión de plataforma',
+    icono: 'shield-check',
+    color: 'teal',
+    rol: 'Acceso completo + gestión de usuarios',
+    contexto: { tipo: 'total', programa: 'escolar' }
+  },
 ];
+
+// Busca en PERFILES por id (case-insensitive) y devuelve una copia lista para usar.
+function perfilPorId(id) {
+  return PERFILES.find(p => p.id === id);
+}
 
 export function AppProvider({ children }) {
   const [perfil, setPerfil] = useState(null);
+  // usuario autenticado con Firebase (null = anónimo/demo)
+  const [usuario, setUsuario] = useState(null);
+  // usuarioDoc: registro en Firestore de ese usuario (perfil asignado, establecimiento, etc.)
+  const [usuarioDoc, setUsuarioDoc] = useState(null);
+  const [authListo, setAuthListo] = useState(false);
 
+  // Restaurar perfil desde localStorage (modo demo)
   useEffect(() => {
     const guardado = localStorage.getItem('paf_perfil');
     if (guardado) {
@@ -62,14 +83,48 @@ export function AppProvider({ children }) {
     }
   }, []);
 
+  // Suscribirse a cambios de auth de Firebase
+  useEffect(() => {
+    const unsub = suscribirAuth(async (u) => {
+      setUsuario(u);
+      if (u) {
+        try {
+          const doc = await obtenerUsuarioDoc(u.uid);
+          setUsuarioDoc(doc);
+          // Si el usuario tiene perfil asignado en Firestore, aplicarlo automáticamente
+          if (doc?.perfilDefault) {
+            const base = perfilPorId(doc.perfilDefault);
+            if (base) {
+              const contexto = { ...base.contexto };
+              if (doc.establecimientoId) contexto.id = doc.establecimientoId;
+              const p = { ...base, contexto };
+              setPerfil(p);
+              localStorage.setItem('paf_perfil', JSON.stringify(p));
+            }
+          }
+        } catch (err) {
+          console.warn('No se pudo cargar registro de usuario:', err);
+        }
+      } else {
+        setUsuarioDoc(null);
+      }
+      setAuthListo(true);
+    });
+    return () => unsub();
+  }, []);
+
   const seleccionarPerfil = (p) => {
     setPerfil(p);
     localStorage.setItem('paf_perfil', JSON.stringify(p));
   };
 
-  const cerrarSesion = () => {
+  const cerrarSesion = async () => {
     setPerfil(null);
     localStorage.removeItem('paf_perfil');
+    // Si además hay sesión de Firebase, cerrarla también
+    if (usuario) {
+      try { await cerrarSesionAuth(); } catch (err) { console.warn(err); }
+    }
   };
 
   const cambiarEntidad = (id) => {
@@ -91,7 +146,10 @@ export function AppProvider({ children }) {
   };
 
   return (
-    <AppCtx.Provider value={{ perfil, seleccionarPerfil, cerrarSesion, cambiarEntidad, cambiarPrograma }}>
+    <AppCtx.Provider value={{
+      perfil, seleccionarPerfil, cerrarSesion, cambiarEntidad, cambiarPrograma,
+      usuario, usuarioDoc, authListo,
+    }}>
       {children}
     </AppCtx.Provider>
   );

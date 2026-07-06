@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth, iniciarSesionDemo, actualizarUsuarioDoc, eliminarUsuarioDoc, auth } from './firebase.js';
+import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth, actualizarUsuarioDoc, auth } from './firebase.js';
 
 const AppCtx = createContext(null);
 
@@ -59,6 +59,15 @@ export const PERFILES = [
     rol: 'Acceso completo + gestión de usuarios',
     contexto: { tipo: 'total', programa: 'escolar' }
   },
+  {
+    id: 'pendiente',
+    nombre: 'Pendiente de asignación',
+    descripcion: 'Cuenta registrada; esperando asignación de perfil por un administrador',
+    icono: 'shield',
+    color: 'gray',
+    rol: 'Acceso restringido',
+    contexto: { tipo: 'pendiente', programa: 'escolar' }
+  },
 ];
 
 // Busca en PERFILES por id (case-insensitive) y devuelve una copia lista para usar.
@@ -74,15 +83,14 @@ export function AppProvider({ children }) {
   const [usuarioDoc, setUsuarioDoc] = useState(null);
   const [authListo, setAuthListo] = useState(false);
 
-  // Restaurar perfil desde localStorage (modo demo)
-  useEffect(() => {
-    const guardado = localStorage.getItem('paf_perfil');
-    if (guardado) {
-      try { setPerfil(JSON.parse(guardado)); } catch { /* ignore */ }
-    }
-  }, []);
+  // Nota: ya no restauramos perfil desde localStorage al mount inicial.
+  // El perfil se aplica exclusivamente desde el doc de usuario en Firestore
+  // cuando el listener de auth detecta una sesión (línea siguiente).
 
-  // Suscribirse a cambios de auth de Firebase
+  // Suscribirse a cambios de auth de Firebase.
+  // Al login (o restauración de sesión), leemos el doc del usuario y aplicamos su
+  // perfil asignado automáticamente. Los superadmins pueden cambiar de perfil después
+  // desde el dropdown del header.
   useEffect(() => {
     const unsub = suscribirAuth(async (u) => {
       setUsuario(u);
@@ -90,14 +98,12 @@ export function AppProvider({ children }) {
         try {
           const doc = await obtenerUsuarioDoc(u.uid);
           setUsuarioDoc(doc);
-          // Aplicar perfil desde Firestore SOLO si es un login "real" (no anónimo).
-          // Los usuarios anónimos ya tienen su perfil desde seleccionarPerfil() y no
-          // queremos sobrescribirlo con cada refresh del listener.
-          if (doc?.perfilDefault && !u.isAnonymous) {
+          if (doc?.perfilDefault) {
             const base = perfilPorId(doc.perfilDefault);
             if (base) {
               const contexto = { ...base.contexto };
               if (doc.establecimientoId) contexto.id = doc.establecimientoId;
+              if (doc.slepId && contexto.tipo === 'slep') contexto.id = doc.slepId;
               const p = { ...base, contexto };
               setPerfil(p);
               localStorage.setItem('paf_perfil', JSON.stringify(p));
@@ -108,46 +114,41 @@ export function AppProvider({ children }) {
         }
       } else {
         setUsuarioDoc(null);
+        setPerfil(null);
+        localStorage.removeItem('paf_perfil');
       }
       setAuthListo(true);
     });
     return () => unsub();
   }, []);
 
+  // seleccionarPerfil ahora solo lo usan los superadmins desde el dropdown del header
+  // para "cambiar de vista" a otro perfil (jardín, sostenedor, etc.).
+  // Los usuarios normales reciben su perfil directamente al hacer login (auth listener).
   const seleccionarPerfil = async (p) => {
     setPerfil(p);
     localStorage.setItem('paf_perfil', JSON.stringify(p));
-    // Si no hay sesión Firebase, hacer login anónimo con el perfil demo elegido.
-    // Esto permite que las reglas Firestore autoricen las lecturas.
-    try {
-      if (!auth.currentUser) {
-        await iniciarSesionDemo(p);
-      } else if (auth.currentUser.isAnonymous) {
-        // Ya hay sesión anónima previa (cambio de perfil demo). Actualizar el doc.
+    // Si hay usuario logueado, actualizar su doc para que las reglas de Firestore
+    // autoricen la lectura del nuevo establecimiento/slep. Esto solo tiene sentido
+    // para superadmins (los únicos que pueden cambiar de perfil libremente).
+    if (auth.currentUser && usuarioDoc?.perfilDefault === 'superadmin') {
+      try {
         await actualizarUsuarioDoc(auth.currentUser.uid, {
-          perfilDefault: p.id,
-          establecimientoId: p.contexto?.id ?? null,
+          establecimientoId: p.contexto?.tipo === 'establecimiento' ? p.contexto.id : null,
           slepId: p.contexto?.tipo === 'slep' ? p.contexto.id : null,
+          // Nota: perfilDefault se mantiene como 'superadmin' aunque esté "viendo como" otro perfil
         });
+      } catch (err) {
+        console.warn('No se pudo actualizar contexto del usuario:', err);
       }
-    } catch (err) {
-      console.warn('No se pudo iniciar sesión demo:', err);
     }
   };
 
   const cerrarSesion = async () => {
     setPerfil(null);
     localStorage.removeItem('paf_perfil');
-    // Si además hay sesión de Firebase, cerrarla también
     if (usuario) {
-      const eraAnonimo = usuario.isAnonymous;
-      const uid = usuario.uid;
       try { await cerrarSesionAuth(); } catch (err) { console.warn(err); }
-      // Los usuarios demo anónimos son efímeros: borrar su doc para no dejar
-      // basura acumulada en /usuarios.
-      if (eraAnonimo) {
-        try { await eliminarUsuarioDoc(uid); } catch (err) { console.warn(err); }
-      }
     }
   };
 
@@ -156,8 +157,9 @@ export function AppProvider({ children }) {
     const nuevo = { ...perfil, contexto: { ...perfil.contexto, id } };
     setPerfil(nuevo);
     localStorage.setItem('paf_perfil', JSON.stringify(nuevo));
-    // Si es sesión anónima demo, actualizar el doc para que las reglas lo lean
-    if (auth.currentUser?.isAnonymous) {
+    // Propagar al doc de Firestore para que las reglas autoricen la lectura del
+    // nuevo establecimiento. Solo aplica a superadmins (los demás no pueden cambiar).
+    if (auth.currentUser && usuarioDoc?.perfilDefault === 'superadmin') {
       try {
         await actualizarUsuarioDoc(auth.currentUser.uid, {
           establecimientoId: nuevo.contexto?.tipo === 'establecimiento' ? id : null,
@@ -170,14 +172,12 @@ export function AppProvider({ children }) {
   const cambiarPrograma = async (programa) => {
     if (!perfil) return;
     const nuevoCtx = { ...perfil.contexto, programa };
-    // Si cambia programa, también resetear establecimiento por defecto si aplica
     if (perfil.id === 'escuela' && programa === 'parvulario') nuevoCtx.id = 'JAR-001';
     if (perfil.id === 'jardin' && programa === 'escolar') nuevoCtx.id = 'ESC-001';
     const nuevo = { ...perfil, contexto: nuevoCtx };
     setPerfil(nuevo);
     localStorage.setItem('paf_perfil', JSON.stringify(nuevo));
-    // Propagar al doc de Firestore si es demo anónimo
-    if (auth.currentUser?.isAnonymous && nuevoCtx.id) {
+    if (auth.currentUser && usuarioDoc?.perfilDefault === 'superadmin' && nuevoCtx.id) {
       try {
         await actualizarUsuarioDoc(auth.currentUser.uid, {
           establecimientoId: nuevoCtx.tipo === 'establecimiento' ? nuevoCtx.id : null,

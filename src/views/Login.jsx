@@ -1,27 +1,6 @@
 import { useState } from 'react';
-import { School, Baby, Building2, ShieldCheck, Award, ArrowRight, Mail, Lock, LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
-import { useApp, PERFILES } from '../lib/context.jsx';
+import { Mail, Lock, LogIn, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
 import { iniciarSesionEmail, registrarEmail, iniciarConGoogle, enviarResetPassword } from '../lib/firebase.js';
-
-const ICONOS = {
-  school: School,
-  baby: Baby,
-  building: Building2,
-  shield: ShieldCheck,
-  'shield-check': ShieldCheck,
-  award: Award,
-};
-
-// One distinct accent per profile id
-const PERFIL_ACCENT = {
-  escuela:    { border: 'var(--color-cyan)',      bg: 'var(--color-cyan)',      text: '#fff' },
-  jardin:     { border: 'var(--color-yellow)',    bg: 'var(--color-yellow)',    text: 'var(--color-gray-dark)' },
-  sostenedor: { border: 'var(--color-magenta)',   bg: 'var(--color-magenta)',   text: '#fff' },
-  consultor:  { border: 'var(--color-purple-1)',  bg: 'var(--color-purple-1)',  text: '#fff' },
-  cap:        { border: 'var(--color-red)',       bg: 'var(--color-red)',       text: '#fff' },
-  superadmin: { border: 'var(--color-teal)',      bg: 'var(--color-teal)',      text: '#fff' },
-};
-const PERFIL_DEFAULT = { border: 'var(--color-cyan)', bg: 'var(--color-cyan)', text: '#fff' };
 
 // Traduce el error de Firebase Auth a un mensaje leíble
 function mensajeError(err) {
@@ -41,12 +20,11 @@ function mensajeError(err) {
 }
 
 export default function Login() {
-  const { seleccionarPerfil } = useApp();
-  const [tab, setTab] = useState('demo'); // 'demo' | 'ingresar' | 'registrar'
+  const [tab, setTab] = useState('ingresar'); // 'ingresar' | 'registrar'
 
   return (
     <div className="min-h-screen bg-bg flex flex-col">
-      {/* Header — logo integrado sin cuadro, banner blanco con acento cyan al pie */}
+      {/* Header */}
       <header className="bg-white border-b border-border">
         <div className="max-w-6xl mx-auto px-8 py-8">
           <div className="flex items-center gap-6">
@@ -66,13 +44,9 @@ export default function Login() {
         <div className="h-1" style={{ background: 'var(--color-cyan)' }}/>
       </header>
 
-      {/* Contenido */}
       <main className="flex-1 max-w-6xl mx-auto w-full px-8 py-10">
         {/* Tabs */}
-        <div className="mb-8 flex flex-wrap items-center gap-2 border-b border-border">
-          <TabButton active={tab === 'demo'} onClick={() => setTab('demo')}>
-            Explorar como demo
-          </TabButton>
+        <div className="mb-8 flex flex-wrap items-center gap-2 border-b border-border max-w-md mx-auto">
           <TabButton active={tab === 'ingresar'} onClick={() => setTab('ingresar')}>
             Iniciar sesión
           </TabButton>
@@ -81,22 +55,19 @@ export default function Login() {
           </TabButton>
         </div>
 
-        {tab === 'demo' && <TabDemo seleccionarPerfil={seleccionarPerfil}/>}
         {tab === 'ingresar' && <TabIngresar onSwitchToRegistrar={() => setTab('registrar')}/>}
         {tab === 'registrar' && <TabRegistrar onSwitchToIngresar={() => setTab('ingresar')}/>}
       </main>
 
       <footer className="border-t border-border bg-white py-4">
         <div className="max-w-6xl mx-auto px-8 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-gray-ui font-light">Visualizador PAF 2026 · Mock v3 — Roster real + auth Firebase</span>
+          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Consultora Focus · Fundación CAP</span>
           <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-50" />
         </div>
       </footer>
     </div>
   );
 }
-
-// ─── Tabs ──────────────────────────────────────────────────────────────────
 
 function TabButton({ active, onClick, children }) {
   return (
@@ -113,54 +84,7 @@ function TabButton({ active, onClick, children }) {
   );
 }
 
-// ─── Tab: Demo (grid de perfiles) ─────────────────────────────────────────
-
-function TabDemo({ seleccionarPerfil }) {
-  return (
-    <>
-      <div className="mb-8">
-        <h2 className="text-xl font-medium" style={{ color: 'var(--color-gray-dark)' }}>Selecciona un perfil demo</h2>
-        <p className="text-gray-ui font-light mt-1 text-sm">
-          Cada perfil muestra únicamente los datos correspondientes a su rol. Los datos son de demostración
-          para validar look & feel y flujo de navegación.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {PERFILES.map((p) => {
-          const Icon = ICONOS[p.icono] ?? School;
-          const accent = PERFIL_ACCENT[p.id] ?? PERFIL_DEFAULT;
-          return (
-            <button
-              key={p.id}
-              onClick={() => seleccionarPerfil(p)}
-              className="group bg-white rounded-2xl border-2 p-6 text-left transition-all hover:-translate-y-1 shadow-card hover:shadow-elev"
-              style={{ borderColor: accent.border }}
-            >
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                style={{ background: accent.bg, color: accent.text }}
-              >
-                <Icon size={22} strokeWidth={2} />
-              </div>
-              <h3 className="text-lg font-medium" style={{ color: 'var(--color-gray-dark)' }}>{p.nombre}</h3>
-              <p className="text-sm text-gray-ui font-light mt-1">{p.descripcion}</p>
-              <p className="text-xs text-gray-ui font-light mt-3">{p.rol}</p>
-              <div
-                className="flex items-center gap-1 mt-5 text-sm font-medium opacity-0 group-hover:opacity-100 transition"
-                style={{ color: accent.border }}
-              >
-                Ingresar <ArrowRight size={14} />
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </>
-  );
-}
-
-// ─── Tab: Iniciar sesión (email + Google) ─────────────────────────────────
+// ─── Tab Ingresar ─────────────────────────────────────────────────────────
 
 function TabIngresar({ onSwitchToRegistrar }) {
   const [email, setEmail] = useState('');
@@ -176,7 +100,6 @@ function TabIngresar({ onSwitchToRegistrar }) {
     setLoading(true);
     try {
       await iniciarSesionEmail(email.trim(), password);
-      // El AuthProvider detecta el nuevo usuario y aplica su perfil automáticamente.
     } catch (err) {
       setError(mensajeError(err));
     } finally {
@@ -212,6 +135,22 @@ function TabIngresar({ onSwitchToRegistrar }) {
 
   return (
     <AuthCard title="Iniciar sesión" subtitle="Con tu correo institucional y contraseña, o con tu cuenta de Google.">
+      {/* Google button prominente arriba */}
+      <button
+        onClick={google}
+        disabled={googleLoading}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border font-medium text-gray-dark hover:bg-bg transition disabled:opacity-50 mb-5"
+      >
+        {googleLoading ? <Loader2 size={16} className="animate-spin"/> : <GoogleIcon size={16}/>}
+        Continuar con Google
+      </button>
+
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex-1 h-px bg-border"/>
+        <span className="text-xs text-gray-ui font-light uppercase tracking-wider">o con correo</span>
+        <div className="flex-1 h-px bg-border"/>
+      </div>
+
       <form onSubmit={submit} className="space-y-4">
         <Field label="Correo" icon={Mail} type="email" value={email} onChange={setEmail} placeholder="tu@focus.cl" />
         <Field label="Contraseña" icon={Lock} type="password" value={password} onChange={setPassword} placeholder="••••••••" />
@@ -239,21 +178,6 @@ function TabIngresar({ onSwitchToRegistrar }) {
         </button>
       </form>
 
-      <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px bg-border"/>
-        <span className="text-xs text-gray-ui font-light uppercase tracking-wider">o</span>
-        <div className="flex-1 h-px bg-border"/>
-      </div>
-
-      <button
-        onClick={google}
-        disabled={googleLoading}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border font-medium text-gray-dark hover:bg-bg transition disabled:opacity-50"
-      >
-        {googleLoading ? <Loader2 size={16} className="animate-spin"/> : <GoogleIcon size={16}/>}
-        Continuar con Google
-      </button>
-
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-ui">
         <button onClick={reset} className="hover:underline font-medium text-gray-dark">
           ¿Olvidaste tu contraseña?
@@ -266,7 +190,7 @@ function TabIngresar({ onSwitchToRegistrar }) {
   );
 }
 
-// ─── Tab: Registrar ──────────────────────────────────────────────────────
+// ─── Tab Registrar ─────────────────────────────────────────────────────
 
 function TabRegistrar({ onSwitchToIngresar }) {
   const [email, setEmail] = useState('');
@@ -290,7 +214,6 @@ function TabRegistrar({ onSwitchToIngresar }) {
     setLoading(true);
     try {
       await registrarEmail(email.trim(), password);
-      // Al registrarse, el AuthProvider detecta el usuario y aplica el perfil default.
     } catch (err) {
       setError(mensajeError(err));
     } finally {
@@ -311,7 +234,23 @@ function TabRegistrar({ onSwitchToIngresar }) {
   };
 
   return (
-    <AuthCard title="Crear una cuenta" subtitle="Registrate con tu correo institucional para acceder al programa. Un superadministrador te asignará el perfil correspondiente.">
+    <AuthCard title="Crear una cuenta" subtitle="Registrate con tu correo institucional. Un superadministrador te asignará el perfil correspondiente después.">
+      {/* Google button prominente arriba */}
+      <button
+        onClick={google}
+        disabled={googleLoading}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border font-medium text-gray-dark hover:bg-bg transition disabled:opacity-50 mb-5"
+      >
+        {googleLoading ? <Loader2 size={16} className="animate-spin"/> : <GoogleIcon size={16}/>}
+        Registrarme con Google
+      </button>
+
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex-1 h-px bg-border"/>
+        <span className="text-xs text-gray-ui font-light uppercase tracking-wider">o con correo</span>
+        <div className="flex-1 h-px bg-border"/>
+      </div>
+
       <form onSubmit={submit} className="space-y-4">
         <Field label="Correo" icon={Mail} type="email" value={email} onChange={setEmail} placeholder="tu@focus.cl" />
         <Field label="Contraseña" icon={Lock} type="password" value={password} onChange={setPassword} placeholder="Mínimo 6 caracteres" />
@@ -334,21 +273,6 @@ function TabRegistrar({ onSwitchToIngresar }) {
           Crear cuenta
         </button>
       </form>
-
-      <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px bg-border"/>
-        <span className="text-xs text-gray-ui font-light uppercase tracking-wider">o</span>
-        <div className="flex-1 h-px bg-border"/>
-      </div>
-
-      <button
-        onClick={google}
-        disabled={googleLoading}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border font-medium text-gray-dark hover:bg-bg transition disabled:opacity-50"
-      >
-        {googleLoading ? <Loader2 size={16} className="animate-spin"/> : <GoogleIcon size={16}/>}
-        Registrarme con Google
-      </button>
 
       <div className="mt-5 text-xs text-gray-ui text-center">
         ¿Ya tenés cuenta?{' '}
@@ -395,7 +319,6 @@ function Field({ label, icon: Icon, type, value, onChange, placeholder }) {
   );
 }
 
-// Google "G" icon SVG (usamos SVG inline en vez de instalar iconografía)
 function GoogleIcon({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">

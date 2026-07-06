@@ -24,11 +24,14 @@ const PERFIL_ICON_STYLE = {
 };
 
 export default function Layout({ children }) {
-  const { perfil, cerrarSesion, seleccionarPerfil, cambiarEntidad, cambiarPrograma } = useApp();
+  const { perfil, usuarioDoc, cerrarSesion, seleccionarPerfil, cambiarEntidad, cambiarPrograma } = useApp();
   const [menuPerfil, setMenuPerfil] = useState(false);
   const [menuEntidad, setMenuEntidad] = useState(false);
 
   const Icon = ICONOS[perfil.icono] ?? School;
+  // usuarioReal es superadmin? — usamos usuarioDoc (Firestore) porque perfil.id puede haber cambiado
+  // temporalmente si el superadmin está "viendo como" otro perfil desde el dropdown.
+  const esUsuarioRealSuperadmin = usuarioDoc?.perfilDefault === 'superadmin';
 
   // Queries — el Layout se renderiza en todas las vistas autenticadas
   const escuelasQ = useEscuelas();
@@ -173,29 +176,42 @@ export default function Layout({ children }) {
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setMenuPerfil(false)}></div>
                   <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-elev border border-border w-72 overflow-hidden z-20">
-                    <div className="px-4 py-2.5 border-b border-border bg-bg">
-                      <p className="text-xs text-gray-ui font-light">Cambiar a otro perfil (demo)</p>
+                    {/* Info del usuario logueado */}
+                    <div className="px-4 py-3 border-b border-border bg-bg">
+                      <p className="text-sm font-medium text-gray-dark truncate">{usuarioDoc?.nombre || usuarioDoc?.email || 'Usuario'}</p>
+                      {usuarioDoc?.email && usuarioDoc?.nombre && (
+                        <p className="text-xs text-gray-ui font-light truncate">{usuarioDoc.email}</p>
+                      )}
                     </div>
-                    {PERFILES.map(p => {
-                      const PIcon = ICONOS[p.icono] ?? School;
-                      const isActive = perfil.id === p.id;
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => { seleccionarPerfil(p); setMenuPerfil(false); }}
-                          className={`w-full text-left px-4 py-3 hover:bg-bg flex items-center gap-3 border-b border-border last:border-0 transition ${isActive ? 'bg-bg' : ''}`}
-                        >
-                          <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={PERFIL_ICON_STYLE[p.id] ?? PERFIL_ICON_STYLE.escuela}>
-                            <PIcon size={16} />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-dark truncate">{p.nombre}</p>
-                            <p className="text-xs text-gray-ui font-light truncate">{p.descripcion}</p>
-                          </div>
-                          {isActive && <Repeat size={14} className="text-gray-ui ml-auto shrink-0" />}
-                        </button>
-                      );
-                    })}
+
+                    {/* Switcher de perfiles: solo para superadmins reales */}
+                    {esUsuarioRealSuperadmin && (
+                      <>
+                        <div className="px-4 py-2 border-b border-border bg-bg">
+                          <p className="text-[10px] text-gray-ui font-medium uppercase tracking-wider">Ver como</p>
+                        </div>
+                        {PERFILES.filter(p => p.id !== 'pendiente').map(p => {
+                          const PIcon = ICONOS[p.icono] ?? School;
+                          const isActive = perfil.id === p.id;
+                          return (
+                            <button
+                              key={p.id}
+                              onClick={() => { seleccionarPerfil(p); setMenuPerfil(false); }}
+                              className={`w-full text-left px-4 py-3 hover:bg-bg flex items-center gap-3 border-b border-border last:border-0 transition ${isActive ? 'bg-bg' : ''}`}
+                            >
+                              <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={PERFIL_ICON_STYLE[p.id] ?? PERFIL_ICON_STYLE.escuela}>
+                                <PIcon size={16} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium text-gray-dark truncate">{p.nombre}</p>
+                                <p className="text-xs text-gray-ui font-light truncate">{p.descripcion}</p>
+                              </div>
+                              {isActive && <Repeat size={14} className="text-gray-ui ml-auto shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </>
+                    )}
                     <button
                       onClick={cerrarSesion}
                       className="w-full text-left px-4 py-3 flex items-center gap-3 border-t border-border transition"

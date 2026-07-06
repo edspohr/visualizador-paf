@@ -10,7 +10,6 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInAnonymously,
   signOut as fbSignOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
@@ -42,6 +41,21 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 
+// ─── Whitelist de superadmins ─────────────────────────────────────────────
+// Emails que reciben automáticamente el perfil 'superadmin' al primer login.
+// Case-insensitive. Actualizar con los emails reales de Luis y Sebastián cuando
+// estén disponibles.
+
+const SUPERADMIN_WHITELIST = new Set([
+  'espohr@gmail.com',
+  'lagurto@focus.cl',      // TODO: reemplazar por email real de Luis Agurto
+  'seba@focus.cl',         // TODO: reemplazar por email real de Sebastián
+]);
+
+export function esEmailSuperadmin(email) {
+  return email ? SUPERADMIN_WHITELIST.has(email.toLowerCase().trim()) : false;
+}
+
 // ─── Auth helpers ──────────────────────────────────────────────────────────
 
 export async function iniciarSesionEmail(email, password) {
@@ -51,11 +65,13 @@ export async function iniciarSesionEmail(email, password) {
 
 export async function registrarEmail(email, password) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
-  // Guardar registro básico en Firestore (perfil default = escuela; superadmin puede cambiar)
+  // Al registrarse, whitelist decide si es superadmin; el resto queda 'pendiente'
+  // hasta que un superadmin le asigne perfil.
+  const esSuperadmin = esEmailSuperadmin(email);
   await setDoc(doc(db, 'usuarios', cred.user.uid), {
     email: cred.user.email,
     nombre: cred.user.displayName ?? '',
-    perfilDefault: 'escuela',
+    perfilDefault: esSuperadmin ? 'superadmin' : 'pendiente',
     establecimientoId: null,
     createdAt: serverTimestamp(),
     proveedor: 'password',
@@ -63,40 +79,29 @@ export async function registrarEmail(email, password) {
   return cred.user;
 }
 
-// Inicia una sesión anónima de Firebase Auth y crea (o actualiza) el doc
-// /usuarios/{uid} con el perfil demo seleccionado. Esto permite que las reglas
-// Firestore (que exigen auth + doc de usuario) autoricen las lecturas del catálogo.
-export async function iniciarSesionDemo(perfil) {
-  const cred = await signInAnonymously(auth);
-  // Guardar el perfil demo elegido para que las reglas puedan leer perfilDefault
-  const ref = doc(db, 'usuarios', cred.user.uid);
-  await setDoc(ref, {
-    email: null,
-    nombre: `Demo · ${perfil.nombre}`,
-    perfilDefault: perfil.id,
-    establecimientoId: perfil.contexto?.id ?? null,
-    slepId: perfil.contexto?.tipo === 'slep' ? perfil.contexto.id : null,
-    createdAt: serverTimestamp(),
-    proveedor: 'anonymous',
-    demo: true,
-  }, { merge: true });
-  return cred.user;
-}
-
 export async function iniciarConGoogle() {
   const cred = await signInWithPopup(auth, googleProvider);
-  // Upsert Firestore doc — mantiene la asignación previa si ya existe
   const ref = doc(db, 'usuarios', cred.user.uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) {
+    // Primera vez: asignar perfil según whitelist. Superadmins de la whitelist
+    // reciben 'superadmin' automáticamente; el resto queda 'pendiente' hasta que
+    // un superadmin les asigne perfil desde el panel de usuarios.
+    const esSuperadmin = esEmailSuperadmin(cred.user.email);
     await setDoc(ref, {
       email: cred.user.email,
       nombre: cred.user.displayName ?? '',
-      perfilDefault: 'escuela',
+      perfilDefault: esSuperadmin ? 'superadmin' : 'pendiente',
       establecimientoId: null,
       createdAt: serverTimestamp(),
       proveedor: 'google',
     });
+  } else {
+    // Login recurrente: si el email está en whitelist y el doc no lo tiene como
+    // superadmin, actualizarlo (permite promover a alguien sin borrar su doc).
+    if (esEmailSuperadmin(cred.user.email) && snap.data().perfilDefault !== 'superadmin') {
+      await setDoc(ref, { perfilDefault: 'superadmin' }, { merge: true });
+    }
   }
   return cred.user;
 }

@@ -6,6 +6,7 @@ rules_version = '2';
 // Perfiles con acceso limitado:
 //   - escuela/jardin: solo su propio establecimiento (usuarios.establecimientoId)
 //   - sostenedor: solo los establecimientos de su red (usuarios.slepId)
+// Perfil 'pendiente': acceso restringido (solo puede leer su propio doc de usuario)
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -25,6 +26,11 @@ service cloud.firestore {
 
     function perfil() {
       return existeUsuario() ? getUsuario().perfilDefault : null;
+    }
+
+    // Usuario válido = autenticado, con doc en /usuarios y perfil asignado (no 'pendiente')
+    function esUsuarioValido() {
+      return esAuth() && existeUsuario() && perfil() != 'pendiente';
     }
 
     function esSuperadmin() {
@@ -59,14 +65,13 @@ service cloud.firestore {
 
     // ─── /sostenedores/{slepId} ─────────────────────────────────────────
     match /sostenedores/{slepId} {
-      // Cualquier authenticated puede leer sostenedores (los usan los filtros y dropdowns)
-      allow read: if esAuth() && existeUsuario();
+      allow read: if esUsuarioValido();
       allow write: if esSuperadmin();
     }
 
     // ─── /establecimientos/{estId} ──────────────────────────────────────
     match /establecimientos/{estId} {
-      allow read: if esAuth() && existeUsuario() && (
+      allow read: if esUsuarioValido() && (
         // Escuela/jardin: solo su propio establecimiento
         (esEscuelaOJardin() && getUsuario().establecimientoId == estId) ||
         // Sostenedor: solo los de su red
@@ -79,41 +84,42 @@ service cloud.firestore {
 
     // ─── /indicadores/{indicadorId} ─────────────────────────────────────
     match /indicadores/{indicadorId} {
-      // Catálogo: cualquier authenticated lee
-      allow read: if esAuth() && existeUsuario();
+      allow read: if esUsuarioValido();
       allow write: if esSuperadmin();
     }
 
     // ─── /ambitos/{docId} ───────────────────────────────────────────────
     match /ambitos/{docId} {
-      allow read: if esAuth() && existeUsuario();
+      allow read: if esUsuarioValido();
       allow write: if esSuperadmin();
     }
 
-    // ─── /valores/{valorId} ─── Fase B (por ahora solo permitir read a autenticados) ─
+    // ─── /valores/{valorId} ─────────────────────────────────────────────
     match /valores/{valorId} {
-      allow read: if esAuth() && existeUsuario();
-      allow write: if false;  // Solo el pipeline (Admin SDK) escribe
+      allow read: if esUsuarioValido();
+      allow write: if false;
     }
 
     // ─── /progresoTrimestral/{docId} ─── Fase B: agregados por (est × ámbito × trimestre) ─
     // Poblada por scripts/syncPlanillasCentrales.mjs con service account (bypass rules).
+    // Nota: para superadmin en modo "ver como escuela/jardín", el filtro del cliente
+    // restringe visualmente, pero las reglas dejan leer todo porque el usuarioDoc real
+    // sigue siendo superadmin (más simple que actualizar el doc en cada cambio de vista).
     match /progresoTrimestral/{docId} {
-      allow read: if esAuth() && existeUsuario() && (
+      allow read: if esUsuarioValido() && (
         // Escuela/jardin: solo su propio establecimiento
         (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
-        // Sostenedor: los de su red — requiere lookup adicional, dejar abierto por ahora
-        // (el filtro cliente lo restringe; para v2 mover a colección /progresoTrimestral/{estId}/... como subcolección)
-        (esSostenedor()) ||
+        // Sostenedor: filtro cliente-side (todos los establecimientos de su red)
+        esSostenedor() ||
         // Consultor / CAP / superadmin: todos
         esAccesoCompleto()
       );
-      allow write: if false;  // Solo pipeline (Admin SDK)
+      allow write: if false;
     }
 
     // ─── /metadata/{docId} ──────────────────────────────────────────────
     match /metadata/{docId} {
-      allow read: if esAuth() && existeUsuario();
+      allow read: if esUsuarioValido();
       allow write: if esSuperadmin();
     }
   }

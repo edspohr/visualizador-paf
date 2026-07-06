@@ -50,8 +50,8 @@ export default function PendienteAsignacion() {
             </div>
 
             <p className="text-xs text-gray-ui font-light mb-6">
-              Contactá a tu administrador con este correo para que te asigne el perfil correspondiente.
-              Cuando tengas acceso, vas a poder ver los datos automáticamente al volver a ingresar.
+              Contacta a tu administrador con este correo para que te asigne el perfil correspondiente.
+              Cuando tengas acceso, podrás ver los datos automáticamente al volver a ingresar.
             </p>
 
             <button

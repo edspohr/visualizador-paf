@@ -125,6 +125,30 @@ export async function obtenerUsuarioDoc(uid) {
   return snap.exists() ? { uid, ...snap.data() } : null;
 }
 
+// Asegura que exista el doc del usuario en Firestore. Si no existe (caso frecuente
+// cuando el flujo de login termina antes que el setDoc del provider), lo crea con
+// la lógica de whitelist. Devuelve el doc (existente o recién creado).
+export async function asegurarUsuarioDoc(user) {
+  if (!user) return null;
+  const ref = doc(db, 'usuarios', user.uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) {
+    return { uid: user.uid, ...snap.data() };
+  }
+  // Doc no existe: crearlo aplicando whitelist
+  const esSuperadmin = esEmailSuperadmin(user.email);
+  const nuevo = {
+    email: user.email ?? null,
+    nombre: user.displayName ?? '',
+    perfilDefault: esSuperadmin ? 'superadmin' : 'pendiente',
+    establecimientoId: null,
+    createdAt: serverTimestamp(),
+    proveedor: user.providerData?.[0]?.providerId ?? 'unknown',
+  };
+  await setDoc(ref, nuevo);
+  return { uid: user.uid, ...nuevo };
+}
+
 export async function listarUsuarios() {
   const q = query(collection(db, 'usuarios'), orderBy('createdAt', 'desc'));
   const snap = await getDocs(q);

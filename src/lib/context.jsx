@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth, actualizarUsuarioDoc, auth } from './firebase.js';
+import { suscribirAuth, asegurarUsuarioDoc, cerrarSesionAuth, actualizarUsuarioDoc, auth } from './firebase.js';
 
 const AppCtx = createContext(null);
 
@@ -96,7 +96,9 @@ export function AppProvider({ children }) {
       setUsuario(u);
       if (u) {
         try {
-          const doc = await obtenerUsuarioDoc(u.uid);
+          // asegurarUsuarioDoc crea el doc si no existe (evita race condition entre
+          // el listener y el setDoc del provider). Aplica whitelist automáticamente.
+          const doc = await asegurarUsuarioDoc(u);
           setUsuarioDoc(doc);
           if (doc?.perfilDefault) {
             const base = perfilPorId(doc.perfilDefault);
@@ -110,7 +112,10 @@ export function AppProvider({ children }) {
             }
           }
         } catch (err) {
-          console.warn('No se pudo cargar registro de usuario:', err);
+          console.error('No se pudo cargar registro de usuario:', err);
+          // No dejar la app en estado de espera indefinido: forzar cierre de sesión
+          // para que el usuario vuelva al login limpio.
+          try { await cerrarSesionAuth(); } catch { /* ignore */ }
         }
       } else {
         setUsuarioDoc(null);

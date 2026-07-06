@@ -284,7 +284,7 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
           <div>
             <h2 className="text-lg font-medium text-gray-dark">Crear usuario</h2>
             <p className="text-xs text-gray-ui font-light mt-1">
-              Al crear, el usuario recibirá acceso con la contraseña que definas. Podés cambiar el perfil después.
+              Al crear, el usuario recibirá acceso con la contraseña que definas. Puedes cambiar el perfil después.
             </p>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl hover:bg-bg flex items-center justify-center text-gray-ui transition">
@@ -349,7 +349,7 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
 
           <p className="text-[10px] text-gray-ui font-light mt-2 pt-2 border-t border-border">
             Nota: al crear el usuario se cierra tu sesión actual y se inicia la del recién creado.
-            Esta es una limitación de la API cliente de Firebase Auth. Cerrá sesión y volvé a entrar como superadmin.
+            Esta es una limitación de la API cliente de Firebase Auth. Cierra sesión y vuelve a entrar como superadmin.
           </p>
         </form>
       </div>

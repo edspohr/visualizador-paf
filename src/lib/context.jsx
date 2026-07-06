@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth, iniciarSesionDemo, actualizarUsuarioDoc, auth } from './firebase.js';
+import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth, iniciarSesionDemo, actualizarUsuarioDoc, eliminarUsuarioDoc, auth } from './firebase.js';
 
 const AppCtx = createContext(null);
 
@@ -140,7 +140,14 @@ export function AppProvider({ children }) {
     localStorage.removeItem('paf_perfil');
     // Si además hay sesión de Firebase, cerrarla también
     if (usuario) {
+      const eraAnonimo = usuario.isAnonymous;
+      const uid = usuario.uid;
       try { await cerrarSesionAuth(); } catch (err) { console.warn(err); }
+      // Los usuarios demo anónimos son efímeros: borrar su doc para no dejar
+      // basura acumulada en /usuarios.
+      if (eraAnonimo) {
+        try { await eliminarUsuarioDoc(uid); } catch (err) { console.warn(err); }
+      }
     }
   };
 

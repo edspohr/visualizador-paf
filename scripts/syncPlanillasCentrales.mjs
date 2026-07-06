@@ -35,6 +35,7 @@ const PLANILLAS = [
     anio: 2025,
     cohorte: '2025-2026',
     programa: 'parvulario',
+    tipoEst: 'Jardín',
   },
   {
     id: '1oJQ8bUfoWy3q_ezzLnlGiLE7UvxhuHllRE27dzOEyYo',
@@ -42,6 +43,7 @@ const PLANILLAS = [
     anio: 2026,
     cohorte: '2025-2026',
     programa: 'parvulario',
+    tipoEst: 'Jardín',
   },
   {
     id: '1Qr5QvnfJ-_F3hVRikFRWNy-RyruKBK7T37m-DY-obwk',
@@ -49,6 +51,7 @@ const PLANILLAS = [
     anio: 2026,
     cohorte: '2026-2027',
     programa: 'parvulario',
+    tipoEst: 'Jardín',
   },
 ];
 
@@ -90,17 +93,90 @@ function normalizar(s) {
     .trim();
 }
 
+// Palabras clave que identifican encabezados o filas de resumen (a saltar).
+const HEADER_KEYWORDS = new Set([
+  'scji', 'objetivos', 'comuna', 'porcentaje de progreso',
+  't1', 't2', 't3', 't4', 'meta', 'check',
+  'progreso general de las metas', 'progreso general',
+]);
+
 // Mapea el nombre de un jardín (columna SCJI) al doc de establecimiento en Firestore.
-function encontrarEstablecimiento(scjiTexto) {
+// tipoFiltro (opcional): 'Jardín' o 'Escuela' — restringe el match a ese tipo.
+// Estrategia: prioriza matches más específicos (exacto > inclusión > palabras compartidas).
+function encontrarEstablecimiento(scjiTexto, tipoFiltro = null) {
   const target = normalizar(scjiTexto);
   if (!target) return null;
-  // Match aproximado: el nombre del establecimiento en Firestore es "Jardín X",
-  // el SCJI de la planilla suele venir en mayúsculas ("X PICHIWENTXU" o similar).
-  return establecimientos.find(e => {
-    const nombreN = normalizar(e.nombre.replace(/^jardin\s+/i, ''));
-    // El nombre corto del sheet puede ser subset del nombre completo o viceversa
-    return nombreN.includes(target) || target.includes(nombreN);
+  if (HEADER_KEYWORDS.has(target)) return null;
+
+  const universo = tipoFiltro
+    ? establecimientos.filter(e => e.tipo === tipoFiltro)
+    : establecimientos;
+
+  // Nivel 1: match exacto
+  let match = universo.find(e => normalizar(e.nombre.replace(/^jardin\s+/i, '').replace(/^escuela\s+/i, '')) === target);
+  if (match) return match;
+
+  // Nivel 2: uno contiene al otro completamente (ej. "santa fe" en "jardin santa fe")
+  match = universo.find(e => {
+    const nombreN = normalizar(e.nombre.replace(/^jardin\s+/i, '').replace(/^escuela\s+/i, ''));
+    return (nombreN.length > target.length && nombreN.includes(target)) ||
+           (target.length > nombreN.length && target.includes(nombreN));
   });
+  if (match) return match;
+
+  // Nivel 3: todas las palabras significativas del target están en el nombre (o viceversa).
+  // Ej. "angel fantuzzi" tiene ["angel", "fantuzzi"]; solo matchea con "jardin angel fantuzzi".
+  match = universo.find(e => {
+    const nombreN = normalizar(e.nombre.replace(/^jardin\s+/i, '').replace(/^escuela\s+/i, ''));
+    const nombreWords = new Set(nombreN.split(/\s+/).filter(w => w.length > 2));
+    const targetWords = target.split(/\s+/).filter(w => w.length > 2);
+    if (!targetWords.length) return false;
+    // Match si TODAS las palabras significativas del target están en el nombre
+    return targetWords.every(tw => nombreWords.has(tw));
+  });
+  return match ?? null;
+}
+
+// Fallback: mapa manual de abreviaciones de tab-name a nombre del establecimiento.
+// El pipeline lo usa cuando la fila del sheet no tiene SCJI legible pero sí conocemos el jardín por el tab.
+const TAB_ABREV = {
+  // Cohorte 2025-2026 Santa Rosa (jardines en San Ramón, San Miguel, Pedro Aguirre Cerda)
+  'AP':  'Akun Pichiwentxu',
+  'PR':  'Príncipes del Reino',
+  'MOD': 'Modelo',
+  'EB':  'Enrique Backausse',
+  'LH':  'La Hormiguita',
+  'SF':  'Santa Fe',
+  'VSM': 'Villa San Miguel',
+  'CF':  'Caballito Feliz',
+  'AB':  'Andres Bello',
+  'PA':  'Pequeño Aymará',
+  'PAY': 'Pequeño Aymará',
+  'CB':  'Ciudad de Barcelona',
+  'CDB': 'Ciudad de Barcelona',
+  'PCH': 'Poetas de Chile',
+  'PDC': 'Poetas de Chile',
+  'LLS': 'Llano Subercaseaux',
+  'LM':  'La Marina',
+  'OCH': 'Ochagavía',
+  // Cohorte 2026-2027 Del Pino + Santa Corina
+  'PJ':  'Paula Jaraquemada',
+  'CED': 'Cedin',
+  'ELU': 'Eluney',
+  'AF':  'Angel Fantuzzi',
+  'ET':  'El Tranque',
+  'SS':  'Salomón Sack',
+  'EA':  'Estación Alegría',
+  'SDC': 'Sueño de Colores',
+  'TDA': 'Tierra de Ángeles',
+};
+
+// Devuelve el establecimiento inferido por el nombre del tab (ej. "AP" → Akun Pichiwentxu)
+function establecimientoPorTab(tabName, tipoFiltro = null) {
+  const clave = tabName.trim().toUpperCase();
+  const nombre = TAB_ABREV[clave];
+  if (!nombre) return null;
+  return encontrarEstablecimiento(nombre, tipoFiltro);
 }
 
 // Mapea el texto de un objetivo (columna Objetivos) al ámbito del catálogo.
@@ -123,12 +199,22 @@ function encontrarAmbito(objetivoTexto, programa) {
 }
 
 // Parsea un % que puede venir como "83%", "100,00%", "0.75", "" etc.
+// IMPORTANTE: solo acepta strings que TENGAN el símbolo % o sean claramente proporciones (0.0-1.0).
+// Esto evita capturar valores como "120", "10", "TRUE" que aparecen en otras tablas.
 function parsePorcentaje(v) {
   if (v === null || v === undefined || v === '') return null;
-  const s = String(v).trim().replace('%', '').replace(',', '.');
-  const n = parseFloat(s);
+  const s = String(v).trim();
+  const tienePctSign = s.includes('%');
+  if (!tienePctSign) {
+    // Solo aceptamos si es una proporción entre 0 y 1 (formato decimal)
+    const n = parseFloat(s.replace(',', '.'));
+    if (isNaN(n)) return null;
+    if (n < 0 || n > 1) return null;
+    return n;
+  }
+  const s2 = s.replace('%', '').replace(',', '.').trim();
+  const n = parseFloat(s2);
   if (isNaN(n)) return null;
-  // Si es > 1, asumimos que viene en escala 0-100
   return n > 1 ? n / 100 : n;
 }
 
@@ -142,59 +228,59 @@ function parsePorcentaje(v) {
 async function parsearHoja(sheetId, hojaTitulo, planilla) {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: sheetId,
-    range: `${hojaTitulo}!A1:H50`, // Los porcentajes están en columnas D-G aprox
+    range: `${hojaTitulo}!A1:H50`,
     valueRenderOption: 'FORMATTED_VALUE',
   });
   const rows = res.data.values ?? [];
   if (!rows.length) return { docs: [], warnings: [`Hoja ${hojaTitulo} vacía`] };
 
   const warnings = [];
-  let establecimiento = null;
-  let scjiEncontrado = null;
+  // Estrategia: intentar identificar el establecimiento por el nombre del tab (más confiable
+  // que buscar SCJI en las filas, que a veces está mal etiquetado).
+  let establecimiento = establecimientoPorTab(hojaTitulo, planilla.tipoEst);
   const docs = [];
 
   for (const row of rows) {
     if (!row.length) continue;
     const [colA, colB, colC, colD, colE, colF, colG] = row.map(v => v ?? '');
 
-    // Detectar fila con SCJI (jardín): tiene comuna y SCJI en las primeras dos columnas
-    if (colA && colB && !scjiEncontrado) {
-      const posibleEst = encontrarEstablecimiento(colB);
+    // Si aún no tenemos establecimiento y esta fila tiene SCJI en colB, intentar detectarlo.
+    // Excluir headers literales.
+    if (!establecimiento && colB) {
+      const posibleEst = encontrarEstablecimiento(colB, planilla.tipoEst);
       if (posibleEst) {
         establecimiento = posibleEst;
-        scjiEncontrado = colB;
-      } else {
-        warnings.push(`No matcheé establecimiento para SCJI="${colB}" en hoja "${hojaTitulo}"`);
-        return { docs, warnings };
       }
     }
 
-    // Detectar fila con % por objetivo:
-    // Puede venir con colA/colB vacías (objetivos 2 y 3) o con colA/colB llenas (objetivo 1)
+    // Fila de objetivos: colC debe traer el texto del objetivo
     const objetivoTexto = colC;
-    if (!objetivoTexto || objetivoTexto === 'Objetivos') continue;
-    // Excluir la fila de "Progreso general"
-    if (normalizar(objetivoTexto).includes('progreso general')) continue;
+    if (!objetivoTexto) continue;
+    const objetivoNorm = normalizar(objetivoTexto);
 
-    // Los 4 % están en las columnas D-G
+    // Filtrar headers y filas de resumen
+    if (HEADER_KEYWORDS.has(objetivoNorm)) continue;
+    if (objetivoNorm.includes('progreso general')) continue;
+
+    // Extraer % de las 4 columnas de trimestre
     const p1 = parsePorcentaje(colD);
     const p2 = parsePorcentaje(colE);
     const p3 = parsePorcentaje(colF);
     const p4 = parsePorcentaje(colG);
 
-    // Si ninguna columna tiene un %, la fila probablemente sea de meta/check, saltar
+    // Si ninguna es un %, saltar (probablemente fila de meta/check)
     if ([p1, p2, p3, p4].every(v => v === null)) continue;
 
-    const ambito = encontrarAmbito(objetivoTexto, planilla.programa);
     if (!establecimiento) {
-      warnings.push(`Progreso encontrado en "${hojaTitulo}" pero sin establecimiento matcheado`);
+      warnings.push(`Progreso encontrado en "${hojaTitulo}" pero sin establecimiento matcheado (objetivo="${objetivoTexto.slice(0, 50)}…")`);
       continue;
     }
 
+    const ambito = encontrarAmbito(objetivoTexto, planilla.programa);
     const trimestres = [p1, p2, p3, p4];
     for (let i = 0; i < 4; i++) {
       const p = trimestres[i];
-      if (p === null) continue; // no persistimos NULL
+      if (p === null) continue;
       const trimestre = i + 1;
       const docId = `${establecimiento.id}_${ambito?.id ?? 'sin-ambito'}_${planilla.anio}_T${trimestre}`;
       docs.push({
@@ -216,9 +302,14 @@ async function parsearHoja(sheetId, hojaTitulo, planilla) {
     }
   }
 
-  if (!establecimiento) warnings.push(`No se detectó establecimiento en hoja "${hojaTitulo}"`);
+  if (!establecimiento && !docs.length) {
+    warnings.push(`No se pudo identificar establecimiento en hoja "${hojaTitulo}"`);
+  }
   return { docs, warnings };
 }
+
+// Hojas que sabemos que son de resumen/coordinación/plantillas y hay que saltar
+const HOJAS_A_SALTAR = /^(RES\s|MON|CONS|COORDINADOR|LINKS|REPORTE|PLANTILLA|TEMPLATE|INSTRUCC|ACT\.|IDENTIFICAR)/i;
 
 // ─── Loop principal ────────────────────────────────────────────────────────
 
@@ -233,15 +324,18 @@ async function sincronizarPlanilla(planilla) {
     const warningsAcumulados = [];
 
     for (const titulo of hojas) {
-      // Saltar hojas que suelen ser resumen/plantilla
-      if (/plantilla|template|instrucci/i.test(titulo)) {
-        console.log(`   ⏭  ${titulo}: saltada (parece plantilla)`);
+      if (HOJAS_A_SALTAR.test(titulo)) {
+        console.log(`   ⏭  ${titulo}: saltada (no es hoja de jardín)`);
         continue;
       }
       const { docs, warnings } = await parsearHoja(planilla.id, titulo, planilla);
       docsAcumulados.push(...docs);
       warningsAcumulados.push(...warnings);
-      console.log(`   ✓ ${titulo}: ${docs.length} progresos extraídos`);
+      if (docs.length > 0) {
+        console.log(`   ✓ ${titulo}: ${docs.length} progresos extraídos`);
+      } else {
+        console.log(`   ○ ${titulo}: sin progresos`);
+      }
     }
 
     if (warningsAcumulados.length) {

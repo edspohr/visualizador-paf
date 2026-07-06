@@ -1,32 +1,33 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Package } from 'lucide-react';
-import { ESCUELAS, JARDINES, generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
+import { generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
 import { IndicatorProgress } from './Shared.jsx';
 
 /**
  * Renders indicators split into two sections:
- *  1. Estrategia indicators — collapsible ámbito groups (same as before).
- *  2. "Indicadores de producto" — at the end, same collapsible pattern by ámbito.
+ *  1. Estrategia indicators — collapsible ámbito groups.
+ *  2. "Indicadores de producto" — al final, same pattern.
  *
  * Props:
- *   INDS              — indicator list for the program
- *   AMBITOS           — ámbito list for the program
- *   establecimientoId — establishment id used for data generation
- *   slep              — sostenedor id
- *   mes               — effective month
- *   onDrilldown       — callback(ind) when a row is clicked
+ *   INDS                — indicator list for the program
+ *   AMBITOS             — ámbito list for the program
+ *   establecimientoId   — establishment id used for data generation
+ *   slep                — sostenedor id
+ *   mes                 — effective month
+ *   onDrilldown         — callback(ind) when a row is clicked
+ *   todosEstablecimientos — full list (needed for peer average calculation)
  */
-export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown }) {
+export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown, todosEstablecimientos = [] }) {
   const [openAmbitos, setOpenAmbitos] = useState({});
   // Producto groups keyed with a prefix to avoid collisions with estrategia keys
   const toggle = (key) => setOpenAmbitos(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const est = [...ESCUELAS, ...JARDINES].find(e => e.id === establecimientoId);
+  const est = todosEstablecimientos.find(e => e.id === establecimientoId);
 
   const filasIndicadores = INDS.map(ind => {
     const { valor } = generarValorIndicador(ind, establecimientoId, slep, mes);
     const logro = calcularLogro(valor, ind);
-    const promTerritorio = est ? promedioTerritorioIndicador(ind, est, mes) : null;
+    const promTerritorio = est ? promedioTerritorioIndicador(ind, est, todosEstablecimientos, mes) : null;
     return { ind, valor, logro, promTerritorio };
   });
 

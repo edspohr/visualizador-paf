@@ -3,3 +3,8 @@ dist/
 .DS_Store
 .firebase/
 *.local
+
+# Firebase Admin SDK credentials (never commit)
+scripts/service-account.json
+firebase-debug.log
+firestore-debug.log

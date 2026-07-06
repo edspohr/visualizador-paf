@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
-import { AMBITOS_ESCOLAR, AMBITOS_PARVULARIO, INDICADORES_ESCOLAR, INDICADORES_PARVULARIO } from '../data/indicadores.js';
-import { ESCUELAS, JARDINES, SLEPS, logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth, anioImplementacion } from '../data/establecimientos.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos } from '../lib/queries.js';
+import { logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth, anioImplementacion } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
@@ -29,9 +30,21 @@ export default function VistaConsultor() {
   const effectiveMonth = isCAP ? lastClosedMonth() : currentMonth();
 
   const programa = perfil.contexto.programa || 'escolar';
-  const AMBITOS = programa === 'escolar' ? AMBITOS_ESCOLAR : AMBITOS_PARVULARIO;
-  const INDS    = programa === 'escolar' ? INDICADORES_ESCOLAR : INDICADORES_PARVULARIO;
-  const todos   = programa === 'escolar' ? ESCUELAS : JARDINES;
+
+  // Queries Firestore
+  const escuelasQ = useEscuelas();
+  const jardinesQ = useJardines();
+  const slepsQ = useSleps();
+  const indicadoresQ = useIndicadores(programa);
+  const ambitosQ = useAmbitos(programa);
+
+  const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
+                   indicadoresQ.isLoading || ambitosQ.isLoading;
+
+  const AMBITOS = ambitosQ.data ?? [];
+  const INDS    = indicadoresQ.data ?? [];
+  const todos   = (programa === 'escolar' ? escuelasQ.data : jardinesQ.data) ?? [];
+  const SLEPS_DATA = slepsQ.data ?? [];
 
   const [filtroSlep, setFiltroSlep] = useState('TODOS');
   const [filtroCohorte, setFiltroCohorte] = useState('TODAS');
@@ -48,7 +61,7 @@ export default function VistaConsultor() {
     (filtroComuna === 'TODAS' || e.comuna === filtroComuna)
   ), [todos, filtroSlep, filtroCohorte, filtroAnio, filtroComuna, effectiveMonth]);
 
-  const slepsDisponibles = [...new Set(todos.map(e => e.slep))].map(id => SLEPS.find(s => s.id === id)).filter(Boolean);
+  const slepsDisponibles = [...new Set(todos.map(e => e.slep))].map(id => SLEPS_DATA.find(s => s.id === id)).filter(Boolean);
   const cohortesDisponibles = [...new Set(todos.map(e => e.cohorte))];
   const aniosDisponibles = [...new Set(todos.map(e => anioImplementacion(e, effectiveMonth <= 4 ? 2025 : 2026)))].sort();
   const comunasDisponibles = [...new Set(todos.map(e => e.comuna))].sort();
@@ -84,6 +97,14 @@ export default function VistaConsultor() {
   const breakdownBy = filtroSlep === 'TODOS' ? 'sostenedor' : 'establecimiento';
 
   const selectCls = "w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none";
+
+  if (cargando) {
+    return (
+      <div className="flex items-center justify-center py-24 text-gray-ui text-sm">
+        <Loader2 size={16} className="animate-spin mr-2"/> Cargando datos del programa…
+      </div>
+    );
+  }
 
   return (
     <>
@@ -172,6 +193,7 @@ export default function VistaConsultor() {
         establecimientos={filtrados}
         mes={effectiveMonth}
         breakdownBy={breakdownBy}
+        sostenedores={SLEPS_DATA}
       />
 
       {/* Comparador por indicador */}
@@ -196,6 +218,7 @@ export default function VistaConsultor() {
             aniosDisponibles={aniosDisponibles}
             comunasDisponibles={comunasDisponibles}
             defaultMes={effectiveMonth}
+            sostenedores={SLEPS_DATA}
           />
         )}
       </div>
@@ -227,6 +250,8 @@ export default function VistaConsultor() {
           perfil={perfil.id}
           agruparConsultor={agruparConsultor}
           onDrilldown={(ind, estId, slepId) => setDrilldown({ ind, estId, slepId })}
+          todosEstablecimientos={todos}
+          sostenedores={SLEPS_DATA}
         />
       </div>
 
@@ -240,6 +265,8 @@ export default function VistaConsultor() {
           effectiveMonth={effectiveMonth}
           perfil={perfil.id}
           onClose={() => setDrilldown(null)}
+          todosEstablecimientos={todos}
+          sostenedores={SLEPS_DATA}
         />
       )}
     </>
@@ -281,9 +308,9 @@ function filtrarEstablecimientos(todos, { slep, cohorte, anio, comuna, mes, year
   );
 }
 
-function buildLabel({ slep, cohorte, anio, comuna, mes, year }) {
+function buildLabel({ slep, cohorte, anio, comuna, mes, year }, sostenedores = []) {
   const parts = [];
-  if (slep !== 'TODOS') parts.push(SLEPS.find(s => s.id === slep)?.nombre.replace(/^SLEP\s+/, '') ?? slep);
+  if (slep !== 'TODOS') parts.push(sostenedores.find(s => s.id === slep)?.nombre.replace(/^SLEP\s+/, '') ?? slep);
   if (cohorte !== 'TODAS') parts.push(`Cohorte ${cohorte}`);
   if (anio !== 'TODOS') parts.push(`Año ${anio}`);
   if (comuna !== 'TODAS') parts.push(comuna);
@@ -367,7 +394,7 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
   );
 }
 
-function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, aniosDisponibles, comunasDisponibles, defaultMes }) {
+function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, aniosDisponibles, comunasDisponibles, defaultMes, sostenedores = [] }) {
   const defaultYear = new Date().getFullYear();
   const initA = { mes: defaultMes, year: defaultYear, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
   const initB = { mes: defaultMes, year: defaultYear - 1, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
@@ -388,8 +415,8 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
     }));
   }, [dataA, dataB]);
 
-  const labelA = buildLabel(filtersA);
-  const labelB = buildLabel(filtersB);
+  const labelA = buildLabel(filtersA, sostenedores);
+  const labelB = buildLabel(filtersB, sostenedores);
 
   const estsA = filtrarEstablecimientos(todos, filtersA).length;
   const estsB = filtrarEstablecimientos(todos, filtersB).length;
@@ -475,7 +502,7 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
   );
 }
 
-function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown }) {
+function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, todosEstablecimientos, sostenedores }) {
   return (
     <div key={c.est.id} className="border border-border rounded-xl overflow-hidden">
       <button
@@ -488,7 +515,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-dark truncate">{c.est.nombre}</p>
-            <p className="text-xs text-gray-ui">{SLEPS.find(s => s.id === c.est.slep)?.nombre.replace(/^SLEP\s+/, '')} · Cohorte {c.est.cohorte} · {c.est.comuna}</p>
+            <p className="text-xs text-gray-ui">{sostenedores.find(s => s.id === c.est.slep)?.nombre.replace(/^SLEP\s+/, '')} · Cohorte {c.est.cohorte} · {c.est.comuna}</p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
@@ -509,6 +536,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
             slep={c.est.slep}
             mes={effectiveMonth}
             onDrilldown={(ind) => onDrilldown(ind, c.est.id, c.est.slep)}
+            todosEstablecimientos={todosEstablecimientos}
           />
         </div>
       )}
@@ -516,7 +544,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
   );
 }
 
-function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, agruparConsultor, onDrilldown }) {
+function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, agruparConsultor, onDrilldown, todosEstablecimientos, sostenedores }) {
   const [openEst, setOpenEst] = useState({});
   const [openGrupo, setOpenGrupo] = useState({});
   const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
@@ -529,7 +557,8 @@ function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil,
       <div className="space-y-2">
         {sorted.map((c, idx) => (
           <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
-            INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}/>
+            INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}
+            todosEstablecimientos={todosEstablecimientos} sostenedores={sostenedores}/>
         ))}
       </div>
     );

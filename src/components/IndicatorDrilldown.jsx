@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { X } from 'lucide-react';
-import { ESCUELAS, JARDINES, SLEPS, generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
+import { generarValorIndicador, promedioTerritorioIndicador } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
 import { IndicatorProgress } from './Shared.jsx';
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
 // Average raw value for an indicator across all establishments of a sostenedor (same tipo)
-function promedioSostenedorIndicador(indicador, slepId, mes, tipo) {
-  const todos = [...ESCUELAS, ...JARDINES].filter(e => e.slep === slepId && e.tipo === tipo);
+function promedioSostenedorIndicador(indicador, slepId, tipo, mes, todosEstablecimientos) {
+  const todos = todosEstablecimientos.filter(e => e.slep === slepId && e.tipo === tipo);
   if (!todos.length) return null;
   let suma = 0, n = 0;
   for (const e of todos) {
@@ -27,24 +27,24 @@ function yAxisFormatter(unidad) {
   };
 }
 
-export default function IndicatorDrilldown({ indicador, establecimientoId, slep, effectiveMonth, perfil, onClose }) {
+export default function IndicatorDrilldown({ indicador, establecimientoId, slep, effectiveMonth, perfil, onClose, todosEstablecimientos = [], sostenedores = [] }) {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  const est = [...ESCUELAS, ...JARDINES].find(e => e.id === establecimientoId);
+  const est = todosEstablecimientos.find(e => e.id === establecimientoId);
 
   // Current value
   const { valor } = generarValorIndicador(indicador, establecimientoId, slep, effectiveMonth);
-  const promTerritorio = est ? promedioTerritorioIndicador(indicador, est, effectiveMonth) : null;
+  const promTerritorio = est ? promedioTerritorioIndicador(indicador, est, todosEstablecimientos, effectiveMonth) : null;
 
   // Evolution data: este establecimiento vs promedio mensual del territorio
   const evol = [];
   for (let m = 1; m <= effectiveMonth; m++) {
     const { valor: v } = generarValorIndicador(indicador, establecimientoId, slep, m);
-    const promMes = est ? promedioTerritorioIndicador(indicador, est, m) : null;
+    const promMes = est ? promedioTerritorioIndicador(indicador, est, todosEstablecimientos, m) : null;
 
     const fmt = (raw) => {
       if (raw === null) return null;
@@ -167,8 +167,8 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                   </tr>
                 </thead>
                 <tbody>
-                  {SLEPS.map(s => {
-                    const avg = promedioSostenedorIndicador(indicador, s.id, effectiveMonth, tipo);
+                  {sostenedores.map(s => {
+                    const avg = promedioSostenedorIndicador(indicador, s.id, tipo, effectiveMonth, todosEstablecimientos);
                     if (avg === null) return null;
                     return (
                       <tr key={s.id} className="border-b border-border hover:bg-bg transition">
@@ -196,7 +196,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                   </tr>
                 </thead>
                 <tbody>
-                  {[...ESCUELAS, ...JARDINES]
+                  {todosEstablecimientos
                     .filter(e => e.slep === slep && e.tipo === tipo)
                     .map(e => {
                       const { valor: v } = generarValorIndicador(indicador, e.id, e.slep, effectiveMonth);

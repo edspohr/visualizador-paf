@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
 import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth } from './firebase.js';
 
 const AppCtx = createContext(null);
@@ -161,13 +160,13 @@ export function useApp() {
   return ctx;
 }
 
-// Resolvedores de entidades
-export function resolverEntidad(contexto) {
+// Resolvedor de entidades — recibe los datos por parámetro (post Fase A vienen de Firestore)
+export function resolverEntidad(contexto, todosEstablecimientos = [], sostenedores = []) {
   if (contexto.tipo === 'establecimiento') {
-    return [...ESCUELAS, ...JARDINES].find(e => e.id === contexto.id);
+    return todosEstablecimientos.find(e => e.id === contexto.id);
   }
   if (contexto.tipo === 'slep') {
-    return SLEPS.find(s => s.id === contexto.id);
+    return sostenedores.find(s => s.id === contexto.id);
   }
   return null;
 }

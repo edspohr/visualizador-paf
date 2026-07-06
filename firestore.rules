@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// Firestore security rules — Visualizador PAF
+// Roles derivan del documento /usuarios/{uid}, campo perfilDefault.
+// Perfiles con acceso completo: consultor, cap, superadmin.
+// Perfiles con acceso limitado:
+//   - escuela/jardin: solo su propio establecimiento (usuarios.establecimientoId)
+//   - sostenedor: solo los establecimientos de su red (usuarios.slepId)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ────────────────────────────────────────────────────────
+    function esAuth() {
+      return request.auth != null;
+    }
+
+    function getUsuario() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function existeUsuario() {
+      return exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function perfil() {
+      return existeUsuario() ? getUsuario().perfilDefault : null;
+    }
+
+    function esSuperadmin() {
+      return esAuth() && existeUsuario() && perfil() == 'superadmin';
+    }
+
+    function esAccesoCompleto() {
+      return esAuth() && existeUsuario() &&
+        perfil() in ['consultor', 'cap', 'superadmin'];
+    }
+
+    function esEscuelaOJardin() {
+      return esAuth() && existeUsuario() &&
+        perfil() in ['escuela', 'jardin'];
+    }
+
+    function esSostenedor() {
+      return esAuth() && existeUsuario() && perfil() == 'sostenedor';
+    }
+
+    // ─── /usuarios/{uid} ────────────────────────────────────────────────
+    match /usuarios/{uid} {
+      // Cada usuario lee su propio doc; superadmin lee todos
+      allow read: if esAuth() && (request.auth.uid == uid || esSuperadmin());
+      // Registro inicial: cada usuario crea su propio doc
+      allow create: if esAuth() && request.auth.uid == uid;
+      // Update: el propio usuario (para cambios cosméticos) o superadmin
+      allow update: if esAuth() && (request.auth.uid == uid || esSuperadmin());
+      // Delete: solo superadmin
+      allow delete: if esSuperadmin();
+    }
+
+    // ─── /sostenedores/{slepId} ─────────────────────────────────────────
+    match /sostenedores/{slepId} {
+      // Cualquier authenticated puede leer sostenedores (los usan los filtros y dropdowns)
+      allow read: if esAuth() && existeUsuario();
+      allow write: if esSuperadmin();
+    }
+
+    // ─── /establecimientos/{estId} ──────────────────────────────────────
+    match /establecimientos/{estId} {
+      allow read: if esAuth() && existeUsuario() && (
+        // Escuela/jardin: solo su propio establecimiento
+        (esEscuelaOJardin() && getUsuario().establecimientoId == estId) ||
+        // Sostenedor: solo los de su red
+        (esSostenedor() && resource.data.slep == getUsuario().slepId) ||
+        // Consultor / CAP / superadmin: todos
+        esAccesoCompleto()
+      );
+      allow write: if esSuperadmin();
+    }
+
+    // ─── /indicadores/{indicadorId} ─────────────────────────────────────
+    match /indicadores/{indicadorId} {
+      // Catálogo: cualquier authenticated lee
+      allow read: if esAuth() && existeUsuario();
+      allow write: if esSuperadmin();
+    }
+
+    // ─── /ambitos/{docId} ───────────────────────────────────────────────
+    match /ambitos/{docId} {
+      allow read: if esAuth() && existeUsuario();
+      allow write: if esSuperadmin();
+    }
+
+    // ─── /valores/{valorId} ─── Fase B (por ahora solo permitir read a autenticados) ─
+    match /valores/{valorId} {
+      allow read: if esAuth() && existeUsuario();
+      allow write: if false;  // Solo el pipeline (Admin SDK) escribe
+    }
+
+    // ─── /metadata/{docId} ──────────────────────────────────────────────
+    match /metadata/{docId} {
+      allow read: if esAuth() && existeUsuario();
+      allow write: if esSuperadmin();
+    }
+  }
+}

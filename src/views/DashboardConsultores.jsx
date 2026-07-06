@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, Users, Building2, GraduationCap, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { ESCUELAS, JARDINES, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
-import { INDICADORES_ESCOLAR, INDICADORES_PARVULARIO } from '../data/indicadores.js';
+import { BarChart3, Users, Building2, GraduationCap, TrendingUp, TrendingDown, Minus, Loader2 } from 'lucide-react';
+import { generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { useEscuelas, useJardines, useIndicadores } from '../lib/queries.js';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
 
 // Agrupa un array de establecimientos por consultorEmail
@@ -52,8 +52,13 @@ export default function DashboardConsultores() {
   const [programa, setPrograma] = useState('escolar'); // 'escolar' | 'parvulario'
   const [consultorFoco, setConsultorFoco] = useState(null); // email del consultor con ranking expandido
 
-  const establecimientos = programa === 'escolar' ? ESCUELAS : JARDINES;
-  const indicadores = programa === 'escolar' ? INDICADORES_ESCOLAR : INDICADORES_PARVULARIO;
+  const escuelasQ = useEscuelas();
+  const jardinesQ = useJardines();
+  const indicadoresQ = useIndicadores(programa);
+  const cargando = escuelasQ.isLoading || jardinesQ.isLoading || indicadoresQ.isLoading;
+
+  const establecimientos = (programa === 'escolar' ? escuelasQ.data : jardinesQ.data) ?? [];
+  const indicadores = indicadoresQ.data ?? [];
 
   const grupos = useMemo(() => agruparPorConsultor(establecimientos), [establecimientos]);
   const promedioNacional = useMemo(
@@ -80,6 +85,14 @@ export default function DashboardConsultores() {
     () => (focoEsts.length ? calcularRankingItems(focoEsts, indicadores, MES_ACTUAL) : []),
     [focoEsts, indicadores]
   );
+
+  if (cargando) {
+    return (
+      <div className="flex items-center justify-center py-24 text-gray-ui text-sm">
+        <Loader2 size={16} className="animate-spin mr-2"/> Cargando métricas por consultor…
+      </div>
+    );
+  }
 
   return (
     <>

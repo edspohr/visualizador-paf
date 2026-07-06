@@ -1,0 +1,37 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "indicadores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "programa", "order": "ASCENDING" },
+        { "fieldPath": "ambito",   "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "establecimientos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "slep",  "order": "ASCENDING" },
+        { "fieldPath": "tipo",  "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "establecimientos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo",   "order": "ASCENDING" },
+        { "fieldPath": "cohorte","order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "ambitos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "programa", "order": "ASCENDING" },
+        { "fieldPath": "id",       "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

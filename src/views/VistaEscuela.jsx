@@ -1,30 +1,52 @@
 import { useState } from 'react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { AMBITOS_ESCOLAR, AMBITOS_PARVULARIO, INDICADORES_ESCOLAR, INDICADORES_PARVULARIO } from '../data/indicadores.js';
-import { ESCUELAS, JARDINES, SLEPS, logroPorAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos } from '../lib/queries.js';
+import { logroPorAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
-import { Target } from 'lucide-react';
+import { Target, Loader2 } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 
 export default function VistaEscuela() {
   const { perfil } = useApp();
   const [drilldown, setDrilldown] = useState(null);
   const esJardin = perfil.id === 'jardin';
-  const AMBITOS = esJardin ? AMBITOS_PARVULARIO : AMBITOS_ESCOLAR;
-  const INDS    = esJardin ? INDICADORES_PARVULARIO : INDICADORES_ESCOLAR;
+  const programa = esJardin ? 'parvulario' : 'escolar';
 
-  const entidad = resolverEntidad(perfil.contexto);
+  // Queries Firestore
+  const escuelasQ = useEscuelas();
+  const jardinesQ = useJardines();
+  const slepsQ = useSleps();
+  const indicadoresQ = useIndicadores(programa);
+  const ambitosQ = useAmbitos(programa);
+
+  const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
+                   indicadoresQ.isLoading || ambitosQ.isLoading;
+
+  const AMBITOS = ambitosQ.data ?? [];
+  const INDS = indicadoresQ.data ?? [];
+  const todosEstablecimientos = [...(escuelasQ.data ?? []), ...(jardinesQ.data ?? [])];
+  const sostenedores = slepsQ.data ?? [];
+
+  const entidad = resolverEntidad(perfil.contexto, todosEstablecimientos, sostenedores);
+
+  if (cargando) {
+    return (
+      <div className="flex items-center justify-center py-24 text-gray-ui text-sm">
+        <Loader2 size={16} className="animate-spin mr-2"/> Cargando datos del establecimiento…
+      </div>
+    );
+  }
   if (!entidad) return <p>Establecimiento no encontrado.</p>;
 
   const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const periodoLabel = `${NOMBRES_MES[MES_ACTUAL - 1]} ${new Date().getFullYear()}`;
 
-  const slep = SLEPS.find(s => s.id === entidad.slep);
+  const slep = sostenedores.find(s => s.id === entidad.slep);
   const logros = logroPorAmbito(INDS, entidad.id, entidad.slep);
-  const logroGlobal = Object.values(logros).reduce((a, b) => a + b, 0) / AMBITOS.length;
+  const logroGlobal = AMBITOS.length ? Object.values(logros).reduce((a, b) => a + b, 0) / AMBITOS.length : 0;
 
   // Ranking items: one per indicator, skip sin_meta
   const rankingItems = INDS
@@ -85,6 +107,7 @@ export default function VistaEscuela() {
           slep={entidad.slep}
           mes={MES_ACTUAL}
           onDrilldown={(ind) => setDrilldown(ind)}
+          todosEstablecimientos={todosEstablecimientos}
         />
       </div>
 
@@ -98,6 +121,8 @@ export default function VistaEscuela() {
           effectiveMonth={MES_ACTUAL}
           perfil={perfil.id}
           onClose={() => setDrilldown(null)}
+          todosEstablecimientos={todosEstablecimientos}
+          sostenedores={sostenedores}
         />
       )}
     </>

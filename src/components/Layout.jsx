@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Info, X, Users, BarChart3 } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
-import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
+import { useEscuelas, useJardines, useSleps } from '../lib/queries.js';
 
 const ICONOS = {
   school: School,
@@ -30,14 +30,23 @@ export default function Layout({ children }) {
   const [demoBanner, setDemoBanner] = useState(true);
 
   const Icon = ICONOS[perfil.icono] ?? School;
-  const entidad = resolverEntidad(perfil.contexto);
+
+  // Queries — el Layout se renderiza en todas las vistas autenticadas
+  const escuelasQ = useEscuelas();
+  const jardinesQ = useJardines();
+  const slepsQ = useSleps();
+  const escuelas = escuelasQ.data ?? [];
+  const jardines = jardinesQ.data ?? [];
+  const sleps = slepsQ.data ?? [];
+
+  const entidad = resolverEntidad(perfil.contexto, [...escuelas, ...jardines], sleps);
   const esSuperadmin = perfil.id === 'superadmin';
   const permiteProgramaSwitch = perfil.id === 'consultor' || perfil.id === 'superadmin';
 
   let opcionesEntidad = [];
-  if (perfil.id === 'escuela') opcionesEntidad = ESCUELAS;
-  else if (perfil.id === 'jardin') opcionesEntidad = JARDINES;
-  else if (perfil.id === 'sostenedor') opcionesEntidad = SLEPS;
+  if (perfil.id === 'escuela') opcionesEntidad = escuelas;
+  else if (perfil.id === 'jardin') opcionesEntidad = jardines;
+  else if (perfil.id === 'sostenedor') opcionesEntidad = sleps;
 
   // Base classes for pill controls on the white header
   const pillBase = 'flex items-center gap-2 border border-border hover:bg-bg px-3 py-2 rounded-xl text-sm font-light text-gray-dark transition';
@@ -136,7 +145,7 @@ export default function Layout({ children }) {
                           style={entidad?.id === e.id ? { color: 'var(--color-cyan)' } : {}}
                         >
                           <p className="truncate">{e.nombre}</p>
-                          {e.slep && <p className="text-xs text-gray-ui font-light truncate">{SLEPS.find(s => s.id === e.slep)?.nombre.replace(/^SLEP\s+/, '')}</p>}
+                          {e.slep && <p className="text-xs text-gray-ui font-light truncate">{sleps.find(s => s.id === e.slep)?.nombre.replace(/^SLEP\s+/, '')}</p>}
                           {e.comuna && !e.slep && <p className="text-xs text-gray-ui font-light truncate">{e.comuna}</p>}
                         </button>
                       ))}

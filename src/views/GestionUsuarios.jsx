@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Users, Plus, Trash2, Search, X, Loader2, AlertCircle, Mail, User, UserCircle, Building2 } from 'lucide-react';
 import { PERFILES } from '../lib/context.jsx';
-import { ESCUELAS, JARDINES, SLEPS } from '../data/establecimientos.js';
+import { useEscuelas, useJardines, useSleps } from '../lib/queries.js';
 import {
   listarUsuarios,
   crearUsuarioComoAdmin,
@@ -17,6 +17,12 @@ export default function GestionUsuarios() {
   const [error, setError] = useState('');
   const [q, setQ] = useState('');
   const [modalCrear, setModalCrear] = useState(false);
+
+  // Datos del catálogo — usados para dropdowns de asignación
+  const escuelasQ = useEscuelas();
+  const jardinesQ = useJardines();
+  const slepsQ = useSleps();
+  const catalogo = { escuelas: escuelasQ.data ?? [], jardines: jardinesQ.data ?? [], sleps: slepsQ.data ?? [] };
 
   const recargar = async () => {
     setLoading(true);
@@ -150,6 +156,7 @@ export default function GestionUsuarios() {
                   onCambiarPerfil={(id) => cambiarPerfil(u.uid, id)}
                   onCambiarEstablecimiento={(id) => cambiarEstablecimiento(u.uid, id)}
                   onEliminar={() => eliminar(u.uid)}
+                  catalogo={catalogo}
                 />
               ))}
             </tbody>
@@ -161,6 +168,7 @@ export default function GestionUsuarios() {
         <ModalCrearUsuario
           onClose={() => setModalCrear(false)}
           onCreado={() => { setModalCrear(false); recargar(); }}
+          catalogo={catalogo}
         />
       )}
     </>
@@ -169,9 +177,9 @@ export default function GestionUsuarios() {
 
 // ─── Fila de usuario ──────────────────────────────────────────────────────
 
-function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar }) {
+function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar, catalogo }) {
   const perfilObj = PERFILES.find(p => p.id === u.perfilDefault);
-  const opcionesEstablecimiento = opcionesPorPerfil(u.perfilDefault);
+  const opcionesEstablecimiento = opcionesPorPerfil(u.perfilDefault, catalogo);
   return (
     <tr className="border-b border-border last:border-0 hover:bg-bg transition">
       <td className="py-3 pr-3">
@@ -220,17 +228,18 @@ function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar 
   );
 }
 
-// Devuelve la lista de establecimientos/SLEPs disponibles para un perfil dado
-function opcionesPorPerfil(perfilId) {
-  if (perfilId === 'escuela') return ESCUELAS.map(e => ({ id: e.id, nombre: e.nombre }));
-  if (perfilId === 'jardin')  return JARDINES.map(j => ({ id: j.id, nombre: j.nombre }));
-  if (perfilId === 'sostenedor') return SLEPS.map(s => ({ id: s.id, nombre: s.nombre }));
+// Devuelve la lista de establecimientos/SLEPs disponibles para un perfil dado.
+// catalogo = { escuelas, jardines, sleps } viene de Firestore.
+function opcionesPorPerfil(perfilId, catalogo = { escuelas: [], jardines: [], sleps: [] }) {
+  if (perfilId === 'escuela') return catalogo.escuelas.map(e => ({ id: e.id, nombre: e.nombre }));
+  if (perfilId === 'jardin')  return catalogo.jardines.map(j => ({ id: j.id, nombre: j.nombre }));
+  if (perfilId === 'sostenedor') return catalogo.sleps.map(s => ({ id: s.id, nombre: s.nombre }));
   return []; // consultor, cap, superadmin: sin asignación específica
 }
 
 // ─── Modal crear usuario ──────────────────────────────────────────────────
 
-function ModalCrearUsuario({ onClose, onCreado }) {
+function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
   const [password, setPassword] = useState('');
@@ -239,7 +248,7 @@ function ModalCrearUsuario({ onClose, onCreado }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const opciones = opcionesPorPerfil(perfil);
+  const opciones = opcionesPorPerfil(perfil, catalogo);
 
   const submit = async (e) => {
     e.preventDefault();

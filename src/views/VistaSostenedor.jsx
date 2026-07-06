@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { AMBITOS_ESCOLAR, AMBITOS_PARVULARIO, INDICADORES_ESCOLAR, INDICADORES_PARVULARIO } from '../data/indicadores.js';
-import { ESCUELAS, JARDINES, SLEPS, logroPorAmbito, promedioSlepAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos } from '../lib/queries.js';
+import { logroPorAmbito, promedioSlepAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
@@ -11,25 +12,38 @@ import Glosario from '../components/Glosario.jsx';
 
 export default function VistaSostenedor() {
   const { perfil } = useApp();
-  const slep = resolverEntidad(perfil.contexto);
   const [drilldown, setDrilldown] = useState(null);
   const [openEst, setOpenEst] = useState({});
   const [tipoActivo, setTipoActivo] = useState('escolar');
   const toggleEst = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
   const handleTipoChange = (tipo) => { setTipoActivo(tipo); setOpenEst({}); };
-  if (!slep) return <p>SLEP no encontrado.</p>;
 
-  const escuelasSlep = ESCUELAS.filter(e => e.slep === slep.id);
-  const jardinesSlep = JARDINES.filter(j => j.slep === slep.id);
+  // Queries Firestore
+  const escuelasQ = useEscuelas();
+  const jardinesQ = useJardines();
+  const slepsQ = useSleps();
+
+  const escuelasAll = escuelasQ.data ?? [];
+  const jardinesAll = jardinesQ.data ?? [];
+  const slep = resolverEntidad(perfil.contexto, [...escuelasAll, ...jardinesAll], slepsQ.data ?? []);
+
+  const escuelasSlep = slep ? escuelasAll.filter(e => e.slep === slep.id) : [];
+  const jardinesSlep = slep ? jardinesAll.filter(j => j.slep === slep.id) : [];
 
   const tieneAmbos = escuelasSlep.length > 0 && jardinesSlep.length > 0;
   const defaultTipo = escuelasSlep.length > 0 ? 'escolar' : 'parvulario';
   const programaTipo = tieneAmbos ? tipoActivo : defaultTipo;
 
-  const AMBITOS = programaTipo === 'escolar' ? AMBITOS_ESCOLAR : AMBITOS_PARVULARIO;
-  const INDS    = programaTipo === 'escolar' ? INDICADORES_ESCOLAR : INDICADORES_PARVULARIO;
+  const indicadoresQ = useIndicadores(programaTipo);
+  const ambitosQ = useAmbitos(programaTipo);
+
+  const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
+                   indicadoresQ.isLoading || ambitosQ.isLoading;
+
+  const AMBITOS = ambitosQ.data ?? [];
+  const INDS = indicadoresQ.data ?? [];
   const establecimientos = programaTipo === 'escolar' ? escuelasSlep : jardinesSlep;
-  const todosDelTipo = programaTipo === 'escolar' ? ESCUELAS : JARDINES;
+  const todosDelTipo = programaTipo === 'escolar' ? escuelasAll : jardinesAll;
 
   const promediosSlep = Object.fromEntries(
     AMBITOS.map(a => [a.id, promedioSlepAmbito(INDS, todosDelTipo, slep.id, a.id)])
@@ -61,6 +75,15 @@ export default function VistaSostenedor() {
       const ratio = vals.reduce((s, v) => s + v.logro, 0) / (vals.length || 1);
       return { indicador: ind, valor, ratio };
     }), [INDS, establecimientos]);
+
+  if (cargando) {
+    return (
+      <div className="flex items-center justify-center py-24 text-gray-ui text-sm">
+        <Loader2 size={16} className="animate-spin mr-2"/> Cargando datos del sostenedor…
+      </div>
+    );
+  }
+  if (!slep) return <p>SLEP no encontrado.</p>;
 
   return (
     <>
@@ -122,6 +145,7 @@ export default function VistaSostenedor() {
         establecimientos={establecimientos}
         mes={MES_ACTUAL}
         breakdownBy="establecimiento"
+        sostenedores={slepsQ.data ?? []}
       />
 
       {/* Lista de establecimientos */}
@@ -166,6 +190,7 @@ export default function VistaSostenedor() {
                     slep={est.slep}
                     mes={MES_ACTUAL}
                     onDrilldown={(ind) => setDrilldown({ ind, estId: est.id, slepId: est.slep })}
+                    todosEstablecimientos={todosDelTipo}
                   />
                 </div>
               )}
@@ -184,6 +209,8 @@ export default function VistaSostenedor() {
           effectiveMonth={MES_ACTUAL}
           perfil={perfil.id}
           onClose={() => setDrilldown(null)}
+          todosEstablecimientos={todosDelTipo}
+          sostenedores={slepsQ.data ?? []}
         />
       )}
     </>

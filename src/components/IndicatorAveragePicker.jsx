@@ -2,18 +2,18 @@ import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { generarValorIndicador } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
-import { SLEPS } from '../data/establecimientos.js';
 
 /**
  * Indicator selector + bar chart of average values broken down by entity.
  *
  * Props:
- *   INDS            — full indicator list for this program
+ *   INDS             — full indicator list for this program
  *   establecimientos — the relevant establishment objects (already filtered)
- *   mes             — effective month (number)
- *   breakdownBy     — 'establecimiento' | 'sostenedor'
+ *   mes              — effective month (number)
+ *   breakdownBy      — 'establecimiento' | 'sostenedor'
+ *   sostenedores     — list of SLEPs (needed for 'sostenedor' breakdown labels)
  */
-export default function IndicatorAveragePicker({ INDS, establecimientos, mes, breakdownBy = 'establecimiento' }) {
+export default function IndicatorAveragePicker({ INDS, establecimientos, mes, breakdownBy = 'establecimiento', sostenedores = [] }) {
   const elegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
   const [indId, setIndId] = useState(elegibles[0]?.id ?? '');
 
@@ -32,7 +32,7 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
       }
       return Object.entries(bySostened).map(([slepId, vals]) => {
         const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
-        const slep = SLEPS.find(s => s.id === slepId);
+        const slep = sostenedores.find(s => s.id === slepId);
         return {
           nombre: slep ? slep.nombre.replace(/^SLEP\s+/, '') : slepId,
           valor: avg,
@@ -50,7 +50,7 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
         label: formatValue(indicador, valor ?? 0),
       };
     }).sort((a, b) => b.valor - a.valor);
-  }, [indicador, establecimientos, mes, breakdownBy]);
+  }, [indicador, establecimientos, mes, breakdownBy, sostenedores]);
 
   if (!indicador) return null;
 

@@ -31,6 +31,14 @@
         { "fieldPath": "programa", "order": "ASCENDING" },
         { "fieldPath": "id",       "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "progresoTrimestral",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "establecimientoId", "order": "ASCENDING" },
+        { "fieldPath": "anio",              "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -9,6 +9,7 @@ import IndicatorRanking from '../components/IndicatorRanking.jsx';
 import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
 import { Building2, GraduationCap, Users, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
+import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
 
 export default function VistaSostenedor() {
   const { perfil } = useApp();
@@ -198,6 +199,8 @@ export default function VistaSostenedor() {
           ))}
         </div>
       </div>
+
+      <PipelineStatusBanner />
 
       <Glosario />
 

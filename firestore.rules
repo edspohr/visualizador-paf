@@ -96,6 +96,21 @@ service cloud.firestore {
       allow write: if false;  // Solo el pipeline (Admin SDK) escribe
     }
 
+    // ─── /progresoTrimestral/{docId} ─── Fase B: agregados por (est × ámbito × trimestre) ─
+    // Poblada por scripts/syncPlanillasCentrales.mjs con service account (bypass rules).
+    match /progresoTrimestral/{docId} {
+      allow read: if esAuth() && existeUsuario() && (
+        // Escuela/jardin: solo su propio establecimiento
+        (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
+        // Sostenedor: los de su red — requiere lookup adicional, dejar abierto por ahora
+        // (el filtro cliente lo restringe; para v2 mover a colección /progresoTrimestral/{estId}/... como subcolección)
+        (esSostenedor()) ||
+        // Consultor / CAP / superadmin: todos
+        esAccesoCompleto()
+      );
+      allow write: if false;  // Solo pipeline (Admin SDK)
+    }
+
     // ─── /metadata/{docId} ──────────────────────────────────────────────
     match /metadata/{docId} {
       allow read: if esAuth() && existeUsuario();

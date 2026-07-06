@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useMesCerrado } from '../lib/queries.js';
 import { logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth, anioImplementacion } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
@@ -10,6 +10,7 @@ import IndicatorRanking from '../components/IndicatorRanking.jsx';
 import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
 import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows, ToggleLeft, ToggleRight } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
+import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -22,6 +23,20 @@ function fechaFormateada(mes) {
   const year = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
   const lastDay = new Date(year, mes, 0).getDate();
   return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${year}`;
+}
+
+// Devuelve el último día del mes cerrado como texto, usando /metadata/mesCerrado
+function labelMesCerrado(doc) {
+  if (!doc) {
+    // Fallback: mes anterior al actual
+    const hoy = new Date();
+    const anio = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
+    const mes = hoy.getMonth() === 0 ? 12 : hoy.getMonth();
+    const lastDay = new Date(anio, mes, 0).getDate();
+    return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${anio}`;
+  }
+  const lastDay = new Date(doc.anio, doc.mes, 0).getDate();
+  return `${lastDay} de ${NOMBRES_MES[doc.mes - 1]} de ${doc.anio}`;
 }
 
 export default function VistaConsultor() {
@@ -37,6 +52,7 @@ export default function VistaConsultor() {
   const slepsQ = useSleps();
   const indicadoresQ = useIndicadores(programa);
   const ambitosQ = useAmbitos(programa);
+  const mesCerradoQ = useMesCerrado();
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -115,7 +131,7 @@ export default function VistaConsultor() {
             <p className="text-xs text-white/60 tracking-wider font-medium mb-1">FUNDACIÓN CAP · INFORME DE CIERRE</p>
             <h2 className="text-3xl md:text-4xl font-medium text-white leading-tight">Vista de cierre · Fundación CAP</h2>
             <p className="text-white/80 mt-2 text-sm">
-              Datos <span className="text-lime-300 font-semibold">validados</span> al 30 de Abril de 2026 · Próxima actualización: primera semana de Junio
+              Datos <span className="text-lime-300 font-semibold">validados</span> al {labelMesCerrado(mesCerradoQ.data)} · Próxima actualización el 1° del mes siguiente
             </p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
@@ -254,6 +270,8 @@ export default function VistaConsultor() {
           sostenedores={SLEPS_DATA}
         />
       </div>
+
+      <PipelineStatusBanner />
 
       <Glosario />
 

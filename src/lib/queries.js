@@ -133,3 +133,43 @@ export function useMesCerrado() {
     queryFn: () => fetchDoc('metadata', 'mesCerrado'),
   });
 }
+
+export function usePipelineMetadata() {
+  return useQuery({
+    queryKey: ['metadata', 'pipeline'],
+    queryFn: () => fetchDoc('metadata', 'pipeline'),
+    staleTime: 1000 * 60,  // 1 min — es un indicador de última sync, no cachear tanto
+  });
+}
+
+// ─── Progreso trimestral (Fase B: viene de las Planillas Centrales) ───────
+
+// Todos los progresos de un establecimiento en un año
+export function useProgresoTrimestral(establecimientoId, anio) {
+  return useQuery({
+    queryKey: ['progresoTrimestral', 'porEst', establecimientoId, anio],
+    queryFn: async () => {
+      let q = collection(db, 'progresoTrimestral');
+      const conditions = [];
+      if (establecimientoId) conditions.push(where('establecimientoId', '==', establecimientoId));
+      if (anio) conditions.push(where('anio', '==', anio));
+      const built = conditions.length ? query(q, ...conditions) : q;
+      const snap = await getDocs(built);
+      return snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+    },
+    enabled: Boolean(establecimientoId),
+  });
+}
+
+// Todos los progresos por año — para vistas agregadas (consultor/CAP)
+export function useProgresoAnio(anio) {
+  return useQuery({
+    queryKey: ['progresoTrimestral', 'porAnio', anio],
+    queryFn: async () => {
+      const q = query(collection(db, 'progresoTrimestral'), where('anio', '==', anio));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+    },
+    enabled: Boolean(anio),
+  });
+}

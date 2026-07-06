@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "deploy": "npm run build && firebase deploy --only hosting",
     "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes",
-    "seed": "node scripts/seed.mjs"
+    "seed": "node scripts/seed.mjs",
+    "sync-planillas": "node scripts/syncPlanillasCentrales.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
@@ -27,6 +28,7 @@
     "autoprefixer": "^10.4.19",
     "dotenv": "^17.4.2",
     "firebase-admin": "^14.1.0",
+    "googleapis": "^173.0.0",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
     "vite": "^5.3.5"

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth } from './firebase.js';
+import { suscribirAuth, obtenerUsuarioDoc, cerrarSesionAuth, iniciarSesionDemo, actualizarUsuarioDoc, auth } from './firebase.js';
 
 const AppCtx = createContext(null);
 
@@ -90,8 +90,10 @@ export function AppProvider({ children }) {
         try {
           const doc = await obtenerUsuarioDoc(u.uid);
           setUsuarioDoc(doc);
-          // Si el usuario tiene perfil asignado en Firestore, aplicarlo automáticamente
-          if (doc?.perfilDefault) {
+          // Aplicar perfil desde Firestore SOLO si es un login "real" (no anónimo).
+          // Los usuarios anónimos ya tienen su perfil desde seleccionarPerfil() y no
+          // queremos sobrescribirlo con cada refresh del listener.
+          if (doc?.perfilDefault && !u.isAnonymous) {
             const base = perfilPorId(doc.perfilDefault);
             if (base) {
               const contexto = { ...base.contexto };
@@ -112,9 +114,25 @@ export function AppProvider({ children }) {
     return () => unsub();
   }, []);
 
-  const seleccionarPerfil = (p) => {
+  const seleccionarPerfil = async (p) => {
     setPerfil(p);
     localStorage.setItem('paf_perfil', JSON.stringify(p));
+    // Si no hay sesión Firebase, hacer login anónimo con el perfil demo elegido.
+    // Esto permite que las reglas Firestore autoricen las lecturas.
+    try {
+      if (!auth.currentUser) {
+        await iniciarSesionDemo(p);
+      } else if (auth.currentUser.isAnonymous) {
+        // Ya hay sesión anónima previa (cambio de perfil demo). Actualizar el doc.
+        await actualizarUsuarioDoc(auth.currentUser.uid, {
+          perfilDefault: p.id,
+          establecimientoId: p.contexto?.id ?? null,
+          slepId: p.contexto?.tipo === 'slep' ? p.contexto.id : null,
+        });
+      }
+    } catch (err) {
+      console.warn('No se pudo iniciar sesión demo:', err);
+    }
   };
 
   const cerrarSesion = async () => {
@@ -126,14 +144,23 @@ export function AppProvider({ children }) {
     }
   };
 
-  const cambiarEntidad = (id) => {
+  const cambiarEntidad = async (id) => {
     if (!perfil) return;
     const nuevo = { ...perfil, contexto: { ...perfil.contexto, id } };
     setPerfil(nuevo);
     localStorage.setItem('paf_perfil', JSON.stringify(nuevo));
+    // Si es sesión anónima demo, actualizar el doc para que las reglas lo lean
+    if (auth.currentUser?.isAnonymous) {
+      try {
+        await actualizarUsuarioDoc(auth.currentUser.uid, {
+          establecimientoId: nuevo.contexto?.tipo === 'establecimiento' ? id : null,
+          slepId: nuevo.contexto?.tipo === 'slep' ? id : null,
+        });
+      } catch (err) { console.warn(err); }
+    }
   };
 
-  const cambiarPrograma = (programa) => {
+  const cambiarPrograma = async (programa) => {
     if (!perfil) return;
     const nuevoCtx = { ...perfil.contexto, programa };
     // Si cambia programa, también resetear establecimiento por defecto si aplica
@@ -142,6 +169,14 @@ export function AppProvider({ children }) {
     const nuevo = { ...perfil, contexto: nuevoCtx };
     setPerfil(nuevo);
     localStorage.setItem('paf_perfil', JSON.stringify(nuevo));
+    // Propagar al doc de Firestore si es demo anónimo
+    if (auth.currentUser?.isAnonymous && nuevoCtx.id) {
+      try {
+        await actualizarUsuarioDoc(auth.currentUser.uid, {
+          establecimientoId: nuevoCtx.tipo === 'establecimiento' ? nuevoCtx.id : null,
+        });
+      } catch (err) { console.warn(err); }
+    }
   };
 
   return (

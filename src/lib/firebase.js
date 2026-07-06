@@ -10,6 +10,7 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
   signOut as fbSignOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
@@ -59,6 +60,26 @@ export async function registrarEmail(email, password) {
     createdAt: serverTimestamp(),
     proveedor: 'password',
   });
+  return cred.user;
+}
+
+// Inicia una sesión anónima de Firebase Auth y crea (o actualiza) el doc
+// /usuarios/{uid} con el perfil demo seleccionado. Esto permite que las reglas
+// Firestore (que exigen auth + doc de usuario) autoricen las lecturas del catálogo.
+export async function iniciarSesionDemo(perfil) {
+  const cred = await signInAnonymously(auth);
+  // Guardar el perfil demo elegido para que las reglas puedan leer perfilDefault
+  const ref = doc(db, 'usuarios', cred.user.uid);
+  await setDoc(ref, {
+    email: null,
+    nombre: `Demo · ${perfil.nombre}`,
+    perfilDefault: perfil.id,
+    establecimientoId: perfil.contexto?.id ?? null,
+    slepId: perfil.contexto?.tipo === 'slep' ? perfil.contexto.id : null,
+    createdAt: serverTimestamp(),
+    proveedor: 'anonymous',
+    demo: true,
+  }, { merge: true });
   return cred.user;
 }
 

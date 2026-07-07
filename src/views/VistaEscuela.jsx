@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useProgresoTrimestral } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useProgresoTrimestral, useValoresIndicador } from '../lib/queries.js';
 import { logroPorAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
@@ -35,6 +35,9 @@ export default function VistaEscuela() {
   // Progreso trimestral: requiere el ID del establecimiento
   const entidadIdFromCtx = perfil.contexto?.id;
   const progresoQ = useProgresoTrimestral(entidadIdFromCtx, ANIO_ACTUAL);
+  // Valores por indicador reales (fase C)
+  const valoresQ = useValoresIndicador(entidadIdFromCtx, ANIO_ACTUAL);
+  const valoresReales = new Map((valoresQ.data ?? []).map(v => [v.indicadorId, v]));
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -133,6 +136,7 @@ export default function VistaEscuela() {
           mes={MES_ACTUAL}
           onDrilldown={(ind) => setDrilldown(ind)}
           todosEstablecimientos={todosEstablecimientos}
+          valoresReales={valoresReales}
         />
       </div>
 

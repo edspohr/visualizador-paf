@@ -101,17 +101,20 @@ service cloud.firestore {
     }
 
     // ─── /progresoTrimestral/{docId} ─── Fase B: agregados por (est × ámbito × trimestre) ─
-    // Poblada por scripts/syncPlanillasCentrales.mjs con service account (bypass rules).
-    // Nota: para superadmin en modo "ver como escuela/jardín", el filtro del cliente
-    // restringe visualmente, pero las reglas dejan leer todo porque el usuarioDoc real
-    // sigue siendo superadmin (más simple que actualizar el doc en cada cambio de vista).
     match /progresoTrimestral/{docId} {
       allow read: if esUsuarioValido() && (
-        // Escuela/jardin: solo su propio establecimiento
         (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
-        // Sostenedor: filtro cliente-side (todos los establecimientos de su red)
         esSostenedor() ||
-        // Consultor / CAP / superadmin: todos
+        esAccesoCompleto()
+      );
+      allow write: if false;
+    }
+
+    // ─── /valoresIndicador/{docId} ─── Fase C: valores atómicos por indicador ─
+    match /valoresIndicador/{docId} {
+      allow read: if esUsuarioValido() && (
+        (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
+        esSostenedor() ||
         esAccesoCompleto()
       );
       allow write: if false;

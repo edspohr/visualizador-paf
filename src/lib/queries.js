@@ -173,3 +173,34 @@ export function useProgresoAnio(anio) {
     enabled: Boolean(anio),
   });
 }
+
+// ─── Valores por indicador (Fase C: detalle atómico) ──────────────────────
+
+// Valores por indicador de un establecimiento en un año
+export function useValoresIndicador(establecimientoId, anio) {
+  return useQuery({
+    queryKey: ['valoresIndicador', 'porEst', establecimientoId, anio],
+    queryFn: async () => {
+      const conditions = [];
+      if (establecimientoId) conditions.push(where('establecimientoId', '==', establecimientoId));
+      if (anio) conditions.push(where('anio', '==', anio));
+      const q = conditions.length ? query(collection(db, 'valoresIndicador'), ...conditions) : collection(db, 'valoresIndicador');
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+    },
+    enabled: Boolean(establecimientoId),
+  });
+}
+
+// Todos los valores por año — para vistas agregadas
+export function useValoresAnio(anio) {
+  return useQuery({
+    queryKey: ['valoresIndicador', 'porAnio', anio],
+    queryFn: async () => {
+      const q = query(collection(db, 'valoresIndicador'), where('anio', '==', anio));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+    },
+    enabled: Boolean(anio),
+  });
+}

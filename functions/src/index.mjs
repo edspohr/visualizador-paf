@@ -18,6 +18,7 @@ import { logger } from 'firebase-functions';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
+import { parsearHojaIndicadores } from './parserIndicadores.mjs';
 
 // Configuración global: región cercana a Chile.
 setGlobalOptions({ region: 'us-central1', maxInstances: 1 });
@@ -161,14 +162,23 @@ function parsePorcentaje(v) {
   return n > 1 ? n / 100 : n;
 }
 
-const HOJAS_A_SALTAR_PREFIJO = /^(RES\s|MON|CONS|COORDINADOR|LINKS|REPORTE|PLANTILLA|TEMPLATE|INSTRUCC|ACT\.|IDENTIFICAR|INDICAD|IND\s|NMON|CÁLCULO|CALCULO|HOJA\s|RESUMEN)/i;
+// Hojas que hay que saltar por completo (resumenes, monitoreo, etc.)
+const HOJAS_A_SALTAR_PREFIJO = /^(RES\s|MON|COORDINADOR|LINKS|REPORTE|PLANTILLA|TEMPLATE|INSTRUCC|ACT\.|IDENTIFICAR|NMON|CÁLCULO|CALCULO|HOJA\s|RESUMEN)/i;
 const HOJAS_A_SALTAR_EXACTO = new Set(['RA', 'EA', 'VOL', 'RP', 'RF']);
+
+// Hojas específicas de detalle por indicador (procesadas por parserIndicadores.mjs)
+const HOJAS_INDICADORES = /^(INDICAD0RES\s+CONSULTOR|INDICADORES\s+CONSULTOR|IND\s+PRODUCTOS|INDICADORES\s+PRODUCTOS|INDICADORES\s+COORDINADOR|INDICADORES\s+EXTRAS)/i;
+// Nota: INDICADORES EXTRAS JARDÍN tiene granularidad por sala (no la procesamos aún).
 
 function debeSaltarHoja(titulo) {
   const t = titulo.trim();
   if (HOJAS_A_SALTAR_EXACTO.has(t.toUpperCase())) return true;
   if (HOJAS_A_SALTAR_PREFIJO.test(t)) return true;
   return false;
+}
+
+function esHojaIndicadores(titulo) {
+  return HOJAS_INDICADORES.test(titulo.trim());
 }
 
 // ─── Parser de una hoja ────────────────────────────────────────────────────
@@ -255,15 +265,19 @@ async function ejecutarPipeline() {
   const sheets = google.sheets({ version: 'v4', auth });
 
   // Cargar catálogo desde Firestore
-  const [estSnap, ambSnap] = await Promise.all([
+  const [estSnap, ambSnap, indSnap] = await Promise.all([
     db.collection('establecimientos').get(),
     db.collection('ambitos').get(),
+    db.collection('indicadores').get(),
   ]);
   const establecimientos = estSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const ambitos = ambSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-  logger.info(`Catálogo cargado: ${establecimientos.length} establecimientos, ${ambitos.length} ámbitos`);
+  const indicadores = indSnap.docs.map(d => ({ id: d.data().id, ...d.data() }));
+  logger.info(`Catálogo cargado: ${establecimientos.length} establecimientos, ${ambitos.length} ámbitos, ${indicadores.length} indicadores`);
 
-  const todosDocs = [];
+  const todosDocsProgreso = [];
+  const todosDocsValores = [];
+  const updatesEstablecimientos = new Map(); // establecimientoId → { campos }
   const todosWarnings = [];
   const erroresPorPlanilla = [];
 
@@ -273,29 +287,77 @@ async function ejecutarPipeline() {
       const meta = await sheets.spreadsheets.get({ spreadsheetId: planilla.id, fields: 'sheets.properties' });
       const hojas = meta.data.sheets.map(s => s.properties.title);
 
+      let progresosPlanilla = 0;
+      let valoresPlanilla = 0;
+
       for (const titulo of hojas) {
+        // Prioridad 1: hojas de indicadores atómicos
+        if (esHojaIndicadores(titulo)) {
+          const { valores, updatesEstablecimientos: updates, warnings } = await parsearHojaIndicadores(
+            sheets, planilla.id, titulo, planilla, establecimientos, indicadores, encontrarEstablecimiento
+          );
+          todosDocsValores.push(...valores);
+          for (const [estId, campos] of updates) {
+            if (!updatesEstablecimientos.has(estId)) updatesEstablecimientos.set(estId, {});
+            Object.assign(updatesEstablecimientos.get(estId), campos);
+          }
+          todosWarnings.push(...warnings);
+          valoresPlanilla += valores.length;
+          continue;
+        }
+
+        // Prioridad 2: hojas a saltar
         if (debeSaltarHoja(titulo)) continue;
+
+        // Prioridad 3: hojas de progreso trimestral (jardín individual)
         const { docs, warnings } = await parsearHoja(sheets, planilla.id, titulo, planilla, establecimientos, ambitos);
-        todosDocs.push(...docs);
+        todosDocsProgreso.push(...docs);
         todosWarnings.push(...warnings);
+        progresosPlanilla += docs.length;
       }
-      logger.info(`${planilla.label}: ${todosDocs.length} progresos acumulados`);
+      logger.info(`${planilla.label}: ${progresosPlanilla} progresos + ${valoresPlanilla} valores por indicador`);
     } catch (err) {
       logger.error(`Error procesando ${planilla.label}: ${err.message}`);
       erroresPorPlanilla.push({ planilla: planilla.label, error: err.message });
     }
   }
 
-  // Escribir en batches
+  // Escribir progreso trimestral
   const CHUNK = 400;
-  let escritos = 0;
-  for (let i = 0; i < todosDocs.length; i += CHUNK) {
+  let escritosProgreso = 0;
+  for (let i = 0; i < todosDocsProgreso.length; i += CHUNK) {
     const batch = db.batch();
-    todosDocs.slice(i, i + CHUNK).forEach(({ docId, data }) => {
+    todosDocsProgreso.slice(i, i + CHUNK).forEach(({ docId, data }) => {
       batch.set(db.collection('progresoTrimestral').doc(docId), data, { merge: true });
     });
     await batch.commit();
-    escritos += Math.min(CHUNK, todosDocs.length - i);
+    escritosProgreso += Math.min(CHUNK, todosDocsProgreso.length - i);
+  }
+
+  // Escribir valores por indicador (con syncAt server-side)
+  let escritosValores = 0;
+  for (let i = 0; i < todosDocsValores.length; i += CHUNK) {
+    const batch = db.batch();
+    todosDocsValores.slice(i, i + CHUNK).forEach(({ docId, data }) => {
+      batch.set(db.collection('valoresIndicador').doc(docId), { ...data, syncAt: FieldValue.serverTimestamp() }, { merge: true });
+    });
+    await batch.commit();
+    escritosValores += Math.min(CHUNK, todosDocsValores.length - i);
+  }
+
+  // Actualizar atributos de establecimientos (matrícula, agentes, salas reales)
+  let establecimientosActualizados = 0;
+  if (updatesEstablecimientos.size > 0) {
+    const batch = db.batch();
+    for (const [estId, campos] of updatesEstablecimientos) {
+      batch.set(db.collection('establecimientos').doc(estId), {
+        ...campos,
+        fuenteDatos: 'planilla-central',
+        datosActualizadosAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+      establecimientosActualizados++;
+    }
+    await batch.commit();
   }
 
   const duracionMs = Date.now() - t0;
@@ -304,17 +366,26 @@ async function ejecutarPipeline() {
   await db.collection('metadata').doc('pipeline').set({
     ultimoSyncAt: FieldValue.serverTimestamp(),
     ultimoSyncExitoso: erroresPorPlanilla.length === 0,
-    docsEscritos: escritos,
+    docsEscritos: escritosProgreso + escritosValores,
+    progresoTrimestralEscritos: escritosProgreso,
+    valoresIndicadorEscritos: escritosValores,
+    establecimientosActualizados,
     docsError: 0,
     duracionMs,
-    warnings: todosWarnings.slice(0, 10),
+    warnings: todosWarnings.slice(0, 15),
     erroresPorPlanilla,
     fuente: 'planillas-centrales',
     ejecutadoDesde: 'cloud-scheduler',
   });
 
-  logger.info(`Pipeline completado: ${escritos} docs escritos en ${duracionMs}ms. Errores: ${erroresPorPlanilla.length}`);
-  return { escritos, duracionMs, errores: erroresPorPlanilla.length };
+  logger.info(`Pipeline completado en ${duracionMs}ms: ${escritosProgreso} progresos, ${escritosValores} valores, ${establecimientosActualizados} establecimientos actualizados. Errores: ${erroresPorPlanilla.length}`);
+  return {
+    escritosProgreso,
+    escritosValores,
+    establecimientosActualizados,
+    duracionMs,
+    errores: erroresPorPlanilla.length,
+  };
 }
 
 // ─── Trigger: Scheduler (dom-jue a las 2:00 AM Chile) ─────────────────────

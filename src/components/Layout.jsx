@@ -43,7 +43,7 @@ export default function Layout({ children }) {
 
   const entidad = resolverEntidad(perfil.contexto, [...escuelas, ...jardines], sleps);
   const esSuperadmin = perfil.id === 'superadmin';
-  const permiteProgramaSwitch = perfil.id === 'consultor' || perfil.id === 'superadmin';
+  const permiteProgramaSwitch = perfil.id === 'consultor' || perfil.id === 'cap' || perfil.id === 'superadmin';
 
   let opcionesEntidad = [];
   if (perfil.id === 'escuela') opcionesEntidad = escuelas;

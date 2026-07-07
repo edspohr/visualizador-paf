@@ -44,7 +44,7 @@ export const PERFILES = [
   {
     id: 'cap',
     nombre: 'Fundación CAP',
-    descripcion: 'Financiador del programa',
+    descripcion: 'Desarrollador del programa',
     icono: 'award',
     color: 'crimson',
     rol: 'Acceso a datos cerrados del mes anterior',

@@ -8,7 +8,7 @@ import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
 import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
-import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -68,7 +68,6 @@ export default function VistaConsultor() {
   const [filtroComuna, setFiltroComuna] = useState('TODAS');
   const [drilldown, setDrilldown] = useState(null);
   const [comparadorOpen, setComparadorOpen] = useState(false);
-  const [agruparConsultor, setAgruparConsultor] = useState(false);
 
   const filtrados = useMemo(() => todos.filter(e =>
     (filtroSlep === 'TODOS' || e.slep === filtroSlep) &&
@@ -241,22 +240,10 @@ export default function VistaConsultor() {
 
       {/* Lista de establecimientos */}
       <div className="card">
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div>
-            <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
-            <h3 className="text-lg text-gray-dark">Todos los establecimientos filtrados</h3>
-            <p className="text-sm text-gray-ui mt-1">Haz clic en un establecimiento para ver sus indicadores.</p>
-          </div>
-          <button
-            onClick={() => setAgruparConsultor(v => !v)}
-            className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-xl border border-border hover:bg-bg transition shrink-0"
-            style={agruparConsultor ? { borderColor: 'var(--color-cyan)', color: 'var(--color-cyan)' } : {}}
-          >
-            {agruparConsultor
-              ? <ToggleRight size={16} style={{ color: 'var(--color-cyan)' }}/>
-              : <ToggleLeft size={16} className="text-gray-ui"/>}
-            Agrupar por consultor
-          </button>
+        <div className="mb-4">
+          <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
+          <h3 className="text-lg text-gray-dark">Todos los establecimientos filtrados</h3>
+          <p className="text-sm text-gray-ui mt-1">Haz clic en un establecimiento para ver sus indicadores.</p>
         </div>
         <EstablecimientoList
           conLogros={conLogros}
@@ -264,7 +251,6 @@ export default function VistaConsultor() {
           INDS={INDS}
           effectiveMonth={effectiveMonth}
           perfil={perfil.id}
-          agruparConsultor={agruparConsultor}
           onDrilldown={(ind, estId, slepId) => setDrilldown({ ind, estId, slepId })}
           todosEstablecimientos={todos}
           sostenedores={SLEPS_DATA}
@@ -562,78 +548,17 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
   );
 }
 
-function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, agruparConsultor, onDrilldown, todosEstablecimientos, sostenedores }) {
+function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, onDrilldown, todosEstablecimientos, sostenedores }) {
   const [openEst, setOpenEst] = useState({});
-  const [openGrupo, setOpenGrupo] = useState({});
   const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
-  const toggleGrupo = (email) => setOpenGrupo(prev => ({ ...prev, [email]: !prev[email] }));
-
   const sorted = [...conLogros].sort((a, b) => b.promedio - a.promedio);
-
-  if (!agruparConsultor) {
-    return (
-      <div className="space-y-2">
-        {sorted.map((c, idx) => (
-          <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
-            INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}
-            todosEstablecimientos={todosEstablecimientos} sostenedores={sostenedores}/>
-        ))}
-      </div>
-    );
-  }
-
-  // Grouped by consultorEmail
-  const grupos = {};
-  for (const c of sorted) {
-    const email = c.est.consultorEmail ?? 'Sin asignar';
-    if (!grupos[email]) grupos[email] = [];
-    grupos[email].push(c);
-  }
-  const gruposOrdenados = Object.entries(grupos).sort((a, b) => {
-    const avgA = a[1].reduce((s, c) => s + c.promedio, 0) / a[1].length;
-    const avgB = b[1].reduce((s, c) => s + c.promedio, 0) / b[1].length;
-    return avgB - avgA;
-  });
-
   return (
-    <div className="space-y-3">
-      {gruposOrdenados.map(([email, items]) => {
-        const avg = items.reduce((s, c) => s + c.promedio, 0) / items.length;
-        const isOpen = openGrupo[email] ?? false;
-        return (
-          <div key={email} className="border border-border rounded-xl overflow-hidden">
-            <button
-              onClick={() => toggleGrupo(email)}
-              className="w-full text-left px-4 py-3 hover:bg-bg transition"
-            >
-              <div className="flex items-center gap-3 flex-wrap">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'var(--color-cyan)' }}>
-                  <Users size={13} className="text-white"/>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-dark truncate">{email}</p>
-                  <p className="text-xs text-gray-ui">{items.length} establecimiento{items.length !== 1 ? 's' : ''}</p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right">
-                    <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(avg * 100)}%</p>
-                    <p className="text-[10px] text-gray-ui mt-0.5">promedio</p>
-                  </div>
-                  {isOpen ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
-                </div>
-              </div>
-            </button>
-            {isOpen && (
-              <div className="border-t border-border px-3 py-3 bg-bg space-y-2">
-                {items.map((c, idx) => (
-                  <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
-                    INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}/>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
+    <div className="space-y-2">
+      {sorted.map((c, idx) => (
+        <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
+          INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}
+          todosEstablecimientos={todosEstablecimientos} sostenedores={sostenedores}/>
+      ))}
     </div>
   );
 }

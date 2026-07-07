@@ -155,6 +155,15 @@ export async function listarUsuarios() {
   return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
 }
 
+// Devuelve solo los usuarios que actúan como consultores Focus.
+// Se usa desde el Dashboard de consultores del superadmin.
+export async function listarConsultores() {
+  const snap = await getDocs(collection(db, 'usuarios'));
+  return snap.docs
+    .map(d => ({ uid: d.id, ...d.data() }))
+    .filter(u => u.perfilDefault === 'consultor');
+}
+
 export async function actualizarUsuarioDoc(uid, patch) {
   await setDoc(doc(db, 'usuarios', uid), patch, { merge: true });
 }

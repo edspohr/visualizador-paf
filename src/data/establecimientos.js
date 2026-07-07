@@ -32,12 +32,6 @@ function syntheticCounts(id, isEscuela) {
   return { nNinos: Math.round(40 + rng() * 80), nAgentes: Math.round(6 + rng() * 9) };
 }
 
-const CONSULTOR_EMAILS = ['rcontreras@focus.cl', 'pmunoz@focus.cl', 'jsoto@focus.cl'];
-function assignConsultorEmail(id) {
-  const rng = mulberry32(hashSeed(id, 'email'));
-  return CONSULTOR_EMAILS[Math.floor(rng() * CONSULTOR_EMAILS.length)];
-}
-
 // ─── SLEPs ────────────────────────────────────────────────────────────────
 
 export const SLEPS = [
@@ -77,7 +71,6 @@ const _rawEscuelas = [
 export const ESCUELAS = _rawEscuelas.map(e => ({
   ...e,
   ...syntheticCounts(e.id, true),
-  consultorEmail: assignConsultorEmail(e.id),
 }));
 
 // ─── JARDINES (24 total) ──────────────────────────────────────────────────
@@ -118,7 +111,6 @@ const _rawJardines = [
 export const JARDINES = _rawJardines.map(j => ({
   ...j,
   ...syntheticCounts(j.id, false),
-  consultorEmail: assignConsultorEmail(j.id),
 }));
 
 // ─── Sesgo por SLEP ────────────────────────────────────────────────────────

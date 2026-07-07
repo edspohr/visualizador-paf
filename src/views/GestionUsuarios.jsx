@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Users, Plus, Trash2, Search, X, Loader2, AlertCircle, Mail, User, UserCircle, Building2 } from 'lucide-react';
+import { Users, Plus, Trash2, Search, X, Loader2, AlertCircle, Mail, User, UserCircle, Building2, ListChecks } from 'lucide-react';
 import { PERFILES } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps } from '../lib/queries.js';
 import {
@@ -62,6 +62,19 @@ export default function GestionUsuarios() {
     try {
       await actualizarUsuarioDoc(uid, { establecimientoId: establecimientoId || null });
       setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, establecimientoId: establecimientoId || null } : u));
+    } catch (err) {
+      setError(err?.message ?? 'No se pudo actualizar.');
+    }
+  };
+
+  const [asignacionUid, setAsignacionUid] = useState(null);
+  const asignacionUsuario = usuarios.find(u => u.uid === asignacionUid) ?? null;
+
+  const guardarAsignacionConsultor = async (uid, establecimientoIds) => {
+    try {
+      await actualizarUsuarioDoc(uid, { establecimientoIds });
+      setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, establecimientoIds } : u));
+      setAsignacionUid(null);
     } catch (err) {
       setError(err?.message ?? 'No se pudo actualizar.');
     }
@@ -156,6 +169,7 @@ export default function GestionUsuarios() {
                   onCambiarPerfil={(id) => cambiarPerfil(u.uid, id)}
                   onCambiarEstablecimiento={(id) => cambiarEstablecimiento(u.uid, id)}
                   onEliminar={() => eliminar(u.uid)}
+                  onAsignarConsultor={() => setAsignacionUid(u.uid)}
                   catalogo={catalogo}
                 />
               ))}
@@ -171,15 +185,26 @@ export default function GestionUsuarios() {
           catalogo={catalogo}
         />
       )}
+
+      {asignacionUsuario && (
+        <ModalAsignarConsultor
+          usuario={asignacionUsuario}
+          catalogo={catalogo}
+          onClose={() => setAsignacionUid(null)}
+          onGuardar={(ids) => guardarAsignacionConsultor(asignacionUsuario.uid, ids)}
+        />
+      )}
     </>
   );
 }
 
 // ─── Fila de usuario ──────────────────────────────────────────────────────
 
-function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar, catalogo }) {
+function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar, onAsignarConsultor, catalogo }) {
   const perfilObj = PERFILES.find(p => p.id === u.perfilDefault);
   const opcionesEstablecimiento = opcionesPorPerfil(u.perfilDefault, catalogo);
+  const esConsultor = u.perfilDefault === 'consultor';
+  const nAsignados = Array.isArray(u.establecimientoIds) ? u.establecimientoIds.length : 0;
   return (
     <tr className="border-b border-border last:border-0 hover:bg-bg transition">
       <td className="py-3 pr-3">
@@ -196,7 +221,17 @@ function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar,
         </select>
       </td>
       <td className="py-3 px-3">
-        {opcionesEstablecimiento.length > 0 ? (
+        {esConsultor ? (
+          <button
+            onClick={onAsignarConsultor}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border hover:bg-bg transition"
+          >
+            <ListChecks size={12} className="text-gray-ui"/>
+            <span className="text-gray-dark">
+              {nAsignados === 0 ? 'Asignar establecimientos' : `${nAsignados} asignado${nAsignados === 1 ? '' : 's'}`}
+            </span>
+          </button>
+        ) : opcionesEstablecimiento.length > 0 ? (
           <select
             value={u.establecimientoId ?? ''}
             onChange={(e) => onCambiarEstablecimiento(e.target.value)}
@@ -352,6 +387,160 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
             Esta es una limitación de la API cliente de Firebase Auth. Cierra sesión y vuelve a entrar como superadmin.
           </p>
         </form>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal asignar establecimientos a un consultor ───────────────────────
+
+function ModalAsignarConsultor({ usuario, catalogo, onClose, onGuardar }) {
+  const inicial = Array.isArray(usuario.establecimientoIds) ? usuario.establecimientoIds : [];
+  const [seleccionados, setSeleccionados] = useState(() => new Set(inicial));
+  const [filtroSlep, setFiltroSlep] = useState('TODOS');
+  const [tab, setTab] = useState('escolar'); // 'escolar' | 'parvulario'
+  const [busqueda, setBusqueda] = useState('');
+  const [guardando, setGuardando] = useState(false);
+
+  const listaBase = tab === 'escolar' ? catalogo.escuelas : catalogo.jardines;
+  const filtrados = listaBase.filter(e =>
+    (filtroSlep === 'TODOS' || e.slep === filtroSlep) &&
+    (!busqueda.trim() || e.nombre.toLowerCase().includes(busqueda.toLowerCase()))
+  );
+
+  const toggle = (id) => {
+    setSeleccionados(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  const seleccionarTodos = () => setSeleccionados(prev => {
+    const next = new Set(prev);
+    filtrados.forEach(e => next.add(e.id));
+    return next;
+  });
+  const limpiarVista = () => setSeleccionados(prev => {
+    const next = new Set(prev);
+    filtrados.forEach(e => next.delete(e.id));
+    return next;
+  });
+
+  const guardar = async () => {
+    setGuardando(true);
+    try {
+      await onGuardar([...seleccionados]);
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 overflow-y-auto" onClick={onClose}>
+      <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-elev my-8 flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+        <div className="px-6 pt-6 pb-4 border-b border-border flex items-start justify-between">
+          <div>
+            <h2 className="text-lg font-medium text-gray-dark">Asignar establecimientos al consultor</h2>
+            <p className="text-xs text-gray-ui font-light mt-1">
+              {usuario.nombre || usuario.email} · {seleccionados.size} seleccionado{seleccionados.size === 1 ? '' : 's'}
+            </p>
+          </div>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl hover:bg-bg flex items-center justify-center text-gray-ui transition">
+            <X size={16}/>
+          </button>
+        </div>
+
+        {/* Tabs escolar / parvulario */}
+        <div className="px-6 pt-4 flex items-center gap-1 border-b border-border">
+          <button
+            onClick={() => setTab('escolar')}
+            className={`px-3 py-2 text-xs font-medium transition border-b-2 ${tab === 'escolar' ? '' : 'border-transparent text-gray-ui hover:text-gray-dark'}`}
+            style={tab === 'escolar' ? { borderColor: 'var(--color-cyan)', color: 'var(--color-cyan)' } : {}}
+          >
+            Escuelas ({catalogo.escuelas.length})
+          </button>
+          <button
+            onClick={() => setTab('parvulario')}
+            className={`px-3 py-2 text-xs font-medium transition border-b-2 ${tab === 'parvulario' ? '' : 'border-transparent text-gray-ui hover:text-gray-dark'}`}
+            style={tab === 'parvulario' ? { borderColor: 'var(--color-cyan)', color: 'var(--color-cyan)' } : {}}
+          >
+            Jardines ({catalogo.jardines.length})
+          </button>
+        </div>
+
+        {/* Filtros */}
+        <div className="px-6 py-3 border-b border-border flex flex-wrap items-center gap-3 bg-bg">
+          <div className="relative flex-1 min-w-[180px]">
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-ui pointer-events-none"/>
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar…"
+              className="w-full pl-7 pr-2 py-1.5 border border-border rounded-lg text-xs bg-white text-gray-dark outline-none focus:ring-2 focus:ring-cyan-100"
+            />
+          </div>
+          <select
+            value={filtroSlep}
+            onChange={(e) => setFiltroSlep(e.target.value)}
+            className="px-2 py-1.5 border border-border rounded-lg text-xs bg-white text-gray-dark outline-none"
+          >
+            <option value="TODOS">Todos los sostenedores</option>
+            {catalogo.sleps.map(s => <option key={s.id} value={s.id}>{s.nombre.replace(/^SLEP\s+/, '')}</option>)}
+          </select>
+          <button onClick={seleccionarTodos} className="text-xs font-medium text-gray-ui hover:text-gray-dark">Seleccionar visibles</button>
+          <button onClick={limpiarVista} className="text-xs font-medium text-gray-ui hover:text-gray-dark">Quitar visibles</button>
+        </div>
+
+        {/* Lista */}
+        <div className="flex-1 overflow-y-auto px-6 py-3">
+          {filtrados.length === 0 ? (
+            <p className="text-center text-xs text-gray-ui py-8">Sin resultados con los filtros actuales.</p>
+          ) : (
+            <ul className="space-y-1">
+              {filtrados.map(e => {
+                const marcado = seleccionados.has(e.id);
+                return (
+                  <li key={e.id}>
+                    <label className={`flex items-start gap-2 px-2 py-2 rounded-lg cursor-pointer transition ${marcado ? 'bg-cyan-50' : 'hover:bg-bg'}`}>
+                      <input
+                        type="checkbox"
+                        checked={marcado}
+                        onChange={() => toggle(e.id)}
+                        className="mt-0.5 accent-cyan"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-dark truncate">{e.nombre}</p>
+                        <p className="text-[10px] text-gray-ui">{e.slep} · Cohorte {e.cohorte} · {e.comuna}</p>
+                      </div>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        <div className="px-6 py-4 border-t border-border flex items-center justify-between gap-2">
+          <p className="text-xs text-gray-ui font-light">
+            {seleccionados.size} establecimiento{seleccionados.size === 1 ? '' : 's'} en total.
+          </p>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-dark hover:bg-bg transition">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={guardar}
+              disabled={guardando}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition disabled:opacity-50"
+              style={{ background: 'var(--color-teal)' }}
+            >
+              {guardando && <Loader2 size={14} className="animate-spin"/>}
+              Guardar asignación
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

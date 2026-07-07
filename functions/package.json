@@ -1,0 +1,20 @@
+{
+  "name": "visualizador-paf-functions",
+  "description": "Cloud Functions para el Visualizador PAF",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "main": "src/index.mjs",
+  "scripts": {
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "googleapis": "^144.0.0"
+  }
+}

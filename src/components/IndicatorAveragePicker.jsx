@@ -10,11 +10,16 @@ import { indicadorCodigo } from '../lib/labels.js';
  * Props:
  *   INDS             — full indicator list for this program
  *   establecimientos — the relevant establishment objects (already filtered)
- *   mes              — effective month (number)
+ *   mes              — effective month (fallback data source only)
  *   breakdownBy      — 'establecimiento' | 'sostenedor'
  *   sostenedores     — list of SLEPs (needed for 'sostenedor' breakdown labels)
+ *   getValor         — optional (indicadorId, estId) => number | null. When provided,
+ *                      routes through the dispatcher (real values from resultados_real
+ *                      in real mode; PRNG in synthetic mode). Establishments without
+ *                      a value are skipped (not counted as 0). When absent, falls back
+ *                      to generarValorIndicador (legacy PRNG path).
  */
-export default function IndicatorAveragePicker({ INDS, establecimientos, mes, breakdownBy = 'establecimiento', sostenedores = [] }) {
+export default function IndicatorAveragePicker({ INDS, establecimientos, mes, breakdownBy = 'establecimiento', sostenedores = [], getValor = null }) {
   const elegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
   const [indId, setIndId] = useState(elegibles[0]?.id ?? '');
 
@@ -23,13 +28,21 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
   const chartData = useMemo(() => {
     if (!indicador) return [];
 
+    // Resolve one establishment's value: prefer injected getValor (dispatcher-routed);
+    // fall back to synthetic PRNG only if no getValor is provided.
+    const resolveValor = (est) => {
+      if (getValor) return getValor(indicador.id, est.id);
+      return generarValorIndicador(indicador, est.id, est.slep, mes).valor;
+    };
+
     if (breakdownBy === 'sostenedor') {
-      // Group establishments by SLEP, average within each group
+      // Group establishments by SLEP, average non-null values within each group
       const bySostened = {};
       for (const est of establecimientos) {
+        const v = resolveValor(est);
+        if (v === null || v === undefined) continue;
         if (!bySostened[est.slep]) bySostened[est.slep] = [];
-        const { valor } = generarValorIndicador(indicador, est.id, est.slep, mes);
-        if (valor !== null) bySostened[est.slep].push(valor);
+        bySostened[est.slep].push(v);
       }
       return Object.entries(bySostened).map(([slepId, vals]) => {
         const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
@@ -42,16 +55,16 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
       }).sort((a, b) => b.valor - a.valor);
     }
 
-    // breakdownBy === 'establecimiento'
-    return establecimientos.map(est => {
-      const { valor } = generarValorIndicador(indicador, est.id, est.slep, mes);
-      return {
+    // breakdownBy === 'establecimiento': skip centros without a value (only count reported)
+    return establecimientos
+      .map(est => ({ est, valor: resolveValor(est) }))
+      .filter(({ valor }) => valor !== null && valor !== undefined)
+      .map(({ est, valor }) => ({
         nombre: est.nombre,
-        valor: valor ?? 0,
-        label: formatValue(indicador, valor ?? 0),
-      };
-    }).sort((a, b) => b.valor - a.valor);
-  }, [indicador, establecimientos, mes, breakdownBy, sostenedores]);
+        valor,
+        label: formatValue(indicador, valor),
+      })).sort((a, b) => b.valor - a.valor);
+  }, [indicador, establecimientos, mes, breakdownBy, sostenedores, getValor]);
 
   if (!indicador) return null;
 

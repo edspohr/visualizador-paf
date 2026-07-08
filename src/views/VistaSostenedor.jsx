@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
 import { logroPorAmbito, promedioSlepAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
@@ -37,6 +37,21 @@ export default function VistaSostenedor() {
 
   const indicadoresQ = useIndicadores(programaTipo);
   const ambitosQ = useAmbitos(programaTipo);
+
+  // Valores por indicador — dispatcher (real o sintético) para no filtrar sintético
+  // en modo real desde IndicatorAveragePicker.
+  const anioValores = new Date().getFullYear();
+  const valoresAnioQ = useValoresAnio(anioValores);
+  const valoresPorEst = useMemo(() => {
+    const m = new Map();
+    for (const v of (valoresAnioQ.data ?? [])) {
+      if (v.valor === null || v.valor === undefined) continue;
+      if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
+      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+    }
+    return m;
+  }, [valoresAnioQ.data]);
+  const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId) ?? null;
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -140,13 +155,14 @@ export default function VistaSostenedor() {
       {/* Top-3 / Bottom-3 por indicador (promedio de la red) */}
       <IndicatorRanking items={rankingItems} title="Indicadores de la red"/>
 
-      {/* Selector de indicador + gráfico de promedios por establecimiento */}
+      {/* Selector de indicador + gráfico de promedios por centro educativo */}
       <IndicatorAveragePicker
         INDS={INDS}
         establecimientos={establecimientos}
         mes={MES_ACTUAL}
         breakdownBy="establecimiento"
         sostenedores={slepsQ.data ?? []}
+        getValor={getValor}
       />
 
       {/* Lista de establecimientos */}

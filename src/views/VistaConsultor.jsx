@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useMesCerrado } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useMesCerrado, useValoresAnio } from '../lib/queries.js';
 import { logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth, anioImplementacion } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
@@ -54,6 +54,21 @@ export default function VistaConsultor() {
   const indicadoresQ = useIndicadores(programa);
   const ambitosQ = useAmbitos(programa);
   const mesCerradoQ = useMesCerrado();
+
+  // Anio de referencia para valores por indicador (real o sintético via dispatcher)
+  const anioValores = effectiveMonth <= 4 ? 2025 : 2026;
+  const valoresAnioQ = useValoresAnio(anioValores);
+  // Map<estId, Map<indicadorId, valor>> para O(1) lookup en IndicatorAveragePicker
+  const valoresPorEst = useMemo(() => {
+    const m = new Map();
+    for (const v of (valoresAnioQ.data ?? [])) {
+      if (v.valor === null || v.valor === undefined) continue;
+      if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
+      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+    }
+    return m;
+  }, [valoresAnioQ.data]);
+  const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId) ?? null;
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -210,6 +225,7 @@ export default function VistaConsultor() {
         mes={effectiveMonth}
         breakdownBy={breakdownBy}
         sostenedores={SLEPS_DATA}
+        getValor={getValor}
       />
 
       {/* Comparador por indicador */}
@@ -324,12 +340,13 @@ function buildLabel({ slep, cohorte, anio, comuna, mes, year }, sostenedores = [
   return parts.join(' · ');
 }
 
-function computeSideData(todos, filters, INDS, ambitoScope) {
+function computeSideData(todos, filters, INDS, ambitoScope, indicadorFocal = 'TODOS') {
   const ests = filtrarEstablecimientos(todos, filters);
   const inds = INDS.filter(ind =>
     ind.unidad !== 'sin_meta' &&
     ind.metaNum !== null &&
-    (ambitoScope === 'TODOS' || ind.ambito === ambitoScope)
+    (ambitoScope === 'TODOS' || ind.ambito === ambitoScope) &&
+    (indicadorFocal === 'TODOS' || ind.id === indicadorFocal)
   );
   return inds.map(ind => {
     const logros = ests.map(e => {
@@ -406,9 +423,12 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
   const initB = { mes: defaultMes, year: defaultYear - 1, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
   const [filtersA, setFiltersA] = useState(initA);
   const [filtersB, setFiltersB] = useState(initB);
+  const [indicadorFocal, setIndicadorFocal] = useState('TODOS');
 
-  const dataA = useMemo(() => computeSideData(todos, filtersA, INDS, filtersA.ambitoScope), [todos, filtersA, INDS]);
-  const dataB = useMemo(() => computeSideData(todos, filtersB, INDS, filtersB.ambitoScope), [todos, filtersB, INDS]);
+  const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
+
+  const dataA = useMemo(() => computeSideData(todos, filtersA, INDS, filtersA.ambitoScope, indicadorFocal), [todos, filtersA, INDS, indicadorFocal]);
+  const dataB = useMemo(() => computeSideData(todos, filtersB, INDS, filtersB.ambitoScope, indicadorFocal), [todos, filtersB, INDS, indicadorFocal]);
 
   const chartData = useMemo(() => {
     const idsA = new Set(dataA.map(d => d.id));
@@ -429,6 +449,24 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
 
   return (
     <div className="mt-5">
+      {/* Filtro por indicador focal (opcional) */}
+      <div className="mb-4">
+        <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador (opcional)</label>
+        <select
+          value={indicadorFocal}
+          onChange={e => setIndicadorFocal(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark outline-none"
+        >
+          <option value="TODOS">Todos los indicadores</option>
+          {indicadoresElegibles.map(i => (
+            <option key={i.id} value={i.id}>[{indicadorCodigo(i.id)}] {i.nombre}</option>
+          ))}
+        </select>
+        <p className="text-[10px] text-gray-ui mt-1 leading-snug">
+          Al elegir un indicador, el comparador muestra solo ese indicador en cada lado (A vs B).
+        </p>
+      </div>
+
       {/* Side selectors */}
       <div className="flex flex-col sm:flex-row gap-4 mb-5">
         <SideSelector

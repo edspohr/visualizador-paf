@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useMesCerrado, useValoresAnio } from '../lib/queries.js';
-import { logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth, anioImplementacion } from '../data/establecimientos.js';
+import { logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
@@ -55,9 +55,10 @@ export default function VistaConsultor() {
   const ambitosQ = useAmbitos(programa);
   const mesCerradoQ = useMesCerrado();
 
-  // Anio de referencia para valores por indicador (real o sintético via dispatcher)
-  const anioValores = effectiveMonth <= 4 ? 2025 : 2026;
-  const valoresAnioQ = useValoresAnio(anioValores);
+  // La vista se ancla a la gestión 2026. Otros años (2025) solo aparecen dentro
+  // del ComparadorIndicador como referencia comparativa.
+  const ANIO_GESTION = 2026;
+  const valoresAnioQ = useValoresAnio(ANIO_GESTION);
   // Map<estId, Map<indicadorId, valor>> para O(1) lookup en SostenedorAveragePicker
   const valoresPorEst = useMemo(() => {
     const m = new Map();
@@ -80,7 +81,6 @@ export default function VistaConsultor() {
 
   const [filtroSlep, setFiltroSlep] = useState('TODOS');
   const [filtroCohorte, setFiltroCohorte] = useState('TODAS');
-  const [filtroAnio, setFiltroAnio] = useState('TODOS');
   const [filtroComuna, setFiltroComuna] = useState('TODAS');
   const [drilldown, setDrilldown] = useState(null);
   const [comparadorOpen, setComparadorOpen] = useState(false);
@@ -88,13 +88,11 @@ export default function VistaConsultor() {
   const filtrados = useMemo(() => todos.filter(e =>
     (filtroSlep === 'TODOS' || e.slep === filtroSlep) &&
     (filtroCohorte === 'TODAS' || e.cohorte === filtroCohorte) &&
-    (filtroAnio === 'TODOS' || anioImplementacion(e, effectiveMonth <= 4 ? 2025 : 2026) === Number(filtroAnio)) &&
     (filtroComuna === 'TODAS' || e.comuna === filtroComuna)
-  ), [todos, filtroSlep, filtroCohorte, filtroAnio, filtroComuna, effectiveMonth]);
+  ), [todos, filtroSlep, filtroCohorte, filtroComuna]);
 
   const slepsDisponibles = [...new Set(todos.map(e => e.slep))].map(id => SLEPS_DATA.find(s => s.id === id)).filter(Boolean);
   const cohortesDisponibles = [...new Set(todos.map(e => e.cohorte))];
-  const aniosDisponibles = [...new Set(todos.map(e => anioImplementacion(e, effectiveMonth <= 4 ? 2025 : 2026)))].sort();
   const comunasDisponibles = [...new Set(todos.map(e => e.comuna))].sort();
 
   const conLogros = useMemo(() => filtrados.map(e => {
@@ -171,7 +169,7 @@ export default function VistaConsultor() {
           <div className="flex items-center gap-2 font-medium text-sm pt-6">
             <Filter size={16}/> Filtros
           </div>
-          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-0">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 min-w-0">
             <div>
               <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Sostenedor</label>
               <select value={filtroSlep} onChange={(e) => setFiltroSlep(e.target.value)} className={selectCls}>
@@ -184,13 +182,6 @@ export default function VistaConsultor() {
               <select value={filtroCohorte} onChange={(e) => setFiltroCohorte(e.target.value)} className={selectCls}>
                 <option value="TODAS">Todas</option>
                 {cohortesDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Año de implementación</label>
-              <select value={filtroAnio} onChange={(e) => setFiltroAnio(e.target.value)} className={selectCls}>
-                <option value="TODOS">Todos</option>
-                {aniosDisponibles.map(a => <option key={a} value={a}>Año {a}</option>)}
               </select>
             </div>
             <div>
@@ -242,7 +233,6 @@ export default function VistaConsultor() {
             todos={todos}
             slepsDisponibles={slepsDisponibles}
             cohortesDisponibles={cohortesDisponibles}
-            aniosDisponibles={aniosDisponibles}
             comunasDisponibles={comunasDisponibles}
             defaultMes={effectiveMonth}
             sostenedores={SLEPS_DATA}
@@ -316,20 +306,18 @@ const MESES_OPTS = [
   { v: 10, l: 'Octubre' }, { v: 11, l: 'Noviembre' }, { v: 12, l: 'Diciembre' },
 ];
 
-function filtrarEstablecimientos(todos, { slep, cohorte, anio, comuna, mes, year }) {
+function filtrarEstablecimientos(todos, { slep, cohorte, comuna }) {
   return todos.filter(e =>
     (slep === 'TODOS' || e.slep === slep) &&
     (cohorte === 'TODAS' || e.cohorte === cohorte) &&
-    (anio === 'TODOS' || anioImplementacion(e, year) === Number(anio)) &&
     (comuna === 'TODAS' || e.comuna === comuna)
   );
 }
 
-function buildLabel({ slep, cohorte, anio, comuna, mes, year }, sostenedores = []) {
+function buildLabel({ slep, cohorte, comuna, mes, year }, sostenedores = []) {
   const parts = [];
   if (slep !== 'TODOS') parts.push(sostenedores.find(s => s.id === slep)?.nombre.replace(/^SLEP\s+/, '') ?? slep);
   if (cohorte !== 'TODAS') parts.push(`Cohorte ${cohorte}`);
-  if (anio !== 'TODOS') parts.push(`Año ${anio}`);
   if (comuna !== 'TODAS') parts.push(comuna);
   parts.push(`${NOMBRES_MES[mes - 1]} ${year}`);
   return parts.join(' · ');
@@ -353,7 +341,7 @@ function computeSideData(todos, filters, INDS, ambitoScope, indicadorFocal = 'TO
   });
 }
 
-function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohortesDisponibles, aniosDisponibles, comunasDisponibles, AMBITOS }) {
+function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohortesDisponibles, comunasDisponibles, AMBITOS }) {
   const sc = "w-full px-2 py-1.5 border border-border rounded-lg text-xs bg-white text-gray-dark outline-none";
   return (
     <div className="flex-1 min-w-0 border rounded-xl p-3" style={{ borderColor: color }}>
@@ -387,20 +375,13 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
           </select>
         </div>
         <div>
-          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Año impl.</label>
-          <select value={filters.anio} onChange={e => onChange({ ...filters, anio: e.target.value })} className={sc}>
-            <option value="TODOS">Todos</option>
-            {aniosDisponibles.map(a => <option key={a} value={a}>Año {a}</option>)}
-          </select>
-        </div>
-        <div>
           <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Comuna</label>
           <select value={filters.comuna} onChange={e => onChange({ ...filters, comuna: e.target.value })} className={sc}>
             <option value="TODAS">Todas</option>
             {comunasDisponibles.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
-        <div className="col-span-2">
+        <div>
           <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Ámbito (alcance)</label>
           <select value={filters.ambitoScope} onChange={e => onChange({ ...filters, ambitoScope: e.target.value })} className={sc}>
             <option value="TODOS">Todos los ámbitos</option>
@@ -412,10 +393,10 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
   );
 }
 
-function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, aniosDisponibles, comunasDisponibles, defaultMes, sostenedores = [] }) {
+function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, comunasDisponibles, defaultMes, sostenedores = [] }) {
   const defaultYear = new Date().getFullYear();
-  const initA = { mes: defaultMes, year: defaultYear, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
-  const initB = { mes: defaultMes, year: defaultYear - 1, slep: 'TODOS', cohorte: 'TODAS', anio: 'TODOS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+  const initA = { mes: defaultMes, year: defaultYear, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+  const initB = { mes: defaultMes, year: defaultYear - 1, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
   const [filtersA, setFiltersA] = useState(initA);
   const [filtersB, setFiltersB] = useState(initB);
   const [indicadorFocal, setIndicadorFocal] = useState('TODOS');
@@ -453,7 +434,6 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
           onChange={setFiltersA}
           slepsDisponibles={slepsDisponibles}
           cohortesDisponibles={cohortesDisponibles}
-          aniosDisponibles={aniosDisponibles}
           comunasDisponibles={comunasDisponibles}
           AMBITOS={AMBITOS}
         />
@@ -464,7 +444,6 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
           onChange={setFiltersB}
           slepsDisponibles={slepsDisponibles}
           cohortesDisponibles={cohortesDisponibles}
-          aniosDisponibles={aniosDisponibles}
           comunasDisponibles={comunasDisponibles}
           AMBITOS={AMBITOS}
         />

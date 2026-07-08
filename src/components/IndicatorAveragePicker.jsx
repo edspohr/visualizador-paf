@@ -35,10 +35,15 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
       return generarValorIndicador(indicador, est.id, est.slep, mes).valor;
     };
 
+    // For binary aggregate views, we render "% de Sí" instead of Sí/No labels.
+    const isBinary = indicador.unidad === 'binario';
+    const fmt = (v) => (isBinary ? `${Math.round(v * 100)}% Sí` : formatValue(indicador, v));
+
     if (breakdownBy === 'sostenedor') {
       // Group establishments by SLEP, average non-null values within each group
       const bySostened = {};
       for (const est of establecimientos) {
+        if (!est.slep) continue; // skip centros sin sostenedor asignado (evita "undefined" en el eje)
         const v = resolveValor(est);
         if (v === null || v === undefined) continue;
         if (!bySostened[est.slep]) bySostened[est.slep] = [];
@@ -50,7 +55,7 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
         return {
           nombre: slep ? slep.nombre.replace(/^SLEP\s+/, '') : slepId,
           valor: avg,
-          label: formatValue(indicador, avg),
+          label: fmt(avg),
         };
       }).sort((a, b) => b.valor - a.valor);
     }
@@ -62,18 +67,22 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
       .map(({ est, valor }) => ({
         nombre: est.nombre,
         valor,
-        label: formatValue(indicador, valor),
+        label: fmt(valor),
       })).sort((a, b) => b.valor - a.valor);
   }, [indicador, establecimientos, mes, breakdownBy, sostenedores, getValor]);
 
   if (!indicador) return null;
 
-  // Y-axis formatter
+  // Axis / label formatter. Para binarios en vista agregada mostramos % de "Sí"
+  // (el valor viene fraccional en [0,1]); para agregados con un solo centro que
+  // reporta 0 o 1 exactos, también rendera como 0% / 100% consistente.
+  const isBinary = indicador.unidad === 'binario';
   const yFmt = (v) => {
+    if (isBinary) return `${Math.round(v * 100)}%`;
     if (indicador.unidad === '%') return `${Math.round(v * 100)}%`;
-    if (indicador.unidad === 'binario') return v === 1 ? 'Sí' : 'No';
     return String(Math.round(v * 10) / 10);
   };
+  const fmtCell = (v) => isBinary ? `${Math.round(v * 100)}% Sí` : formatValue(indicador, v);
 
   const metaLine = indicador.metaNum;
 
@@ -130,14 +139,14 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
             />
             <Tooltip
               contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }}
-              formatter={(v) => [formatValue(indicador, v), indicador.nombre]}
+              formatter={(v) => [fmtCell(v), indicador.nombre]}
               labelStyle={{ color: '#6B7280', marginBottom: 4 }}
             />
             <Bar
               dataKey="valor"
               fill="var(--color-cyan)"
               radius={[0, 4, 4, 0]}
-              label={{ position: 'right', formatter: (v) => formatValue(indicador, v), fontSize: 11, fill: '#333333' }}
+              label={{ position: 'right', formatter: (v) => fmtCell(v), fontSize: 11, fill: '#333333' }}
             />
           </BarChart>
         </ResponsiveContainer>

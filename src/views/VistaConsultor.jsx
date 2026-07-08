@@ -7,7 +7,7 @@ import { KpiCard } from '../components/Shared.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
-import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
+import SostenedorAveragePicker from '../components/SostenedorAveragePicker.jsx';
 import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows } from 'lucide-react';
 import { ambitoCodigo, indicadorCodigo } from '../lib/labels.js';
 import Glosario from '../components/Glosario.jsx';
@@ -58,7 +58,7 @@ export default function VistaConsultor() {
   // Anio de referencia para valores por indicador (real o sintético via dispatcher)
   const anioValores = effectiveMonth <= 4 ? 2025 : 2026;
   const valoresAnioQ = useValoresAnio(anioValores);
-  // Map<estId, Map<indicadorId, valor>> para O(1) lookup en IndicatorAveragePicker
+  // Map<estId, Map<indicadorId, valor>> para O(1) lookup en SostenedorAveragePicker
   const valoresPorEst = useMemo(() => {
     const m = new Map();
     for (const v of (valoresAnioQ.data ?? [])) {
@@ -123,9 +123,6 @@ export default function VistaConsultor() {
     agentes: filtrados.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
     comunas: new Set(filtrados.map(e => e.comuna)).size,
   }), [filtrados]);
-
-  // breakdownBy: use sostenedor when viewing all, establecimiento when filtered to one
-  const breakdownBy = filtroSlep === 'TODOS' ? 'sostenedor' : 'establecimiento';
 
   const selectCls = "w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none";
 
@@ -218,12 +215,10 @@ export default function VistaConsultor() {
       {/* Top-3 / Bottom-3 por indicador (promedio del conjunto filtrado) */}
       <IndicatorRanking items={rankingItems} title="Indicadores del programa"/>
 
-      {/* Selector de indicador + gráfico comparativo */}
-      <IndicatorAveragePicker
+      {/* Promedio de logro por sostenedor (o por centro al elegir un sostenedor) */}
+      <SostenedorAveragePicker
         INDS={INDS}
         establecimientos={filtrados}
-        mes={effectiveMonth}
-        breakdownBy={breakdownBy}
         sostenedores={SLEPS_DATA}
         getValor={getValor}
       />
@@ -449,24 +444,6 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
 
   return (
     <div className="mt-5">
-      {/* Filtro por indicador focal (opcional) */}
-      <div className="mb-4">
-        <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador (opcional)</label>
-        <select
-          value={indicadorFocal}
-          onChange={e => setIndicadorFocal(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark outline-none"
-        >
-          <option value="TODOS">Todos los indicadores</option>
-          {indicadoresElegibles.map(i => (
-            <option key={i.id} value={i.id}>[{indicadorCodigo(i.id)}] {i.nombre}</option>
-          ))}
-        </select>
-        <p className="text-[10px] text-gray-ui mt-1 leading-snug">
-          Al elegir un indicador, el comparador muestra solo ese indicador en cada lado (A vs B).
-        </p>
-      </div>
-
       {/* Side selectors */}
       <div className="flex flex-col sm:flex-row gap-4 mb-5">
         <SideSelector
@@ -491,6 +468,24 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
           comunasDisponibles={comunasDisponibles}
           AMBITOS={AMBITOS}
         />
+      </div>
+
+      {/* Filtro por indicador focal (opcional) — al final, debajo de Ámbito */}
+      <div className="mb-4">
+        <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador (opcional)</label>
+        <select
+          value={indicadorFocal}
+          onChange={e => setIndicadorFocal(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark outline-none"
+        >
+          <option value="TODOS">Todos los indicadores</option>
+          {indicadoresElegibles.map(i => (
+            <option key={i.id} value={i.id}>[{indicadorCodigo(i.id)}] {i.nombre}</option>
+          ))}
+        </select>
+        <p className="text-[10px] text-gray-ui mt-1 leading-snug">
+          Al elegir un indicador, el comparador muestra solo ese indicador en cada lado (A vs B).
+        </p>
       </div>
 
       {/* Legend summary */}

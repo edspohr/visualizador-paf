@@ -1,0 +1,406 @@
+{
+  "generatedAt": "2026-07-08T10:39:19.118Z",
+  "dryRun": false,
+  "totals": {
+    "resultados": 499,
+    "porEstado": {
+      "validado": 167,
+      "provisional": 332
+    },
+    "escuelasCubiertas": 18,
+    "indicadoresCubiertos": 30,
+    "reads": 72,
+    "headerMismatches": 40
+  },
+  "indicadoresCubiertos": [
+    "I1",
+    "I11",
+    "I12",
+    "I15",
+    "I16",
+    "I17",
+    "I18",
+    "I19",
+    "I2",
+    "I20",
+    "I25",
+    "I26",
+    "I27",
+    "I28",
+    "I3",
+    "I33",
+    "I35",
+    "I36",
+    "I37",
+    "I38",
+    "I4",
+    "I40",
+    "I41",
+    "I47",
+    "I48",
+    "I5",
+    "I6",
+    "I7",
+    "I8",
+    "I9"
+  ],
+  "headerMismatches": [
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I19",
+      "expected": "ningún estudiante activo detectado",
+      "tab": "RC per-course"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I4",
+      "expected": "personas con Cargo=Coordinador",
+      "tab": "Reuniones equipo de Gestión"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I4",
+      "expected": "personas con Cargo=Coordinador",
+      "tab": "Reuniones equipo de Gestión"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I19",
+      "expected": "ningún estudiante activo detectado",
+      "tab": "RC per-course"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I48",
+      "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I48",
+      "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I48",
+      "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I37",
+      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I34",
+      "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    }
+  ],
+  "muestra": [
+    {
+      "valor": 0,
+      "raw": "FALSE",
+      "estado": "validado",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "cohorte": "2026-2028",
+      "programa": "escolar",
+      "indicadorId": "I1",
+      "ambito": "A1",
+      "anio": 2026,
+      "periodo": "2026",
+      "meta": "Sí",
+      "metaNum": 1,
+      "unidad": "binario",
+      "logro": 0,
+      "fuente": {
+        "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
+        "workbookLabel": "Datos Consultor · Actividades",
+        "tab": "Actividades",
+        "row": 26
+      }
+    },
+    {
+      "valor": 3,
+      "raw": "TRUE|TRUE|TRUE|FALSE|FALSE",
+      "estado": "provisional",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "cohorte": "2026-2028",
+      "programa": "escolar",
+      "indicadorId": "I11",
+      "ambito": "A2",
+      "anio": 2026,
+      "periodo": "2026",
+      "meta": "5",
+      "metaNum": 5,
+      "unidad": "conteo",
+      "logro": 0.6,
+      "fuente": {
+        "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
+        "workbookLabel": "Datos Consultor · Actividades",
+        "tab": "Actividades",
+        "row": 7
+      }
+    },
+    {
+      "valor": 0,
+      "raw": "FALSE|FALSE",
+      "estado": "provisional",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "cohorte": "2026-2028",
+      "programa": "escolar",
+      "indicadorId": "I15",
+      "ambito": "A2",
+      "anio": 2026,
+      "periodo": "2026",
+      "meta": "2",
+      "metaNum": 2,
+      "unidad": "conteo",
+      "logro": 0,
+      "fuente": {
+        "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
+        "workbookLabel": "Datos Consultor · Actividades",
+        "tab": "Actividades",
+        "row": 3
+      }
+    },
+    {
+      "valor": 1,
+      "raw": "TRUE|FALSE|FALSE|FALSE|FALSE",
+      "estado": "validado",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "cohorte": "2026-2028",
+      "programa": "escolar",
+      "indicadorId": "I25",
+      "ambito": "A3",
+      "anio": 2026,
+      "periodo": "2026",
+      "meta": "4",
+      "metaNum": 4,
+      "unidad": "conteo",
+      "logro": 0.25,
+      "fuente": {
+        "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
+        "workbookLabel": "Datos Consultor · Actividades",
+        "tab": "Actividades",
+        "row": 12
+      }
+    },
+    {
+      "valor": 6.8,
+      "raw": "6.8",
+      "estado": "validado",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "cohorte": "2026-2028",
+      "programa": "escolar",
+      "indicadorId": "I36",
+      "ambito": "A2",
+      "anio": 2026,
+      "periodo": "2026",
+      "meta": "6",
+      "metaNum": 6,
+      "unidad": "conteo",
+      "logro": 1.1333333333333333,
+      "fuente": {
+        "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
+        "workbookLabel": "Datos Consultor · Actividades",
+        "tab": "Actividades",
+        "row": 8
+      }
+    }
+  ]
+}

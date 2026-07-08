@@ -10,7 +10,10 @@
     "deploy": "npm run build && firebase deploy --only hosting",
     "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes",
     "seed": "node scripts/seed.mjs",
-    "sync-planillas": "node scripts/syncPlanillasCentrales.mjs"
+    "sync-planillas": "node scripts/syncPlanillasCentrales.mjs",
+    "ingest:parvulario": "node scripts/ingestParvulario.mjs",
+    "set-flag": "node scripts/setDataSourceFlag.mjs",
+    "ingest:escolar": "node scripts/ingestEscolar.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

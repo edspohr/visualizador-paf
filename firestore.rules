@@ -125,5 +125,46 @@ service cloud.firestore {
       allow read: if esUsuarioValido();
       allow write: if esSuperadmin();
     }
+
+    // ─── /config/{docId} — dataSource flag y config global (Etapa 4) ────
+    // Lectura pública (el cliente lo consulta ANTES del login para decidir
+    // qué fuente de datos usar). El flag no expone información sensible; sólo
+    // dice si Escolar/Parvulario deben leer de sintético o de real.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if esSuperadmin();
+    }
+
+    // ─── /establecimientos_real/{estId} — Etapa 3 ingesta real ─────────
+    // Mismo modelo de visibilidad que /establecimientos.
+    match /establecimientos_real/{estId} {
+      allow read: if esUsuarioValido() && (
+        (esEscuelaOJardin() && getUsuario().establecimientoId == estId) ||
+        (esSostenedor() && resource.data.slep == getUsuario().slepId) ||
+        esAccesoCompleto()
+      );
+      allow write: if false;   // sólo el pipeline (Admin SDK) escribe
+    }
+
+    // ─── /resultados_real/{docId} — Etapa 3/5 ingesta real ─────────────
+    // Mismo modelo que /valoresIndicador.
+    match /resultados_real/{docId} {
+      allow read: if esUsuarioValido() && (
+        (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
+        esSostenedor() ||
+        esAccesoCompleto()
+      );
+      allow write: if false;
+    }
+
+    // ─── /progresoTrimestral_real/{docId} ──────────────────────────────
+    match /progresoTrimestral_real/{docId} {
+      allow read: if esUsuarioValido() && (
+        (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
+        esSostenedor() ||
+        esAccesoCompleto()
+      );
+      allow write: if false;
+    }
   }
 }

@@ -1,0 +1,171 @@
+{
+  "generatedAt": "2026-07-08T06:44:38.220Z",
+  "dryRun": false,
+  "totals": {
+    "resultados": 513,
+    "porEstado": {
+      "validado": 393,
+      "provisional": 120
+    },
+    "porCohorte": {
+      "2025-2026": 412,
+      "2026-2027": 101
+    },
+    "porAnio": {
+      "2025": 245,
+      "2026": 268
+    },
+    "jardinesCubiertos": 24,
+    "indicadoresCubiertos": 24,
+    "rosterTotal": 24
+  },
+  "indicadoresCubiertos": [
+    "I.1",
+    "I.12",
+    "I.13",
+    "I.2",
+    "I.3",
+    "I.32",
+    "I.33",
+    "I.34",
+    "I.35",
+    "I.36",
+    "I.37",
+    "I.38",
+    "I.39",
+    "I.4",
+    "I.41",
+    "I.42",
+    "I.43",
+    "I.44",
+    "I.45",
+    "I.46",
+    "I.47",
+    "I.5",
+    "I.50",
+    "I.51"
+  ],
+  "rosterMissingInSCJI": [],
+  "muestra": [
+    {
+      "programa": "parvulario",
+      "establecimientoId": "jar-pequeno-aymara",
+      "establecimientoNombre": "Pequeño Aymará",
+      "indicadorId": "I.1",
+      "ambito": "A1",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "periodo": "2025",
+      "valor": 9,
+      "raw": "9",
+      "meta": "11",
+      "metaNum": 11,
+      "unidad": "conteo",
+      "logro": 0.8181818181818182,
+      "estado": "validado",
+      "fuente": {
+        "workbookId": "1KnApSDHVGh8tXzPYOQY957jvzEvw3ra5lwvxevL3s9A",
+        "workbookLabel": "Central 2025-2026 · 2025",
+        "tab": "INDICAD0RES CONSULTOR",
+        "col": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
+        "row": 2
+      }
+    },
+    {
+      "programa": "parvulario",
+      "establecimientoId": "jar-enrique-backausse",
+      "establecimientoNombre": "Enrique Backausse",
+      "indicadorId": "I.1",
+      "ambito": "A1",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "periodo": "2025",
+      "valor": 2,
+      "raw": "2",
+      "meta": "11",
+      "metaNum": 11,
+      "unidad": "conteo",
+      "logro": 0.18181818181818182,
+      "estado": "validado",
+      "fuente": {
+        "workbookId": "1KnApSDHVGh8tXzPYOQY957jvzEvw3ra5lwvxevL3s9A",
+        "workbookLabel": "Central 2025-2026 · 2025",
+        "tab": "INDICAD0RES CONSULTOR",
+        "col": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
+        "row": 3
+      }
+    },
+    {
+      "programa": "parvulario",
+      "establecimientoId": "jar-poetas-de-chile",
+      "establecimientoNombre": "Poetas de Chile",
+      "indicadorId": "I.1",
+      "ambito": "A1",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "periodo": "2025",
+      "valor": 5,
+      "raw": "5",
+      "meta": "11",
+      "metaNum": 11,
+      "unidad": "conteo",
+      "logro": 0.45454545454545453,
+      "estado": "validado",
+      "fuente": {
+        "workbookId": "1KnApSDHVGh8tXzPYOQY957jvzEvw3ra5lwvxevL3s9A",
+        "workbookLabel": "Central 2025-2026 · 2025",
+        "tab": "INDICAD0RES CONSULTOR",
+        "col": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
+        "row": 4
+      }
+    },
+    {
+      "programa": "parvulario",
+      "establecimientoId": "jar-ciudad-de-barcelona",
+      "establecimientoNombre": "Ciudad de Barcelona",
+      "indicadorId": "I.1",
+      "ambito": "A1",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "periodo": "2025",
+      "valor": 3,
+      "raw": "3",
+      "meta": "11",
+      "metaNum": 11,
+      "unidad": "conteo",
+      "logro": 0.2727272727272727,
+      "estado": "validado",
+      "fuente": {
+        "workbookId": "1KnApSDHVGh8tXzPYOQY957jvzEvw3ra5lwvxevL3s9A",
+        "workbookLabel": "Central 2025-2026 · 2025",
+        "tab": "INDICAD0RES CONSULTOR",
+        "col": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
+        "row": 5
+      }
+    },
+    {
+      "programa": "parvulario",
+      "establecimientoId": "jar-ochagavia",
+      "establecimientoNombre": "Ochagavía",
+      "indicadorId": "I.1",
+      "ambito": "A1",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "periodo": "2025",
+      "valor": 0,
+      "raw": "0",
+      "meta": "11",
+      "metaNum": 11,
+      "unidad": "conteo",
+      "logro": 0,
+      "estado": "validado",
+      "fuente": {
+        "workbookId": "1KnApSDHVGh8tXzPYOQY957jvzEvw3ra5lwvxevL3s9A",
+        "workbookLabel": "Central 2025-2026 · 2025",
+        "tab": "INDICAD0RES CONSULTOR",
+        "col": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
+        "row": 6
+      }
+    }
+  ]
+}

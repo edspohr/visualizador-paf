@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { generarValorIndicador } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
+import { indicadorCodigo } from '../lib/labels.js';
 
 /**
  * Indicator selector + bar chart of average values broken down by entity.
@@ -79,7 +80,7 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
             style={{ '--tw-ring-color': 'var(--color-cyan)' }}
           >
             {elegibles.map(i => (
-              <option key={i.id} value={i.id}>[{i.id}] {i.nombre}</option>
+              <option key={i.id} value={i.id}>[{indicadorCodigo(i.id)}] {i.nombre}</option>
             ))}
           </select>
         </div>

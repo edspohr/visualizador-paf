@@ -1,5 +1,6 @@
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { formatValue } from '../data/expectedValue.js';
+import { ambitoCodigo } from '../lib/labels.js';
 
 /**
  * Shows the top-3 and bottom-3 indicators by logro ratio.
@@ -62,7 +63,7 @@ function IndicadorItem({ indicador, valor, accent }) {
       <div className="min-w-0 flex-1">
         <p className="text-gray-dark leading-snug">{indicador.nombre}</p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0 text-xs text-gray-ui mt-0.5">
-          <span className="font-mono">{indicador.ambito}</span>
+          <span className="font-mono">{ambitoCodigo(indicador.ambito)}</span>
           <span>
             Valor: <span className="font-medium text-gray-dark">{formatValue(indicador, valor)}</span>
             {indicador.metaNum !== null && (

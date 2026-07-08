@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Package, Sparkles } from 'lucide-react';
 import { generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
 import { IndicatorProgress } from './Shared.jsx';
+import { indicadorCodigo, ambitoCodigo } from '../lib/labels.js';
 
 /**
  * Renders indicators split into two sections:
@@ -112,7 +113,7 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
         className="w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-bg transition text-left"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <span className="tag tag-navy shrink-0">{codigo}</span>
+          <span className="tag tag-navy shrink-0">{ambitoCodigo(codigo)}</span>
           <span className="text-sm font-medium text-gray-dark truncate">{label}</span>
         </div>
         <div className="flex items-center gap-3 shrink-0">
@@ -131,7 +132,7 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
               onClick={() => onDrilldown?.(ind)}
             >
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-12 text-xs text-gray-ui font-mono shrink-0 pt-0.5">{ind.id}</div>
+                <div className="w-12 text-xs text-gray-ui font-mono shrink-0 pt-0.5">{indicadorCodigo(ind.id)}</div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-2 mb-1">
                     <p className="text-sm text-gray-dark flex-1">{ind.nombre}</p>

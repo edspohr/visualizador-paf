@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { generarValorIndicador, promedioTerritorioIndicador } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
 import { IndicatorProgress } from './Shared.jsx';
+import { indicadorCodigo, ambitoCodigo } from '../lib/labels.js';
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
@@ -78,8 +79,8 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-xs font-mono text-gray-ui">{indicador.id}</span>
-                <span className="tag tag-navy">{indicador.ambito}</span>
+                <span className="text-xs font-mono text-gray-ui">{indicadorCodigo(indicador.id)}</span>
+                <span className="tag tag-navy">{ambitoCodigo(indicador.ambito)}</span>
               </div>
               <h2 className="text-lg font-medium text-gray-dark leading-snug">{indicador.nombre}</h2>
               <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-ui mt-1.5">

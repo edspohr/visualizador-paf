@@ -1,6 +1,7 @@
 import { TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
 import { colorSemaforo, labelSemaforo } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
+import { ambitoCodigo } from '../lib/labels.js';
 
 // CAP brand semaforo mapping
 // verde → cyan, amber → yellow, red → crimson
@@ -48,7 +49,7 @@ export function AmbitoCard({ ambito, logro, deltaPromedio = null, yoy = null }) 
     <div className="card-tight">
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="min-w-0">
-          <p className="text-xs text-gray-ui font-medium tracking-wider uppercase">{ambito.codigo}</p>
+          <p className="text-xs text-gray-ui font-medium tracking-wider uppercase">{ambitoCodigo(ambito)}</p>
           <h4 className="text-sm leading-tight mt-0.5">{ambito.nombre}</h4>
         </div>
         <div className={`w-9 h-9 rounded-full ${s.bg} flex items-center justify-center shrink-0`}>

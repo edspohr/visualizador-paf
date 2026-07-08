@@ -9,6 +9,7 @@ import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
 import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
 import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows } from 'lucide-react';
+import { ambitoCodigo, indicadorCodigo } from '../lib/labels.js';
 import Glosario from '../components/Glosario.jsx';
 import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -335,7 +336,7 @@ function computeSideData(todos, filters, INDS, ambitoScope) {
       return calcularLogro(valor, ind) ?? 0;
     });
     const ratio = logros.length ? logros.reduce((s, v) => s + v, 0) / logros.length : 0;
-    return { id: ind.id, nombre: ind.id, ratio: Math.round(ratio * 100) };
+    return { id: ind.id, nombre: indicadorCodigo(ind.id), ratio: Math.round(ratio * 100) };
   });
 }
 
@@ -390,7 +391,7 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
           <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Ámbito (alcance)</label>
           <select value={filters.ambitoScope} onChange={e => onChange({ ...filters, ambitoScope: e.target.value })} className={sc}>
             <option value="TODOS">Todos los ámbitos</option>
-            {AMBITOS.map(a => <option key={a.id} value={a.id}>{a.id} · {a.nombre}</option>)}
+            {AMBITOS.map(a => <option key={a.id} value={a.id}>{ambitoCodigo(a)} · {a.nombre}</option>)}
           </select>
         </div>
       </div>
@@ -413,7 +414,7 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
     const idsB = new Set(dataB.map(d => d.id));
     const ids = [...new Set([...idsA, ...idsB])];
     return ids.map(id => ({
-      nombre: id,
+      nombre: indicadorCodigo(id),
       A: dataA.find(d => d.id === id)?.ratio ?? null,
       B: dataB.find(d => d.id === id)?.ratio ?? null,
     }));

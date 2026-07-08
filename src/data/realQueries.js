@@ -124,6 +124,10 @@ export function useProgresoAnio(anio) {
 }
 
 // ─── Valores por indicador ────────────────────────────────────────────────
+//
+// The returned docs are spread as-is — callers rely on `estado`
+// ('validado' | 'provisional') to mark provisional values in the UI.
+// Do not filter it out.
 
 export function useValoresIndicador(establecimientoId, anio) {
   return useFirestore(async () => {

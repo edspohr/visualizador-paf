@@ -171,15 +171,28 @@ export function PageHeader({ eyebrow, title, subtitle, action }) {
 
 // Two-bar comparison: este establecimiento vs promedio del territorio.
 // No semáforo colors, no judgment labels, no "Esperado" tick.
-export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false }) {
+// `estado`: 'validado' | 'provisional' — when provisional, own-value is muted
+// (rendered in gray-ui) and gets a tooltip. Peer value is territory average
+// (mixed estados) so it stays validado-styled.
+export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado' }) {
   const { metaNum, unidad } = indicador;
+  const isProvisional = estado === 'provisional';
+  const provisionalTitle = 'Valor provisional, pendiente de confirmación por Focus';
+  const ownValueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium text-gray-dark';
 
   // sin_meta: show a plain text notice with the raw value only
   if (unidad === 'sin_meta' || metaNum === null || valor === null) {
     return (
       <div className="w-full text-xs text-gray-ui italic py-1">
         Sin meta definida
-        {valor !== null && <span className="not-italic ml-2 text-gray-dark font-medium">{formatValue(indicador, valor)}</span>}
+        {valor !== null && (
+          <span
+            className={`not-italic ml-2 ${ownValueCls}`}
+            title={isProvisional ? provisionalTitle : undefined}
+          >
+            {formatValue(indicador, valor)}
+          </span>
+        )}
       </div>
     );
   }
@@ -207,7 +220,9 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
       <div>
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-gray-ui">Este establecimiento</span>
-          <span className="font-medium text-gray-dark">{formatValue(indicador, rawValue)}</span>
+          <span className={ownValueCls} title={isProvisional ? provisionalTitle : undefined}>
+            {formatValue(indicador, rawValue)}
+          </span>
         </div>
         <div className={`${trackCls} bg-bg`}>
           <div className={barH + ' rounded-full'} style={{ width: pct(rawValue), background: 'var(--color-cyan)' }}/>

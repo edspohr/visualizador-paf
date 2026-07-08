@@ -28,7 +28,7 @@ function yAxisFormatter(unidad) {
   };
 }
 
-export default function IndicatorDrilldown({ indicador, establecimientoId, slep, effectiveMonth, perfil, onClose, todosEstablecimientos = [], sostenedores = [] }) {
+export default function IndicatorDrilldown({ indicador, establecimientoId, slep, effectiveMonth, perfil, onClose, todosEstablecimientos = [], sostenedores = [], estado = 'validado' }) {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -109,6 +109,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
             valor={valor}
             promedioTerritorio={promTerritorio}
             large
+            estado={estado}
           />
         </div>
 

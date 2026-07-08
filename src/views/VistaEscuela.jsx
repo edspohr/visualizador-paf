@@ -152,6 +152,7 @@ export default function VistaEscuela() {
           onClose={() => setDrilldown(null)}
           todosEstablecimientos={todosEstablecimientos}
           sostenedores={sostenedores}
+          estado={valoresReales.get(drilldown.id)?.estado ?? 'validado'}
         />
       )}
     </>

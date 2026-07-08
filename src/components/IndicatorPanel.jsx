@@ -31,15 +31,17 @@ export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep,
     const valorReal = valoresReales.get(ind.id);
     let valor;
     let esReal = false;
+    let estado = 'validado';
     if (valorReal !== undefined && valorReal.valor !== null && valorReal.valor !== undefined) {
       valor = valorReal.valor;
       esReal = true;
+      estado = valorReal.estado ?? 'validado';
     } else {
       valor = generarValorIndicador(ind, establecimientoId, slep, mes).valor;
     }
     const logro = calcularLogro(valor, ind);
     const promTerritorio = est ? promedioTerritorioIndicador(ind, est, todosEstablecimientos, mes) : null;
-    return { ind, valor, logro, promTerritorio, esReal };
+    return { ind, valor, logro, promTerritorio, esReal, estado };
   });
 
   const estrategiaFilas = filasIndicadores.filter(f => f.ind.clasificacion === 'estrategia');
@@ -125,7 +127,7 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
       </button>
       {isOpen && (
         <div className="border-t border-border divide-y divide-border">
-          {filas.map(({ ind, valor, promTerritorio, esReal }) => (
+          {filas.map(({ ind, valor, promTerritorio, esReal, estado }) => (
             <div
               key={ind.id}
               className="px-4 py-3 hover:bg-bg transition cursor-pointer"
@@ -159,6 +161,7 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
                   indicador={ind}
                   valor={valor}
                   promedioTerritorio={promTerritorio}
+                  estado={estado}
                 />
               </div>
             </div>

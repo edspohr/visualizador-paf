@@ -28,8 +28,8 @@ export default function IndicatorRanking({ items, title = 'Vista ejecutiva' }) {
             <p className="text-xs font-semibold text-gray-dark uppercase tracking-wide">Mayor desarrollo</p>
           </div>
           <ol className="space-y-2">
-            {top.map(({ indicador, valor }) => (
-              <IndicadorItem key={indicador.id} indicador={indicador} valor={valor} accent="cyan"/>
+            {top.map(({ indicador, valor, estado }) => (
+              <IndicadorItem key={indicador.id} indicador={indicador} valor={valor} estado={estado} accent="cyan"/>
             ))}
           </ol>
         </div>
@@ -41,8 +41,8 @@ export default function IndicatorRanking({ items, title = 'Vista ejecutiva' }) {
             <p className="text-xs font-semibold text-gray-dark uppercase tracking-wide">Menor desarrollo</p>
           </div>
           <ol className="space-y-2">
-            {bottom.map(({ indicador, valor }) => (
-              <IndicadorItem key={indicador.id} indicador={indicador} valor={valor} accent="gray"/>
+            {bottom.map(({ indicador, valor, estado }) => (
+              <IndicadorItem key={indicador.id} indicador={indicador} valor={valor} estado={estado} accent="gray"/>
             ))}
           </ol>
         </div>
@@ -52,8 +52,11 @@ export default function IndicatorRanking({ items, title = 'Vista ejecutiva' }) {
   );
 }
 
-function IndicadorItem({ indicador, valor, accent }) {
+function IndicadorItem({ indicador, valor, estado = 'validado', accent }) {
   const dotColor = accent === 'cyan' ? 'var(--color-cyan)' : 'var(--color-gray-light)';
+  const isProvisional = estado === 'provisional';
+  const provisionalTitle = 'Valor provisional, pendiente de confirmación por Focus';
+  const valueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium text-gray-dark';
   return (
     <li className="flex items-start gap-2.5 text-sm">
       <span
@@ -65,7 +68,7 @@ function IndicadorItem({ indicador, valor, accent }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0 text-xs text-gray-ui mt-0.5">
           <span className="font-mono">{ambitoCodigo(indicador.ambito)}</span>
           <span>
-            Valor: <span className="font-medium text-gray-dark">{formatValue(indicador, valor)}</span>
+            Valor: <span className={valueCls} title={isProvisional ? provisionalTitle : undefined}>{formatValue(indicador, valor)}</span>
             {indicador.metaNum !== null && (
               <> / meta <span className="font-medium text-gray-dark">{formatValue(indicador, indicador.metaNum)}</span></>
             )}

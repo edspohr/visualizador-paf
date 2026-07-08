@@ -69,7 +69,7 @@ export default function IndicatorAveragePicker({ INDS, establecimientos, mes, br
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <p className="text-xs font-medium tracking-wider uppercase text-gray-ui">Comparativa por indicador</p>
-          <h3 className="text-lg text-gray-dark">Promedio por {breakdownBy === 'sostenedor' ? 'sostenedor' : 'establecimiento'}</h3>
+          <h3 className="text-lg text-gray-dark">Promedio por {breakdownBy === 'sostenedor' ? 'sostenedor' : 'centro educativo'}</h3>
         </div>
         <div className="flex-1 min-w-[200px] max-w-xs">
           <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador</label>

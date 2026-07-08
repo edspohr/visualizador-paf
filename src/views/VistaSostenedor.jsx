@@ -99,7 +99,7 @@ export default function VistaSostenedor() {
         </div>
         <div className="flex items-center gap-2 text-sm flex-wrap">
           <div className="bg-white/10 px-3 py-2 rounded-xl">
-            <p className="text-xs text-white/60 leading-none">ESTABLECIMIENTOS</p>
+            <p className="text-xs text-white/60 leading-none">CENTROS EDUCATIVOS</p>
             <p className="font-medium mt-1">{escuelasSlep.length + jardinesSlep.length}</p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl">
@@ -111,9 +111,9 @@ export default function VistaSostenedor() {
 
       {/* Totales de la red */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <TotalCard label="Establecimientos" value={escuelasSlep.length + jardinesSlep.length} sub={`${escuelasSlep.length} escuelas · ${jardinesSlep.length} jardines`} Icon={Building2}/>
-        <TotalCard label="Niños y niñas" value={totalesRed.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
-        <TotalCard label="Agentes educativos" value={totalesRed.agentes} sub="en el programa" Icon={Users}/>
+        <TotalCard label="Centros educativos" value={escuelasSlep.length + jardinesSlep.length} sub={`${escuelasSlep.length} escuelas · ${jardinesSlep.length} jardines`} Icon={Building2}/>
+        <TotalCard label="Niñas y niños" value={totalesRed.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
+        <TotalCard label="Equipos educativos" value={totalesRed.agentes} sub="en el programa" Icon={Users}/>
         <TotalCard label="Comunas" value={totalesRed.comunas} sub="con cobertura activa" Icon={MapPin}/>
       </div>
 
@@ -152,9 +152,9 @@ export default function VistaSostenedor() {
       {/* Lista de establecimientos */}
       <div className="card">
         <div className="mb-4">
-          <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
+          <p className="text-xs font-medium tracking-wider uppercase">Detalle por centro educativo</p>
           <h3 className="text-lg text-gray-dark">Detalle por escuela y/o jardín infantil</h3>
-          <p className="text-sm text-gray-ui mt-1">Ordenados por logro promedio. Haz clic para ver los indicadores de cada establecimiento.</p>
+          <p className="text-sm text-gray-ui mt-1">Ordenados por logro promedio. Haz clic para ver los indicadores de cada centro educativo.</p>
         </div>
 
         <div className="space-y-2">
@@ -192,6 +192,7 @@ export default function VistaSostenedor() {
                     mes={MES_ACTUAL}
                     onDrilldown={(ind) => setDrilldown({ ind, estId: est.id, slepId: est.slep })}
                     todosEstablecimientos={todosDelTipo}
+                    programa={programaTipo}
                   />
                 </div>
               )}

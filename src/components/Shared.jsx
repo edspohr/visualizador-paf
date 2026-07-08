@@ -200,10 +200,22 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
   const isBinary = unidad === 'binario';
   // Scale: for binary 0→1; for others use metaNum (cap at 120% so overachievement is visible)
   const scale = isBinary ? 1 : metaNum;
-  const rawValue = isBinary ? (valor ? 1 : 0) : valor;
+  // For binary: single-centro views arrive as 0/1 (Sí/No). Aggregate views (sostenedor,
+  // consultor) arrive as a fractional mean, which is the % de "Sí" across the peer set.
+  // Preserve fractional binary values instead of rounding, so the bar renders as %.
+  const rawValue = isBinary && (valor === 0 || valor === 1)
+    ? (valor ? 1 : 0)
+    : (isBinary ? valor : valor);
   const peerValue = promedioTerritorio !== null
-    ? (isBinary ? (promedioTerritorio >= 0.5 ? 1 : 0) : promedioTerritorio)
+    ? promedioTerritorio  // for binary, this is the % de Sí (fractional 0..1) — keep as-is
     : null;
+
+  // For binary + fractional values (aggregate), format as % de "Sí"
+  const fmtBinary = (v) => `${Math.round(v * 100)}% Sí`;
+  const fmtValue = (v) => (isBinary && v !== null && v !== 0 && v !== 1)
+    ? fmtBinary(v)
+    : formatValue(indicador, v);
+  const fmtPeer = (v) => (isBinary && v !== null) ? fmtBinary(v) : formatValue(indicador, v);
 
   const barH = large ? 'h-3.5' : 'h-2.5';
   const trackCls = `w-full ${barH} rounded-full overflow-hidden`;
@@ -216,12 +228,12 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
 
   return (
     <div className="w-full space-y-2">
-      {/* Bar 1: este establecimiento */}
+      {/* Bar 1: este centro educativo */}
       <div>
         <div className="flex items-center justify-between text-xs mb-1">
-          <span className="text-gray-ui">Este establecimiento</span>
+          <span className="text-gray-ui">Este centro educativo</span>
           <span className={ownValueCls} title={isProvisional ? provisionalTitle : undefined}>
-            {formatValue(indicador, rawValue)}
+            {fmtValue(rawValue)}
           </span>
         </div>
         <div className={`${trackCls} bg-bg`}>
@@ -234,7 +246,7 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
         <div>
           <div className="flex items-center justify-between text-xs mb-1">
             <span className="text-gray-ui">{peerLabel}</span>
-            <span className="font-medium text-gray-dark">{formatValue(indicador, peerValue)}</span>
+            <span className="font-medium text-gray-dark">{fmtPeer(peerValue)}</span>
           </div>
           <div className={`${trackCls} bg-bg`}>
             <div className={barH + ' rounded-full'} style={{ width: pct(peerValue), background: 'var(--color-gray-light)' }}/>

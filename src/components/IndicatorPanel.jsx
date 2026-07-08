@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Package, Sparkles } from 'lucide-react';
 import { generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
 import { IndicatorProgress } from './Shared.jsx';
-import { indicadorCodigo, ambitoCodigo } from '../lib/labels.js';
+import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
 
 /**
  * Renders indicators split into two sections:
@@ -20,7 +20,7 @@ import { indicadorCodigo, ambitoCodigo } from '../lib/labels.js';
  *   valoresReales         — Map(indicadorId → { valor, fuenteSync }) from Firestore.
  *                          When present, real values override PRNG fallback.
  */
-export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown, todosEstablecimientos = [], valoresReales = new Map() }) {
+export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown, todosEstablecimientos = [], valoresReales = new Map(), programa = 'escolar' }) {
   const [openAmbitos, setOpenAmbitos] = useState({});
   const toggle = (key) => setOpenAmbitos(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -57,7 +57,7 @@ export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep,
           <AmbitoGroup
             key={a.id}
             groupKey={a.id}
-            label={a.nombre}
+            label={ambitoNombre(a, programa)}
             codigo={a.codigo}
             filas={filas}
             isOpen={!!openAmbitos[a.id]}
@@ -86,7 +86,7 @@ export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep,
               <AmbitoGroup
                 key={key}
                 groupKey={key}
-                label={a.nombre}
+                label={ambitoNombre(a, programa)}
                 codigo={a.codigo}
                 filas={filas}
                 isOpen={!!openAmbitos[key]}

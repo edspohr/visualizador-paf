@@ -1,23 +1,15 @@
 import { useState } from 'react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useProgresoTrimestral, useValoresIndicador } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresIndicador } from '../lib/queries.js';
 import { logroPorAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { KpiCard } from '../components/Shared.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
-import ProgresoTrimestralPanel from '../components/ProgresoTrimestralPanel.jsx';
 import { Target, Loader2 } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 
 const ANIO_ACTUAL = new Date().getFullYear();
-
-function trimestreDeMes(mes) {
-  if (mes >= 3 && mes <= 5) return 1;
-  if (mes >= 6 && mes <= 8) return 2;
-  if (mes >= 9 && mes <= 10) return 3;
-  return 4; // Nov-Feb
-}
 
 export default function VistaEscuela() {
   const { perfil } = useApp();
@@ -32,10 +24,8 @@ export default function VistaEscuela() {
   const indicadoresQ = useIndicadores(programa);
   const ambitosQ = useAmbitos(programa);
 
-  // Progreso trimestral: requiere el ID del establecimiento
-  const entidadIdFromCtx = perfil.contexto?.id;
-  const progresoQ = useProgresoTrimestral(entidadIdFromCtx, ANIO_ACTUAL);
   // Valores por indicador reales (fase C)
+  const entidadIdFromCtx = perfil.contexto?.id;
   const valoresQ = useValoresIndicador(entidadIdFromCtx, ANIO_ACTUAL);
   const valoresReales = new Map((valoresQ.data ?? []).map(v => [v.indicadorId, v]));
 
@@ -52,11 +42,11 @@ export default function VistaEscuela() {
   if (cargando) {
     return (
       <div className="flex items-center justify-center py-24 text-gray-ui text-sm">
-        <Loader2 size={16} className="animate-spin mr-2"/> Cargando datos del establecimiento…
+        <Loader2 size={16} className="animate-spin mr-2"/> Cargando datos del centro educativo…
       </div>
     );
   }
-  if (!entidad) return <p>Establecimiento no encontrado.</p>;
+  if (!entidad) return <p>Centro educativo no encontrado.</p>;
 
   const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const periodoLabel = `${NOMBRES_MES[MES_ACTUAL - 1]} ${new Date().getFullYear()}`;
@@ -110,17 +100,6 @@ export default function VistaEscuela() {
       {/* Top-3 / Bottom-3 por indicador */}
       <IndicatorRanking items={rankingItems} title="Indicadores destacados"/>
 
-      {/* Progreso trimestral por ámbito — datos de Planillas Centrales */}
-      <div className="mb-6">
-        <ProgresoTrimestralPanel
-          progresos={progresoQ.data ?? []}
-          ambitos={AMBITOS}
-          anio={ANIO_ACTUAL}
-          perfilCap={false}
-          trimestreActual={trimestreDeMes(MES_ACTUAL)}
-        />
-      </div>
-
       {/* Detalle por indicador */}
       <div className="card">
         <div className="mb-4">
@@ -137,6 +116,7 @@ export default function VistaEscuela() {
           onDrilldown={(ind) => setDrilldown(ind)}
           todosEstablecimientos={todosEstablecimientos}
           valoresReales={valoresReales}
+          programa={programa}
         />
       </div>
 

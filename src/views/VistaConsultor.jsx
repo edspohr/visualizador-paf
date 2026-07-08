@@ -135,7 +135,7 @@ export default function VistaConsultor() {
             </p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
-            <p className="text-xs text-white/60 leading-none">ESTABLECIMIENTOS</p>
+            <p className="text-xs text-white/60 leading-none">CENTROS EDUCATIVOS</p>
             <p className="font-medium mt-1 text-lg leading-none">{filtrados.length}</p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function VistaConsultor() {
             <p className="text-white/70 mt-1 text-sm">Datos actualizados al {fechaFormateada(effectiveMonth)} · Vista agregada con acceso a todos los cruces.</p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
-            <p className="text-xs text-white/60 leading-none">ESTABLECIMIENTOS</p>
+            <p className="text-xs text-white/60 leading-none">CENTROS EDUCATIVOS</p>
             <p className="font-medium mt-1 text-lg leading-none">{filtrados.length}</p>
           </div>
         </div>
@@ -194,9 +194,9 @@ export default function VistaConsultor() {
 
       {/* Totals strip — reacts to active filters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <TotalCard label="Establecimientos" value={totales.establecimientos} sub={programa === 'escolar' ? 'escuelas del programa' : 'jardines infantiles'} Icon={Building2}/>
-        <TotalCard label="Niños y niñas" value={totales.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
-        <TotalCard label="Agentes educativos" value={totales.agentes} sub="en el programa" Icon={Users}/>
+        <TotalCard label="Centros educativos" value={totales.establecimientos} sub={programa === 'escolar' ? 'escuelas del programa' : 'jardines infantiles'} Icon={Building2}/>
+        <TotalCard label="Niñas y niños" value={totales.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
+        <TotalCard label="Equipos educativos" value={totales.agentes} sub="en el programa" Icon={Users}/>
         <TotalCard label="Comunas" value={totales.comunas} sub="con cobertura activa" Icon={MapPin}/>
       </div>
 
@@ -239,12 +239,12 @@ export default function VistaConsultor() {
         )}
       </div>
 
-      {/* Lista de establecimientos */}
+      {/* Lista de centros educativos */}
       <div className="card">
         <div className="mb-4">
-          <p className="text-xs font-medium tracking-wider uppercase">Detalle por establecimiento</p>
-          <h3 className="text-lg text-gray-dark">Todos los establecimientos filtrados</h3>
-          <p className="text-sm text-gray-ui mt-1">Haz clic en un establecimiento para ver sus indicadores.</p>
+          <p className="text-xs font-medium tracking-wider uppercase">Detalle por centro educativo</p>
+          <h3 className="text-lg text-gray-dark">Todos los centros educativos filtrados</h3>
+          <p className="text-sm text-gray-ui mt-1">Haz clic en un centro educativo para ver sus indicadores.</p>
         </div>
         <EstablecimientoList
           conLogros={conLogros}
@@ -255,6 +255,7 @@ export default function VistaConsultor() {
           onDrilldown={(ind, estId, slepId) => setDrilldown({ ind, estId, slepId })}
           todosEstablecimientos={todos}
           sostenedores={SLEPS_DATA}
+          programa={programa}
         />
       </div>
 
@@ -456,8 +457,8 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
 
       {/* Legend summary */}
       <div className="flex flex-wrap gap-4 text-xs text-gray-ui mb-3">
-        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-cyan)' }}/>A: {labelA} <span className="text-gray-dark font-medium">({estsA} establ.)</span></span>
-        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-magenta)' }}/>B: {labelB} <span className="text-gray-dark font-medium">({estsB} establ.)</span></span>
+        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-cyan)' }}/>A: {labelA} <span className="text-gray-dark font-medium">({estsA} centros)</span></span>
+        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-magenta)' }}/>B: {labelB} <span className="text-gray-dark font-medium">({estsB} centros)</span></span>
       </div>
 
       {chartData.length === 0 ? (
@@ -507,7 +508,7 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
   );
 }
 
-function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, todosEstablecimientos, sostenedores }) {
+function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, todosEstablecimientos, sostenedores, programa }) {
   return (
     <div key={c.est.id} className="border border-border rounded-xl overflow-hidden">
       <button
@@ -542,6 +543,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
             mes={effectiveMonth}
             onDrilldown={(ind) => onDrilldown(ind, c.est.id, c.est.slep)}
             todosEstablecimientos={todosEstablecimientos}
+            programa={programa}
           />
         </div>
       )}
@@ -549,7 +551,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
   );
 }
 
-function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, onDrilldown, todosEstablecimientos, sostenedores }) {
+function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, onDrilldown, todosEstablecimientos, sostenedores, programa }) {
   const [openEst, setOpenEst] = useState({});
   const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
   const sorted = [...conLogros].sort((a, b) => b.promedio - a.promedio);
@@ -558,7 +560,7 @@ function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil,
       {sorted.map((c, idx) => (
         <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
           INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}
-          todosEstablecimientos={todosEstablecimientos} sostenedores={sostenedores}/>
+          todosEstablecimientos={todosEstablecimientos} sostenedores={sostenedores} programa={programa}/>
       ))}
     </div>
   );

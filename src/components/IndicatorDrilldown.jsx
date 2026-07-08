@@ -22,7 +22,9 @@ function promedioSostenedorIndicador(indicador, slepId, tipo, mes, todosEstablec
 
 function yAxisFormatter(unidad) {
   return (v) => {
-    if (unidad === 'binario') return v === 1 ? 'Sí' : v === 0 ? 'No' : '';
+    // Binary: peer/aggregate line arrives fractional in [0,1] = % de "Sí"; own line
+    // arrives 0/1. Format both as % so the axis is a single "% de Sí" scale.
+    if (unidad === 'binario') return `${Math.round(v * 100)}%`;
     if (unidad === '%') return `${Math.round(v * 100)}%`;
     return String(Math.round(v * 10) / 10);
   };
@@ -50,13 +52,15 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
     const fmt = (raw) => {
       if (raw === null) return null;
       if (indicador.unidad === '%') return Math.round(raw * 100) / 100;
-      if (indicador.unidad === 'binario') return raw ? 1 : 0;
+      // Binary: keep raw fractional value (0..1). Own value is 0/1; peer is fractional.
+      // The axis formatter renders as %.
+      if (indicador.unidad === 'binario') return raw;
       return Math.round(raw * 10) / 10;
     };
 
     evol.push({
       mes: MESES[m - 1],
-      'Este establecimiento': fmt(v),
+      'Este centro educativo': fmt(v),
       'Promedio del territorio': fmt(promMes),
     });
   }
@@ -116,7 +120,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
         {/* Evolution chart: este establecimiento vs promedio del territorio */}
         <div className="px-6 py-5 border-b border-border">
           <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Evolución mensual</p>
-          <p className="text-sm text-gray-dark mb-4">Este establecimiento vs promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio</p>
+          <p className="text-sm text-gray-dark mb-4">Este centro educativo vs promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio</p>
           <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={evol} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
@@ -127,7 +131,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                   contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }}
                   formatter={(v, name) => [
                     indicador.unidad === '%' ? `${Math.round(v * 100)}%`
-                    : indicador.unidad === 'binario' ? (v ? 'Sí' : 'No')
+                    : indicador.unidad === 'binario' ? `${Math.round(v * 100)}% Sí`
                     : v,
                     name
                   ]}
@@ -135,7 +139,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                 <Legend wrapperStyle={{ fontSize: 12 }}/>
                 <Line
                   type="monotone"
-                  dataKey="Este establecimiento"
+                  dataKey="Este centro educativo"
                   stroke="var(--color-cyan)"
                   strokeWidth={2.5}
                   dot={{ r: 3 }}
@@ -187,13 +191,13 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
 
         {showEstablecimientoTable && (
           <div className="px-6 py-5">
-            <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre establecimientos</p>
+            <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre centros educativos</p>
             <p className="text-sm text-gray-dark mb-3">Valor por {tipo === 'Jardín' ? 'jardín infantil' : 'escuela'} de la red</p>
             <div className="overflow-x-auto -mx-1">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b-2 border-border text-left text-xs text-gray-ui uppercase tracking-wider">
-                    <th className="py-2 pr-3 font-medium">Establecimiento</th>
+                    <th className="py-2 pr-3 font-medium">Centro educativo</th>
                     <th className="py-2 pl-3 font-medium text-right">Valor</th>
                   </tr>
                 </thead>

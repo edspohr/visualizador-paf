@@ -564,9 +564,12 @@ async function ingestCoursesRC(schoolName, rcId, wbLabel) {
   if (monitorFormado > 0) {
     results.push({ indId: 'I26', valor: monitorFormado, raw: `${monitorFormado} estudiantes con monitor formado`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores formado)', row: 0, wbId: rcId, wbLabel });
   }
-  // I27 — # salas cubiertas por apoderados monitores (provisional)
-  if (salasWithMonitorActivo.size > 0) {
-    results.push({ indId: 'I27', valor: salasWithMonitorActivo.size, raw: `${salasWithMonitorActivo.size}/${COURSE_ORDER.length} salas`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
+  // I27 — % salas cubiertas por apoderados monitores (provisional).
+  // El catálogo declara este indicador como % con meta=100% (todas las salas
+  // cubiertas), así que emitimos la fracción salasCubiertas / totalSalas.
+  if (salasWithMonitorActivo.size > 0 && COURSE_ORDER.length > 0) {
+    const fraccion = salasWithMonitorActivo.size / COURSE_ORDER.length;
+    results.push({ indId: 'I27', valor: fraccion, raw: `${salasWithMonitorActivo.size}/${COURSE_ORDER.length} salas`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
   }
   // I47 — # apoderados monitores que implementaron taller (validado)
   const totalMonActivos = [...monitoresActivosPerSala.values()].reduce((a, b) => a + b, 0);
@@ -673,12 +676,23 @@ for (const s of schools) {
   noteEncuestaEmpty(s.name);
 }
 
+// Normaliza el id de indicador a forma canónica con punto ('I1' → 'I.1').
+// El catálogo (catalog.json) hoy usa esta forma para escolar y parvulario;
+// las líneas `results.push({ indId: 'I19', ... })` de este script usan la forma
+// sin punto por herencia. Normalizamos antes del lookup para que ambas coincidan.
+function normIndId(id) {
+  const m = String(id).match(/^I\.?(\d+)$/);
+  return m ? `I.${m[1]}` : id;
+}
+
 // Enriquecer con metadatos del catálogo
 for (const r of allResults) {
-  const ind = IND_BY_ID[r.indId];
+  const normalized = normIndId(r.indId);
+  const ind = IND_BY_ID[normalized];
   if (!ind) continue;
   r.programa = 'escolar';
-  r.indicadorId = r.indId; delete r.indId;
+  r.indicadorId = normalized;
+  delete r.indId;
   r.ambito = ind.ambito;
   r.anio = AÑO;
   r.periodo = String(AÑO);
@@ -722,9 +736,17 @@ if (!DRY_RUN) {
   console.log(`   ${n} establecimientos_real upserted`);
 
   console.log('\n6) Escribiendo resultados_real…');
+  // Solo escribimos los que fueron enriquecidos con éxito (matchearon el catálogo).
+  // Cualquier objeto sin `indicadorId` o sin `fuente` es evidencia de un lookup fallido
+  // — antes se colaban a Firestore y contaminaban la colección.
+  const writable = allResults.filter(r => r.indicadorId && r.fuente);
+  const descartados = allResults.length - writable.length;
+  if (descartados > 0) {
+    console.log(`   ${descartados} filas descartadas (indicador desconocido o sin fuente)`);
+  }
   n = 0;
   batch = db.batch(); count = 0;
-  for (const r of allResults) {
+  for (const r of writable) {
     const docId = `esc_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
     batch.set(db.collection('resultados_real').doc(docId), { ...r, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     count++; n++;
@@ -736,27 +758,32 @@ if (!DRY_RUN) {
 
 // ─── Verification report ──────────────────────────────────────────────────
 console.log('\n7) Reporte de verificación');
-const byEstado = allResults.reduce((acc, r) => (acc[r.estado] = (acc[r.estado] || 0) + 1, acc), {});
-const uniqueEsts = new Set(allResults.map(r => r.establecimientoId));
-const uniqueInds = new Set(allResults.map(r => r.indicadorId));
-console.log(`   Total: ${allResults.length}`);
+// Base el reporte en los que sí fueron enriquecidos con éxito (indicadorId + fuente).
+// Los que quedaron sin `indicadorId` (lookup fallido) son ruido para las métricas.
+const enriquecidos = allResults.filter(r => r.indicadorId && r.fuente);
+const byEstado = enriquecidos.reduce((acc, r) => (acc[r.estado] = (acc[r.estado] || 0) + 1, acc), {});
+const uniqueEsts = new Set(enriquecidos.map(r => r.establecimientoId));
+const uniqueInds = new Set(enriquecidos.map(r => r.indicadorId));
+console.log(`   Total (enriquecidos): ${enriquecidos.length}${enriquecidos.length !== allResults.length ? ` (de ${allResults.length} recolectados)` : ''}`);
 console.log(`   Por estado: ${JSON.stringify(byEstado)}`);
 console.log(`   Escuelas cubiertas: ${uniqueEsts.size}`);
 console.log(`   Indicadores cubiertos: ${uniqueInds.size} — ${[...uniqueInds].sort().join(', ')}`);
 console.log(`   Reads a Sheets: ${READS.count}`);
 console.log(`   Header mismatches: ${HEADER_MISMATCHES.length}`);
 
-const sample = allResults.slice(0, 5);
+const sample = enriquecidos.slice(0, 5);
 console.log('\n   Muestra:');
 for (const s of sample) {
-  console.log(`     ${s.establecimientoId} · ${s.indicadorId} · ${s.periodo}: valor=${typeof s.valor === 'number' ? s.valor.toFixed(3) : s.valor} logro=${s.logro?.toFixed(2) ?? 'n/a'} estado=${s.estado} tab=${s.fuente.tab}`);
+  const tab = s.fuente?.tab ?? '(sin fuente)';
+  console.log(`     ${s.establecimientoId} · ${s.indicadorId} · ${s.periodo}: valor=${typeof s.valor === 'number' ? s.valor.toFixed(3) : s.valor} logro=${s.logro?.toFixed(2) ?? 'n/a'} estado=${s.estado} tab=${tab}`);
 }
 
 const report = {
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,
   totals: {
-    resultados: allResults.length,
+    resultados: enriquecidos.length,
+    resultadosRecolectados: allResults.length,
     porEstado: byEstado,
     escuelasCubiertas: uniqueEsts.size,
     indicadoresCubiertos: uniqueInds.size,

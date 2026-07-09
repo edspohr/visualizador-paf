@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useMesCerrado, useValoresAnio } from '../lib/queries.js';
-import { logroPorAmbito, generarValorIndicador, calcularLogro, currentMonth, lastClosedMonth } from '../data/establecimientos.js';
-import { KpiCard } from '../components/Shared.jsx';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
+import { calcularLogro, currentMonth, capClosedPeriod } from '../data/establecimientos.js';
+import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
@@ -16,60 +16,80 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-function fechaFormateada(mes) {
-  const hoy = new Date();
-  if (mes === currentMonth()) {
-    return `${hoy.getDate()} de ${NOMBRES_MES[hoy.getMonth()]} de ${hoy.getFullYear()}`;
-  }
-  const year = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
-  const lastDay = new Date(year, mes, 0).getDate();
-  return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${year}`;
+// Año actualmente navegable + año inmediato anterior como comparación de referencia.
+const ANIO_ACTUAL = 2026;
+const ANIOS_DISPONIBLES = [2025, 2026];
+const LS_KEY_ANIO = 'paf_anio_gestion';
+
+function anioInicial() {
+  if (typeof window === 'undefined') return ANIO_ACTUAL;
+  const stored = Number(window.localStorage.getItem(LS_KEY_ANIO));
+  return ANIOS_DISPONIBLES.includes(stored) ? stored : ANIO_ACTUAL;
 }
 
-// Devuelve el último día del mes cerrado como texto, usando /metadata/mesCerrado
-function labelMesCerrado(doc) {
-  if (!doc) {
-    // Fallback: mes anterior al actual
-    const hoy = new Date();
-    const anio = hoy.getMonth() === 0 ? hoy.getFullYear() - 1 : hoy.getFullYear();
-    const mes = hoy.getMonth() === 0 ? 12 : hoy.getMonth();
-    const lastDay = new Date(anio, mes, 0).getDate();
-    return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${anio}`;
+function fechaFormateada(mes, anio) {
+  const hoy = new Date();
+  if (mes === currentMonth() && anio === ANIO_ACTUAL) {
+    return `${hoy.getDate()} de ${NOMBRES_MES[hoy.getMonth()]} de ${anio}`;
   }
-  const lastDay = new Date(doc.anio, doc.mes, 0).getDate();
-  return `${lastDay} de ${NOMBRES_MES[doc.mes - 1]} de ${doc.anio}`;
+  const lastDay = new Date(anio, mes, 0).getDate();
+  return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${anio}`;
+}
+
+// Formatea "30 de mayo de 2026" a partir de { mes, anio }.
+function labelMesCerrado({ mes, anio }) {
+  const lastDay = new Date(anio, mes, 0).getDate();
+  return `${lastDay} de ${NOMBRES_MES[mes - 1]} de ${anio}`;
 }
 
 export default function VistaConsultor() {
   const { perfil } = useApp();
   const isCAP = perfil.id === 'cap';
-  const effectiveMonth = isCAP ? lastClosedMonth() : currentMonth();
+
+  const [anioSeleccionado, setAnioSeleccionado] = useState(anioInicial);
+  const anioEnCurso = anioSeleccionado === ANIO_ACTUAL;
+  const cambiarAnio = (a) => {
+    setAnioSeleccionado(a);
+    if (typeof window !== 'undefined') window.localStorage.setItem(LS_KEY_ANIO, String(a));
+  };
+
+  // Mes efectivo: en el año en curso respeta el calendario (CAP mira mes cerrado);
+  // en años previos el "mes efectivo" es diciembre (año ya cerrado).
+  const capCierre = capClosedPeriod();
+  const effectiveMonth = !anioEnCurso ? 12 : (isCAP ? capCierre.mes : currentMonth());
 
   const programa = perfil.contexto.programa || 'escolar';
 
-  // Queries Firestore
   const escuelasQ = useEscuelas();
   const jardinesQ = useJardines();
   const slepsQ = useSleps();
   const indicadoresQ = useIndicadores(programa);
   const ambitosQ = useAmbitos(programa);
-  const mesCerradoQ = useMesCerrado();
 
-  // La vista se ancla a la gestión 2026. Otros años (2025) solo aparecen dentro
-  // del ComparadorIndicador como referencia comparativa.
-  const ANIO_GESTION = 2026;
-  const valoresAnioQ = useValoresAnio(ANIO_GESTION);
-  // Map<estId, Map<indicadorId, valor>> para O(1) lookup en SostenedorAveragePicker
+  const valoresAnioQ = useValoresAnio(anioSeleccionado);
+  // Map<estId, Map<indicadorId, { valor, estado }>>
   const valoresPorEst = useMemo(() => {
     const m = new Map();
     for (const v of (valoresAnioQ.data ?? [])) {
       if (v.valor === null || v.valor === undefined) continue;
       if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
-      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+      m.get(v.establecimientoId).set(v.indicadorId, { valor: v.valor, estado: v.estado ?? 'validado' });
     }
     return m;
   }, [valoresAnioQ.data]);
-  const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId) ?? null;
+  const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId)?.valor ?? null;
+
+  // Valores 2025 para el comparador — solo se descargan cuando el usuario abre el panel.
+  const valores2025Q = useValoresAnio(2025);
+  const valoresPorEst2025 = useMemo(() => {
+    const m = new Map();
+    for (const v of (valores2025Q.data ?? [])) {
+      if (v.valor === null || v.valor === undefined) continue;
+      if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
+      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+    }
+    return m;
+  }, [valores2025Q.data]);
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -95,26 +115,37 @@ export default function VistaConsultor() {
   const cohortesDisponibles = [...new Set(todos.map(e => e.cohorte))];
   const comunasDisponibles = [...new Set(todos.map(e => e.comuna))].sort();
 
-  const conLogros = useMemo(() => filtrados.map(e => {
-    const logros = logroPorAmbito(INDS, e.id, e.slep, effectiveMonth, 2026);
-    const promedio = Object.values(logros).reduce((a, b) => a + b, 0) / AMBITOS.length;
-    return { est: e, logros, promedio };
-  }), [filtrados, INDS, AMBITOS, effectiveMonth]);
+  const conCumplimiento = useMemo(() => filtrados.map(e => {
+    const aplicables = indicadoresAplicables(INDS, e, effectiveMonth);
+    const cumpl = cumplimientoIndicadores(aplicables, valoresPorEst.get(e.id) ?? new Map());
+    return { est: e, cumpl };
+  }), [filtrados, INDS, valoresPorEst, effectiveMonth]);
 
-  // Ranking items: average each indicator across all filtered establishments
-  const rankingItems = useMemo(() => INDS
-    .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
-    .map(ind => {
-      const vals = filtrados.map(e => {
-        const { valor } = generarValorIndicador(ind, e.id, e.slep, effectiveMonth);
-        return { valor, logro: calcularLogro(valor, ind) ?? 0 };
-      });
-      const valor = vals.length ? vals.reduce((s, v) => s + (v.valor ?? 0), 0) / vals.length : 0;
-      const ratio = vals.length ? vals.reduce((s, v) => s + v.logro, 0) / vals.length : 0;
-      return { indicador: ind, valor, ratio };
-    }), [INDS, filtrados, effectiveMonth]);
+  // Ranking de indicadores del conjunto filtrado, faltantes cuentan 0.
+  const rankingItems = useMemo(() => (
+    INDS
+      .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+      .map(ind => {
+        const aplican = filtrados.filter(e => isAplicable2026(ind, e, effectiveMonth));
+        if (!aplican.length) return null;
+        let sumaLogro = 0, sumaVal = 0, nVal = 0;
+        for (const e of aplican) {
+          const v = valoresPorEst.get(e.id)?.get(ind.id)?.valor ?? null;
+          const l = calcularLogro(v, ind);
+          sumaLogro += l === null ? 0 : Math.min(1, l);
+          if (v !== null && v !== undefined) { sumaVal += v; nVal += 1; }
+        }
+        // Excluir indicadores sin ningún dato reportado (no rankeamos "0%").
+        if (nVal === 0) return null;
+        return {
+          indicador: ind,
+          valor: sumaVal / nVal,
+          ratio: sumaLogro / aplican.length,
+        };
+      })
+      .filter(Boolean)
+  ), [INDS, filtrados, valoresPorEst, effectiveMonth]);
 
-  // Totals strip (reacts to filters)
   const totales = useMemo(() => ({
     establecimientos: filtrados.length,
     ninos: filtrados.reduce((s, e) => s + (e.nNinos ?? 0), 0),
@@ -132,6 +163,39 @@ export default function VistaConsultor() {
     );
   }
 
+  // Datos para el drilldown (calculados solo cuando hay algo abierto).
+  let drilldownExtras = {};
+  if (drilldown) {
+    const centroActual = todos.find(e => e.id === drilldown.estId);
+    const tipo = centroActual?.tipo;
+    const pares = todos.filter(e => e.slep === drilldown.slepId && e.tipo === tipo);
+    let sum = 0, n = 0;
+    const valoresTerritorio = new Map();
+    for (const p of pares) {
+      const v = valoresPorEst.get(p.id)?.get(drilldown.ind.id)?.valor ?? null;
+      if (v !== null && v !== undefined) { sum += v; n += 1; valoresTerritorio.set(p.id, v); }
+    }
+    // Promedios cross-sostenedor para la tabla del drilldown
+    const promedioPorSostenedor = new Map();
+    for (const s of SLEPS_DATA) {
+      const centrosDelSlep = todos.filter(e => e.slep === s.id && e.tipo === tipo);
+      let ss = 0, nn = 0;
+      for (const e of centrosDelSlep) {
+        const v = valoresPorEst.get(e.id)?.get(drilldown.ind.id)?.valor ?? null;
+        if (v !== null && v !== undefined) { ss += v; nn += 1; }
+      }
+      if (nn) promedioPorSostenedor.set(s.id, ss / nn);
+    }
+    const entry = valoresPorEst.get(drilldown.estId)?.get(drilldown.ind.id);
+    drilldownExtras = {
+      valor: entry?.valor ?? null,
+      estado: entry?.estado ?? 'validado',
+      promedioTerritorio: n ? sum / n : null,
+      valoresTerritorio,
+      promedioPorSostenedor,
+    };
+  }
+
   return (
     <>
       {/* Banner */}
@@ -141,7 +205,7 @@ export default function VistaConsultor() {
             <p className="text-xs text-white/60 tracking-wider font-medium mb-1">FUNDACIÓN CAP · INFORME DE CIERRE</p>
             <h2 className="text-3xl md:text-4xl font-medium text-white leading-tight">Vista de cierre · Fundación CAP</h2>
             <p className="text-white/80 mt-2 text-sm">
-              Datos <span className="text-lime-300 font-semibold">validados</span> al {labelMesCerrado(mesCerradoQ.data)} · Próxima actualización el 1° del mes siguiente
+              Datos <span className="text-lime-300 font-semibold">validados</span> al {labelMesCerrado(capCierre)} · Próxima actualización el 15 del mes siguiente
             </p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
@@ -154,7 +218,7 @@ export default function VistaConsultor() {
           <div>
             <p className="text-xs text-white/60 tracking-wider font-medium mb-1">VISTA COMPLETA · CONSULTORÍA</p>
             <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">Programa {programa === 'escolar' ? 'Aprender en Familia · Educación Básica' : 'Aprender en Familia · Educación Parvularia'}</h2>
-            <p className="text-white/70 mt-1 text-sm">Datos actualizados al {fechaFormateada(effectiveMonth)} · Vista agregada con acceso a todos los cruces.</p>
+            <p className="text-white/70 mt-1 text-sm">Datos actualizados al {fechaFormateada(effectiveMonth, anioSeleccionado)} · Vista agregada con acceso a todos los cruces.</p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
             <p className="text-xs text-white/60 leading-none">CENTROS EDUCATIVOS</p>
@@ -169,7 +233,13 @@ export default function VistaConsultor() {
           <div className="flex items-center gap-2 font-medium text-sm pt-6">
             <Filter size={16}/> Filtros
           </div>
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 min-w-0">
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-4 gap-3 min-w-0">
+            <div>
+              <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Año</label>
+              <select value={anioSeleccionado} onChange={(e) => cambiarAnio(Number(e.target.value))} className={selectCls}>
+                {ANIOS_DISPONIBLES.map(a => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </div>
             <div>
               <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Sostenedor</label>
               <select value={filtroSlep} onChange={(e) => setFiltroSlep(e.target.value)} className={selectCls}>
@@ -206,11 +276,12 @@ export default function VistaConsultor() {
       {/* Top-3 / Bottom-3 por indicador (promedio del conjunto filtrado) */}
       <IndicatorRanking items={rankingItems} title="Indicadores del programa"/>
 
-      {/* Promedio de logro por sostenedor (o por centro al elegir un sostenedor) */}
+      {/* Promedio de cumplimiento por sostenedor (o por centro al elegir un sostenedor) */}
       <SostenedorAveragePicker
         INDS={INDS}
         establecimientos={filtrados}
         sostenedores={SLEPS_DATA}
+        mes={effectiveMonth}
         getValor={getValor}
       />
 
@@ -236,6 +307,8 @@ export default function VistaConsultor() {
             comunasDisponibles={comunasDisponibles}
             defaultMes={effectiveMonth}
             sostenedores={SLEPS_DATA}
+            valoresPorEst2026={valoresPorEst}
+            valoresPorEst2025={valoresPorEst2025}
           />
         )}
       </div>
@@ -248,15 +321,15 @@ export default function VistaConsultor() {
           <p className="text-sm text-gray-ui mt-1">Haz clic en un centro educativo para ver sus indicadores.</p>
         </div>
         <EstablecimientoList
-          conLogros={conLogros}
+          conCumplimiento={conCumplimiento}
           AMBITOS={AMBITOS}
           INDS={INDS}
           effectiveMonth={effectiveMonth}
-          perfil={perfil.id}
           onDrilldown={(ind, estId, slepId) => setDrilldown({ ind, estId, slepId })}
-          todosEstablecimientos={todos}
+          valoresPorEst={valoresPorEst}
           sostenedores={SLEPS_DATA}
           programa={programa}
+          anioEnCurso={anioEnCurso}
         />
       </div>
 
@@ -269,11 +342,14 @@ export default function VistaConsultor() {
           indicador={drilldown.ind}
           establecimientoId={drilldown.estId}
           slep={drilldown.slepId}
-          effectiveMonth={effectiveMonth}
+          mes={effectiveMonth}
           perfil={perfil.id}
           onClose={() => setDrilldown(null)}
           todosEstablecimientos={todos}
           sostenedores={SLEPS_DATA}
+          anio={anioSeleccionado}
+          anioEnCurso={anioEnCurso}
+          {...drilldownExtras}
         />
       )}
     </>
@@ -323,7 +399,11 @@ function buildLabel({ slep, cohorte, comuna, mes, year }, sostenedores = []) {
   return parts.join(' · ');
 }
 
-function computeSideData(todos, filters, INDS, ambitoScope, indicadorFocal = 'TODOS') {
+// Devuelve, por indicador seleccionado, el % de cumplimiento promedio del lado
+// filtrado usando los valores reales del año elegido.
+// Nota: `mes` no filtra los datos (los docs son anuales), pero se preserva en
+// filters para el label del gráfico. La aplicabilidad usa el mes seleccionado.
+function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, valoresMapByYear }) {
   const ests = filtrarEstablecimientos(todos, filters);
   const inds = INDS.filter(ind =>
     ind.unidad !== 'sin_meta' &&
@@ -331,13 +411,17 @@ function computeSideData(todos, filters, INDS, ambitoScope, indicadorFocal = 'TO
     (ambitoScope === 'TODOS' || ind.ambito === ambitoScope) &&
     (indicadorFocal === 'TODOS' || ind.id === indicadorFocal)
   );
+  const valores = valoresMapByYear.get(filters.year) ?? new Map();
   return inds.map(ind => {
-    const logros = ests.map(e => {
-      const { valor } = generarValorIndicador(ind, e.id, e.slep, filters.mes, filters.year);
-      return calcularLogro(valor, ind) ?? 0;
-    });
-    const ratio = logros.length ? logros.reduce((s, v) => s + v, 0) / logros.length : 0;
-    return { id: ind.id, nombre: indicadorCodigo(ind.id), ratio: Math.round(ratio * 100) };
+    const aplican = ests.filter(e => isAplicable2026(ind, e, filters.mes));
+    if (!aplican.length) return { id: ind.id, nombre: indicadorCodigo(ind.id), ratio: null };
+    let suma = 0;
+    for (const e of aplican) {
+      const v = valores.get(e.id)?.get(ind.id) ?? null;
+      const logro = calcularLogro(v, ind);
+      suma += logro === null ? 0 : Math.min(1, logro);
+    }
+    return { id: ind.id, nombre: indicadorCodigo(ind.id), ratio: Math.round((suma / aplican.length) * 100) };
   });
 }
 
@@ -393,18 +477,35 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
   );
 }
 
-function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, comunasDisponibles, defaultMes, sostenedores = [] }) {
-  const defaultYear = new Date().getFullYear();
-  const initA = { mes: defaultMes, year: defaultYear, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
-  const initB = { mes: defaultMes, year: defaultYear - 1, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, comunasDisponibles, defaultMes, sostenedores = [], valoresPorEst2026, valoresPorEst2025 }) {
+  const initA = { mes: defaultMes, year: 2026, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+  const initB = { mes: defaultMes, year: 2025, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
   const [filtersA, setFiltersA] = useState(initA);
   const [filtersB, setFiltersB] = useState(initB);
   const [indicadorFocal, setIndicadorFocal] = useState('TODOS');
 
   const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
 
-  const dataA = useMemo(() => computeSideData(todos, filtersA, INDS, filtersA.ambitoScope, indicadorFocal), [todos, filtersA, INDS, indicadorFocal]);
-  const dataB = useMemo(() => computeSideData(todos, filtersB, INDS, filtersB.ambitoScope, indicadorFocal), [todos, filtersB, INDS, indicadorFocal]);
+  const valoresMapByYear = useMemo(() => {
+    // Convertimos los Map<estId, Map<indId, { valor, estado }>> a
+    // Map<estId, Map<indId, valor>> para que computeSideData pueda leer directo.
+    const to2026 = new Map();
+    for (const [estId, m] of valoresPorEst2026) {
+      const inner = new Map();
+      for (const [indId, entry] of m) inner.set(indId, entry?.valor ?? entry);
+      to2026.set(estId, inner);
+    }
+    return new Map([[2025, valoresPorEst2025], [2026, to2026]]);
+  }, [valoresPorEst2025, valoresPorEst2026]);
+
+  const dataA = useMemo(
+    () => computeSideData({ todos, filters: filtersA, INDS, ambitoScope: filtersA.ambitoScope, indicadorFocal, valoresMapByYear }),
+    [todos, filtersA, INDS, indicadorFocal, valoresMapByYear]
+  );
+  const dataB = useMemo(
+    () => computeSideData({ todos, filters: filtersB, INDS, ambitoScope: filtersB.ambitoScope, indicadorFocal, valoresMapByYear }),
+    [todos, filtersB, INDS, indicadorFocal, valoresMapByYear]
+  );
 
   const chartData = useMemo(() => {
     const idsA = new Set(dataA.map(d => d.id));
@@ -422,6 +523,9 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
 
   const estsA = filtrarEstablecimientos(todos, filtersA).length;
   const estsB = filtrarEstablecimientos(todos, filtersB).length;
+
+  // Detectar si hay data 2025 disponible para el conjunto seleccionado
+  const anyData2025 = valoresPorEst2025.size > 0;
 
   return (
     <div className="mt-5">
@@ -449,7 +553,7 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
         />
       </div>
 
-      {/* Filtro por indicador focal (opcional) — al final, debajo de Ámbito */}
+      {/* Filtro por indicador focal (opcional) */}
       <div className="mb-4">
         <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador (opcional)</label>
         <select
@@ -466,6 +570,13 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
           Al elegir un indicador, el comparador muestra solo ese indicador en cada lado (A vs B).
         </p>
       </div>
+
+      {/* Aviso si algún lado usa 2025 y no hay datos disponibles */}
+      {(filtersA.year === 2025 || filtersB.year === 2025) && !anyData2025 && (
+        <div className="mb-3 p-3 rounded-xl text-xs" style={{ background: 'rgb(252,244,231)', color: '#8a5a00' }}>
+          Sin datos cargados para el período 2025 en Firestore. Las barras del lado 2025 aparecerán como "—".
+        </div>
+      )}
 
       {/* Legend summary */}
       <div className="flex flex-wrap gap-4 text-xs text-gray-ui mb-3">
@@ -501,7 +612,7 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
               />
               <Tooltip
                 contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 11 }}
-                formatter={(v, name) => [`${v ?? '—'}%`, name === 'A' ? labelA : labelB]}
+                formatter={(v, name) => [v !== null && v !== undefined ? `${v}%` : '—', name === 'A' ? labelA : labelB]}
                 labelStyle={{ color: '#6B7280', marginBottom: 2, fontWeight: 600 }}
               />
               <Legend
@@ -509,9 +620,9 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
                 wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
               />
               <Bar dataKey="A" fill="var(--color-cyan)" radius={[0, 3, 3, 0]} maxBarSize={16}
-                label={{ position: 'right', formatter: v => v !== null ? `${v}%` : '', fontSize: 10, fill: '#6B7280' }}/>
+                label={{ position: 'right', formatter: v => v !== null && v !== undefined ? `${v}%` : '—', fontSize: 10, fill: '#6B7280' }}/>
               <Bar dataKey="B" fill="var(--color-magenta)" radius={[0, 3, 3, 0]} maxBarSize={16}
-                label={{ position: 'right', formatter: v => v !== null ? `${v}%` : '', fontSize: 10, fill: '#6B7280' }}/>
+                label={{ position: 'right', formatter: v => v !== null && v !== undefined ? `${v}%` : '—', fontSize: 10, fill: '#6B7280' }}/>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -520,7 +631,7 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
   );
 }
 
-function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, todosEstablecimientos, sostenedores, programa }) {
+function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, valoresPorEst, sostenedores, programa, anioEnCurso = true }) {
   return (
     <div key={c.est.id} className="border border-border rounded-xl overflow-hidden">
       <button
@@ -537,8 +648,8 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(c.promedio * 100)}%</p>
-              <p className="text-[10px] text-gray-ui mt-0.5">global</p>
+              <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(c.cumpl * 100)}%</p>
+              <p className="text-[10px] text-gray-ui mt-0.5">cumplimiento</p>
             </div>
             {openEst[c.est.id] ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
           </div>
@@ -550,12 +661,12 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
           <IndicatorPanel
             INDS={INDS}
             AMBITOS={AMBITOS}
-            establecimientoId={c.est.id}
-            slep={c.est.slep}
+            establecimiento={c.est}
             mes={effectiveMonth}
+            valoresReales={valoresPorEst.get(c.est.id) ?? new Map()}
             onDrilldown={(ind) => onDrilldown(ind, c.est.id, c.est.slep)}
-            todosEstablecimientos={todosEstablecimientos}
             programa={programa}
+            anioEnCurso={anioEnCurso}
           />
         </div>
       )}
@@ -563,16 +674,17 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
   );
 }
 
-function EstablecimientoList({ conLogros, AMBITOS, INDS, effectiveMonth, perfil, onDrilldown, todosEstablecimientos, sostenedores, programa }) {
+function EstablecimientoList({ conCumplimiento, AMBITOS, INDS, effectiveMonth, onDrilldown, valoresPorEst, sostenedores, programa, anioEnCurso = true }) {
   const [openEst, setOpenEst] = useState({});
   const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
-  const sorted = [...conLogros].sort((a, b) => b.promedio - a.promedio);
+  const sorted = [...conCumplimiento].sort((a, b) => b.cumpl - a.cumpl);
   return (
     <div className="space-y-2">
       {sorted.map((c, idx) => (
         <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
           INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}
-          todosEstablecimientos={todosEstablecimientos} sostenedores={sostenedores} programa={programa}/>
+          valoresPorEst={valoresPorEst} sostenedores={sostenedores} programa={programa}
+          anioEnCurso={anioEnCurso}/>
       ))}
     </div>
   );

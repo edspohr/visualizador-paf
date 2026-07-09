@@ -2,24 +2,41 @@ import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
-import { logroPorAmbito, promedioSlepAmbito, generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
-import IndicatorAveragePicker from '../components/IndicatorAveragePicker.jsx';
+import SostenedorVsPromedio from '../components/SostenedorVsPromedio.jsx';
 import { Building2, GraduationCap, Users, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
+
+const ANIO_ACTUAL = 2026;
+const ANIOS_DISPONIBLES = [2025, 2026];
+const LS_KEY_ANIO = 'paf_anio_gestion';
+
+function anioInicial() {
+  if (typeof window === 'undefined') return ANIO_ACTUAL;
+  const stored = Number(window.localStorage.getItem(LS_KEY_ANIO));
+  return ANIOS_DISPONIBLES.includes(stored) ? stored : ANIO_ACTUAL;
+}
 
 export default function VistaSostenedor() {
   const { perfil } = useApp();
   const [drilldown, setDrilldown] = useState(null);
   const [openEst, setOpenEst] = useState({});
   const [tipoActivo, setTipoActivo] = useState('escolar');
+  const [anioSeleccionado, setAnioSeleccionado] = useState(anioInicial);
+  const anioEnCurso = anioSeleccionado === ANIO_ACTUAL;
+  const mesEfectivo = anioEnCurso ? MES_ACTUAL : 12;
+  const cambiarAnio = (a) => {
+    setAnioSeleccionado(a);
+    if (typeof window !== 'undefined') window.localStorage.setItem(LS_KEY_ANIO, String(a));
+  };
   const toggleEst = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
   const handleTipoChange = (tipo) => { setTipoActivo(tipo); setOpenEst({}); };
 
-  // Queries Firestore
   const escuelasQ = useEscuelas();
   const jardinesQ = useJardines();
   const slepsQ = useSleps();
@@ -38,20 +55,18 @@ export default function VistaSostenedor() {
   const indicadoresQ = useIndicadores(programaTipo);
   const ambitosQ = useAmbitos(programaTipo);
 
-  // Valores por indicador — dispatcher (real o sintético) para no filtrar sintético
-  // en modo real desde IndicatorAveragePicker.
-  const anioValores = new Date().getFullYear();
-  const valoresAnioQ = useValoresAnio(anioValores);
+  const valoresAnioQ = useValoresAnio(anioSeleccionado);
+  // Map<estId, Map<indicadorId, { valor, estado }>>
   const valoresPorEst = useMemo(() => {
     const m = new Map();
     for (const v of (valoresAnioQ.data ?? [])) {
       if (v.valor === null || v.valor === undefined) continue;
       if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
-      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+      m.get(v.establecimientoId).set(v.indicadorId, { valor: v.valor, estado: v.estado ?? 'validado' });
     }
     return m;
   }, [valoresAnioQ.data]);
-  const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId) ?? null;
+  const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId)?.valor ?? null;
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -61,10 +76,18 @@ export default function VistaSostenedor() {
   const establecimientos = programaTipo === 'escolar' ? escuelasSlep : jardinesSlep;
   const todosDelTipo = programaTipo === 'escolar' ? escuelasAll : jardinesAll;
 
-  const promediosSlep = Object.fromEntries(
-    AMBITOS.map(a => [a.id, promedioSlepAmbito(INDS, todosDelTipo, slep.id, a.id)])
-  );
-  const logroGlobal = Object.values(promediosSlep).reduce((a, b) => a + b, 0) / AMBITOS.length;
+  // Promedios/cumplimiento por centro sobre indicadores aplicables 2026.
+  const conCumplimiento = useMemo(() => (
+    establecimientos.map(e => {
+      const aplicables = indicadoresAplicables(INDS, e, mesEfectivo);
+      const cumpl = cumplimientoIndicadores(aplicables, valoresPorEst.get(e.id) ?? new Map());
+      return { est: e, cumpl };
+    })
+  ), [establecimientos, INDS, valoresPorEst, mesEfectivo]);
+
+  const logroGlobal = conCumplimiento.length
+    ? conCumplimiento.reduce((s, c) => s + c.cumpl, 0) / conCumplimiento.length
+    : 0;
 
   const todosSlep = [...escuelasSlep, ...jardinesSlep];
   const totalesRed = {
@@ -73,24 +96,36 @@ export default function VistaSostenedor() {
     comunas: new Set(todosSlep.map(e => e.comuna)).size,
   };
 
-  const ranking = establecimientos.map(e => {
-    const logros = logroPorAmbito(INDS, e.id, slep.id);
-    const promedio = Object.values(logros).reduce((a, b) => a + b, 0) / AMBITOS.length;
-    return { est: e, logros, promedio };
-  }).sort((a, b) => b.promedio - a.promedio);
+  const ranking = useMemo(
+    () => [...conCumplimiento].sort((a, b) => b.cumpl - a.cumpl),
+    [conCumplimiento]
+  );
 
-  // Ranking items: average each indicator across all establishments in the SLEP
-  const rankingItems = useMemo(() => INDS
-    .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
-    .map(ind => {
-      const vals = establecimientos.map(e => {
-        const { valor } = generarValorIndicador(ind, e.id, e.slep, MES_ACTUAL);
-        return { valor, logro: calcularLogro(valor, ind) ?? 0 };
-      });
-      const valor = vals.reduce((s, v) => s + v.valor, 0) / (vals.length || 1);
-      const ratio = vals.reduce((s, v) => s + v.logro, 0) / (vals.length || 1);
-      return { indicador: ind, valor, ratio };
-    }), [INDS, establecimientos]);
+  // Ranking de indicadores: promedio de cada indicador aplicable a través de los
+  // centros a los que aplica, con faltantes contando 0.
+  const rankingItems = useMemo(() => (
+    INDS
+      .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+      .map(ind => {
+        const aplican = establecimientos.filter(e => isAplicable2026(ind, e, mesEfectivo));
+        if (!aplican.length) return null;
+        let sumaVal = 0, nVal = 0, sumaLogro = 0;
+        for (const e of aplican) {
+          const v = valoresPorEst.get(e.id)?.get(ind.id)?.valor ?? null;
+          const l = calcularLogro(v, ind);
+          sumaLogro += l === null ? 0 : Math.min(1, l);
+          if (v !== null && v !== undefined) { sumaVal += v; nVal += 1; }
+        }
+        // Excluir indicadores sin ningún dato reportado (no rankeamos "0%").
+        if (nVal === 0) return null;
+        return {
+          indicador: ind,
+          valor: sumaVal / nVal,
+          ratio: sumaLogro / aplican.length,
+        };
+      })
+      .filter(Boolean)
+  ), [INDS, establecimientos, valoresPorEst]);
 
   if (cargando) {
     return (
@@ -99,7 +134,31 @@ export default function VistaSostenedor() {
       </div>
     );
   }
-  if (!slep) return <p>SLEP no encontrado.</p>;
+  if (!slep) return <p>Sostenedor no encontrado.</p>;
+
+  // Datos extra para el drilldown (promedio real del territorio).
+  let drilldownExtras = {};
+  if (drilldown) {
+    const centroActual = todosDelTipo.find(e => e.id === drilldown.estId);
+    const tipo = centroActual?.tipo;
+    const pares = todosDelTipo.filter(e => e.slep === drilldown.slepId && e.tipo === tipo);
+    let sum = 0, n = 0;
+    const valoresTerritorio = new Map();
+    for (const p of pares) {
+      const v = valoresPorEst.get(p.id)?.get(drilldown.ind.id)?.valor ?? null;
+      if (v !== null && v !== undefined) {
+        sum += v; n += 1;
+        valoresTerritorio.set(p.id, v);
+      }
+    }
+    const entry = valoresPorEst.get(drilldown.estId)?.get(drilldown.ind.id);
+    drilldownExtras = {
+      valor: entry?.valor ?? null,
+      estado: entry?.estado ?? 'validado',
+      promedioTerritorio: n ? sum / n : null,
+      valoresTerritorio,
+    };
+  }
 
   return (
     <>
@@ -107,7 +166,7 @@ export default function VistaSostenedor() {
       <div className="text-white rounded-2xl px-5 py-5 mb-6 flex flex-wrap items-end justify-between gap-3" style={{ background: "var(--color-magenta)" }}>
         <div>
           <p className="text-xs text-white/60 tracking-wider font-medium mb-1">SOSTENEDOR</p>
-          <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">{slep.nombre}</h2>
+          <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">{slep.nombre.replace(/^SLEP\s+/, '')}</h2>
           <div className="flex items-center gap-2 text-white/70 mt-1 text-sm">
             <MapPin size={14} /> {slep.comuna}
           </div>
@@ -118,7 +177,7 @@ export default function VistaSostenedor() {
             <p className="font-medium mt-1">{escuelasSlep.length + jardinesSlep.length}</p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl">
-            <p className="text-xs text-white/60 leading-none">LOGRO PROMEDIO</p>
+            <p className="text-xs text-white/60 leading-none">% CUMPLIMIENTO</p>
             <p className="font-medium mt-1 text-lg leading-none">{Math.round(logroGlobal * 100)}%</p>
           </div>
         </div>
@@ -130,6 +189,19 @@ export default function VistaSostenedor() {
         <TotalCard label="Niñas y niños" value={totalesRed.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
         <TotalCard label="Equipos educativos" value={totalesRed.agentes} sub="en el programa" Icon={Users}/>
         <TotalCard label="Comunas" value={totalesRed.comunas} sub="con cobertura activa" Icon={MapPin}/>
+      </div>
+
+      {/* Selector de año */}
+      <div className="flex items-center gap-2 mb-4">
+        <label className="text-xs text-gray-ui font-medium uppercase tracking-wider">Año</label>
+        <select
+          value={anioSeleccionado}
+          onChange={(e) => cambiarAnio(Number(e.target.value))}
+          className="px-3 py-1.5 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 outline-none"
+          style={{ '--tw-ring-color': 'var(--color-cyan)' }}
+        >
+          {ANIOS_DISPONIBLES.map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
       </div>
 
       {/* Toggle Escuela / Jardín (solo cuando el SLEP tiene ambos tipos) */}
@@ -155,13 +227,13 @@ export default function VistaSostenedor() {
       {/* Top-3 / Bottom-3 por indicador (promedio de la red) */}
       <IndicatorRanking items={rankingItems} title="Indicadores de la red"/>
 
-      {/* Selector de indicador + gráfico de promedios por centro educativo */}
-      <IndicatorAveragePicker
+      {/* Comparativa: este sostenedor vs los demás (mismo tipo) */}
+      <SostenedorVsPromedio
         INDS={INDS}
-        establecimientos={establecimientos}
-        mes={MES_ACTUAL}
-        breakdownBy="establecimiento"
+        establecimientos={todosDelTipo}
         sostenedores={slepsQ.data ?? []}
+        sostenedorActual={slep.id}
+        mes={mesEfectivo}
         getValor={getValor}
       />
 
@@ -170,11 +242,11 @@ export default function VistaSostenedor() {
         <div className="mb-4">
           <p className="text-xs font-medium tracking-wider uppercase">Detalle por centro educativo</p>
           <h3 className="text-lg text-gray-dark">Detalle por escuela y/o jardín infantil</h3>
-          <p className="text-sm text-gray-ui mt-1">Ordenados por logro promedio. Haz clic para ver los indicadores de cada centro educativo.</p>
+          <p className="text-sm text-gray-ui mt-1">Ordenados por cumplimiento. Haz clic para ver los indicadores de cada centro educativo.</p>
         </div>
 
         <div className="space-y-2">
-          {ranking.map(({ est, logros, promedio }, idx) => (
+          {ranking.map(({ est, cumpl }, idx) => (
             <div key={est.id} className="border border-border rounded-xl overflow-hidden">
               <button
                 onClick={() => toggleEst(est.id)}
@@ -190,8 +262,8 @@ export default function VistaSostenedor() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="text-right">
-                      <p className="text-2xl font-medium text-gray-dark leading-none">{Math.round(promedio * 100)}%</p>
-                      <p className="text-xs text-gray-ui mt-1">logro global</p>
+                      <p className="text-2xl font-medium text-gray-dark leading-none">{Math.round(cumpl * 100)}%</p>
+                      <p className="text-xs text-gray-ui mt-1">% cumplimiento</p>
                     </div>
                     {openEst[est.id] ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
                   </div>
@@ -203,12 +275,12 @@ export default function VistaSostenedor() {
                   <IndicatorPanel
                     INDS={INDS}
                     AMBITOS={AMBITOS}
-                    establecimientoId={est.id}
-                    slep={est.slep}
-                    mes={MES_ACTUAL}
+                    establecimiento={est}
+                    mes={mesEfectivo}
+                    valoresReales={valoresPorEst.get(est.id) ?? new Map()}
                     onDrilldown={(ind) => setDrilldown({ ind, estId: est.id, slepId: est.slep })}
-                    todosEstablecimientos={todosDelTipo}
                     programa={programaTipo}
+                    anioEnCurso={anioEnCurso}
                   />
                 </div>
               )}
@@ -226,11 +298,14 @@ export default function VistaSostenedor() {
           indicador={drilldown.ind}
           establecimientoId={drilldown.estId}
           slep={drilldown.slepId}
-          effectiveMonth={MES_ACTUAL}
+          mes={mesEfectivo}
           perfil={perfil.id}
           onClose={() => setDrilldown(null)}
           todosEstablecimientos={todosDelTipo}
           sostenedores={slepsQ.data ?? []}
+          anio={anioSeleccionado}
+          anioEnCurso={anioEnCurso}
+          {...drilldownExtras}
         />
       )}
     </>

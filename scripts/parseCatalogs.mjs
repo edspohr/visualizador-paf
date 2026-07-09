@@ -26,6 +26,14 @@ const OUT_JSON        = pathResolve(ROOT, 'src/data/catalog.json');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
+// Normaliza id de indicador a forma canónica con punto: 'I1' → 'I.1'.
+function normId(id) {
+  if (typeof id !== 'string') return id;
+  const s = id.trim();
+  const m = s.match(/^I\.?(\d+)$/);
+  return m ? `I.${m[1]}` : s;
+}
+
 function readSheet(path, sheetName) {
   const wb = XLSX.readFile(path);
   const ws = wb.Sheets[sheetName];
@@ -172,7 +180,7 @@ function parseEscolar2025() {
     }
     const meta = classifyMeta(row[idx.meta]);
     out.push({
-      id: id.trim(),
+      id: normId(id),
       programa: 'escolar',
       version: '2025',
       estrategiaId: estrategia ? estrategia.split(':')[0].trim().slice(0, 8) : null,
@@ -226,7 +234,7 @@ function parseEscolar2026() {
     const meta = classifyMeta(row[idx.meta]);
     const tipo = tipoActividadOrProducto(row[idx.comentario], estrategia);
     out.push({
-      id,
+      id: normId(id),
       programa: 'escolar',
       version: '2026',
       estrategiaId: estrategia ? estrategia.split(':')[0].trim() : null,
@@ -273,7 +281,7 @@ function parseParvulario() {
     if (!id || typeof id !== 'string' || !/^I\./i.test(id.trim())) continue;
     const meta = classifyMeta(row[iE.meta]);
     out.push({
-      id: id.trim(),
+      id: normId(id),
       programa: 'parvulario',
       version: '2026',
       estrategiaId: row[iE.estrId] ? String(row[iE.estrId]).trim() : null,
@@ -312,7 +320,7 @@ function parseParvulario() {
     if (!id || typeof id !== 'string' || !/^I\./i.test(id.trim())) continue;
     const meta = classifyMeta(row[iP.meta]);
     out.push({
-      id: id.trim(),
+      id: normId(id),
       programa: 'parvulario',
       version: '2026',
       estrategiaId: row[iP.prodId] ? String(row[iP.prodId]).trim() : null,

@@ -1,48 +1,56 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, Package, Sparkles } from 'lucide-react';
-import { generarValorIndicador, calcularLogro, promedioTerritorioIndicador } from '../data/establecimientos.js';
+import { useMemo, useState } from 'react';
+import { ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { calcularLogro, estadoValor } from '../data/establecimientos.js';
+import { isAplicable2026 } from '../data/scope.js';
 import { IndicatorProgress } from './Shared.jsx';
 import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
 
 /**
- * Renders indicators split into two sections:
- *  1. Estrategia indicators — collapsible ámbito groups.
- *  2. "Indicadores de producto" — al final, same pattern.
+ * Renders indicators split into two sections (estrategia + producto), agrupadas
+ * por ámbito colapsable. Todos los valores vienen de `valoresReales`
+ * (Map<indicadorId, { valor, estado }>) — no hay fallback sintético.
+ *
+ * Aplica el filtro `isAplicable2026` para excluir indicadores cuyo semestre
+ * requerido aún no aplica al centro (según su cohorte).
+ *
+ * El porcentaje del encabezado de cada ámbito es "% cumplimiento":
+ *   AVG(min(1, calcularLogro)) sobre los indicadores aplicables del ámbito,
+ *   con faltantes contando 0.
  *
  * Props:
  *   INDS                  — indicator list for the program
  *   AMBITOS               — ámbito list for the program
- *   establecimientoId     — establishment id used for data generation
- *   slep                  — sostenedor id
- *   mes                   — effective month
+ *   establecimiento       — full centro object (needed for cohorte)
+ *   mes                   — effective month within 2026
+ *   valoresReales         — Map(indicadorId → { valor, estado }) from Firestore
  *   onDrilldown           — callback(ind) when a row is clicked
- *   todosEstablecimientos — full list (needed for peer average calculation)
- *   valoresReales         — Map(indicadorId → { valor, fuenteSync }) from Firestore.
- *                          When present, real values override PRNG fallback.
+ *   programa              — 'escolar' | 'parvulario'
  */
-export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown, todosEstablecimientos = [], valoresReales = new Map(), programa = 'escolar' }) {
+export default function IndicatorPanel({
+  INDS,
+  AMBITOS,
+  establecimiento,
+  mes,
+  valoresReales = new Map(),
+  onDrilldown,
+  programa = 'escolar',
+  anioEnCurso = true,
+}) {
   const [openAmbitos, setOpenAmbitos] = useState({});
   const toggle = (key) => setOpenAmbitos(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const est = todosEstablecimientos.find(e => e.id === establecimientoId);
-
-  const filasIndicadores = INDS.map(ind => {
-    // Preferir valor real de Firestore; fallback a PRNG sintético
-    const valorReal = valoresReales.get(ind.id);
-    let valor;
-    let esReal = false;
-    let estado = 'validado';
-    if (valorReal !== undefined && valorReal.valor !== null && valorReal.valor !== undefined) {
-      valor = valorReal.valor;
-      esReal = true;
-      estado = valorReal.estado ?? 'validado';
-    } else {
-      valor = generarValorIndicador(ind, establecimientoId, slep, mes).valor;
-    }
-    const logro = calcularLogro(valor, ind);
-    const promTerritorio = est ? promedioTerritorioIndicador(ind, est, todosEstablecimientos, mes) : null;
-    return { ind, valor, logro, promTerritorio, esReal, estado };
-  });
+  const filasIndicadores = useMemo(() => {
+    if (!establecimiento) return [];
+    return INDS
+      .filter(ind => isAplicable2026(ind, establecimiento, mes))
+      .map(ind => {
+        const entry = valoresReales.get(ind.id);
+        const valor = entry?.valor ?? null;
+        const estado = entry?.estado ?? 'validado';
+        const logro = calcularLogro(valor, ind);
+        return { ind, valor, logro, estado };
+      });
+  }, [INDS, establecimiento, mes, valoresReales]);
 
   const estrategiaFilas = filasIndicadores.filter(f => f.ind.clasificacion === 'estrategia');
   const productoFilas   = filasIndicadores.filter(f => f.ind.clasificacion === 'producto');
@@ -63,6 +71,7 @@ export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep,
             isOpen={!!openAmbitos[a.id]}
             onToggle={() => toggle(a.id)}
             onDrilldown={onDrilldown}
+            anioEnCurso={anioEnCurso}
           />
         );
       })}
@@ -92,6 +101,7 @@ export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep,
                 isOpen={!!openAmbitos[key]}
                 onToggle={() => toggle(key)}
                 onDrilldown={onDrilldown}
+                anioEnCurso={anioEnCurso}
               />
             );
           })}
@@ -101,12 +111,19 @@ export default function IndicatorPanel({ INDS, AMBITOS, establecimientoId, slep,
   );
 }
 
-// Shared collapsible ámbito group used for both sections
-function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrilldown }) {
-  const filasConLogro = filas.filter(f => f.logro !== null);
-  const promedioAmbito = filasConLogro.length
-    ? filasConLogro.reduce((s, f) => s + Math.min(1, f.logro), 0) / filasConLogro.length
+// Shared collapsible ámbito group used for both sections.
+// Header % = "% cumplimiento": AVG(min(1, logro)) sobre indicadores del ámbito
+// con meta, contando 0 los faltantes.
+function AmbitoGroup({ label, codigo, filas, isOpen, onToggle, onDrilldown, anioEnCurso = true }) {
+  const conMeta = filas.filter(f => f.ind.metaNum !== null && f.ind.unidad !== 'sin_meta');
+  const promedioAmbito = conMeta.length
+    ? conMeta.reduce((s, f) => s + (f.logro === null ? 0 : Math.min(1, f.logro)), 0) / conMeta.length
     : null;
+
+  // Distingue "con dato" de "sin dato" sobre indicadores que tienen meta.
+  // Sin meta no cuenta (no es reportable).
+  const conDato   = conMeta.filter(f => estadoValor(f.valor, f.ind) === 'con_dato').length;
+  const sinDato   = conMeta.length - conDato;
 
   return (
     <div className="border border-border rounded-xl overflow-hidden">
@@ -119,6 +136,11 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
           <span className="text-sm font-medium text-gray-dark truncate">{label}</span>
         </div>
         <div className="flex items-center gap-3 shrink-0">
+          {conMeta.length > 0 && (
+            <span className="text-xs text-gray-ui font-light">
+              {conDato} con dato{sinDato > 0 ? ` · ${sinDato} sin dato` : ''}
+            </span>
+          )}
           {promedioAmbito !== null && (
             <span className="text-sm font-medium text-gray-dark">{Math.round(promedioAmbito * 100)}%</span>
           )}
@@ -127,7 +149,7 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
       </button>
       {isOpen && (
         <div className="border-t border-border divide-y divide-border">
-          {filas.map(({ ind, valor, promTerritorio, esReal, estado }) => (
+          {filas.map(({ ind, valor, estado }) => (
             <div
               key={ind.id}
               className="px-4 py-3 hover:bg-bg transition cursor-pointer"
@@ -136,19 +158,7 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-12 text-xs text-gray-ui font-mono shrink-0 pt-0.5">{indicadorCodigo(ind.id)}</div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start gap-2 mb-1">
-                    <p className="text-sm text-gray-dark flex-1">{ind.nombre}</p>
-                    {esReal && (
-                      <span
-                        title="Valor real desde Planilla Central de Focus"
-                        className="inline-flex items-center gap-1 shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded"
-                        style={{ background: 'rgb(220,240,240)', color: 'var(--color-teal)' }}
-                      >
-                        <Sparkles size={9}/>
-                        real
-                      </span>
-                    )}
-                  </div>
+                  <p className="text-sm text-gray-dark flex-1 mb-1">{ind.nombre}</p>
                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-gray-ui">
                     <span>Actividad: {ind.actividad}</span>
                     <span>Frec: {ind.frecuencia}</span>
@@ -160,8 +170,8 @@ function AmbitoGroup({ groupKey, label, codigo, filas, isOpen, onToggle, onDrill
                 <IndicatorProgress
                   indicador={ind}
                   valor={valor}
-                  promedioTerritorio={promTerritorio}
                   estado={estado}
+                  anioEnCurso={anioEnCurso}
                 />
               </div>
             </div>

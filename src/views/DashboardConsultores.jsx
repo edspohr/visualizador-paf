@@ -1,39 +1,45 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BarChart3, Users, Building2, GraduationCap, TrendingUp, TrendingDown, Minus, Loader2, AlertCircle } from 'lucide-react';
-import { generarValorIndicador, calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
-import { useEscuelas, useJardines, useIndicadores } from '../lib/queries.js';
+import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
+import { useEscuelas, useJardines, useIndicadores, useValoresAnio } from '../lib/queries.js';
 import { listarConsultores } from '../lib/firebase.js';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
 
-// Promedio de logro global para un conjunto de establecimientos.
-function calcularPromedioLogro(establecimientos, indicadores, mes) {
+const ANIO_GESTION = 2026;
+
+// Promedio de cumplimiento sobre un conjunto de centros (avg del cumplimiento
+// individual sobre indicadores aplicables 2026; faltantes cuentan 0).
+function calcularPromedioCumplimiento(establecimientos, indicadores, valoresPorEst, mes) {
   if (!establecimientos.length) return null;
-  const inds = indicadores.filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null);
-  let suma = 0, n = 0;
+  let suma = 0;
   for (const e of establecimientos) {
-    for (const ind of inds) {
-      const { valor } = generarValorIndicador(ind, e.id, e.slep, mes);
-      const logro = calcularLogro(valor, ind);
-      if (logro === null) continue;
-      suma += Math.min(1, logro);
-      n += 1;
-    }
+    const aplicables = indicadoresAplicables(indicadores, e, mes);
+    suma += cumplimientoIndicadores(aplicables, valoresPorEst.get(e.id) ?? new Map());
   }
-  return n ? suma / n : null;
+  return suma / establecimientos.length;
 }
 
-function calcularRankingItems(establecimientos, indicadores, mes) {
+function calcularRankingItems(establecimientos, indicadores, valoresPorEst, mes) {
   return indicadores
     .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
     .map(ind => {
-      const vals = establecimientos.map(e => {
-        const { valor } = generarValorIndicador(ind, e.id, e.slep, mes);
-        return { valor, logro: calcularLogro(valor, ind) ?? 0 };
-      });
-      const valor = vals.length ? vals.reduce((s, v) => s + (v.valor ?? 0), 0) / vals.length : 0;
-      const ratio = vals.length ? vals.reduce((s, v) => s + v.logro, 0) / vals.length : 0;
-      return { indicador: ind, valor, ratio };
-    });
+      const aplican = establecimientos.filter(e => isAplicable2026(ind, e, mes));
+      if (!aplican.length) return null;
+      let sumaLogro = 0, sumaVal = 0, nVal = 0;
+      for (const e of aplican) {
+        const v = valoresPorEst.get(e.id)?.get(ind.id) ?? null;
+        const l = calcularLogro(v, ind);
+        sumaLogro += l === null ? 0 : Math.min(1, l);
+        if (v !== null && v !== undefined) { sumaVal += v; nVal += 1; }
+      }
+      return {
+        indicador: ind,
+        valor: nVal ? sumaVal / nVal : 0,
+        ratio: sumaLogro / aplican.length,
+      };
+    })
+    .filter(Boolean);
 }
 
 export default function DashboardConsultores() {
@@ -46,7 +52,18 @@ export default function DashboardConsultores() {
   const escuelasQ = useEscuelas();
   const jardinesQ = useJardines();
   const indicadoresQ = useIndicadores(programa);
+  const valoresQ = useValoresAnio(ANIO_GESTION);
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || indicadoresQ.isLoading || cargandoConsultores;
+
+  const valoresPorEst = useMemo(() => {
+    const m = new Map();
+    for (const v of (valoresQ.data ?? [])) {
+      if (v.valor === null || v.valor === undefined) continue;
+      if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
+      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+    }
+    return m;
+  }, [valoresQ.data]);
 
   useEffect(() => {
     (async () => {
@@ -65,8 +82,8 @@ export default function DashboardConsultores() {
   const indicadores = indicadoresQ.data ?? [];
 
   const promedioNacional = useMemo(
-    () => calcularPromedioLogro(establecimientos, indicadores, MES_ACTUAL),
-    [establecimientos, indicadores]
+    () => calcularPromedioCumplimiento(establecimientos, indicadores, valoresPorEst, MES_ACTUAL),
+    [establecimientos, indicadores, valoresPorEst]
   );
 
   // Métricas por consultor: agrupa establecimientos por consultorUid según los
@@ -80,7 +97,7 @@ export default function DashboardConsultores() {
     );
     const arr = consultores.map(u => {
       const ests = establecimientos.filter(e => idsPorConsultor.get(u.uid)?.has(e.id));
-      const promedio = calcularPromedioLogro(ests, indicadores, MES_ACTUAL);
+      const promedio = calcularPromedioCumplimiento(ests, indicadores, valoresPorEst, MES_ACTUAL);
       const nNinos = ests.reduce((s, e) => s + (e.nNinos ?? 0), 0);
       const nAgentes = ests.reduce((s, e) => s + (e.nAgentes ?? 0), 0);
       const comunas = new Set(ests.map(e => e.comuna)).size;
@@ -98,12 +115,12 @@ export default function DashboardConsultores() {
     });
     arr.sort((a, b) => (b.promedio ?? 0) - (a.promedio ?? 0));
     return arr;
-  }, [consultores, establecimientos, indicadores, promedioNacional]);
+  }, [consultores, establecimientos, indicadores, valoresPorEst, promedioNacional]);
 
   const focoConsultor = consultorFoco ? metricasConsultores.find(c => c.uid === consultorFoco) : null;
   const rankingItemsFoco = useMemo(
-    () => (focoConsultor?.ests.length ? calcularRankingItems(focoConsultor.ests, indicadores, MES_ACTUAL) : []),
-    [focoConsultor, indicadores]
+    () => (focoConsultor?.ests.length ? calcularRankingItems(focoConsultor.ests, indicadores, valoresPorEst, MES_ACTUAL) : []),
+    [focoConsultor, indicadores, valoresPorEst]
   );
 
   if (cargando) {

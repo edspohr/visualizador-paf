@@ -8,3 +8,7 @@ dist/
 scripts/service-account.json
 firebase-debug.log
 firestore-debug.log
+
+# Fuentes .xlsx del cliente con PII (nombres, teléfonos, emails de director/coordinador)
+scripts/datos/*
+!scripts/datos/README.md

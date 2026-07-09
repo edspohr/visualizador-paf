@@ -1,54 +1,60 @@
 import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { calcularLogro } from '../data/establecimientos.js';
+import { isAplicable2026 } from '../data/scope.js';
 
 /**
- * Bar chart of the average logro (across ALL indicators) por sostenedor.
+ * Barras del promedio de logro (0–100%) sobre TODOS los indicadores del programa,
+ * agregado por sostenedor (o por centro cuando el usuario elige un sostenedor).
  *
- * Diseño:
- *  - Sin selector de indicador. El valor mostrado es el promedio de logro sobre
- *    todos los indicadores del programa, agregado por centro y luego por
- *    sostenedor (o por centro si el usuario elige un sostenedor específico).
- *  - Dropdown "Sostenedor": "Todos los sostenedores" (default) → agrupa por
- *    sostenedor. Elegir uno → desagrega en los centros de ese sostenedor.
- *  - Eje X: porcentaje 0–100% (logro promedio).
+ * Reglas de cumplimiento 2026:
+ *  - Universo: solo indicadores aplicables al centro (según cohorte × semestre).
+ *  - `sin_meta` excluidos.
+ *  - Faltante (getValor devuelve null/undefined) para un indicador aplicable → 0.
  *
  * Props:
  *   INDS             — lista de indicadores del programa
- *   establecimientos — todos los centros del programa (sin filtrar por sostenedor)
+ *   establecimientos — centros del programa (ya filtrados por vista)
  *   sostenedores     — lista de SLEPs
- *   getValor         — (indicadorId, estId) => number | null
+ *   mes              — mes efectivo dentro de 2026
+ *   getValor         — required (indicadorId, estId) => number | null
  */
-export default function SostenedorAveragePicker({ INDS, establecimientos, sostenedores = [], getValor = null }) {
+export default function SostenedorAveragePicker({
+  INDS,
+  establecimientos,
+  sostenedores = [],
+  mes,
+  getValor,
+}) {
   const [sostenedorFocal, setSostenedorFocal] = useState('TODOS');
 
-  // Indicadores elegibles: los que tienen meta.
   const elegibles = useMemo(
     () => INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null),
     [INDS]
   );
 
-  // Logro promedio por centro (avg de calcularLogro sobre todos los indicadores).
+  // Logro promedio por centro sobre los indicadores aplicables 2026 (faltante=0).
   const logroByEst = useMemo(() => {
-    const map = new Map(); // estId → { est, logro }
+    if (!getValor) return new Map();
+    const map = new Map();
     for (const est of establecimientos) {
-      let sum = 0, n = 0;
-      for (const ind of elegibles) {
-        const v = getValor ? getValor(ind.id, est.id) : null;
-        if (v === null || v === undefined) continue;
+      const aplicables = elegibles.filter(ind => isAplicable2026(ind, est, mes));
+      if (!aplicables.length) continue;
+      let sum = 0;
+      for (const ind of aplicables) {
+        const v = getValor(ind.id, est.id);
+        if (v === null || v === undefined) { /* falta → 0 */ continue; }
         const l = calcularLogro(v, ind);
         if (l === null) continue;
-        sum += Math.min(1, l); // cap a 1.0 para que el eje 0–100% sea coherente
-        n++;
+        sum += Math.min(1, l);
       }
-      if (n > 0) map.set(est.id, { est, logro: sum / n });
+      map.set(est.id, { est, logro: sum / aplicables.length });
     }
     return map;
-  }, [establecimientos, elegibles, getValor]);
+  }, [establecimientos, elegibles, getValor, mes]);
 
   const chartData = useMemo(() => {
     if (sostenedorFocal === 'TODOS') {
-      // Agrupar por sostenedor: promedio de logro de sus centros
       const bySlep = new Map();
       for (const { est, logro } of logroByEst.values()) {
         if (!est.slep) continue;
@@ -65,13 +71,9 @@ export default function SostenedorAveragePicker({ INDS, establecimientos, sosten
         };
       }).sort((a, b) => b.valor - a.valor);
     }
-    // Sostenedor específico → agrupar por centro
     return [...logroByEst.values()]
       .filter(({ est }) => est.slep === sostenedorFocal)
-      .map(({ est, logro }) => ({
-        nombre: est.nombre,
-        valor: logro,
-      }))
+      .map(({ est, logro }) => ({ nombre: est.nombre, valor: logro }))
       .sort((a, b) => b.valor - a.valor);
   }, [sostenedorFocal, logroByEst, sostenedores]);
 
@@ -82,7 +84,7 @@ export default function SostenedorAveragePicker({ INDS, establecimientos, sosten
 
   const fmtPct = (v) => `${Math.round(v * 100)}%`;
   const titulo = sostenedorFocal === 'TODOS'
-    ? 'Promedio de logro por sostenedor'
+    ? 'Promedio de cumplimiento por sostenedor'
     : `Centros educativos de ${sostenedores.find(s => s.id === sostenedorFocal)?.nombre.replace(/^SLEP\s+/, '') ?? ''}`;
 
   return (
@@ -109,7 +111,7 @@ export default function SostenedorAveragePicker({ INDS, establecimientos, sosten
       </div>
 
       <p className="text-xs text-gray-ui mb-3">
-        Promedio de logro sobre <span className="font-medium text-gray-dark">{elegibles.length}</span> indicadores del programa (0–100%).
+        % de cumplimiento sobre los indicadores aplicables del programa (0–100%). Faltantes cuentan 0.
       </p>
 
       {chartData.length === 0 ? (
@@ -140,7 +142,7 @@ export default function SostenedorAveragePicker({ INDS, establecimientos, sosten
               />
               <Tooltip
                 contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }}
-                formatter={(v) => [fmtPct(v), 'Logro promedio']}
+                formatter={(v) => [fmtPct(v), '% cumplimiento']}
                 labelStyle={{ color: '#6B7280', marginBottom: 4 }}
               />
               <Bar

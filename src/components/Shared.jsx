@@ -1,5 +1,5 @@
-import { TrendingUp, TrendingDown, Minus, Target } from 'lucide-react';
-import { colorSemaforo, labelSemaforo } from '../data/establecimientos.js';
+import { TrendingUp, TrendingDown, Minus, Target, AlertCircle } from 'lucide-react';
+import { colorSemaforo, labelSemaforo, estadoValor } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
 import { ambitoCodigo } from '../lib/labels.js';
 
@@ -174,18 +174,24 @@ export function PageHeader({ eyebrow, title, subtitle, action }) {
 // `estado`: 'validado' | 'provisional' — when provisional, own-value is muted
 // (rendered in gray-ui) and gets a tooltip. Peer value is territory average
 // (mixed estados) so it stays validado-styled.
-export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado' }) {
+export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado', anioEnCurso = true }) {
   const { metaNum, unidad } = indicador;
+  // Actividades en año en curso muestran "N de M" hacia meta anual, no % de logro.
+  // El % es engañoso mientras el año no cierra (ver plan Sección D).
+  const modoAvance = indicador.tipo === 'actividad' && anioEnCurso && unidad !== 'binario';
   const isProvisional = estado === 'provisional';
   const provisionalTitle = 'Valor provisional, pendiente de confirmación por Focus';
   const ownValueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium text-gray-dark';
 
-  // sin_meta: show a plain text notice with the raw value only
-  if (unidad === 'sin_meta' || metaNum === null || valor === null) {
+  const est = estadoValor(valor, indicador);
+
+  // Sin meta: el indicador no tiene meta definida en el catálogo.
+  if (est === 'sin_meta') {
     return (
-      <div className="w-full text-xs text-gray-ui italic py-1">
+      <div className="w-full text-xs text-gray-ui italic py-1 flex items-center gap-1.5">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-light shrink-0" />
         Sin meta definida
-        {valor !== null && (
+        {valor !== null && valor !== undefined && (
           <span
             className={`not-italic ml-2 ${ownValueCls}`}
             title={isProvisional ? provisionalTitle : undefined}
@@ -193,6 +199,19 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
             {formatValue(indicador, valor)}
           </span>
         )}
+      </div>
+    );
+  }
+
+  // Sin dato reportado: el indicador es medible pero aún no llegó valor a Firestore.
+  if (est === 'sin_dato') {
+    return (
+      <div className="w-full text-xs py-1 flex items-center gap-1.5" style={{ color: 'var(--color-gray-ui)' }}>
+        <AlertCircle size={12} className="shrink-0" />
+        Sin dato reportado
+        <span className="text-gray-ui font-light ml-auto">
+          Meta anual: <span className="font-medium text-gray-dark">{formatValue(indicador, metaNum)}</span>
+        </span>
       </div>
     );
   }
@@ -212,10 +231,16 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
 
   // For binary + fractional values (aggregate), format as % de "Sí"
   const fmtBinary = (v) => `${Math.round(v * 100)}% Sí`;
-  const fmtValue = (v) => (isBinary && v !== null && v !== 0 && v !== 1)
-    ? fmtBinary(v)
-    : formatValue(indicador, v);
-  const fmtPeer = (v) => (isBinary && v !== null) ? fmtBinary(v) : formatValue(indicador, v);
+  const fmtValue = (v) => {
+    if (isBinary && v !== null && v !== 0 && v !== 1) return fmtBinary(v);
+    if (modoAvance && v !== null) return `${formatValue(indicador, v)} de ${formatValue(indicador, metaNum)}`;
+    return formatValue(indicador, v);
+  };
+  const fmtPeer = (v) => {
+    if (isBinary && v !== null) return fmtBinary(v);
+    if (modoAvance && v !== null) return `${formatValue(indicador, v)} de ${formatValue(indicador, metaNum)}`;
+    return formatValue(indicador, v);
+  };
 
   const barH = large ? 'h-3.5' : 'h-2.5';
   const trackCls = `w-full ${barH} rounded-full overflow-hidden`;

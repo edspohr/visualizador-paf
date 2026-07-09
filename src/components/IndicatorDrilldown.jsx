@@ -1,24 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { X } from 'lucide-react';
-import { generarValorIndicador, promedioTerritorioIndicador } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
 import { IndicatorProgress } from './Shared.jsx';
 import { indicadorCodigo, ambitoCodigo } from '../lib/labels.js';
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-
-// Average raw value for an indicator across all establishments of a sostenedor (same tipo)
-function promedioSostenedorIndicador(indicador, slepId, tipo, mes, todosEstablecimientos) {
-  const todos = todosEstablecimientos.filter(e => e.slep === slepId && e.tipo === tipo);
-  if (!todos.length) return null;
-  let suma = 0, n = 0;
-  for (const e of todos) {
-    const { valor } = generarValorIndicador(indicador, e.id, e.slep, mes);
-    if (valor !== null) { suma += valor; n++; }
-  }
-  return n ? suma / n : null;
-}
 
 function yAxisFormatter(unidad) {
   return (v) => {
@@ -30,7 +17,38 @@ function yAxisFormatter(unidad) {
   };
 }
 
-export default function IndicatorDrilldown({ indicador, establecimientoId, slep, effectiveMonth, perfil, onClose, todosEstablecimientos = [], sostenedores = [], estado = 'validado' }) {
+/**
+ * Ficha detallada de un indicador para un centro educativo.
+ *
+ * Datos:
+ *  - `valor`: valor real del centro educativo (o null si no hay dato).
+ *  - `estado`: 'validado' | 'provisional' — atenúa el número si aplica.
+ *  - `promedioTerritorio`: número real (o null); promedio del mismo tipo/SLEP
+ *     precomputado por el llamador (no se calcula aquí).
+ *  - `valoresTerritorio`: opcional Map<estId, valor> con los valores de los
+ *     centros pares del territorio para armar tabla de comparación.
+ *  - `mes`: mes efectivo (para el label). El año siempre es 2026.
+ *  - `todosEstablecimientos`: centros pares (mismo tipo/SLEP) para tabla.
+ *  - `sostenedores`, `perfil`: para mostrar tabla cross-sostenedor si aplica.
+ *  - `promedioPorSostenedor`: Map<slepId, promedio> para la tabla cross-red.
+ */
+export default function IndicatorDrilldown({
+  indicador,
+  establecimientoId,
+  slep,
+  mes,
+  perfil,
+  onClose,
+  valor = null,
+  estado = 'validado',
+  promedioTerritorio = null,
+  todosEstablecimientos = [],
+  sostenedores = [],
+  valoresTerritorio = new Map(),
+  promedioPorSostenedor = new Map(),
+  anioEnCurso = true,
+  anio = 2026,
+}) {
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
@@ -38,36 +56,23 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
   }, [onClose]);
 
   const est = todosEstablecimientos.find(e => e.id === establecimientoId);
+  const tipo = est?.tipo ?? 'Escuela';
 
-  // Current value
-  const { valor } = generarValorIndicador(indicador, establecimientoId, slep, effectiveMonth);
-  const promTerritorio = est ? promedioTerritorioIndicador(indicador, est, todosEstablecimientos, effectiveMonth) : null;
-
-  // Evolution data: este establecimiento vs promedio mensual del territorio
-  const evol = [];
-  for (let m = 1; m <= effectiveMonth; m++) {
-    const { valor: v } = generarValorIndicador(indicador, establecimientoId, slep, m);
-    const promMes = est ? promedioTerritorioIndicador(indicador, est, todosEstablecimientos, m) : null;
-
-    const fmt = (raw) => {
-      if (raw === null) return null;
-      if (indicador.unidad === '%') return Math.round(raw * 100) / 100;
-      // Binary: keep raw fractional value (0..1). Own value is 0/1; peer is fractional.
-      // The axis formatter renders as %.
-      if (indicador.unidad === 'binario') return raw;
-      return Math.round(raw * 10) / 10;
-    };
-
-    evol.push({
-      mes: MESES[m - 1],
-      'Este centro educativo': fmt(v),
-      'Promedio del territorio': fmt(promMes),
-    });
-  }
+  // Datos de evolución mensual solo se muestran cuando el llamador provee un
+  // `series` prop. En esta vista mock (mes puntual) omitimos la línea temporal
+  // y mostramos la comparación estática de este mes.
+  const evol = useMemo(() => (
+    valor === null && promedioTerritorio === null
+      ? []
+      : [{
+          mes: MESES[mes - 1],
+          'Este centro educativo': fmtChartVal(indicador, valor),
+          'Promedio del territorio': fmtChartVal(indicador, promedioTerritorio),
+        }]
+  ), [indicador, valor, promedioTerritorio, mes]);
 
   const showSostenedorTable = perfil === 'consultor' || perfil === 'cap';
   const showEstablecimientoTable = perfil === 'sostenedor';
-  const tipo = est?.tipo ?? 'Escuela';
 
   return (
     <div
@@ -106,60 +111,69 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
         {/* Hero: two-bar IndicatorProgress */}
         <div className="px-6 py-5 border-b border-border">
           <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-3">
-            Situación actual · {MESES[effectiveMonth - 1]} {new Date().getFullYear()}
+            Situación actual · {MESES[mes - 1]} {anio}
           </p>
           <IndicatorProgress
             indicador={indicador}
             valor={valor}
-            promedioTerritorio={promTerritorio}
+            promedioTerritorio={promedioTerritorio}
             large
             estado={estado}
+            anioEnCurso={anioEnCurso}
           />
         </div>
 
-        {/* Evolution chart: este establecimiento vs promedio del territorio */}
-        <div className="px-6 py-5 border-b border-border">
-          <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Evolución mensual</p>
-          <p className="text-sm text-gray-dark mb-4">Este centro educativo vs promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio</p>
-          <div className="h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={evol} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
-                <XAxis dataKey="mes" stroke="#6B7280" fontSize={11}/>
-                <YAxis stroke="#6B7280" fontSize={11} tickFormatter={yAxisFormatter(indicador.unidad)}/>
-                <Tooltip
-                  contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }}
-                  formatter={(v, name) => [
-                    indicador.unidad === '%' ? `${Math.round(v * 100)}%`
-                    : indicador.unidad === 'binario' ? `${Math.round(v * 100)}% Sí`
-                    : v,
-                    name
-                  ]}
-                />
-                <Legend wrapperStyle={{ fontSize: 12 }}/>
-                <Line
-                  type="monotone"
-                  dataKey="Este centro educativo"
-                  stroke="var(--color-cyan)"
-                  strokeWidth={2.5}
-                  dot={{ r: 3 }}
-                  activeDot={{ r: 5 }}
-                  connectNulls
-                />
-                <Line
-                  type="monotone"
-                  dataKey="Promedio del territorio"
-                  stroke="var(--color-gray-light)"
-                  strokeWidth={2}
-                  dot={false}
-                  connectNulls
-                />
-              </LineChart>
-            </ResponsiveContainer>
+        {/* Evolution chart: este centro vs promedio del territorio (mes actual) */}
+        {evol.length === 0 && (
+          <div className="px-6 py-5 border-b border-border">
+            <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparativa del mes</p>
+            <p className="text-sm text-gray-ui italic">Aún no hay valores reportados para este indicador en {anio}.</p>
           </div>
-        </div>
+        )}
+        {evol.length > 0 && (
+          <div className="px-6 py-5 border-b border-border">
+            <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparativa del mes</p>
+            <p className="text-sm text-gray-dark mb-4">Este centro educativo vs promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio</p>
+            <div className="h-52">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={evol} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false}/>
+                  <XAxis dataKey="mes" stroke="#6B7280" fontSize={11}/>
+                  <YAxis stroke="#6B7280" fontSize={11} tickFormatter={yAxisFormatter(indicador.unidad)}/>
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 12 }}
+                    formatter={(v, name) => [
+                      indicador.unidad === '%' ? `${Math.round(v * 100)}%`
+                      : indicador.unidad === 'binario' ? `${Math.round(v * 100)}% Sí`
+                      : v,
+                      name
+                    ]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }}/>
+                  <Line
+                    type="monotone"
+                    dataKey="Este centro educativo"
+                    stroke="var(--color-cyan)"
+                    strokeWidth={2.5}
+                    dot={{ r: 3 }}
+                    activeDot={{ r: 5 }}
+                    connectNulls
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="Promedio del territorio"
+                    stroke="var(--color-gray-light)"
+                    strokeWidth={2}
+                    dot={false}
+                    connectNulls
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
-        {/* Comparación — cross-sostenedor para consultor/CAP, entre establecimientos de la propia red para sostenedor */}
+        {/* Comparación cross-sostenedor (perfiles consultor / CAP) */}
         {showSostenedorTable && (
           <div className="px-6 py-5">
             <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre sostenedores</p>
@@ -174,8 +188,8 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                 </thead>
                 <tbody>
                   {sostenedores.map(s => {
-                    const avg = promedioSostenedorIndicador(indicador, s.id, tipo, effectiveMonth, todosEstablecimientos);
-                    if (avg === null) return null;
+                    const avg = promedioPorSostenedor.get(s.id);
+                    if (avg === null || avg === undefined) return null;
                     return (
                       <tr key={s.id} className="border-b border-border hover:bg-bg transition">
                         <td className="py-2.5 pr-3 font-medium text-gray-dark">{s.nombre.replace(/^SLEP\s+/, '')}</td>
@@ -189,6 +203,7 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
           </div>
         )}
 
+        {/* Comparación entre centros de la red (perfil sostenedor) */}
         {showEstablecimientoTable && (
           <div className="px-6 py-5">
             <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparación entre centros educativos</p>
@@ -205,8 +220,8 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
                   {todosEstablecimientos
                     .filter(e => e.slep === slep && e.tipo === tipo)
                     .map(e => {
-                      const { valor: v } = generarValorIndicador(indicador, e.id, e.slep, effectiveMonth);
-                      if (v === null) return null;
+                      const v = valoresTerritorio.get(e.id);
+                      if (v === null || v === undefined) return null;
                       const isCurrent = e.id === establecimientoId;
                       return (
                         <tr key={e.id} className={`border-b border-border hover:bg-bg transition ${isCurrent ? 'bg-cyan-50/40' : ''}`}>
@@ -235,4 +250,13 @@ export default function IndicatorDrilldown({ indicador, establecimientoId, slep,
       </div>
     </div>
   );
+}
+
+// Formatea un valor para la serie del chart. Binario y % se preservan como fracción,
+// el resto como número redondeado.
+function fmtChartVal(indicador, v) {
+  if (v === null || v === undefined) return null;
+  if (indicador.unidad === '%') return Math.round(v * 100) / 100;
+  if (indicador.unidad === 'binario') return v; // 0..1
+  return Math.round(v * 10) / 10;
 }

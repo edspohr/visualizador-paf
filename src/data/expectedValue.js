@@ -34,10 +34,32 @@ export function expectedToDate(indicador, mes) {
   }
 }
 
-/** Format a raw value for display given the indicator's unit. */
+/** Format a raw value for display given the indicator's unit.
+ *
+ * Binario:
+ *  - Valor exacto 0 o 1 → 'No' / 'Sí' (vista individual del centro).
+ *  - Valor fraccional en (0,1) → '% Sí' (agregado, p. ej. ranking a nivel red).
+ *
+ * Blindaje: si un indicador declarado como '%' recibe un valor > 1.2 (o sea,
+ * más de 120%), casi siempre es señal de que la ingesta guardó un conteo
+ * absoluto en un campo declarado como fracción. En lugar de mostrar un número
+ * absurdo (p. ej. "547%") mostramos "fuera de rango" para que sea evidente
+ * que hay que revisar la fuente. El umbral 1.2 es coherente con el clamp de
+ * calcularLogro.
+ */
+const OUT_OF_RANGE = 'fuera de rango';
+
 export function formatValue(indicador, v) {
-  if (indicador.unidad === 'binario') return v ? 'Sí' : 'No';
-  if (indicador.unidad === '%') return `${Math.round(v * 100)}%`;
+  if (v === null || v === undefined) return '—';
+  if (indicador.unidad === 'binario') {
+    if (v === 0 || v === 1) return v ? 'Sí' : 'No';
+    if (v < 0 || v > 1) return OUT_OF_RANGE;
+    return `${Math.round(v * 100)}% Sí`;
+  }
+  if (indicador.unidad === '%') {
+    if (v < 0 || v > 1.2) return OUT_OF_RANGE;
+    return `${Math.round(v * 100)}%`;
+  }
   if (indicador.unidad === 'conteo' || indicador.unidad === 'promedio') {
     return Number.isInteger(v) ? String(v) : v.toFixed(1);
   }

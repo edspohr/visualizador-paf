@@ -55,7 +55,7 @@
   "indicadores": {
     "escolar2025": [
       {
-        "id": "I1",
+        "id": "I.1",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -74,7 +74,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I2",
+        "id": "I.2",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -93,7 +93,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I3",
+        "id": "I.3",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -112,7 +112,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I4",
+        "id": "I.4",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -131,7 +131,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I5",
+        "id": "I.5",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -150,7 +150,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I6",
+        "id": "I.6",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -169,7 +169,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I7",
+        "id": "I.7",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -188,7 +188,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I8",
+        "id": "I.8",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -207,7 +207,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I9",
+        "id": "I.9",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -226,7 +226,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I10",
+        "id": "I.10",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -245,7 +245,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I11",
+        "id": "I.11",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Gestión ",
@@ -264,7 +264,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I12",
+        "id": "I.12",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -283,7 +283,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I13",
+        "id": "I.13",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -302,7 +302,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I14",
+        "id": "I.14",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -321,7 +321,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I15",
+        "id": "I.15",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -340,7 +340,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I16",
+        "id": "I.16",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -359,7 +359,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I17",
+        "id": "I.17",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -378,7 +378,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I18",
+        "id": "I.18",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -397,7 +397,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I19",
+        "id": "I.19",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -416,7 +416,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I20",
+        "id": "I.20",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -435,7 +435,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I21",
+        "id": "I.21",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -454,7 +454,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I22",
+        "id": "I.22",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -473,7 +473,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I23",
+        "id": "I.23",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -492,7 +492,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I24",
+        "id": "I.24",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Formacio",
@@ -511,7 +511,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I25",
+        "id": "I.25",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -530,7 +530,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I26",
+        "id": "I.26",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -549,7 +549,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I27",
+        "id": "I.27",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -568,7 +568,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I28",
+        "id": "I.28",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -587,7 +587,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I29",
+        "id": "I.29",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -606,7 +606,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I30",
+        "id": "I.30",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -625,7 +625,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I31",
+        "id": "I.31",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -644,7 +644,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I32",
+        "id": "I.32",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -663,7 +663,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I33",
+        "id": "I.33",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Entre fa",
@@ -682,7 +682,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I34",
+        "id": "I.34",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -701,7 +701,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I35",
+        "id": "I.35",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -720,7 +720,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I36",
+        "id": "I.36",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -739,7 +739,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I37",
+        "id": "I.37",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -758,7 +758,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I38",
+        "id": "I.38",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -777,7 +777,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I39",
+        "id": "I.39",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -796,7 +796,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I40",
+        "id": "I.40",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -815,7 +815,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I41",
+        "id": "I.41",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -834,7 +834,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I42",
+        "id": "I.42",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -853,7 +853,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I43",
+        "id": "I.43",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -872,7 +872,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I44",
+        "id": "I.44",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -891,7 +891,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I45",
+        "id": "I.45",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -910,7 +910,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I46",
+        "id": "I.46",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Mi famil",
@@ -929,7 +929,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I47",
+        "id": "I.47",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Talleres",
@@ -948,7 +948,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I48",
+        "id": "I.48",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Redcrean",
@@ -967,7 +967,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I49",
+        "id": "I.49",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Redcrean",
@@ -975,10 +975,10 @@
         "ambito": "A3",
         "actividadNombre": "Fiesta de las familias",
         "nombre": "Numero de personas de la comunidad educativa que participan en fiesta de la familia por cada 100 estudiantes",
-        "meta": "20%",
-        "metaNum": 0.2,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "meta": "20",
+        "metaNum": 20,
+        "tipoMeta": "numero",
+        "unidad": "conteo",
         "tipo": "actividad",
         "fuente": "Sin especificar",
         "frecuencia": "anual",
@@ -986,7 +986,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I50",
+        "id": "I.50",
         "programa": "escolar",
         "version": "2025",
         "estrategiaId": "Redcrean",
@@ -1007,7 +1007,7 @@
     ],
     "escolar2026": [
       {
-        "id": "I1",
+        "id": "I.1",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1026,7 +1026,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I2",
+        "id": "I.2",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1045,7 +1045,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I3",
+        "id": "I.3",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1064,7 +1064,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I4",
+        "id": "I.4",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1083,7 +1083,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I5",
+        "id": "I.5",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1102,7 +1102,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I6",
+        "id": "I.6",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1121,7 +1121,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I7",
+        "id": "I.7",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1140,7 +1140,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I8",
+        "id": "I.8",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1159,7 +1159,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I9",
+        "id": "I.9",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1178,7 +1178,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I10",
+        "id": "I.10",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A1",
@@ -1197,7 +1197,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I11",
+        "id": "I.11",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1216,7 +1216,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I12",
+        "id": "I.12",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1235,7 +1235,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I13",
+        "id": "I.13",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1254,7 +1254,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I14",
+        "id": "I.14",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1273,7 +1273,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I15",
+        "id": "I.15",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1292,7 +1292,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I16",
+        "id": "I.16",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1311,7 +1311,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I17",
+        "id": "I.17",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1330,7 +1330,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I18",
+        "id": "I.18",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1349,7 +1349,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I19",
+        "id": "I.19",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1368,7 +1368,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I20",
+        "id": "I.20",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A2",
@@ -1387,7 +1387,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I21",
+        "id": "I.21",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1406,7 +1406,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I22",
+        "id": "I.22",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1425,7 +1425,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I23",
+        "id": "I.23",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1444,7 +1444,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I24",
+        "id": "I.24",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1463,7 +1463,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I25",
+        "id": "I.25",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1482,7 +1482,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I26",
+        "id": "I.26",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1501,7 +1501,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I27",
+        "id": "I.27",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A3",
@@ -1520,7 +1520,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I28",
+        "id": "I.28",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A4",
@@ -1539,7 +1539,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I29",
+        "id": "I.29",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A4",
@@ -1558,7 +1558,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I30",
+        "id": "I.30",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A4",
@@ -1577,7 +1577,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I31",
+        "id": "I.31",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A4",
@@ -1596,7 +1596,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I32",
+        "id": "I.32",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "A4",
@@ -1615,7 +1615,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I33",
+        "id": "I.33",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P1",
@@ -1634,7 +1634,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I34",
+        "id": "I.34",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P1",
@@ -1653,7 +1653,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I35",
+        "id": "I.35",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P1",
@@ -1672,7 +1672,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I36",
+        "id": "I.36",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P2",
@@ -1691,7 +1691,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I37",
+        "id": "I.37",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P2",
@@ -1710,7 +1710,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I38",
+        "id": "I.38",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P2",
@@ -1729,7 +1729,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I39",
+        "id": "I.39",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P2",
@@ -1748,7 +1748,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I40",
+        "id": "I.40",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1767,7 +1767,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I41",
+        "id": "I.41",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1786,7 +1786,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I42",
+        "id": "I.42",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1805,7 +1805,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I43",
+        "id": "I.43",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1824,7 +1824,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I44",
+        "id": "I.44",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1843,7 +1843,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I45",
+        "id": "I.45",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1862,7 +1862,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I46",
+        "id": "I.46",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P3",
@@ -1881,7 +1881,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I47",
+        "id": "I.47",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P4",
@@ -1900,7 +1900,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I48",
+        "id": "I.48",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P4",
@@ -1919,7 +1919,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I49",
+        "id": "I.49",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -1938,7 +1938,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I50",
+        "id": "I.50",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -1957,7 +1957,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I51",
+        "id": "I.51",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -1976,7 +1976,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I52",
+        "id": "I.52",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -2100,10 +2100,10 @@
         "ambito": "A1",
         "actividadNombre": "1 reunión territorial con coordinadoras.",
         "nombre": "N° de reuniones territoriales con coordinadoras desarrolladas",
-        "meta": "100%",
+        "meta": "Sí",
         "metaNum": 1,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "tipoMeta": "booleano",
+        "unidad": "binario",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "semestral",
@@ -2138,10 +2138,10 @@
         "ambito": "A2",
         "actividadNombre": "1 instancia de sensibilización y presentación del Programa.",
         "nombre": "N° de instancias de sensibilización y presentación del Programa desarrolladas",
-        "meta": "100%",
+        "meta": "Sí",
         "metaNum": 1,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "tipoMeta": "booleano",
+        "unidad": "binario",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "anual",
@@ -2537,10 +2537,10 @@
         "ambito": "A3",
         "actividadNombre": "1 Formación territorial de monitores (apoderados y agentes educativas).",
         "nombre": "N° formaciones territoriales de monitores desarrolladas",
-        "meta": "100%",
+        "meta": "Sí",
         "metaNum": 1,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "tipoMeta": "booleano",
+        "unidad": "binario",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "anual",

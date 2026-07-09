@@ -1,10 +1,12 @@
-// Firestore-backed hooks. Same signatures as syntheticQueries.js.
-// Etapa 3 scaffolding: reads from `resultados_real` and `establecimientos_real`.
-// These hooks only run when dataSource.js flags a track as 'firestore'.
+// Firestore-backed hooks. Fuente única de datos para toda la UI.
+// - Establecimientos, valores y metadata → Firestore (`establecimientos_real`,
+//   `resultados_real`, `progresoTrimestral_real`, `config/*`).
+// - Ámbitos e indicadores → catálogo local (`catalog.json`), no viven en Firestore.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase.js';
+import catalog from './catalog.json';
 
 // ─── Generic hook wrapper ────────────────────────────────────────────────
 
@@ -22,23 +24,25 @@ function useFirestore(fn, deps) {
   return state;
 }
 
+function ok(data) {
+  return { data, isLoading: false, error: null };
+}
+
+// Normaliza indicadorId a la forma con punto: 'I1' → 'I.1', 'I.1' → 'I.1'.
+// Aplica al leer de Firestore mientras la migración escolar no está corrida.
+function normalizarIndicadorId(id) {
+  if (typeof id !== 'string') return id;
+  const m = id.match(/^I\.?(\d+)$/);
+  return m ? `I.${m[1]}` : id;
+}
+
+// ─── Establecimientos ─────────────────────────────────────────────────────
+
 async function fetchEstablecimientosByPrograma(programa) {
   const q = query(collection(db, 'establecimientos_real'), where('programa', '==', programa));
   const snap = await getDocs(q);
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
-
-// ─── Sostenedores ─────────────────────────────────────────────────────────
-// Cross-cutting; not track-dependent. Kept synthetic in Etapa 3 (dispatched from queries.js).
-
-export function useSleps() {
-  return { data: [], isLoading: false, error: null };
-}
-export function useSlep() {
-  return { data: null, isLoading: false, error: null };
-}
-
-// ─── Establecimientos ─────────────────────────────────────────────────────
 
 export function useEstablecimientos() {
   return useFirestore(async () => {
@@ -72,15 +76,67 @@ export function useEstablecimientosPorSlep(slepId) {
   }, [slepId]);
 }
 
-// ─── Indicadores / Ámbitos ────────────────────────────────────────────────
-// The catalog stays in the committed catalog.json; not read from Firestore.
-// These hooks fall back to synthetic in queries.js — see dispatcher.
+// ─── Sostenedores (derivados de establecimientos) ─────────────────────────
+// Firestore no tiene una colección de sostenedores. Los agregamos leyendo
+// `establecimientos_real` una vez y agrupando por `slep`. Cada sostenedor
+// expone { id, nombre, comuna } al igual que el resto de la app espera.
 
-export function useIndicadores() {
-  return { data: [], isLoading: false, error: null };
+export function useSleps() {
+  return useFirestore(async () => {
+    const snap = await getDocs(collection(db, 'establecimientos_real'));
+    const bySlep = new Map();
+    for (const d of snap.docs) {
+      const est = d.data();
+      const id = est.slep;
+      if (!id) continue;
+      if (!bySlep.has(id)) {
+        bySlep.set(id, {
+          id,
+          // sostenedor viene como "SLEP Los Parques" o similar; conservamos
+          // el string original como `nombre` para que el helper de labels
+          // (que ya recorta el prefijo "SLEP ") funcione consistentemente.
+          nombre: est.sostenedor || id,
+          comunas: new Set(),
+        });
+      }
+      if (est.comuna) bySlep.get(id).comunas.add(est.comuna);
+    }
+    // Convertir Set → string legible por UI (comunas separadas por " / ")
+    return [...bySlep.values()].map(s => ({
+      id: s.id,
+      nombre: s.nombre,
+      comuna: [...s.comunas].sort().join(' / '),
+    }));
+  }, []);
 }
-export function useAmbitos() {
-  return { data: [], isLoading: false, error: null };
+
+export function useSlep(slepId) {
+  const all = useSleps();
+  const data = useMemo(
+    () => (all.data ?? []).find(s => s.id === slepId) ?? null,
+    [all.data, slepId]
+  );
+  return { data, isLoading: all.isLoading, error: all.error };
+}
+
+// ─── Indicadores / Ámbitos (catálogo local) ───────────────────────────────
+// El catálogo canónico vive en catalog.json (regenerable con
+// `node scripts/parseCatalogs.mjs`). Escolar usa el framework 2026 por defecto.
+
+export function useIndicadores(programa) {
+  const data = useMemo(() => {
+    if (programa === 'parvulario') return catalog.indicadores.parvulario;
+    return catalog.indicadores.escolar2026;
+  }, [programa]);
+  return ok(data);
+}
+
+export function useAmbitos(programa) {
+  const data = useMemo(() => {
+    if (programa === 'parvulario') return catalog.ambitos.parvulario;
+    return catalog.ambitos.escolar;
+  }, [programa]);
+  return ok(data);
 }
 
 // ─── Metadata ─────────────────────────────────────────────────────────────
@@ -88,7 +144,7 @@ export function useAmbitos() {
 export function useMesCerrado() {
   return useFirestore(async () => {
     const snap = await getDoc(doc(db, 'config', 'mesCerrado'));
-    return snap.exists() ? snap.data() : { cerradoPor: 'firestore', ultimoSyncExitoso: false };
+    return snap.exists() ? snap.data() : null;
   }, []);
 }
 
@@ -125,9 +181,10 @@ export function useProgresoAnio(anio) {
 
 // ─── Valores por indicador ────────────────────────────────────────────────
 //
-// The returned docs are spread as-is — callers rely on `estado`
-// ('validado' | 'provisional') to mark provisional values in the UI.
-// Do not filter it out.
+// Los docs se devuelven tal cual, salvo `indicadorId` que se normaliza a
+// forma con punto ('I1' → 'I.1'). Los callers dependen de `estado`
+// ('validado' | 'provisional') para atenuar valores provisionales en UI —
+// nunca lo filtres.
 
 export function useValoresIndicador(establecimientoId, anio) {
   return useFirestore(async () => {
@@ -138,7 +195,10 @@ export function useValoresIndicador(establecimientoId, anio) {
       where('anio', '==', anio),
     );
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return { id: d.id, ...data, indicadorId: normalizarIndicadorId(data.indicadorId) };
+    });
   }, [establecimientoId, anio]);
 }
 
@@ -147,6 +207,9 @@ export function useValoresAnio(anio) {
     if (!anio) return [];
     const q = query(collection(db, 'resultados_real'), where('anio', '==', anio));
     const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return { id: d.id, ...data, indicadorId: normalizarIndicadorId(data.indicadorId) };
+    });
   }, [anio]);
 }

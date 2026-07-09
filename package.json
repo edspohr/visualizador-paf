@@ -13,7 +13,8 @@
     "sync-planillas": "node scripts/syncPlanillasCentrales.mjs",
     "ingest:parvulario": "node scripts/ingestParvulario.mjs",
     "set-flag": "node scripts/setDataSourceFlag.mjs",
-    "ingest:escolar": "node scripts/ingestEscolar.mjs"
+    "ingest:escolar": "node scripts/ingestEscolar.mjs",
+    "ingest:roster-escolar": "node scripts/ingestRosterEscolar.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
@@ -34,6 +35,7 @@
     "googleapis": "^173.0.0",
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
-    "vite": "^5.3.5"
+    "vite": "^5.3.5",
+    "xlsx": "^0.18.5"
   }
 }

@@ -193,7 +193,7 @@ export default function IndicatorDrilldown({
                     return (
                       <tr key={s.id} className="border-b border-border hover:bg-bg transition">
                         <td className="py-2.5 pr-3 font-medium text-gray-dark">{s.nombre.replace(/^SLEP\s+/, '')}</td>
-                        <td className="py-2.5 pl-3 text-right font-medium text-gray-dark">{formatValue(indicador, avg)}</td>
+                        <td className="py-2.5 pl-3 text-right font-medium" style={{ color: 'var(--color-cyan)' }}>{formatValue(indicador, avg)}</td>
                       </tr>
                     );
                   })}
@@ -228,7 +228,7 @@ export default function IndicatorDrilldown({
                           <td className="py-2.5 pr-3 font-medium text-gray-dark">
                             {e.nombre}{isCurrent && <span className="ml-2 text-xs text-cyan font-normal">(este)</span>}
                           </td>
-                          <td className="py-2.5 pl-3 text-right font-medium text-gray-dark">{formatValue(indicador, v)}</td>
+                          <td className="py-2.5 pl-3 text-right font-medium" style={{ color: 'var(--color-cyan)' }}>{formatValue(indicador, v)}</td>
                         </tr>
                       );
                     })}

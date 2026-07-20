@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { useApp, resolverEntidad } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
 import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { matriculaVisible, formatearFechaCorte } from '../data/matricula.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
@@ -90,11 +91,29 @@ export default function VistaSostenedor() {
     : 0;
 
   const todosSlep = [...escuelasSlep, ...jardinesSlep];
-  const totalesRed = {
-    ninos: todosSlep.reduce((s, e) => s + (e.nNinos ?? 0), 0),
-    agentes: todosSlep.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
-    comunas: new Set(todosSlep.map(e => e.comuna)).size,
-  };
+  const totalesRed = useMemo(() => {
+    let ninos = 0;
+    let usaSnapshot = false;
+    let fechaCorte = null;
+    for (const e of todosSlep) {
+      const m = matriculaVisible(e, perfil.id, mesEfectivo, anioSeleccionado);
+      ninos += m.valor;
+      if (m.esSnapshot) {
+        usaSnapshot = true;
+        if (!fechaCorte && m.fechaCorte) fechaCorte = m.fechaCorte;
+      }
+    }
+    return {
+      ninos,
+      matriculaSub: perfil.id === 'cap'
+        ? (usaSnapshot
+            ? (formatearFechaCorte(fechaCorte) ? `matrícula al ${formatearFechaCorte(fechaCorte)}` : 'matrícula del cierre')
+            : 'matrícula vigente')
+        : 'matrícula estimada',
+      agentes: todosSlep.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
+      comunas: new Set(todosSlep.map(e => e.comuna)).size,
+    };
+  }, [todosSlep, perfil.id, mesEfectivo, anioSeleccionado]);
 
   const ranking = useMemo(
     () => [...conCumplimiento].sort((a, b) => b.cumpl - a.cumpl),
@@ -186,7 +205,7 @@ export default function VistaSostenedor() {
       {/* Totales de la red */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <TotalCard label="Centros educativos" value={escuelasSlep.length + jardinesSlep.length} sub={`${escuelasSlep.length} escuelas · ${jardinesSlep.length} jardines`} Icon={Building2}/>
-        <TotalCard label="Niñas y niños" value={totalesRed.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
+        <TotalCard label="Niñas y niños" value={totalesRed.ninos.toLocaleString('es-CL')} sub={totalesRed.matriculaSub} Icon={GraduationCap}/>
         <TotalCard label="Equipos educativos" value={totalesRed.agentes} sub="en el programa" Icon={Users}/>
         <TotalCard label="Comunas" value={totalesRed.comunas} sub="con cobertura activa" Icon={MapPin}/>
       </div>
@@ -262,7 +281,7 @@ export default function VistaSostenedor() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="text-right">
-                      <p className="text-2xl font-medium text-gray-dark leading-none">{Math.round(cumpl * 100)}%</p>
+                      <p className="text-2xl font-medium leading-none" style={{ color: 'var(--color-cyan)' }}>{Math.round(cumpl * 100)}%</p>
                       <p className="text-xs text-gray-ui mt-1">% cumplimiento</p>
                     </div>
                     {openEst[est.id] ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
@@ -320,7 +339,7 @@ function TotalCard({ label, value, sub, Icon }) {
       </div>
       <div className="min-w-0">
         <p className="text-[10px] font-medium uppercase tracking-wider text-gray-ui leading-none mb-1">{label}</p>
-        <p className="text-2xl font-medium text-gray-dark leading-none">{value}</p>
+        <p className="text-2xl font-medium leading-none" style={{ color: 'var(--color-cyan)' }}>{value}</p>
         {sub && <p className="text-[10px] text-gray-ui mt-1 leading-snug">{sub}</p>}
       </div>
     </div>

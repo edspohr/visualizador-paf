@@ -53,10 +53,19 @@ export default function IndicatorRanking({ items, title = 'Vista ejecutiva' }) {
 }
 
 function IndicadorItem({ indicador, valor, estado = 'validado', accent }) {
-  const dotColor = accent === 'cyan' ? 'var(--color-cyan)' : 'var(--color-gray-light)';
   const isProvisional = estado === 'provisional';
   const provisionalTitle = 'Valor provisional, pendiente de confirmación por Focus';
-  const valueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium text-gray-dark';
+  const alcanzaMeta = valor !== null && valor !== undefined
+    && indicador.metaNum !== null && indicador.metaNum !== undefined
+    && !isProvisional
+    && valor >= indicador.metaNum;
+  const dotColor = alcanzaMeta
+    ? 'var(--color-lime)'
+    : (accent === 'cyan' ? 'var(--color-cyan)' : 'var(--color-gray-light)');
+  const valueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium';
+  const valueStyle = isProvisional
+    ? undefined
+    : { color: alcanzaMeta ? 'var(--color-lime)' : 'var(--color-cyan)' };
   return (
     <li className="flex items-start gap-2.5 text-sm">
       <span
@@ -68,9 +77,9 @@ function IndicadorItem({ indicador, valor, estado = 'validado', accent }) {
         <div className="flex flex-wrap items-center gap-x-3 gap-y-0 text-xs text-gray-ui mt-0.5">
           <span className="font-mono">{ambitoCodigo(indicador.ambito)}</span>
           <span>
-            Valor: <span className={valueCls} title={isProvisional ? provisionalTitle : undefined}>{formatValue(indicador, valor)}</span>
+            Valor: <span className={valueCls} style={valueStyle} title={isProvisional ? provisionalTitle : undefined}>{formatValue(indicador, valor)}</span>
             {indicador.metaNum !== null && (
-              <> / meta <span className="font-medium text-gray-dark">{formatValue(indicador, indicador.metaNum)}</span></>
+              <> / meta <span className="font-medium text-gray-ui">{formatValue(indicador, indicador.metaNum)}</span></>
             )}
           </span>
           <span>Actualización: {indicador.frecuencia}</span>

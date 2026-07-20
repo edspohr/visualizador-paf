@@ -109,7 +109,7 @@ export function KpiCard({ label, value, sublabel, icon: Icon = Target, color = '
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-xs text-gray-ui font-medium tracking-wider uppercase">{label}</p>
-          <p className="text-2xl font-medium mt-1" style={{ color: 'var(--color-gray-dark)' }}>{value}</p>
+          <p className="text-2xl font-medium mt-1" style={{ color: 'var(--color-cyan)' }}>{value}</p>
           {sublabel && <p className="text-xs text-gray-ui font-light mt-1">{sublabel}</p>}
         </div>
         <div className={`w-9 h-9 rounded-xl ${cm.bg} ${cm.icon} flex items-center justify-center shrink-0`}>
@@ -181,7 +181,8 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
   const modoAvance = indicador.tipo === 'actividad' && anioEnCurso && unidad !== 'binario';
   const isProvisional = estado === 'provisional';
   const provisionalTitle = 'Valor provisional, pendiente de confirmación por Focus';
-  const ownValueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium text-gray-dark';
+  const ownValueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium';
+  const ownValueStyle = isProvisional ? undefined : { color: 'var(--color-cyan)' };
 
   const est = estadoValor(valor, indicador);
 
@@ -194,6 +195,7 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
         {valor !== null && valor !== undefined && (
           <span
             className={`not-italic ml-2 ${ownValueCls}`}
+            style={ownValueStyle}
             title={isProvisional ? provisionalTitle : undefined}
           >
             {formatValue(indicador, valor)}
@@ -210,7 +212,7 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
         <AlertCircle size={12} className="shrink-0" />
         Sin dato reportado
         <span className="text-gray-ui font-light ml-auto">
-          Meta anual: <span className="font-medium text-gray-dark">{formatValue(indicador, metaNum)}</span>
+          Meta anual: <span className="font-medium text-gray-ui">{formatValue(indicador, metaNum)}</span>
         </span>
       </div>
     );
@@ -257,7 +259,7 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
       <div>
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-gray-ui">Este centro educativo</span>
-          <span className={ownValueCls} title={isProvisional ? provisionalTitle : undefined}>
+          <span className={ownValueCls} style={ownValueStyle} title={isProvisional ? provisionalTitle : undefined}>
             {fmtValue(rawValue)}
           </span>
         </div>
@@ -283,7 +285,7 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
       <div className="flex items-center gap-4 text-xs text-gray-ui pt-0.5">
         <span className="flex items-center gap-1">
           <Target size={10} className="shrink-0"/>
-          Meta anual: <span className="font-medium text-gray-dark ml-0.5">{formatValue(indicador, metaNum)}</span>
+          Meta anual: <span className="font-medium text-gray-ui ml-0.5">{formatValue(indicador, metaNum)}</span>
         </span>
         <span>Actualización: <span className="font-medium text-gray-dark">{indicador.frecuencia}</span></span>
       </div>

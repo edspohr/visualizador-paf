@@ -14,7 +14,9 @@
     "ingest:parvulario": "node scripts/ingestParvulario.mjs",
     "set-flag": "node scripts/setDataSourceFlag.mjs",
     "ingest:escolar": "node scripts/ingestEscolar.mjs",
-    "ingest:roster-escolar": "node scripts/ingestRosterEscolar.mjs"
+    "ingest:roster-escolar": "node scripts/ingestRosterEscolar.mjs",
+    "snapshot-matricula": "node scripts/snapshotMatricula.mjs",
+    "mapeo-parvulario": "node scripts/mapeoParvulario.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

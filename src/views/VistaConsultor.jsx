@@ -4,17 +4,30 @@ import { useApp } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
 import { calcularLogro, currentMonth, capClosedPeriod } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
+import { formatValue } from '../data/expectedValue.js';
+import { matriculaVisible, formatearFechaCorte } from '../data/matricula.js';
+import HeatmapEstablecimientosIndicadores from '../components/HeatmapEstablecimientosIndicadores.jsx';
+import { FEATURES } from '../lib/features.js';
 import IndicatorDrilldown from '../components/IndicatorDrilldown.jsx';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
 import IndicatorRanking from '../components/IndicatorRanking.jsx';
 import SostenedorAveragePicker from '../components/SostenedorAveragePicker.jsx';
-import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows } from 'lucide-react';
+import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows, Grid3x3 } from 'lucide-react';
 import { ambitoCodigo, indicadorCodigo } from '../lib/labels.js';
 import Glosario from '../components/Glosario.jsx';
 import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// Sublabel del TotalCard "Niñas y niños" — refleja si el número corresponde a
+// un snapshot congelado (perfil CAP) o al dato vivo.
+function buildMatriculaSub(perfilId, usaSnapshot, fechaCorte) {
+  if (perfilId !== 'cap') return 'matrícula estimada';
+  if (!usaSnapshot) return 'matrícula vigente';
+  const fechaFmt = formatearFechaCorte(fechaCorte);
+  return fechaFmt ? `matrícula al ${fechaFmt}` : 'matrícula del cierre';
+}
 
 // Año actualmente navegable + año inmediato anterior como comparación de referencia.
 const ANIO_ACTUAL = 2026;
@@ -104,6 +117,8 @@ export default function VistaConsultor() {
   const [filtroComuna, setFiltroComuna] = useState('TODAS');
   const [drilldown, setDrilldown] = useState(null);
   const [comparadorOpen, setComparadorOpen] = useState(false);
+  const [heatmapOpen, setHeatmapOpen] = useState(false);
+  const heatmapVisible = FEATURES.heatmap && perfil.id === 'superadmin';
 
   const filtrados = useMemo(() => todos.filter(e =>
     (filtroSlep === 'TODOS' || e.slep === filtroSlep) &&
@@ -146,12 +161,26 @@ export default function VistaConsultor() {
       .filter(Boolean)
   ), [INDS, filtrados, valoresPorEst, effectiveMonth]);
 
-  const totales = useMemo(() => ({
-    establecimientos: filtrados.length,
-    ninos: filtrados.reduce((s, e) => s + (e.nNinos ?? 0), 0),
-    agentes: filtrados.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
-    comunas: new Set(filtrados.map(e => e.comuna)).size,
-  }), [filtrados]);
+  const totales = useMemo(() => {
+    let ninos = 0;
+    let usaSnapshot = false;
+    let fechaCorte = null;
+    for (const e of filtrados) {
+      const m = matriculaVisible(e, perfil.id, effectiveMonth, anioSeleccionado);
+      ninos += m.valor;
+      if (m.esSnapshot) {
+        usaSnapshot = true;
+        if (!fechaCorte && m.fechaCorte) fechaCorte = m.fechaCorte;
+      }
+    }
+    return {
+      establecimientos: filtrados.length,
+      ninos,
+      matriculaSub: buildMatriculaSub(perfil.id, usaSnapshot, fechaCorte),
+      agentes: filtrados.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
+      comunas: new Set(filtrados.map(e => e.comuna)).size,
+    };
+  }, [filtrados, perfil.id, effectiveMonth, anioSeleccionado]);
 
   const selectCls = "w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-sky focus:border-sky outline-none";
 
@@ -268,7 +297,7 @@ export default function VistaConsultor() {
       {/* Totals strip — reacts to active filters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         <TotalCard label="Centros educativos" value={totales.establecimientos} sub={programa === 'escolar' ? 'escuelas del programa' : 'jardines infantiles'} Icon={Building2}/>
-        <TotalCard label="Niñas y niños" value={totales.ninos.toLocaleString('es-CL')} sub="matrícula estimada" Icon={GraduationCap}/>
+        <TotalCard label="Niñas y niños" value={totales.ninos.toLocaleString('es-CL')} sub={totales.matriculaSub} Icon={GraduationCap}/>
         <TotalCard label="Equipos educativos" value={totales.agentes} sub="en el programa" Icon={Users}/>
         <TotalCard label="Comunas" value={totales.comunas} sub="con cobertura activa" Icon={MapPin}/>
       </div>
@@ -312,6 +341,34 @@ export default function VistaConsultor() {
           />
         )}
       </div>
+
+      {/* Mapa de calor (superadmin + feature flag) */}
+      {heatmapVisible && (
+        <div className="card mb-6">
+          <button
+            onClick={() => setHeatmapOpen(o => !o)}
+            className="w-full flex items-center justify-between text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Grid3x3 size={16} style={{ color: 'var(--color-cyan)' }}/>
+              <span className="text-sm font-medium text-gray-dark">Mapa de calor · Establecimientos × Indicadores</span>
+              <span className="tag tag-navy text-[10px]">experimento</span>
+            </div>
+            {heatmapOpen ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}
+          </button>
+          {heatmapOpen && (
+            <div className="mt-4">
+              <HeatmapEstablecimientosIndicadores
+                establecimientos={filtrados}
+                INDS={INDS}
+                valoresPorEst={valoresPorEst}
+                mes={effectiveMonth}
+                onCellClick={(ind, estId) => setDrilldown({ ind, estId, slepId: filtrados.find(e => e.id === estId)?.slep })}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Lista de centros educativos */}
       <div className="card">
@@ -366,7 +423,7 @@ function TotalCard({ label, value, sub, Icon }) {
       </div>
       <div className="min-w-0">
         <p className="text-[10px] font-medium uppercase tracking-wider text-gray-ui leading-none mb-1">{label}</p>
-        <p className="text-2xl font-medium text-gray-dark leading-none">{value}</p>
+        <p className="text-2xl font-medium leading-none" style={{ color: 'var(--color-cyan)' }}>{value}</p>
         {sub && <p className="text-[10px] text-gray-ui mt-1 leading-snug">{sub}</p>}
       </div>
     </div>
@@ -375,12 +432,16 @@ function TotalCard({ label, value, sub, Icon }) {
 
 // ─── Comparador por indicador ────────────────────────────────────────────────
 
-const MESES_OPTS = [
-  { v: 1, l: 'Enero' }, { v: 2, l: 'Febrero' }, { v: 3, l: 'Marzo' },
-  { v: 4, l: 'Abril' }, { v: 5, l: 'Mayo' }, { v: 6, l: 'Junio' },
-  { v: 7, l: 'Julio' }, { v: 8, l: 'Agosto' }, { v: 9, l: 'Septiembre' },
-  { v: 10, l: 'Octubre' }, { v: 11, l: 'Noviembre' }, { v: 12, l: 'Diciembre' },
+const NIVELES_OPTS = [
+  { v: 'TODOS', l: 'Todos los niveles' },
+  { v: 'sala_cuna_menor', l: 'Sala cuna menor' },
+  { v: 'sala_cuna_mayor', l: 'Sala cuna mayor' },
+  { v: 'nivel_medio_menor', l: 'Nivel medio menor' },
+  { v: 'nivel_medio_mayor', l: 'Nivel medio mayor' },
+  { v: 'transicion_1', l: 'Transición 1' },
+  { v: 'transicion_2', l: 'Transición 2' },
 ];
+const NIVELES_LABEL = Object.fromEntries(NIVELES_OPTS.map(n => [n.v, n.l]));
 
 function filtrarEstablecimientos(todos, { slep, cohorte, comuna }) {
   return todos.filter(e =>
@@ -390,38 +451,111 @@ function filtrarEstablecimientos(todos, { slep, cohorte, comuna }) {
   );
 }
 
-function buildLabel({ slep, cohorte, comuna, mes, year }, sostenedores = []) {
+function buildLabel({ slep, cohorte, comuna, nivel, year }, sostenedores = []) {
   const parts = [];
   if (slep !== 'TODOS') parts.push(sostenedores.find(s => s.id === slep)?.nombre.replace(/^SLEP\s+/, '') ?? slep);
   if (cohorte !== 'TODAS') parts.push(`Cohorte ${cohorte}`);
   if (comuna !== 'TODAS') parts.push(comuna);
-  parts.push(`${NOMBRES_MES[mes - 1]} ${year}`);
+  if (nivel && nivel !== 'TODOS') parts.push(NIVELES_LABEL[nivel] ?? nivel);
+  parts.push(String(year));
   return parts.join(' · ');
 }
 
-// Devuelve, por indicador seleccionado, el % de cumplimiento promedio del lado
-// filtrado usando los valores reales del año elegido.
-// Nota: `mes` no filtra los datos (los docs son anuales), pero se preserva en
-// filters para el label del gráfico. La aplicabilidad usa el mes seleccionado.
-function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, valoresMapByYear }) {
+// Promedio del valor RAW del indicador sobre los establecimientos que aplican
+// para el filtro dado. Devuelve `null` si no hay establecimientos con dato.
+function promedioValor(ind, ests, valores, mesRef) {
+  const aplican = ests.filter(e => isAplicable2026(ind, e, mesRef));
+  if (!aplican.length) return null;
+  let suma = 0, n = 0;
+  for (const e of aplican) {
+    const v = valores.get(e.id)?.get(ind.id);
+    if (v === null || v === undefined) continue;
+    suma += v;
+    n += 1;
+  }
+  return n ? suma / n : null;
+}
+
+// Ratio (0..1) para normalizar unidades heterogéneas en el modo "Todos los indicadores".
+function ratioLogro(ind, ests, valores, mesRef) {
+  const aplican = ests.filter(e => isAplicable2026(ind, e, mesRef));
+  if (!aplican.length) return null;
+  let suma = 0;
+  for (const e of aplican) {
+    const v = valores.get(e.id)?.get(ind.id) ?? null;
+    const l = calcularLogro(v, ind);
+    suma += l === null ? 0 : Math.min(1, l);
+  }
+  return suma / aplican.length;
+}
+
+// Devuelve filas para el bar chart. Cada fila tiene { key, nombre, valor, meta, unidad, ratio, aplica }.
+//  - Modo agrupado + indicadorFocal='TODOS': una fila por indicador (ratio 0..1 normalizado).
+//  - Modo agrupado + indicadorFocal fijo: una fila con el promedio del indicador respetando su unidad.
+//  - Modo desglose 'establecimiento' + indicadorFocal fijo: una fila por establecimiento con su valor real.
+//  - `aplica === false`: pinta la fila como no-desglose (nivel elegido con indicador que no desagrega).
+function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, valoresMapByYear, mesRef, desglose }) {
   const ests = filtrarEstablecimientos(todos, filters);
-  const inds = INDS.filter(ind =>
+  const valores = valoresMapByYear.get(filters.year) ?? new Map();
+
+  const indsElegibles = INDS.filter(ind =>
     ind.unidad !== 'sin_meta' &&
     ind.metaNum !== null &&
     (ambitoScope === 'TODOS' || ind.ambito === ambitoScope) &&
     (indicadorFocal === 'TODOS' || ind.id === indicadorFocal)
   );
-  const valores = valoresMapByYear.get(filters.year) ?? new Map();
-  return inds.map(ind => {
-    const aplican = ests.filter(e => isAplicable2026(ind, e, filters.mes));
-    if (!aplican.length) return { id: ind.id, nombre: indicadorCodigo(ind.id), ratio: null };
-    let suma = 0;
-    for (const e of aplican) {
-      const v = valores.get(e.id)?.get(ind.id) ?? null;
-      const logro = calcularLogro(v, ind);
-      suma += logro === null ? 0 : Math.min(1, logro);
+
+  // Desglose por establecimiento requiere indicador focal fijo y sostenedor específico.
+  if (desglose === 'establecimiento' && indicadorFocal !== 'TODOS') {
+    const ind = indsElegibles[0];
+    if (!ind) return [];
+    return ests.map(e => {
+      const applies = isAplicable2026(ind, e, mesRef);
+      const v = applies ? (valores.get(e.id)?.get(ind.id) ?? null) : null;
+      const r = calcularLogro(v, ind);
+      return {
+        key: e.id,
+        nombre: e.nombre,
+        valor: v,
+        meta: ind.metaNum,
+        unidad: ind.unidad,
+        ratio: r === null ? null : Math.min(1, r),
+        ind,
+        aplica: applies,
+      };
+    });
+  }
+
+  return indsElegibles.map(ind => {
+    // Modo nivel: passthrough hasta que el pipeline traiga desagregación por sala.
+    // Los indicadores sin desagregación por nivel devuelven aplica:false
+    // cuando el usuario eligió un nivel específico.
+    const nivelActivo = filters.nivel && filters.nivel !== 'TODOS';
+    const soportaNivel = ind.desagregaNivel === true;
+    if (nivelActivo && !soportaNivel) {
+      return {
+        key: ind.id,
+        nombre: ind.nombre,
+        valor: null,
+        meta: ind.metaNum,
+        unidad: ind.unidad,
+        ratio: null,
+        ind,
+        aplica: false,
+      };
     }
-    return { id: ind.id, nombre: indicadorCodigo(ind.id), ratio: Math.round((suma / aplican.length) * 100) };
+    const valor = promedioValor(ind, ests, valores, mesRef);
+    const ratio = ratioLogro(ind, ests, valores, mesRef);
+    return {
+      key: ind.id,
+      nombre: ind.nombre,
+      valor,
+      meta: ind.metaNum,
+      unidad: ind.unidad,
+      ratio,
+      ind,
+      aplica: true,
+    };
   });
 }
 
@@ -431,12 +565,6 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
     <div className="flex-1 min-w-0 border rounded-xl p-3" style={{ borderColor: color }}>
       <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color }}>{label}</p>
       <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Mes</label>
-          <select value={filters.mes} onChange={e => onChange({ ...filters, mes: Number(e.target.value) })} className={sc}>
-            {MESES_OPTS.map(m => <option key={m.v} value={m.v}>{m.l}</option>)}
-          </select>
-        </div>
         <div>
           <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Año</label>
           <select value={filters.year} onChange={e => onChange({ ...filters, year: Number(e.target.value) })} className={sc}>
@@ -466,6 +594,12 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
           </select>
         </div>
         <div>
+          <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Nivel</label>
+          <select value={filters.nivel} onChange={e => onChange({ ...filters, nivel: e.target.value })} className={sc}>
+            {NIVELES_OPTS.map(n => <option key={n.v} value={n.v}>{n.l}</option>)}
+          </select>
+        </div>
+        <div>
           <label className="block text-[10px] text-gray-ui font-medium mb-0.5 uppercase tracking-wider">Ámbito (alcance)</label>
           <select value={filters.ambitoScope} onChange={e => onChange({ ...filters, ambitoScope: e.target.value })} className={sc}>
             <option value="TODOS">Todos los ámbitos</option>
@@ -477,18 +611,23 @@ function SideSelector({ label, color, filters, onChange, slepsDisponibles, cohor
   );
 }
 
+// Etiqueta corta del indicador para el eje: "Código — nombre truncado".
+function truncNombreInd(ind, max = 60) {
+  const full = `${indicadorCodigo(ind.id)} — ${ind.nombre}`;
+  return full.length > max ? full.slice(0, max - 1) + '…' : full;
+}
+
 function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesDisponibles, comunasDisponibles, defaultMes, sostenedores = [], valoresPorEst2026, valoresPorEst2025 }) {
-  const initA = { mes: defaultMes, year: 2026, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
-  const initB = { mes: defaultMes, year: 2025, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', ambitoScope: 'TODOS' };
+  const initA = { year: 2026, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS', ambitoScope: 'TODOS' };
+  const initB = { year: 2025, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS', ambitoScope: 'TODOS' };
   const [filtersA, setFiltersA] = useState(initA);
   const [filtersB, setFiltersB] = useState(initB);
   const [indicadorFocal, setIndicadorFocal] = useState('TODOS');
+  const [desglose, setDesglose] = useState('agrupado');
 
   const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
 
   const valoresMapByYear = useMemo(() => {
-    // Convertimos los Map<estId, Map<indId, { valor, estado }>> a
-    // Map<estId, Map<indId, valor>> para que computeSideData pueda leer directo.
     const to2026 = new Map();
     for (const [estId, m] of valoresPorEst2026) {
       const inner = new Map();
@@ -499,24 +638,53 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
   }, [valoresPorEst2025, valoresPorEst2026]);
 
   const dataA = useMemo(
-    () => computeSideData({ todos, filters: filtersA, INDS, ambitoScope: filtersA.ambitoScope, indicadorFocal, valoresMapByYear }),
-    [todos, filtersA, INDS, indicadorFocal, valoresMapByYear]
+    () => computeSideData({ todos, filters: filtersA, INDS, ambitoScope: filtersA.ambitoScope, indicadorFocal, valoresMapByYear, mesRef: defaultMes, desglose }),
+    [todos, filtersA, INDS, indicadorFocal, valoresMapByYear, defaultMes, desglose]
   );
   const dataB = useMemo(
-    () => computeSideData({ todos, filters: filtersB, INDS, ambitoScope: filtersB.ambitoScope, indicadorFocal, valoresMapByYear }),
-    [todos, filtersB, INDS, indicadorFocal, valoresMapByYear]
+    () => computeSideData({ todos, filters: filtersB, INDS, ambitoScope: filtersB.ambitoScope, indicadorFocal, valoresMapByYear, mesRef: defaultMes, desglose }),
+    [todos, filtersB, INDS, indicadorFocal, valoresMapByYear, defaultMes, desglose]
   );
 
+  const focalInd = indicadorFocal !== 'TODOS' ? indicadoresElegibles.find(i => i.id === indicadorFocal) : null;
+
+  // Modo de eje: 'nativo' cuando hay indicador focal (una sola unidad) o cuando
+  // todas las filas comparten unidad %/binario/conteo/promedio; 'ratio' para
+  // "Todos los indicadores" con unidades mezcladas.
+  const chartMode = useMemo(() => {
+    if (desglose === 'establecimiento' && focalInd) return 'nativo';
+    if (focalInd) return 'nativo';
+    return 'ratio';
+  }, [desglose, focalInd]);
+
   const chartData = useMemo(() => {
-    const idsA = new Set(dataA.map(d => d.id));
-    const idsB = new Set(dataB.map(d => d.id));
-    const ids = [...new Set([...idsA, ...idsB])];
-    return ids.map(id => ({
-      nombre: indicadorCodigo(id),
-      A: dataA.find(d => d.id === id)?.ratio ?? null,
-      B: dataB.find(d => d.id === id)?.ratio ?? null,
-    }));
-  }, [dataA, dataB]);
+    if (desglose === 'establecimiento' && focalInd) {
+      // Una fila por establecimiento; unir A y B por key (estId).
+      const keys = [...new Set([...dataA.map(d => d.key), ...dataB.map(d => d.key)])];
+      return keys.map(k => {
+        const a = dataA.find(d => d.key === k);
+        const b = dataB.find(d => d.key === k);
+        const nombre = (a || b)?.nombre ?? k;
+        return {
+          key: k,
+          nombre,
+          A: chartMode === 'nativo' ? (a?.valor ?? null) : (a?.ratio ?? null),
+          B: chartMode === 'nativo' ? (b?.valor ?? null) : (b?.ratio ?? null),
+        };
+      });
+    }
+    // Modo agrupado: una fila por indicador.
+    const keys = [...new Set([...dataA.map(d => d.key), ...dataB.map(d => d.key)])];
+    return keys.map(k => {
+      const a = dataA.find(d => d.key === k);
+      const b = dataB.find(d => d.key === k);
+      const ind = (a || b)?.ind;
+      const nombre = ind ? truncNombreInd(ind) : k;
+      const rawA = chartMode === 'nativo' ? (a?.valor ?? null) : (a?.ratio ?? null);
+      const rawB = chartMode === 'nativo' ? (b?.valor ?? null) : (b?.ratio ?? null);
+      return { key: k, nombre, ind, A: rawA, B: rawB };
+    });
+  }, [dataA, dataB, desglose, focalInd, chartMode]);
 
   const labelA = buildLabel(filtersA, sostenedores);
   const labelB = buildLabel(filtersB, sostenedores);
@@ -524,8 +692,43 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
   const estsA = filtrarEstablecimientos(todos, filtersA).length;
   const estsB = filtrarEstablecimientos(todos, filtersB).length;
 
-  // Detectar si hay data 2025 disponible para el conjunto seleccionado
   const anyData2025 = valoresPorEst2025.size > 0;
+
+  // Dominio del eje X:
+  //  - chartMode 'ratio': [0, 1] con formato %
+  //  - chartMode 'nativo' + focal unidad %/binario: [0, max(1, metaNum)] con formato %
+  //  - chartMode 'nativo' + focal conteo/promedio: [0, max(valores, meta) * 1.1] numérico
+  const { xDomain, xTickFormat, valueFormat } = useMemo(() => {
+    if (chartMode === 'ratio') {
+      return {
+        xDomain: [0, 1],
+        xTickFormat: (v) => `${Math.round(v * 100)}%`,
+        valueFormat: (v) => v === null || v === undefined ? '—' : `${Math.round(v * 100)}%`,
+      };
+    }
+    // nativo
+    const ind = focalInd || chartData[0]?.ind;
+    if (!ind) {
+      return { xDomain: [0, 1], xTickFormat: v => `${v}`, valueFormat: v => v ?? '—' };
+    }
+    if (ind.unidad === '%' || ind.unidad === 'binario') {
+      return {
+        xDomain: [0, Math.max(1, ind.metaNum)],
+        xTickFormat: (v) => `${Math.round(v * 100)}%`,
+        valueFormat: (v) => formatValue(ind, v),
+      };
+    }
+    // conteo/promedio
+    const vals = chartData.flatMap(d => [d.A, d.B]).filter(v => v !== null && v !== undefined);
+    const maxV = Math.max(ind.metaNum ?? 0, ...vals, 0.1);
+    return {
+      xDomain: [0, Math.ceil(maxV * 1.1)],
+      xTickFormat: (v) => Number.isInteger(v) ? String(v) : v.toFixed(1),
+      valueFormat: (v) => formatValue(ind, v),
+    };
+  }, [chartMode, chartData, focalInd]);
+
+  const enableDesgloseEst = focalInd && (filtersA.slep !== 'TODOS' || filtersB.slep !== 'TODOS');
 
   return (
     <div className="mt-5">
@@ -553,28 +756,51 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
         />
       </div>
 
-      {/* Filtro por indicador focal (opcional) */}
-      <div className="mb-4">
-        <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador (opcional)</label>
-        <select
-          value={indicadorFocal}
-          onChange={e => setIndicadorFocal(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark outline-none"
-        >
-          <option value="TODOS">Todos los indicadores</option>
-          {indicadoresElegibles.map(i => (
-            <option key={i.id} value={i.id}>[{indicadorCodigo(i.id)}] {i.nombre}</option>
-          ))}
-        </select>
-        <p className="text-[10px] text-gray-ui mt-1 leading-snug">
-          Al elegir un indicador, el comparador muestra solo ese indicador en cada lado (A vs B).
-        </p>
+      {/* Filtro por indicador focal (opcional) + desglose */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div className="sm:col-span-2">
+          <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Indicador (opcional)</label>
+          <select
+            value={indicadorFocal}
+            onChange={e => setIndicadorFocal(e.target.value)}
+            className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark outline-none"
+          >
+            <option value="TODOS">Todos los indicadores</option>
+            {indicadoresElegibles.map(i => (
+              <option key={i.id} value={i.id}>[{indicadorCodigo(i.id)}] {i.nombre}</option>
+            ))}
+          </select>
+          <p className="text-[10px] text-gray-ui mt-1 leading-snug">
+            Con un indicador seleccionado se puede desagregar por establecimiento.
+          </p>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-ui font-medium mb-1 uppercase tracking-wider">Desglose</label>
+          <select
+            value={desglose}
+            onChange={e => setDesglose(e.target.value)}
+            className="w-full px-3 py-2 border border-border rounded-xl text-sm bg-white text-gray-dark outline-none disabled:opacity-50"
+          >
+            <option value="agrupado">Agrupado (promedio)</option>
+            <option value="establecimiento" disabled={!enableDesgloseEst}>Por establecimiento</option>
+            <option value="nivel" disabled>Por nivel (próximamente)</option>
+          </select>
+          <p className="text-[10px] text-gray-ui mt-1 leading-snug">
+            {enableDesgloseEst ? 'Muestra una barra por centro del sostenedor seleccionado.' : 'Requiere un indicador focal y sostenedor específico.'}
+          </p>
+        </div>
       </div>
 
       {/* Aviso si algún lado usa 2025 y no hay datos disponibles */}
       {(filtersA.year === 2025 || filtersB.year === 2025) && !anyData2025 && (
         <div className="mb-3 p-3 rounded-xl text-xs" style={{ background: 'rgb(252,244,231)', color: '#8a5a00' }}>
           Sin datos cargados para el período 2025 en Firestore. Las barras del lado 2025 aparecerán como "—".
+        </div>
+      )}
+
+      {chartMode === 'ratio' && !focalInd && (
+        <div className="mb-3 p-2.5 rounded-xl text-[11px] text-gray-ui" style={{ background: 'var(--color-bg)' }}>
+          Comparación normalizada (% de cumplimiento vs meta). Selecciona un indicador para ver el valor en su unidad nativa.
         </div>
       )}
 
@@ -592,13 +818,13 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
             <BarChart
               data={chartData}
               layout="vertical"
-              margin={{ top: 4, right: 48, bottom: 4, left: 52 }}
+              margin={{ top: 4, right: 64, bottom: 4, left: 8 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false}/>
               <XAxis
                 type="number"
-                domain={[0, 100]}
-                tickFormatter={v => `${v}%`}
+                domain={xDomain}
+                tickFormatter={xTickFormat}
                 stroke="#6B7280"
                 fontSize={10}
               />
@@ -607,12 +833,13 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
                 dataKey="nombre"
                 stroke="#6B7280"
                 fontSize={10}
-                width={50}
+                width={220}
                 tick={{ fill: '#333333' }}
+                interval={0}
               />
               <Tooltip
                 contentStyle={{ borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 11 }}
-                formatter={(v, name) => [v !== null && v !== undefined ? `${v}%` : '—', name === 'A' ? labelA : labelB]}
+                formatter={(v, name) => [valueFormat(v), name === 'A' ? labelA : labelB]}
                 labelStyle={{ color: '#6B7280', marginBottom: 2, fontWeight: 600 }}
               />
               <Legend
@@ -620,9 +847,9 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
                 wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
               />
               <Bar dataKey="A" fill="var(--color-cyan)" radius={[0, 3, 3, 0]} maxBarSize={16}
-                label={{ position: 'right', formatter: v => v !== null && v !== undefined ? `${v}%` : '—', fontSize: 10, fill: '#6B7280' }}/>
+                label={{ position: 'right', formatter: v => valueFormat(v), fontSize: 10, fill: '#6B7280' }}/>
               <Bar dataKey="B" fill="var(--color-magenta)" radius={[0, 3, 3, 0]} maxBarSize={16}
-                label={{ position: 'right', formatter: v => v !== null && v !== undefined ? `${v}%` : '—', fontSize: 10, fill: '#6B7280' }}/>
+                label={{ position: 'right', formatter: v => valueFormat(v), fontSize: 10, fill: '#6B7280' }}/>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -648,7 +875,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <p className="text-lg font-medium text-gray-dark leading-none">{Math.round(c.cumpl * 100)}%</p>
+              <p className="text-lg font-medium leading-none" style={{ color: 'var(--color-cyan)' }}>{Math.round(c.cumpl * 100)}%</p>
               <p className="text-[10px] text-gray-ui mt-0.5">cumplimiento</p>
             </div>
             {openEst[c.est.id] ? <ChevronUp size={16} className="text-gray-ui"/> : <ChevronDown size={16} className="text-gray-ui"/>}

@@ -202,14 +202,40 @@ export function useValoresIndicador(establecimientoId, anio) {
   }, [establecimientoId, anio]);
 }
 
+// Devuelve los agregados por jardín (docs SIN campo `nivel`). Los docs por
+// sala (con `nivel`) se excluyen para no contarlos dos veces al agregar.
 export function useValoresAnio(anio) {
   return useFirestore(async () => {
     if (!anio) return [];
     const q = query(collection(db, 'resultados_real'), where('anio', '==', anio));
     const snap = await getDocs(q);
+    return snap.docs
+      .map((d) => {
+        const data = d.data();
+        return { id: d.id, ...data, indicadorId: normalizarIndicadorId(data.indicadorId) };
+      })
+      // Excluir docs con `nivel` para evitar doble conteo. El comparador
+      // usa `useValoresAnioNivel` cuando necesita el desglose por sala.
+      .filter((d) => !d.nivel);
+  }, [anio]);
+}
+
+// Devuelve los valores por sala filtrados por nivel bucket
+// ('sala_cuna_menor', 'sala_cuna_mayor', 'nivel_medio_menor',
+// 'nivel_medio_mayor', 'transicion_1', 'transicion_2').
+// Cuando `nivel === null` o `'TODOS'`, retorna [] (usar useValoresAnio en su lugar).
+export function useValoresAnioNivel(anio, nivel) {
+  return useFirestore(async () => {
+    if (!anio || !nivel || nivel === 'TODOS') return [];
+    const q = query(
+      collection(db, 'resultados_real'),
+      where('anio', '==', anio),
+      where('nivel', '==', nivel),
+    );
+    const snap = await getDocs(q);
     return snap.docs.map((d) => {
       const data = d.data();
       return { id: d.id, ...data, indicadorId: normalizarIndicadorId(data.indicadorId) };
     });
-  }, [anio]);
+  }, [anio, nivel]);
 }

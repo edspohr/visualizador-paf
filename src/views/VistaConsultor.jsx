@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio, useValoresAnioNivel } from '../lib/queries.js';
 import { calcularLogro, currentMonth, capClosedPeriod } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import { formatValue } from '../data/expectedValue.js';
@@ -494,9 +494,14 @@ function ratioLogro(ind, ests, valores, mesRef) {
 //  - Modo agrupado + indicadorFocal fijo: una fila con el promedio del indicador respetando su unidad.
 //  - Modo desglose 'establecimiento' + indicadorFocal fijo: una fila por establecimiento con su valor real.
 //  - `aplica === false`: pinta la fila como no-desglose (nivel elegido con indicador que no desagrega).
-function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, valoresMapByYear, mesRef, desglose }) {
+//
+// Cuando `filters.nivel !== 'TODOS'`, usa `valoresNivel` (Map<estId, Map<indId, valor>>)
+// que contiene los promedios por sala filtrados al nivel específico. Los
+// indicadores sin `desagregaNivel:true` devuelven aplica:false.
+function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, valoresMapByYear, mesRef, desglose, valoresNivel = null }) {
   const ests = filtrarEstablecimientos(todos, filters);
-  const valores = valoresMapByYear.get(filters.year) ?? new Map();
+  const nivelActivo = filters.nivel && filters.nivel !== 'TODOS';
+  const valoresAgregados = valoresMapByYear.get(filters.year) ?? new Map();
 
   const indsElegibles = INDS.filter(ind =>
     ind.unidad !== 'sin_meta' &&
@@ -505,13 +510,29 @@ function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, va
     (indicadorFocal === 'TODOS' || ind.id === indicadorFocal)
   );
 
+  // Selecciona la fuente de valores por indicador: si el nivel está activo y el
+  // indicador desagrega por nivel, se usa `valoresNivel`. Si no, el mapa agregado.
+  function fuenteValores(ind) {
+    if (nivelActivo && ind.desagregaNivel === true && valoresNivel) return valoresNivel;
+    return valoresAgregados;
+  }
+
   // Desglose por establecimiento requiere indicador focal fijo y sostenedor específico.
   if (desglose === 'establecimiento' && indicadorFocal !== 'TODOS') {
     const ind = indsElegibles[0];
     if (!ind) return [];
+    // Si el nivel está activo pero el indicador no desagrega, todas las filas quedan aplica:false.
+    const soportaNivel = ind.desagregaNivel === true;
+    if (nivelActivo && !soportaNivel) {
+      return ests.map(e => ({
+        key: e.id, nombre: e.nombre, valor: null, meta: ind.metaNum,
+        unidad: ind.unidad, ratio: null, ind, aplica: false,
+      }));
+    }
+    const fuente = fuenteValores(ind);
     return ests.map(e => {
       const applies = isAplicable2026(ind, e, mesRef);
-      const v = applies ? (valores.get(e.id)?.get(ind.id) ?? null) : null;
+      const v = applies ? (fuente.get(e.id)?.get(ind.id) ?? null) : null;
       const r = calcularLogro(v, ind);
       return {
         key: e.id,
@@ -527,10 +548,6 @@ function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, va
   }
 
   return indsElegibles.map(ind => {
-    // Modo nivel: passthrough hasta que el pipeline traiga desagregación por sala.
-    // Los indicadores sin desagregación por nivel devuelven aplica:false
-    // cuando el usuario eligió un nivel específico.
-    const nivelActivo = filters.nivel && filters.nivel !== 'TODOS';
     const soportaNivel = ind.desagregaNivel === true;
     if (nivelActivo && !soportaNivel) {
       return {
@@ -544,8 +561,9 @@ function computeSideData({ todos, filters, INDS, ambitoScope, indicadorFocal, va
         aplica: false,
       };
     }
-    const valor = promedioValor(ind, ests, valores, mesRef);
-    const ratio = ratioLogro(ind, ests, valores, mesRef);
+    const fuente = fuenteValores(ind);
+    const valor = promedioValor(ind, ests, fuente, mesRef);
+    const ratio = ratioLogro(ind, ests, fuente, mesRef);
     return {
       key: ind.id,
       nombre: ind.nombre,
@@ -627,6 +645,16 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
 
   const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
 
+  // Los valores por nivel solo se traen si el filtro Nivel está activo.
+  // Se hacen dos queries (A y B) — cada una devuelve [] cuando `nivel === 'TODOS'`.
+  const nivelValoresAQ = useValoresAnioNivel(filtersA.year, filtersA.nivel);
+  const nivelValoresBQ = useValoresAnioNivel(filtersB.year, filtersB.nivel);
+  const nivelValoresA = nivelValoresAQ.data ?? [];
+  const nivelValoresB = nivelValoresBQ.data ?? [];
+
+  // valoresMapByYear queda como el fallback (agregado por jardín).
+  // Cuando un lado tiene nivel activo, se construye un map específico a nivel
+  // y se pasa por separado en computeSideData.
   const valoresMapByYear = useMemo(() => {
     const to2026 = new Map();
     for (const [estId, m] of valoresPorEst2026) {
@@ -637,13 +665,40 @@ function ComparadorIndicador({ INDS, AMBITOS, todos, slepsDisponibles, cohortesD
     return new Map([[2025, valoresPorEst2025], [2026, to2026]]);
   }, [valoresPorEst2025, valoresPorEst2026]);
 
+  // Convierte docs por nivel en Map<estId, Map<indId, valor promedio sobre salas>>.
+  // Si un jardín tiene más de una sala del mismo nivel específico, promediamos.
+  function buildNivelMap(docs) {
+    const buckets = new Map();
+    for (const d of docs) {
+      if (d.valor === null || d.valor === undefined) continue;
+      const inner = buckets.get(d.establecimientoId) || new Map();
+      const prev = inner.get(d.indicadorId);
+      if (prev) {
+        prev.suma += d.valor;
+        prev.n += 1;
+      } else {
+        inner.set(d.indicadorId, { suma: d.valor, n: 1 });
+      }
+      buckets.set(d.establecimientoId, inner);
+    }
+    const out = new Map();
+    for (const [estId, inner] of buckets) {
+      const m = new Map();
+      for (const [indId, { suma, n }] of inner) m.set(indId, suma / n);
+      out.set(estId, m);
+    }
+    return out;
+  }
+  const nivelMapA = useMemo(() => buildNivelMap(nivelValoresA), [nivelValoresA]);
+  const nivelMapB = useMemo(() => buildNivelMap(nivelValoresB), [nivelValoresB]);
+
   const dataA = useMemo(
-    () => computeSideData({ todos, filters: filtersA, INDS, ambitoScope: filtersA.ambitoScope, indicadorFocal, valoresMapByYear, mesRef: defaultMes, desglose }),
-    [todos, filtersA, INDS, indicadorFocal, valoresMapByYear, defaultMes, desglose]
+    () => computeSideData({ todos, filters: filtersA, INDS, ambitoScope: filtersA.ambitoScope, indicadorFocal, valoresMapByYear, mesRef: defaultMes, desglose, valoresNivel: nivelMapA }),
+    [todos, filtersA, INDS, indicadorFocal, valoresMapByYear, defaultMes, desglose, nivelMapA]
   );
   const dataB = useMemo(
-    () => computeSideData({ todos, filters: filtersB, INDS, ambitoScope: filtersB.ambitoScope, indicadorFocal, valoresMapByYear, mesRef: defaultMes, desglose }),
-    [todos, filtersB, INDS, indicadorFocal, valoresMapByYear, defaultMes, desglose]
+    () => computeSideData({ todos, filters: filtersB, INDS, ambitoScope: filtersB.ambitoScope, indicadorFocal, valoresMapByYear, mesRef: defaultMes, desglose, valoresNivel: nivelMapB }),
+    [todos, filtersB, INDS, indicadorFocal, valoresMapByYear, defaultMes, desglose, nivelMapB]
   );
 
   const focalInd = indicadorFocal !== 'TODOS' ? indicadoresElegibles.find(i => i.id === indicadorFocal) : null;

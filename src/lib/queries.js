@@ -18,4 +18,5 @@ export {
   useProgresoAnio,
   useValoresIndicador,
   useValoresAnio,
+  useValoresAnioNivel,
 } from '../data/realQueries.js';

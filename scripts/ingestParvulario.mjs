@@ -1,4 +1,6 @@
-// Etapa 3 — Ingesta Parvulario desde las 3 Planillas Centrales.
+// Ingesta Parvulario desde las pestañas VISUALIZADOR JARDÍN / VISUALIZADOR SALAS
+// de las 3 Planillas Centrales. Fuente de verdad definida por Focus (ver notas
+// del 17-jul-2026 con Luis).
 //
 // Uso:
 //   node scripts/ingestParvulario.mjs              → escribe a Firestore + reporte
@@ -6,19 +8,29 @@
 //   node scripts/ingestParvulario.mjs --purge      → borra resultados_real Parvulario antes
 //
 // Colecciones tocadas:
-//   config/dataSource                (crea si no existe; NO flip — queda synthetic)
+//   config/dataSource                (crea si no existe; NO flip)
 //   establecimientos_real/{jarSlug}  (roster + matrícula desde Bases SCJI, sin PII)
 //   resultados_real/{docId}          (valor por indicador × jardín × período)
 //
-// Fuente:
-//   Central 2025-2026·2025 (1KnApSD…) → INDICAD0RES CONSULTOR + IND PRODUCTOS + CONSOLIDADO SALAS
-//   Central 2025-2026·2026 (1oJQ8bU…) → CONSOLIDADO JARDÍN + CONSOLIDADO SALAS
-//   Central 2026-2027·2026 (1Qr5Qvn…) → CONS. NIVEL JARDÍN + CONS NIVEL SALAS
-//                                         (NO CONSOLIDADO CENTRAL JARDÍN — está vacía)
+// Fuentes (VISUALIZADOR JARDÍN + VISUALIZADOR SALAS):
+//   Central 2025-2026 · Año 1 (2025) → 1KnApSDHVGh8tXzPYOQY957jvzEvw3ra5lwvxevL3s9A
+//   Central 2025-2026 · Año 2 (2026) → 1oJQ8bUfoWy3q_ezzLnlGiLE7UvxhuHllRE27dzOEyYo
+//   Central 2026-2027 · Año 1 (2026) → 1Qr5QvnfJ-_F3hVRikFRWNy-RyruKBK7T37m-DY-obwk
 //
-// Regla del prompt: SOLO sección indicadores estrategia + productos.
-//   NO se lee "progreso por ámbito / objetivo / porcentaje de progreso" (secciones
-//   Objetivos/T1..T4/PERIODOS DE IMPLEMENTACIÓN de las pestañas per-jardín tipo AKUN/MODE/PJ).
+// ⚠ Numeración planilla vs catálogo:
+//   La numeración de las planillas VISUALIZADOR reordenó los indicadores.
+//   PLANILLA_A_CATALOG (más abajo) traduce ID_planilla → ID_catalogo.
+//   Los indicadores planilla sin match (p.ej. planilla I.1 = "N° visitas") se
+//   ignoran con warning. Los del catálogo sin equivalente en planilla (p.ej.
+//   cat I.22 comités comunales, I.23 fiesta familia, I.43 voluntariados) no se
+//   ingestan — pendientes de confirmar con Luis.
+//
+// Docs generados en resultados_real:
+//   • Agregado por jardín (jardín + promedio sobre salas): `parv_${estId}_${indId}_${anio}`
+//     — sin campo `nivel`. Es lo que consume la UI actual.
+//   • Por nivel específico: `parv_${estId}_${indId}_${anio}_${nivelSlug}`
+//     — incluye `nivel`, `nivelEspecifico`, `nivelGeneral`. Solo para VISUALIZADOR SALAS.
+//     La UI leerá estos cuando el filtro Nivel del comparador esté activo.
 //
 // Sin PII: nunca se persisten RUTs, nombres de estudiantes ni de funcionarios.
 
@@ -53,9 +65,33 @@ const catalog = JSON.parse(await readFile(pathResolve(ROOT, 'src/data/catalog.js
 const IND_PARV = catalog.indicadores.parvulario;
 const IND_BY_ID = Object.fromEntries(IND_PARV.map(i => [i.id, i]));
 
+// Numeración planilla → numeración catálogo. Derivado inspeccionando las 6 tabs
+// VISUALIZADOR de las 3 planillas + comparando nombres con el XLSX Focus.
+//
+// Reglas:
+//   planilla I.1 (N° visitas al jardín) → NO existe en catálogo. Se ignora.
+//   planilla I.2..I.22 → catálogo I.1..I.21 (planilla offset +1)
+//   planilla I.23..I.43 → catálogo I.24..I.44 (planilla offset -1, saltó I.22/I.23 catálogo)
+//   planilla I.44 → NO EXISTE (saltada en las planillas)
+//   planilla I.45..I.54 → catálogo I.45..I.54 (offset 0)
+//
+// Consecuencia: catálogo I.22 (comités comunales) e I.23 (fiesta familia) e
+// I.43 (voluntariados) no reciben datos. Se reportan al final.
+function planillaToCatalog(planillaId) {
+  const m = planillaId.match(/^I\.(\d+)$/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (n === 1) return null;                        // "N° visitas" — no está en catálogo
+  if (n >= 2 && n <= 22) return `I.${n - 1}`;      // shift down 1
+  if (n >= 23 && n <= 43) return `I.${n + 1}`;     // shift up 1
+  if (n === 44) return null;                       // no existe
+  if (n >= 45 && n <= 54) return `I.${n}`;         // identity
+  return null;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-async function readTab(id, tab, range = 'A1:AZ500') {
+async function readTab(id, tab, range = 'A1:BZ500') {
   const r = await sheets.spreadsheets.values.get({
     spreadsheetId: id,
     range: `'${tab}'!${range}`,
@@ -71,7 +107,6 @@ function slug(s) {
     .replace(/^-+|-+$/g, '');
 }
 
-// Drop parenthetical suffixes ("Cedin (Centro Educacional…)") and trailing punctuation before slugging.
 function cleanName(s) {
   return String(s || '').replace(/\s*\(.*?\)\s*/g, '').replace(/[.,;]+$/, '').trim();
 }
@@ -80,8 +115,6 @@ function jarId(name) {
   return `jar-${slug(cleanName(name))}`;
 }
 
-// Parse a cell value using the indicator's unidad.
-// Returns { valor: number|null, raw: string, notas?: string }
 function parseCell(raw, unidad) {
   if (raw === null || raw === undefined) return { valor: null, raw: '' };
   const s = String(raw).trim();
@@ -94,8 +127,6 @@ function parseCell(raw, unidad) {
     if (/^(no|false|0|falso)$/i.test(s)) return { valor: 0, raw: s };
     return { valor: null, raw: s, notas: 'binario no reconocido' };
   }
-
-  // Numeric with comma decimal separator, optional %
   const pctMatch = s.match(/^-?\d+([.,]\d+)?\s*%$/);
   const numMatch = s.match(/^-?\d+([.,]\d+)?$/);
   if (pctMatch) {
@@ -120,112 +151,94 @@ function computeLogro(ind, valor) {
   return Math.max(0, Math.min(1.2, r));
 }
 
-// ─── Mapeo por tab de las Planillas Centrales ─────────────────────────────
-//
-// Cada entrada: nombre-de-columna (match exacto o prefijo tolerante) → indicador.
-// `estado: 'validado'` cuando la columna es un match directo 1-a-1 con el catálogo.
-// `estado: 'provisional'` cuando hay ambigüedad o el mapeo requiere confirmación.
-
-const MAP = {
-  'CONSOLIDADO JARDÍN': {
-    // Central 2025-2026 · 2026 · tab CONSOLIDADO JARDÍN
-    nombreCol: 'SCJI',
-    indicadores: [
-      { header: 'N° reuniones con directoras',                                              id: 'I.1',  estado: 'validado' },
-      { header: 'N° de reuniones con educadoras',                                           id: 'I.2',  estado: 'validado' },
-      { header: 'N° de reuniones territoriales con directoras desarrolladas',                id: 'I.4',  estado: 'validado' },
-      { header: '% de directoras que participan en reuniones territoriales',                 id: 'I.5',  estado: 'validado' },
-      { header: 'N° reuniones CAUE',                                                        id: 'I.12', estado: 'validado' },
-      { header: 'Jardín infantil cuenta con un PLAN de acción integrado al PEI y consistente con PME', id: 'I.35', estado: 'validado' },
-      { header: '% de acciones del plan de acción implementadas',                            id: 'I.36', estado: 'validado' },
-      { header: '% de metas logradas del plan de acción',                                    id: 'I.37', estado: 'validado' },
-      { header: 'SCJI gestiona definición operativa del Rol Educativo de las familias (definida, socializada y evaluada)', id: 'I.39', estado: 'validado' },
-      { header: 'Jardín infantil cuenta con una estrategia comunicacional clara y efectiva (multicanal y bidireccional).', id: 'I.44', estado: 'validado' },
-    ],
-  },
-  'CONS. NIVEL JARDÍN': {
-    // Central 2026-2027 · 2026 · tab CONS. NIVEL JARDÍN (misma estructura que CONSOLIDADO JARDÍN)
-    nombreCol: 'SCJI',
-    indicadores: [
-      { header: 'N° reuniones con directoras',                                              id: 'I.1',  estado: 'validado' },
-      { header: 'N° de reuniones con educadoras',                                           id: 'I.2',  estado: 'validado' },
-      { header: 'N° de reuniones territoriales con directoras desarrolladas',                id: 'I.4',  estado: 'validado' },
-      { header: '% de directoras que participan en reuniones territoriales',                 id: 'I.5',  estado: 'validado' },
-      { header: 'N° reuniones CAUE',                                                        id: 'I.12', estado: 'validado' },
-      { header: 'Jardín infantil cuenta con un PLAN de acción integrado al PEI y consistente con PME', id: 'I.35', estado: 'validado' },
-      { header: '% de acciones del plan de acción implementadas',                            id: 'I.36', estado: 'validado' },
-      { header: '% de metas logradas del plan de acción',                                    id: 'I.37', estado: 'validado' },
-      { header: 'SCJI gestiona definición operativa del Rol Educativo de las familias (definida, socializada y evaluada)', id: 'I.39', estado: 'validado' },
-      { header: 'Jardín infantil cuenta con una estrategia comunicacional clara y efectiva (multicanal y bidireccional).', id: 'I.44', estado: 'validado' },
-    ],
-  },
-  'INDICAD0RES CONSULTOR': {
-    // Central 2025-2026 · 2025 · tab INDICAD0RES CONSULTOR
-    nombreCol: 'Identificar sala cuna y/o jardín infantil',
-    indicadores: [
-      { header: 'N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.', id: 'I.1', estado: 'validado' },
-      { header: 'N° de reuniones desarrolladas con educadoras del jardín infantil.',                       id: 'I.2', estado: 'validado' },
-      { header: '% de educadoras que participan en reuniones.',                                             id: 'I.3', estado: 'validado' },
-      { header: 'N° de modulos formativos desarrollados en CAUE',                                           id: 'I.12', estado: 'validado' },
-      { header: '% de agentes educativas que participan en modulos formativos de CAUE',                     id: 'I.13', estado: 'validado' },
-      { header: 'N° de encuentros formativos Entre Familias desarrollados en el JI',                        id: 'I.32', estado: 'validado' },
-      { header: 'Promedio de asistencia de apoderados a los encuentros formativos de JI',                   id: 'I.33', estado: 'validado' },
-      { header: 'Promedio de asistencia de agentes educativas a los encuentros formativos de JI',           id: 'I.34', estado: 'validado' },
-      { header: 'Plan de acción diseñado e incorporado en PME y PEI',                                       id: 'I.35', estado: 'validado' },
-      { header: '% de acciones implementadas del plan de acción',                                           id: 'I.36', estado: 'validado' },
-      { header: '% de metas logradas del plan de acción',                                                   id: 'I.37', estado: 'validado' },
-      { header: 'JI desarrolla definición operativa del Rol Pedagógico',                                    id: 'I.39', estado: 'validado' },
-      { header: 'Jardín infantil cuenta con una estrategia comunicacional clara y efectiva (multicanal y bidireccional).', id: 'I.44', estado: 'validado' },
-    ],
-  },
-  'IND PRODUCTOS': {
-    // Central 2025-2026 · 2025 · tab IND PRODUCTOS
-    nombreCol: 'Identificar sala cuna y/o jardín infantil',
-    indicadores: [
-      { header: '% de agentes educativas con malla formativa completa.', id: 'I.38', estado: 'validado' },
-      { header: '% de salas que desarrollan actividades de Relatos Familiares', id: 'I.40', estado: 'validado' },
-      { header: '% de salas que desarrollan experiencias pedagógicas con familias', id: 'I.41', estado: 'validado' },
-      { header: '% de salas que realizan procesos de documentación pedagógica con familias', id: 'I.42', estado: 'validado' },
-      { header: '% de salas que realizan voluntariados con las familias', id: 'I.43', estado: 'validado' },
-    ],
-  },
-};
-
-// SALAS tabs → aggregate per jardín (mean of numeric cols)
-const SALAS = {
-  'CONSOLIDADO SALAS': {
-    nombreCol: 'SCJI',
-    indicadores: [
-      { header: 'Promedio anual Reunión apoderados',        id: 'I.47', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura de 1 entrevista de apoderados',  id: 'I.45', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura de 2 entrevistas de apoderados', id: 'I.46', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura Voluntariado',                    id: 'I.50', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura Rol Educativo SEM 2',            id: 'I.51', estado: 'provisional', agg: 'mean' },
-    ],
-  },
-  'CONS NIVEL SALAS': {
-    nombreCol: 'SCJI',
-    indicadores: [
-      { header: 'Promedio anual Reunión apoderados',        id: 'I.47', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura de 1 entrevista de apoderados',  id: 'I.45', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura de 2 entrevistas de apoderados', id: 'I.46', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura Voluntariado',                    id: 'I.50', estado: 'provisional', agg: 'mean' },
-      { header: 'Cobertura Rol Educativo SEM 2',            id: 'I.51', estado: 'provisional', agg: 'mean' },
-    ],
-  },
-};
-
-// Match header text tolerantly: case-insensitive, whitespace-collapsed
-function normHeader(s) {
-  return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+// Extrae el ID de indicador del header, tolerando el typo "I.,20" que hay en
+// las 3 planillas.
+function extractPlanillaId(header) {
+  if (typeof header !== 'string') return null;
+  const m = header.match(/\bI[\s\.,-]*(\d{1,3})\b/i);
+  return m ? `I.${Number(m[1])}` : null;
 }
 
-function findCol(header, targetHeader) {
-  const target = normHeader(targetHeader);
-  return header.findIndex(h => normHeader(h) === target);
+// Normaliza el "Nivel Específico" a uno de los 6 buckets del selector Nivel
+// (sala_cuna_menor, sala_cuna_mayor, nivel_medio_menor, nivel_medio_mayor,
+// transicion_1, transicion_2). Los nombres custom ("Sala Cuna Heterogénea I",
+// "Nivel Medio Mayor y Transición Convencional A", etc.) se resuelven por
+// heurística: primero se detecta "sala cuna" vs "nivel medio" vs "transición",
+// después "menor"/"mayor"/"1"/"2"/"heterogénea".
+const NIVELES_BUCKETS = [
+  'sala_cuna_menor', 'sala_cuna_mayor',
+  'nivel_medio_menor', 'nivel_medio_mayor',
+  'transicion_1', 'transicion_2',
+];
+
+function normalizarNivel(nivelEspecifico, nivelGeneral) {
+  const s = String(nivelEspecifico || '').toLowerCase();
+  const g = String(nivelGeneral || '').toLowerCase();
+  const isSalaCuna = /sala\s*cuna|sc/i.test(s) || /sala\s*cuna|sc/i.test(g);
+  const isMedio = /nivel\s*medio|medio/i.test(s) || /nivel\s*medio|medio/i.test(g);
+  const isTransicion = /transici[oó]n|transición/i.test(s);
+  const isMenor = /menor|primer|1/.test(s);
+  const isMayor = /mayor|segundo|2|heterog/.test(s);
+
+  if (isSalaCuna) {
+    if (isMenor) return 'sala_cuna_menor';
+    if (isMayor) return 'sala_cuna_mayor';
+    return 'sala_cuna_mayor'; // default (heterogénea suele cubrir el rango)
+  }
+  if (isTransicion) {
+    if (/1|primer/.test(s)) return 'transicion_1';
+    if (/2|segund/.test(s)) return 'transicion_2';
+    return 'transicion_1';
+  }
+  if (isMedio) {
+    if (isMenor) return 'nivel_medio_menor';
+    if (isMayor) return 'nivel_medio_mayor';
+    return 'nivel_medio_menor';
+  }
+  return null; // no clasificable
 }
 
-// ─── Sources ──────────────────────────────────────────────────────────────
+// Nivel corto para el docId (compatible con Firestore ID).
+function nivelSlug(nivelBucket) {
+  return String(nivelBucket || 'nc').replace(/_/g, '-');
+}
+
+// ─── Configuración de tabs ────────────────────────────────────────────────
+
+const TABS = {
+  jardin: 'VISUALIZADOR JARDÍN',
+  salas: 'VISUALIZADOR SALAS',
+  // Fallback alternativo — algunas planillas usan variantes
+  jardinAlt: ['VISUALIZADOR JARDIN', 'Visualizador Jardín'],
+  salasAlt: ['VISUALIZADOR SALA', 'VISUALIZADOR SALA S', 'Visualizador Salas'],
+};
+
+// La columna con el nombre del jardín se llama "SCJI" en ambas tabs.
+const NOMBRE_JARDIN_COL = 'scji';
+const NIVEL_GENERAL_COL = 'nivel general';
+const NIVEL_ESPECIFICO_COL = 'nivel específico';
+const COHORTE_COL = 'cohorte';
+const ANIO_CAL_COL = 'año calendario';
+const SOSTENEDOR_COL = 'sostenedor';
+const COMUNA_COL = 'comuna';
+
+function normHeader(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+function findColByName(header, target) {
+  const t = normHeader(target);
+  return header.findIndex(h => normHeader(h) === t);
+}
+
+// Encuentra la tab exacta buscando primero el nombre canónico y luego
+// alternativas tolerantes de mayúsculas / guiones raros.
+function findTab(tabNames, wanted, alts = []) {
+  for (const t of tabNames) if (t === wanted) return t;
+  for (const alt of alts) for (const t of tabNames) if (t === alt) return t;
+  for (const t of tabNames) if (normHeader(t) === normHeader(wanted)) return t;
+  return null;
+}
+
+// ─── Fuentes ──────────────────────────────────────────────────────────────
 
 const CENTRALES = [
   {
@@ -233,24 +246,18 @@ const CENTRALES = [
     label: 'Central 2025-2026 · 2025',
     cohorte: '2025-2026',
     anio: 2025,
-    jardinTabs: ['INDICAD0RES CONSULTOR', 'IND PRODUCTOS'],
-    salasTabs: [], // 2025 workbook no expone CONSOLIDADO SALAS; sus tabs son RA/EA/VOL/RP/RF
   },
   {
     id: '1oJQ8bUfoWy3q_ezzLnlGiLE7UvxhuHllRE27dzOEyYo',
     label: 'Central 2025-2026 · 2026',
     cohorte: '2025-2026',
     anio: 2026,
-    jardinTabs: ['CONSOLIDADO JARDÍN'],
-    salasTabs: ['CONSOLIDADO SALAS'],
   },
   {
     id: '1Qr5QvnfJ-_F3hVRikFRWNy-RyruKBK7T37m-DY-obwk',
     label: 'Central 2026-2027 · 2026',
     cohorte: '2026-2027',
     anio: 2026,
-    jardinTabs: ['CONS. NIVEL JARDÍN'],   // NOT CONSOLIDADO CENTRAL JARDÍN (empty per fill audit)
-    salasTabs: ['CONS NIVEL SALAS'],
   },
 ];
 
@@ -269,14 +276,13 @@ const BASES_SCJI = [
   },
 ];
 
-// ─── Roster de establecimientos desde Bases SCJI ──────────────────────────
+// ─── Roster ───────────────────────────────────────────────────────────────
 
 async function readRoster() {
   const roster = new Map();
   for (const base of BASES_SCJI) {
     const rows = await readTab(base.id, base.tab, 'A1:BZ200');
     if (rows.length < 3) continue;
-    // Detect header row: scan first 3 rows for a canonical column (SCJI, Nombre, Jardín).
     let headerRow = 0;
     const canonHeader = /(^scji$|^nombre$|^jard[ií]n$|identificar sala cuna|identificar jard)/i;
     for (let i = 0; i < Math.min(3, rows.length); i++) {
@@ -291,14 +297,12 @@ async function readRoster() {
     const idxCons = header.findIndex(h => /consultor/i.test(String(h || '')));
     const idxMatTotal = header.findIndex(h => /^(mat.*total.*jard|total matrículas|total mat)/i.test(String(h || '').trim()));
     const idxEquipo = header.findIndex(h => /total equipo/i.test(String(h || '')));
-    // fallback sostenedor by cohorte if not present in the base
     const cohorteSostFallback = base.cohorte === '2025-2026' ? 'SLEP Santa Rosa' : null;
 
     for (let i = headerRow + 1; i < rows.length; i++) {
       const r = rows[i]; if (!r) continue;
       const nombre = String(r[idxSCJI] || '').trim();
       if (!nombre) continue;
-      // Skip roll-up rows or explanation rows
       if (/^(total|resumen|totales)/i.test(nombre)) continue;
       const est = {
         id: jarId(nombre),
@@ -319,257 +323,364 @@ async function readRoster() {
   return roster;
 }
 
-// ─── Ingest a jardín-level tab ────────────────────────────────────────────
+// ─── Ingesta VISUALIZADOR JARDÍN ──────────────────────────────────────────
 
-function ingestJardinTab({ workbookId, workbookLabel, tab, rows, cohorte, anio, roster }) {
-  if (!rows.length) return [];
+function ingestJardinTab({ workbookId, workbookLabel, tab, rows, cohorte, anio }) {
+  if (rows.length < 2) return { docs: [], warnings: [`${tab}: sin filas`] };
   const header = rows[0];
-  const cfg = MAP[tab] || SALAS[tab];
-  if (!cfg) return [];
-  const nombreIdx = findCol(header, cfg.nombreCol);
+  const warnings = [];
+  const nombreIdx = findColByName(header, NOMBRE_JARDIN_COL);
   if (nombreIdx < 0) {
-    console.warn(`  ⚠ ${tab}: no encuentro columna "${cfg.nombreCol}"`);
-    return [];
+    return { docs: [], warnings: [`${tab}: falta columna "SCJI"`] };
   }
-  const results = [];
-  for (const ind of cfg.indicadores) {
-    const col = findCol(header, ind.header);
-    if (col < 0) { console.warn(`  ⚠ ${tab}: no encuentro columna "${ind.header}"`); continue; }
-    const indicador = IND_BY_ID[ind.id];
-    if (!indicador) { console.warn(`  ⚠ Indicador ${ind.id} no está en el catálogo`); continue; }
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i]; if (!r) continue;
-      const nombre = String(r[nombreIdx] || '').trim();
-      if (!nombre) continue;
-      // Skip roll-ups
-      if (/^(total|resumen|totales|planilla|cohorte|año|url)/i.test(nombre)) continue;
-      const estId = jarId(nombre);
-      const rosterEst = roster.get(estId);
-      const parsed = parseCell(r[col], indicador.unidad);
-      // Register est in roster if missing (some jardín names in Central may not be in Base SCJI)
-      if (!rosterEst) {
-        // ok — we still emit the value but roster may be incomplete; report separately
-      }
-      if (parsed.valor === null) continue;  // skip empty / errors (per prompt: no inventar)
-      const doc = {
+  // Mapa columna → indicador catálogo (traduciendo el ID de planilla)
+  const colToCatalog = [];
+  for (let c = 0; c < header.length; c++) {
+    const planillaId = extractPlanillaId(header[c]);
+    if (!planillaId) continue;
+    const catId = planillaToCatalog(planillaId);
+    if (!catId) {
+      warnings.push(`${tab}: planilla ${planillaId} sin equivalente en catálogo (col ${c})`);
+      continue;
+    }
+    const ind = IND_BY_ID[catId];
+    if (!ind) {
+      warnings.push(`${tab}: catálogo ${catId} no existe en IND_BY_ID (col ${c})`);
+      continue;
+    }
+    colToCatalog.push({ col: c, planillaId, catId, ind });
+  }
+
+  const docs = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i]; if (!r) continue;
+    const nombre = String(r[nombreIdx] || '').trim();
+    if (!nombre) continue;
+    if (/^(total|resumen|totales|planilla|cohorte|año|url)/i.test(nombre)) continue;
+    const estId = jarId(nombre);
+
+    for (const { col, planillaId, catId, ind } of colToCatalog) {
+      const parsed = parseCell(r[col], ind.unidad);
+      if (parsed.valor === null) continue;
+      docs.push({
         programa: 'parvulario',
         establecimientoId: estId,
         establecimientoNombre: nombre,
-        indicadorId: ind.id,
-        ambito: indicador.ambito,
+        indicadorId: catId,
+        ambito: ind.ambito,
         cohorte,
         anio,
         periodo: String(anio),
+        // sin campo `nivel` → doc agregado por jardín, consumido por la UI actual
         valor: parsed.valor,
         raw: parsed.raw,
-        meta: indicador.meta,
-        metaNum: indicador.metaNum,
-        unidad: indicador.unidad,
-        logro: computeLogro(indicador, parsed.valor),
-        estado: ind.estado,
-        fuente: { workbookId, workbookLabel, tab, col: ind.header, row: i + 1 },
-      };
-      if (parsed.notas) doc.notas = parsed.notas;
-      results.push(doc);
+        meta: ind.meta,
+        metaNum: ind.metaNum,
+        unidad: ind.unidad,
+        logro: computeLogro(ind, parsed.valor),
+        estado: 'validado',
+        fuente: { workbookId, workbookLabel, tab, col: header[col], row: i + 1, planillaId },
+      });
+      if (parsed.notas) docs[docs.length - 1].notas = parsed.notas;
     }
   }
-  return results;
+  return { docs, warnings };
 }
 
-function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio, roster }) {
-  if (!rows.length) return [];
+// ─── Ingesta VISUALIZADOR SALAS ───────────────────────────────────────────
+
+function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio }) {
+  if (rows.length < 2) return { salasDocs: [], jardinDocs: [], warnings: [`${tab}: sin filas`] };
   const header = rows[0];
-  const cfg = SALAS[tab];
-  if (!cfg) return [];
-  const nombreIdx = findCol(header, cfg.nombreCol);
-  if (nombreIdx < 0) return [];
-  // Group rows by jardín name; compute mean per column
-  const results = [];
-  for (const ind of cfg.indicadores) {
-    const col = findCol(header, ind.header);
-    if (col < 0) continue;
-    const indicador = IND_BY_ID[ind.id];
-    if (!indicador) continue;
-    const buckets = new Map();
-    for (let i = 1; i < rows.length; i++) {
-      const r = rows[i]; if (!r) continue;
-      const nombre = String(r[nombreIdx] || '').trim();
-      if (!nombre) continue;
-      const parsed = parseCell(r[col], indicador.unidad);
+  const warnings = [];
+  const nombreIdx = findColByName(header, NOMBRE_JARDIN_COL);
+  const nivelGenIdx = findColByName(header, NIVEL_GENERAL_COL);
+  const nivelEspIdx = findColByName(header, NIVEL_ESPECIFICO_COL);
+  if (nombreIdx < 0 || nivelEspIdx < 0) {
+    return { salasDocs: [], jardinDocs: [], warnings: [`${tab}: falta SCJI (${nombreIdx}) o Nivel Específico (${nivelEspIdx})`] };
+  }
+  const colToCatalog = [];
+  for (let c = 0; c < header.length; c++) {
+    const planillaId = extractPlanillaId(header[c]);
+    if (!planillaId) continue;
+    const catId = planillaToCatalog(planillaId);
+    if (!catId) { warnings.push(`${tab}: planilla ${planillaId} sin equivalente en catálogo`); continue; }
+    const ind = IND_BY_ID[catId];
+    if (!ind) { warnings.push(`${tab}: catálogo ${catId} no existe`); continue; }
+    colToCatalog.push({ col: c, planillaId, catId, ind });
+  }
+
+  const salasDocs = [];
+  // Para agregar por jardín: por (estId, catId) acumulamos valores para promediar.
+  const bucketsAgg = new Map();
+
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i]; if (!r) continue;
+    const nombre = String(r[nombreIdx] || '').trim();
+    if (!nombre) continue;
+    if (/^(total|resumen|totales|planilla|cohorte|año|url)/i.test(nombre)) continue;
+    const estId = jarId(nombre);
+    const nivelEsp = String(r[nivelEspIdx] || '').trim();
+    const nivelGen = nivelGenIdx >= 0 ? String(r[nivelGenIdx] || '').trim() : null;
+    const nivelBucket = normalizarNivel(nivelEsp, nivelGen);
+
+    for (const { col, planillaId, catId, ind } of colToCatalog) {
+      const parsed = parseCell(r[col], ind.unidad);
       if (parsed.valor === null) continue;
-      const arr = buckets.get(nombre) || [];
-      arr.push(parsed.valor);
-      buckets.set(nombre, arr);
-    }
-    for (const [nombre, arr] of buckets.entries()) {
-      const valor = arr.reduce((s, v) => s + v, 0) / arr.length;
-      const estId = jarId(nombre);
-      results.push({
+
+      // Doc por sala/nivel
+      const nvSlug = nivelSlug(nivelBucket);
+      salasDocs.push({
         programa: 'parvulario',
         establecimientoId: estId,
         establecimientoNombre: nombre,
-        indicadorId: ind.id,
-        ambito: indicador.ambito,
+        indicadorId: catId,
+        ambito: ind.ambito,
         cohorte,
         anio,
         periodo: String(anio),
-        valor,
-        raw: `mean over ${arr.length} salas`,
-        meta: indicador.meta,
-        metaNum: indicador.metaNum,
-        unidad: indicador.unidad,
-        logro: computeLogro(indicador, valor),
-        estado: ind.estado,
-        fuente: { workbookId, workbookLabel, tab, col: ind.header, agg: 'mean over salas', nSalas: arr.length },
+        nivel: nivelBucket,          // string bucket: sala_cuna_menor, etc.
+        nivelEspecifico: nivelEsp,   // original de la planilla ("Sala cuna menor" / "Sala Cuna Heterogénea I" ...)
+        nivelGeneral: nivelGen,      // "Sala Cuna" | "Nivel Medio" | ...
+        valor: parsed.valor,
+        raw: parsed.raw,
+        meta: ind.meta,
+        metaNum: ind.metaNum,
+        unidad: ind.unidad,
+        logro: computeLogro(ind, parsed.valor),
+        estado: 'validado',
+        docSlug: nvSlug,             // para docId
+        fuente: { workbookId, workbookLabel, tab, col: header[col], row: i + 1, planillaId },
       });
+
+      // Acumular para el agregado por jardín (promedio)
+      const key = `${estId}|${catId}`;
+      const b = bucketsAgg.get(key) || { valores: [], ind, estId, nombre, catId };
+      b.valores.push(parsed.valor);
+      bucketsAgg.set(key, b);
     }
   }
-  return results;
+
+  // Emitir el doc agregado por jardín (sin campo `nivel`)
+  const jardinDocs = [];
+  for (const b of bucketsAgg.values()) {
+    const valor = b.valores.reduce((s, v) => s + v, 0) / b.valores.length;
+    jardinDocs.push({
+      programa: 'parvulario',
+      establecimientoId: b.estId,
+      establecimientoNombre: b.nombre,
+      indicadorId: b.catId,
+      ambito: b.ind.ambito,
+      cohorte,
+      anio,
+      periodo: String(anio),
+      valor,
+      raw: `mean over ${b.valores.length} salas`,
+      meta: b.ind.meta,
+      metaNum: b.ind.metaNum,
+      unidad: b.ind.unidad,
+      logro: computeLogro(b.ind, valor),
+      estado: 'validado',
+      fuente: { workbookId, workbookLabel, tab, agg: 'mean over salas', nSalas: b.valores.length },
+    });
+  }
+
+  return { salasDocs, jardinDocs, warnings };
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────
 
-console.log(`Ingesta Parvulario — Etapa 3 · ${DRY_RUN ? 'DRY-RUN' : 'WRITE'}`);
+console.log(`Ingesta Parvulario (VISUALIZADOR) — ${DRY_RUN ? 'DRY-RUN' : 'WRITE'}`);
 console.log(`SA: ${sa.client_email}\n`);
 
 // 1) Roster
 console.log('1) Leyendo Bases SCJI → roster de jardines…');
 const roster = await readRoster();
-console.log(`   ${roster.size} jardines registrados en roster`);
+console.log(`   ${roster.size} jardines en roster`);
 
-// 2) Ingest cada Central
-console.log('\n2) Leyendo Planillas Centrales…');
-const allResults = [];
+// 2) Ingesta por planilla
+console.log('\n2) Leyendo pestañas VISUALIZADOR…');
+const allJardinDocs = [];
+const allSalasDocs = [];
+const allWarnings = [];
+const perPlanillaSummary = [];
 const rosterFromCentral = new Set();
+
 for (const c of CENTRALES) {
-  console.log(`   • ${c.label}`);
-  for (const tab of c.jardinTabs) {
-    try {
-      const rows = await readTab(c.id, tab);
-      const res = ingestJardinTab({ workbookId: c.id, workbookLabel: c.label, tab, rows, cohorte: c.cohorte, anio: c.anio, roster });
-      console.log(`      ${tab.padEnd(28)}  ${res.length} valores`);
-      allResults.push(...res);
-      for (const r of res) rosterFromCentral.add(r.establecimientoId);
-    } catch (e) {
-      console.warn(`      ${tab}: ERROR ${e.errors?.[0]?.message || e.message}`);
-    }
+  console.log(`\n   • ${c.label}`);
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: c.id });
+  const tabNames = meta.data.sheets.map(s => s.properties.title);
+  const tabJardin = findTab(tabNames, TABS.jardin, TABS.jardinAlt);
+  const tabSalas = findTab(tabNames, TABS.salas, TABS.salasAlt);
+  const summary = { label: c.label, cohorte: c.cohorte, anio: c.anio, jardin: null, salas: null };
+
+  if (tabJardin) {
+    const rows = await readTab(c.id, tabJardin);
+    const { docs, warnings } = ingestJardinTab({ workbookId: c.id, workbookLabel: c.label, tab: tabJardin, rows, cohorte: c.cohorte, anio: c.anio });
+    console.log(`      ${tabJardin.padEnd(22)}  ${docs.length} valores jardín`);
+    allJardinDocs.push(...docs);
+    allWarnings.push(...warnings);
+    for (const d of docs) rosterFromCentral.add(d.establecimientoId);
+    summary.jardin = docs.length;
+  } else {
+    console.warn(`      ⚠ ${TABS.jardin} no encontrada`);
+    allWarnings.push(`${c.label}: falta tab "${TABS.jardin}"`);
   }
-  for (const tab of c.salasTabs) {
-    try {
-      const rows = await readTab(c.id, tab);
-      const res = ingestSalasTab({ workbookId: c.id, workbookLabel: c.label, tab, rows, cohorte: c.cohorte, anio: c.anio, roster });
-      console.log(`      ${tab.padEnd(28)}  ${res.length} valores (aggregados por sala→jardín)`);
-      allResults.push(...res);
-      for (const r of res) rosterFromCentral.add(r.establecimientoId);
-    } catch (e) {
-      console.warn(`      ${tab}: ${e.errors?.[0]?.message || e.message}`);
-    }
+
+  if (tabSalas) {
+    const rows = await readTab(c.id, tabSalas);
+    const { salasDocs, jardinDocs, warnings } = ingestSalasTab({ workbookId: c.id, workbookLabel: c.label, tab: tabSalas, rows, cohorte: c.cohorte, anio: c.anio });
+    console.log(`      ${tabSalas.padEnd(22)}  ${salasDocs.length} valores sala + ${jardinDocs.length} agregados por jardín`);
+    allSalasDocs.push(...salasDocs);
+    allJardinDocs.push(...jardinDocs);
+    allWarnings.push(...warnings);
+    for (const d of jardinDocs) rosterFromCentral.add(d.establecimientoId);
+    summary.salas = salasDocs.length;
+  } else {
+    console.warn(`      ⚠ ${TABS.salas} no encontrada`);
+    allWarnings.push(`${c.label}: falta tab "${TABS.salas}"`);
   }
+
+  perPlanillaSummary.push(summary);
 }
 
-// 3) Cross-check roster vs. Centrales
+// 3) Cross-check roster
 const rosterMissing = [...rosterFromCentral].filter(id => !roster.has(id));
 if (rosterMissing.length) {
-  console.log(`\n   ⚠ ${rosterMissing.length} jardines en Centrales sin match exacto en Base SCJI (probable diferencia de tipografía): ${rosterMissing.slice(0, 5).join(', ')}${rosterMissing.length > 5 ? '…' : ''}`);
+  console.log(`\n   ⚠ ${rosterMissing.length} jardines en Centrales sin match exacto en Base SCJI: ${rosterMissing.slice(0, 5).join(', ')}${rosterMissing.length > 5 ? '…' : ''}`);
 }
 
-// 4) Purge si aplica
+// 4) Purge
 if (PURGE && !DRY_RUN) {
   console.log('\n3) Purgando resultados_real programa=parvulario…');
   const snap = await db.collection('resultados_real').where('programa', '==', 'parvulario').get();
-  const batch = db.batch();
   let n = 0;
-  for (const d of snap.docs) { batch.delete(d.ref); n++; }
-  if (n) await batch.commit();
+  let batch = db.batch();
+  let count = 0;
+  for (const d of snap.docs) {
+    batch.delete(d.ref); n++; count++;
+    if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }
+  }
+  if (count) await batch.commit();
   console.log(`   ${n} docs eliminados`);
 }
 
-// 5) Ensure config/dataSource
+// 5) config/dataSource
 if (!DRY_RUN) {
-  console.log('\n4) Asegurando config/dataSource…');
   const cfgRef = db.doc('config/dataSource');
   const cfgSnap = await cfgRef.get();
   if (!cfgSnap.exists) {
-    await cfgRef.set({ escolar: 'synthetic', parvulario: 'synthetic', updatedAt: FieldValue.serverTimestamp(), note: 'Etapa 3: flag creado; permanece synthetic' });
-    console.log('   Creado con {escolar: synthetic, parvulario: synthetic}');
-  } else {
-    console.log(`   Ya existe: ${JSON.stringify(cfgSnap.data())}`);
+    await cfgRef.set({ escolar: 'synthetic', parvulario: 'synthetic', updatedAt: FieldValue.serverTimestamp(), note: 'Etapa 3 VISUALIZADOR: flag creado; permanece synthetic' });
   }
 }
 
-// 6) Write establecimientos_real
+// 6) Escribir establecimientos_real
 if (!DRY_RUN) {
-  console.log('\n5) Escribiendo establecimientos_real…');
+  console.log('\n4) Escribiendo establecimientos_real…');
   let n = 0;
-  const batches = [];
   let batch = db.batch(); let count = 0;
   for (const est of roster.values()) {
     batch.set(db.collection('establecimientos_real').doc(est.id), { ...est, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     count++; n++;
-    if (count >= 400) { batches.push(batch.commit()); batch = db.batch(); count = 0; }
+    if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }
   }
-  if (count) batches.push(batch.commit());
-  await Promise.all(batches);
+  if (count) await batch.commit();
   console.log(`   ${n} establecimientos upserted`);
 }
 
-// 7) Write resultados_real
+// 7) Escribir resultados_real (jardín + salas)
 if (!DRY_RUN) {
-  console.log('\n6) Escribiendo resultados_real…');
+  console.log('\n5) Escribiendo resultados_real…');
+  // Deduplicar jardín docs por (estId, indId, periodo). Cuando el mismo indicador
+  // aparece en VISUALIZADOR JARDÍN y también en SALAS agregado, el de JARDÍN gana
+  // (dato reportado por la escuela vs promedio calculado de salas).
+  const jardinByKey = new Map();
+  for (const d of allJardinDocs) {
+    const k = `${d.establecimientoId}|${d.indicadorId}|${d.periodo}`;
+    if (!jardinByKey.has(k) || d.fuente.tab === 'VISUALIZADOR JARDÍN') {
+      jardinByKey.set(k, d);
+    }
+  }
+  const uniqueJardin = [...jardinByKey.values()];
+
   let n = 0;
-  const batches = [];
   let batch = db.batch(); let count = 0;
-  for (const r of allResults) {
+  for (const r of uniqueJardin) {
     const docId = `parv_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
     batch.set(db.collection('resultados_real').doc(docId), { ...r, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     count++; n++;
-    if (count >= 400) { batches.push(batch.commit()); batch = db.batch(); count = 0; }
+    if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }
   }
-  if (count) batches.push(batch.commit());
-  await Promise.all(batches);
-  console.log(`   ${n} resultados upserted`);
+  for (const r of allSalasDocs) {
+    const suffix = r.docSlug || 'nc';
+    const { docSlug, ...clean } = r;
+    const docId = `parv_${r.establecimientoId}_${r.indicadorId}_${r.periodo}_${suffix}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    batch.set(db.collection('resultados_real').doc(docId), { ...clean, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+    count++; n++;
+    if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }
+  }
+  if (count) await batch.commit();
+  console.log(`   ${uniqueJardin.length} agregados por jardín + ${allSalasDocs.length} por sala = ${n} docs totales`);
 }
 
-// 8) Verification report
-console.log('\n7) Reporte de verificación');
-const byEstado = allResults.reduce((acc, r) => (acc[r.estado] = (acc[r.estado] || 0) + 1, acc), {});
-const byCohorte = allResults.reduce((acc, r) => (acc[r.cohorte] = (acc[r.cohorte] || 0) + 1, acc), {});
-const byAnio = allResults.reduce((acc, r) => (acc[r.anio] = (acc[r.anio] || 0) + 1, acc), {});
-const uniqueEsts = new Set(allResults.map(r => r.establecimientoId));
-const uniqueInds = new Set(allResults.map(r => r.indicadorId));
+// 8) Reporte
+console.log('\n6) Reporte');
+const byPeriodo = allJardinDocs.reduce((acc, r) => (acc[r.periodo] = (acc[r.periodo] || 0) + 1, acc), {});
+const uniqueInds = new Set(allJardinDocs.map(r => r.indicadorId));
+const uniqueEsts = new Set(allJardinDocs.map(r => r.establecimientoId));
+const uniqueNiveles = new Set(allSalasDocs.map(r => r.nivel).filter(Boolean));
 
-console.log(`   Total resultados: ${allResults.length}`);
-console.log(`   Por estado: ${JSON.stringify(byEstado)}`);
-console.log(`   Por cohorte: ${JSON.stringify(byCohorte)}`);
-console.log(`   Por año: ${JSON.stringify(byAnio)}`);
-console.log(`   Jardines cubiertos: ${uniqueEsts.size}`);
-console.log(`   Indicadores cubiertos: ${uniqueInds.size} (${[...uniqueInds].sort().join(', ')})`);
-console.log(`   Roster (establecimientos_real): ${roster.size}`);
+console.log(`   Jardín docs: ${allJardinDocs.length}`);
+console.log(`   Sala docs:   ${allSalasDocs.length}`);
+console.log(`   Por período: ${JSON.stringify(byPeriodo)}`);
+console.log(`   Jardines: ${uniqueEsts.size}`);
+console.log(`   Indicadores catálogo cubiertos: ${uniqueInds.size} → ${[...uniqueInds].sort((a, b) => Number(a.slice(2)) - Number(b.slice(2))).join(', ')}`);
+console.log(`   Niveles detectados: ${uniqueNiveles.size} → ${[...uniqueNiveles].join(', ')}`);
 
-// Sample 5 for inspection
-const sample = allResults.slice(0, 5);
-console.log('\n   Muestra:');
-for (const s of sample) {
-  console.log(`     ${s.establecimientoId} · ${s.indicadorId} · ${s.periodo}: valor=${s.valor} logro=${s.logro?.toFixed(2) ?? 'n/a'} estado=${s.estado} tab=${s.fuente.tab}`);
+if (allWarnings.length) {
+  console.log(`\n   ⚠ ${allWarnings.length} advertencias:`);
+  const unique = [...new Set(allWarnings)].slice(0, 15);
+  for (const w of unique) console.log(`     · ${w}`);
+  if (allWarnings.length > unique.length) console.log(`     … y ${allWarnings.length - unique.length} más`);
 }
 
-// Write report file
+// Indicadores del catálogo no cubiertos
+const cubiertos = new Set([...uniqueInds]);
+const noCubiertos = IND_PARV.filter(i => !cubiertos.has(i.id)).map(i => i.id);
+console.log(`\n   Indicadores del catálogo SIN DATOS (${noCubiertos.length}): ${noCubiertos.join(', ') || '_ninguno_'}`);
+
+// Verificación por planilla
+console.log('\n   Por planilla:');
+for (const s of perPlanillaSummary) {
+  console.log(`     ${s.label}: jardín=${s.jardin ?? 'N/A'}, salas=${s.salas ?? 'N/A'}`);
+}
+
+// Write JSON report
 const report = {
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,
   totals: {
-    resultados: allResults.length,
-    porEstado: byEstado,
-    porCohorte: byCohorte,
-    porAnio: byAnio,
-    jardinesCubiertos: uniqueEsts.size,
+    jardinDocs: allJardinDocs.length,
+    salasDocs: allSalasDocs.length,
+    porPeriodo: byPeriodo,
+    jardines: uniqueEsts.size,
     indicadoresCubiertos: uniqueInds.size,
+    nivelesDetectados: [...uniqueNiveles],
     rosterTotal: roster.size,
+    warnings: allWarnings.length,
   },
   indicadoresCubiertos: [...uniqueInds].sort(),
-  rosterMissingInSCJI: rosterMissing,
-  muestra: sample,
+  indicadoresNoCubiertos: noCubiertos,
+  warnings: allWarnings,
+  perPlanilla: perPlanillaSummary,
 };
-await writeFile(pathResolve(ROOT, 'docs/etapa3-ingesta-parvulario.json'), JSON.stringify(report, null, 2));
-console.log('\n   Reporte JSON: docs/etapa3-ingesta-parvulario.json');
-console.log(`\n${DRY_RUN ? 'DRY-RUN completo — no se escribió a Firestore.' : 'Ingesta completa.'}`);
+
+const reportPath = pathResolve(ROOT, 'reports', `ingestParvulario-${new Date().toISOString().slice(0, 10)}.json`);
+if (!DRY_RUN) {
+  const { mkdir } = await import('node:fs/promises');
+  await mkdir(pathResolve(ROOT, 'reports'), { recursive: true });
+  await writeFile(reportPath, JSON.stringify(report, null, 2));
+  console.log(`\n   Reporte: ${reportPath}`);
+}
+
+process.exit(0);

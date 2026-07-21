@@ -274,7 +274,7 @@ La traducción vive en `scripts/lib/parvularioIds.mjs` y es compartida entre `ma
    - Sin dropdown de mes.
    - Cambiar entre indicador `%` / `conteo` → eje se adapta.
    - Desglose por establecimiento con sostenedor específico + indicador focal.
-   - Filtro Nivel: `sala_cuna_menor` para un indicador con `desagregaNivel:true` (ej: I.15 semanas libros BV) muestra dato diferente que "Todos los niveles".
+   - Filtro Nivel: `sala_cuna_menor` para un indicador con `desagregaNivel:true` (ej: I.14 (N° semanas libros BV al hogar)) muestra dato diferente que "Todos los niveles".
 
 3. **Ranking (2 min)**
    - Confirmar valores en lime cuando alcanzan meta.
@@ -302,9 +302,9 @@ La traducción vive en `scripts/lib/parvularioIds.mjs` y es compartida entre `ma
 
 ## 7. Estado de despliegue
 
-- **GitHub:** ✅ 3 commits pusheados a `main` (`de763a6`, `8bc2bdd`, `ab1801d`).
-- **Firestore:** ✅ ingesta ejecutada — 5119 docs en `resultados_real` + 24 en `establecimientos_real`.
-- **Firebase Hosting:** ⚠ pendiente `firebase login --reauth && npm run deploy` desde terminal local (sesión de Firebase CLI expirada).
+- **GitHub:** ✅ 5 commits pusheados a `main` (`de763a6`, `8bc2bdd`, `ab1801d`, `3c4e467`, `3177c9f`). Los dos últimos son la corrección post-auditoría (§9).
+- **Firestore:** ✅ ingesta ejecutada — 5119 docs en `resultados_real` + 24 en `establecimientos_real`. No se re-ingestó tras la corrección (los docs ya estaban en coordenadas de catálogo).
+- **Firebase Hosting:** ✅ desplegado — https://visualizador-paf.web.app incluye los flags `desagregaNivel` corregidos.
 
 ---
 
@@ -323,7 +323,7 @@ La traducción vive en `scripts/lib/parvularioIds.mjs` y es compartida entre `ma
 
 1. **Faltantes mal identificados:** el reporte listaba `I.20, I.44` como faltantes, cuando los reales (en coordenadas de catálogo) son `I.22, I.23` — coincidente con `indicadoresNoCubiertos` de `reports/ingestParvulario-2026-07-21.json`.
 2. **Huérfano invisibilizado:** el reporte declaraba 0 huérfanos, pero planilla `I.1` ("N° de visitas al jardín") sí es un huérfano real — se estaba matcheando silenciosamente contra el catálogo `I.1` (otro indicador).
-3. **`desagregaNivel` con IDs equivocados:** el commit `8bc2bdd` aplicó el flag en `catalog.json` usando los IDs crudos del reporte (26 IDs, coordenadas de planilla). Traducidos, el conjunto correcto (header-driven, coordenadas de catálogo) tiene **27 IDs**. Diferencias respecto al set anterior: se **quitaron** `I.19, I.22, I.23, I.39` (que no correspondían) y se **agregaron** `I.14, I.20, I.28, I.43` (que sí llegan por sala). Además I.54 pasa a tener el flag (aparece como columna en SALAS aunque hoy sin datos).
+3. **`desagregaNivel` con IDs equivocados:** el commit `8bc2bdd` aplicó el flag en `catalog.json` usando los IDs crudos del reporte (26 IDs, coordenadas de planilla). Traducidos, el conjunto correcto (header-driven, coordenadas de catálogo) tiene **27 IDs**. Diferencias respecto al set anterior: se **quitaron** `I.22, I.23, I.39` (que no correspondían) y se **agregaron** `I.14, I.20, I.28, I.43` (que sí llegan por sala). `I.19` se mantiene: proviene de la columna planilla `I.20` (la del typo `"I.,20"`) presente en `VISUALIZADOR SALAS` y traducida a catálogo `I.19`. `I.54` también se mantiene (ya venía en el set anterior por la banda `I.45–I.54`); lo nuevo es la decisión header-driven de conservarlo pese a que hoy las celdas están vacías.
 
 **Cambios de esta corrección:**
 

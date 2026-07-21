@@ -24,7 +24,7 @@
 | Commit | Autor | Alcance |
 |---|---|---|
 | `de763a6` | de763a6 | UI transversal (bloques 3, 4, 5, 7) + matrícula CAP + heatmap + comparador rediseñado (bloque 2) |
-| `8bc2bdd` | 8bc2bdd | Script `mapeoParvulario.mjs` + fix numeración I.6/I.29 + campo `desagregaNivel:true` en 26 indicadores del catálogo |
+| `8bc2bdd` | 8bc2bdd | Script `mapeoParvulario.mjs` + fix numeración I.6/I.29 + campo `desagregaNivel:true` en 26 indicadores del catálogo (⚠ corregido el 21-jul; ver §9) |
 | `ab1801d` | ab1801d | Repunta `ingestParvulario.mjs` a `VISUALIZADOR JARDÍN`/`VISUALIZADOR SALAS` + persistencia por sala/nivel + hook `useValoresAnioNivel` + integración al comparador |
 
 Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LOC**.
@@ -75,7 +75,7 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 4. Elegir indicador focal `conteo` (ej: I.1 N° reuniones directora, meta 11) → eje X con valores absolutos.
 5. Volver a "Todos los indicadores" → aparece banner "Comparación normalizada" y eje vuelve a %.
 6. Elegir sostenedor específico + indicador focal → habilita "Por establecimiento" en Desglose. Cambiar a "Por establecimiento" → barras por centro.
-7. Elegir Nivel "Sala cuna menor" → los 26 indicadores con datos por sala se comparan al nivel; los otros 22 quedan como "—".
+7. Elegir Nivel "Sala cuna menor" → los 27 indicadores marcados `desagregaNivel:true` se comparan al nivel; los otros 27 (incluidos los faltantes I.22/I.23) quedan como "—". Nota: I.54 tiene el flag pero hoy no trae datos por sala en ninguna planilla — es esperable.
 
 ---
 
@@ -140,14 +140,16 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 
 **Archivo:** [scripts/mapeoParvulario.mjs](../scripts/mapeoParvulario.mjs) — script Node ESM que lee las 3 planillas centrales + 2 bases de identificación via Google Sheets API, compara contra `catalog.json`, produce reporte markdown.
 
-**Salida:** [docs/mapeo-parvulario-2026-07-21.md](mapeo-parvulario-2026-07-21.md)
+**Salida:** [docs/mapeo-parvulario-2026-07-21.md](mapeo-parvulario-2026-07-21.md) — reporta en **coordenadas de catálogo** (post-corrección 21-jul; ver §9). Resultado: **52/54 mapeados**, faltantes `I.22, I.23`, **1 huérfano** (planilla `I.1` "N° de visitas al jardín").
 
 **Descubrimiento clave (F5):** los headers de las pestañas VISUALIZADOR tienen **numeración distinta** al catálogo. Ejemplos:
 - Planilla `I.1 = "N° de visitas al jardín"` → no existe en catálogo.
 - Planilla `I.2 = "N° reuniones directora"` → equivale a catálogo `I.1`.
-- Toda la banda `I.2..I.22` en planilla → `I.1..I.21` en catálogo (offset +1).
-- Banda `I.23..I.43` en planilla → `I.24..I.44` en catálogo (offset −1, saltando I.22 y I.23 del catálogo).
+- Toda la banda `I.2..I.22` en planilla → `I.1..I.21` en catálogo (offset −1).
+- Banda `I.23..I.43` en planilla → `I.24..I.44` en catálogo (offset +1, saltando I.22 y I.23 del catálogo).
 - Banda `I.45..I.54` idéntica.
+
+La traducción vive en `scripts/lib/parvularioIds.mjs` y es compartida entre `mapeoParvulario.mjs` e `ingestParvulario.mjs`.
 
 **Cómo verificar:**
 1. Correr `npm run mapeo-parvulario -- --dry-run` → imprime en consola.
@@ -229,8 +231,8 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 **Cómo verificar:**
 1. Login consultor con programa parvulario cargado.
 2. Comparador por indicador → Grupo A: elegir Nivel "Sala cuna menor".
-3. Los 26 indicadores marcados con `desagregaNivel:true` deben mostrar valores diferentes al modo "Todos los niveles" (reflejan solo salas cuna menor).
-4. Los 22 indicadores restantes (jardín-level) siguen mostrando "—" para ese lado.
+3. Los 27 indicadores marcados con `desagregaNivel:true` deben mostrar valores diferentes al modo "Todos los niveles" (reflejan solo salas cuna menor). I.54 puede quedar en "—" porque las planillas aún no cargan datos por sala para ese indicador.
+4. Los 27 indicadores restantes (jardín-level + faltantes) siguen mostrando "—" para ese lado.
 5. DevTools → Network → filtrar por `resultados_real` → verificar query con `where nivel == sala_cuna_menor`.
 
 ---
@@ -240,7 +242,7 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 | Fix | Fuente | Descripción |
 |---|---|---|
 | `I.6` e `I.29` en catálogo | Comparación con XLSX (F4) | Estaban marcados `unidad: binario` cuando el XLSX de Focus dice `conteo`. Corregidos en `catalog.json`. |
-| `desagregaNivel: true` en 26 indicadores | Reporte mapeo (F3) | Los indicadores identificados en pestaña `Visualizador Sala` recibieron el flag para activar el filtro Nivel del comparador. |
+| `desagregaNivel: true` en 27 indicadores | Reporte mapeo (F3) — corregido 21-jul (§9) | Los indicadores del catálogo que aparecen como columna en `VISUALIZADOR SALAS` (traducidos a coordenadas de catálogo) reciben el flag para activar el filtro Nivel del comparador. Set final: `I.14–I.21` (sin I.22/I.23), `I.24–I.28`, `I.40–I.43`, `I.45–I.54`. |
 | Auth del script `mapeoParvulario` | Iteración (F5) | Cambio de `google.auth.JWT` → `google.auth.GoogleAuth` para alinearse con el patrón que ya funciona en `syncPlanillasCentrales.mjs`. |
 | Corrección de `computeLogro` en ingest | Iteración (F6) | El clamp `Math.min(1.2, r)` se conserva; la lógica de `estado: 'validado'` unificada para todos los docs. |
 
@@ -250,7 +252,7 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 
 | # | Pregunta | Contexto |
 |---|---|---|
-| Q1 | ¿I.22 (comités comunales) e I.23 (fiesta familia) se sacan del catálogo o vienen de otra fuente? | No están en ninguna planilla VISUALIZADOR. Aparecen en `docs/mapeo-parvulario-2026-07-21.md` como Faltantes. |
+| Q1 | ¿I.22 (comités comunales) e I.23 (fiesta familia) se sacan del catálogo o vienen de otra fuente? | No están en ninguna planilla VISUALIZADOR. Aparecen en `docs/mapeo-parvulario-2026-07-21.md` como **Faltantes** (2). Nota: la versión previa del reporte listaba erróneamente `I.20/I.44` — corregido en §9. |
 | Q2 | ¿I.36, I.37, I.38 (plan de acción), I.54 (ciclo talleres) tienen datos pendientes o quedan sin reportar el año? | Columnas presentes en las planillas pero con puras celdas "SIN DATOS". |
 | Q3 | ¿Corremos snapshot de matrícula ahora (mayo 2026) o esperamos? | Sin el snapshot, CAP ve "matrícula vigente" (dato vivo) — funcional pero no refleja el compromiso de reporte estable. |
 | Q4 | ¿`transicion_2` no está reportado porque no hay salas de ese nivel, o falta cargar? | No apareció en ninguna de las 3 planillas. |
@@ -272,7 +274,7 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
    - Sin dropdown de mes.
    - Cambiar entre indicador `%` / `conteo` → eje se adapta.
    - Desglose por establecimiento con sostenedor específico + indicador focal.
-   - Filtro Nivel: `sala_cuna_menor` para un indicador con `desagregaNivel:true` (ej: I.14 semanas libros BV) muestra dato diferente que "Todos los niveles".
+   - Filtro Nivel: `sala_cuna_menor` para un indicador con `desagregaNivel:true` (ej: I.15 semanas libros BV) muestra dato diferente que "Todos los niveles".
 
 3. **Ranking (2 min)**
    - Confirmar valores en lime cuando alcanzan meta.
@@ -293,7 +295,8 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 
 7. **Mapeo (3 min)**
    - Abrir `docs/mapeo-parvulario-2026-07-21.md`.
-   - Confirmar 52/54 mapeados en el reporte.
+   - Confirmar 52/54 mapeados, faltantes `I.22` y `I.23`, 1 huérfano (planilla `I.1`).
+   - Confirmar sección "Desglose por sala" con 27 IDs de catálogo (`I.14–I.21` sin I.22/I.23, `I.24–I.28`, `I.40–I.43`, `I.45–I.54`).
 
 ---
 
@@ -311,3 +314,30 @@ Total: **18 archivos** tocados (12 modificados + 6 creados), **+1718 / −493 LO
 - Reporte de ingesta: [reports/ingestParvulario-2026-07-21.json](../reports/ingestParvulario-2026-07-21.json)
 - Plan original: `/Users/espohr/.claude/plans/el-viernes-tuve-una-federated-wave.md`
 - Notas Granola: meeting `2d01fb68-a32d-4d12-93c7-7770b9084f7a`
+
+---
+
+## 9. Corrección 21-jul-2026 (post-auditoría)
+
+**Contexto:** revisando la primera versión del reporte `mapeo-parvulario-2026-07-21.md` se detectó que `mapeoParvulario.mjs` **no aplicaba la traducción planilla → catálogo** antes de comparar. Comparaba los IDs crudos de los headers contra el catálogo local, lo que produjo tres problemas:
+
+1. **Faltantes mal identificados:** el reporte listaba `I.20, I.44` como faltantes, cuando los reales (en coordenadas de catálogo) son `I.22, I.23` — coincidente con `indicadoresNoCubiertos` de `reports/ingestParvulario-2026-07-21.json`.
+2. **Huérfano invisibilizado:** el reporte declaraba 0 huérfanos, pero planilla `I.1` ("N° de visitas al jardín") sí es un huérfano real — se estaba matcheando silenciosamente contra el catálogo `I.1` (otro indicador).
+3. **`desagregaNivel` con IDs equivocados:** el commit `8bc2bdd` aplicó el flag en `catalog.json` usando los IDs crudos del reporte (26 IDs, coordenadas de planilla). Traducidos, el conjunto correcto (header-driven, coordenadas de catálogo) tiene **27 IDs**. Diferencias respecto al set anterior: se **quitaron** `I.19, I.22, I.23, I.39` (que no correspondían) y se **agregaron** `I.14, I.20, I.28, I.43` (que sí llegan por sala). Además I.54 pasa a tener el flag (aparece como columna en SALAS aunque hoy sin datos).
+
+**Cambios de esta corrección:**
+
+- Nuevo `scripts/lib/parvularioIds.mjs`: `extractPlanillaId()` (regex tolerante al typo `"I.,20"`) + `planillaToCatalog()`. Compartido entre `ingestParvulario.mjs` y `mapeoParvulario.mjs`.
+- `scripts/mapeoParvulario.mjs` reescrito para reportar en coordenadas de catálogo. La sección "Por planilla" muestra el ID de catálogo con el ID de planilla original entre paréntesis para trazabilidad. Nueva sección "Notas sobre la numeración" al final.
+- `scripts/ingestParvulario.mjs` refactorizado para importar del módulo compartido. El reporte JSON ahora incluye `indicadoresConNivel` (fuente empírica del flag).
+- `scripts/parseCatalogs.mjs` extendido: constante `PARVULARIO_DESAGREGA_NIVEL` con los 27 IDs; el flag se aplica al parsear el XLSX para que sobreviva a regeneraciones del catálogo.
+- `src/data/catalog.json`: flags corregidos in-place para no requerir re-run de parseCatalogs (que necesita los XLSX). El set final coincide con el que `parseCatalogs.mjs` emitiría.
+- `docs/mapeo-parvulario-2026-07-21.md` regenerado con los conteos correctos.
+
+**Firestore NO se tocó.** La ingesta ya usaba la traducción correcta (via `planillaToCatalog` en `ingestParvulario.mjs`), así que los 5119 docs escritos el 21-jul están en coordenadas de catálogo. El bug era solo en la capa de reporte + en el flag `desagregaNivel` que se derivaba mal de ese reporte.
+
+**Validación:**
+
+- `node scripts/ingestParvulario.mjs --dry-run` → 48 cubiertos, 6 no cubiertos (mismos IDs que la ingesta real). Nuevo campo `indicadoresConNivel` con 26 IDs (data-driven).
+- `npm run mapeo-parvulario` → 52 mapeados, faltantes `I.22, I.23`, 1 huérfano (planilla `I.1`), desglose por sala = 27 IDs (header-driven, incluye I.54).
+- Los dos derivados difieren en `I.54` (headers sí lo listan, pero las celdas están vacías). Decisión de sesión: usar el conjunto header-driven, de modo que si en el futuro Focus carga datos por sala para I.54, el filtro Nivel funcione sin cambios de código.

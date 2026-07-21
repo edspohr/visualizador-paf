@@ -24,6 +24,24 @@ const ESCOLAR_XLSX    = pathResolve(ROOT, 'src/data/catalogs/Sistema indicadores
 const PARVULARIO_XLSX = pathResolve(ROOT, 'src/data/catalogs/Sistema indicadores PAF Parvulario.xlsx');
 const OUT_JSON        = pathResolve(ROOT, 'src/data/catalog.json');
 
+// Indicadores Parvulario (en IDs de catálogo) que llegan con granularidad sala
+// en las pestañas VISUALIZADOR SALAS de las 3 planillas centrales. Este flag
+// habilita el filtro Nivel del comparador en la UI. La lista se deriva del
+// mapeo header-driven: se toma la unión de IDs presentes como columna en
+// SALAS (aunque hoy no traigan datos) y se traduce a coordenadas de catálogo
+// vía scripts/lib/parvularioIds.mjs.
+//
+// Se persiste aquí (código) para que sobreviva a regeneraciones de
+// catalog.json. Fuente de verdad: `scripts/mapeoParvulario.mjs` (sección
+// "Desglose por sala" del reporte).
+const PARVULARIO_DESAGREGA_NIVEL = new Set([
+  'I.14', 'I.15', 'I.16', 'I.17', 'I.18', 'I.19',
+  'I.20', 'I.21',
+  'I.24', 'I.25', 'I.26', 'I.27', 'I.28',
+  'I.40', 'I.41', 'I.42', 'I.43',
+  'I.45', 'I.46', 'I.47', 'I.48', 'I.49', 'I.50', 'I.51', 'I.52', 'I.53', 'I.54',
+]);
+
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
 // Normaliza id de indicador a forma canónica con punto: 'I1' → 'I.1'.
@@ -280,8 +298,9 @@ function parseParvulario() {
     const id = row[iE.id];
     if (!id || typeof id !== 'string' || !/^I\./i.test(id.trim())) continue;
     const meta = classifyMeta(row[iE.meta]);
-    out.push({
-      id: normId(id),
+    const nid = normId(id);
+    const entry = {
+      id: nid,
       programa: 'parvulario',
       version: '2026',
       estrategiaId: row[iE.estrId] ? String(row[iE.estrId]).trim() : null,
@@ -298,7 +317,9 @@ function parseParvulario() {
       frecuencia: normFrecuencia(row[iE.freq]),
       inicio: row[iE.inicio] ?? null,
       clasificacion: 'estrategia',
-    });
+    };
+    if (PARVULARIO_DESAGREGA_NIVEL.has(nid)) entry.desagregaNivel = true;
+    out.push(entry);
   }
 
   // Sheet 2: Productos (I.35–I.54)
@@ -319,8 +340,9 @@ function parseParvulario() {
     const id = row[iP.id];
     if (!id || typeof id !== 'string' || !/^I\./i.test(id.trim())) continue;
     const meta = classifyMeta(row[iP.meta]);
-    out.push({
-      id: normId(id),
+    const nid = normId(id);
+    const entry = {
+      id: nid,
       programa: 'parvulario',
       version: '2026',
       estrategiaId: row[iP.prodId] ? String(row[iP.prodId]).trim() : null,
@@ -337,7 +359,9 @@ function parseParvulario() {
       frecuencia: normFrecuencia(row[iP.freq]),
       inicio: row[iP.inicio] ?? null,
       clasificacion: 'producto',
-    });
+    };
+    if (PARVULARIO_DESAGREGA_NIVEL.has(nid)) entry.desagregaNivel = true;
+    out.push(entry);
   }
   return out;
 }

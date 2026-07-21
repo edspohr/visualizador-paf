@@ -40,6 +40,7 @@ import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
+import { extractPlanillaId, planillaToCatalog } from './lib/parvularioIds.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -65,29 +66,10 @@ const catalog = JSON.parse(await readFile(pathResolve(ROOT, 'src/data/catalog.js
 const IND_PARV = catalog.indicadores.parvulario;
 const IND_BY_ID = Object.fromEntries(IND_PARV.map(i => [i.id, i]));
 
-// Numeración planilla → numeración catálogo. Derivado inspeccionando las 6 tabs
-// VISUALIZADOR de las 3 planillas + comparando nombres con el XLSX Focus.
-//
-// Reglas:
-//   planilla I.1 (N° visitas al jardín) → NO existe en catálogo. Se ignora.
-//   planilla I.2..I.22 → catálogo I.1..I.21 (planilla offset +1)
-//   planilla I.23..I.43 → catálogo I.24..I.44 (planilla offset -1, saltó I.22/I.23 catálogo)
-//   planilla I.44 → NO EXISTE (saltada en las planillas)
-//   planilla I.45..I.54 → catálogo I.45..I.54 (offset 0)
-//
-// Consecuencia: catálogo I.22 (comités comunales) e I.23 (fiesta familia) e
-// I.43 (voluntariados) no reciben datos. Se reportan al final.
-function planillaToCatalog(planillaId) {
-  const m = planillaId.match(/^I\.(\d+)$/);
-  if (!m) return null;
-  const n = Number(m[1]);
-  if (n === 1) return null;                        // "N° visitas" — no está en catálogo
-  if (n >= 2 && n <= 22) return `I.${n - 1}`;      // shift down 1
-  if (n >= 23 && n <= 43) return `I.${n + 1}`;     // shift up 1
-  if (n === 44) return null;                       // no existe
-  if (n >= 45 && n <= 54) return `I.${n}`;         // identity
-  return null;
-}
+// Numeración planilla → catálogo y extractor de IDs tolerante viven en
+// scripts/lib/parvularioIds.mjs (compartido con mapeoParvulario.mjs).
+// Consecuencia de la traducción: catálogo I.22 (comités comunales) e I.23
+// (fiesta familia) no reciben datos. Se reportan al final.
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -149,14 +131,6 @@ function computeLogro(ind, valor) {
   if (!ind.metaNum || ind.tipoMeta === 'sin_meta') return null;
   const r = valor / ind.metaNum;
   return Math.max(0, Math.min(1.2, r));
-}
-
-// Extrae el ID de indicador del header, tolerando el typo "I.,20" que hay en
-// las 3 planillas.
-function extractPlanillaId(header) {
-  if (typeof header !== 'string') return null;
-  const m = header.match(/\bI[\s\.,-]*(\d{1,3})\b/i);
-  return m ? `I.${Number(m[1])}` : null;
 }
 
 // Normaliza el "Nivel Específico" a uno de los 6 buckets del selector Nivel
@@ -629,6 +603,11 @@ const byPeriodo = allJardinDocs.reduce((acc, r) => (acc[r.periodo] = (acc[r.peri
 const uniqueInds = new Set(allJardinDocs.map(r => r.indicadorId));
 const uniqueEsts = new Set(allJardinDocs.map(r => r.establecimientoId));
 const uniqueNiveles = new Set(allSalasDocs.map(r => r.nivel).filter(Boolean));
+// Indicadores (en coordenadas de catálogo) que efectivamente generan al menos
+// un doc con `nivel` — es decir, los que deberían llevar `desagregaNivel:true`
+// en catalog.json. Es la fuente de verdad empírica del flag.
+const indicadoresConNivel = [...new Set(allSalasDocs.map(r => r.indicadorId))]
+  .sort((a, b) => Number(a.slice(2)) - Number(b.slice(2)));
 
 console.log(`   Jardín docs: ${allJardinDocs.length}`);
 console.log(`   Sala docs:   ${allSalasDocs.length}`);
@@ -636,6 +615,7 @@ console.log(`   Por período: ${JSON.stringify(byPeriodo)}`);
 console.log(`   Jardines: ${uniqueEsts.size}`);
 console.log(`   Indicadores catálogo cubiertos: ${uniqueInds.size} → ${[...uniqueInds].sort((a, b) => Number(a.slice(2)) - Number(b.slice(2))).join(', ')}`);
 console.log(`   Niveles detectados: ${uniqueNiveles.size} → ${[...uniqueNiveles].join(', ')}`);
+console.log(`   Indicadores con desglose por nivel (${indicadoresConNivel.length}): ${indicadoresConNivel.join(', ')}`);
 
 if (allWarnings.length) {
   console.log(`\n   ⚠ ${allWarnings.length} advertencias:`);
@@ -671,16 +651,21 @@ const report = {
   },
   indicadoresCubiertos: [...uniqueInds].sort(),
   indicadoresNoCubiertos: noCubiertos,
+  indicadoresConNivel,
   warnings: allWarnings,
   perPlanilla: perPlanillaSummary,
 };
 
-const reportPath = pathResolve(ROOT, 'reports', `ingestParvulario-${new Date().toISOString().slice(0, 10)}.json`);
-if (!DRY_RUN) {
-  const { mkdir } = await import('node:fs/promises');
-  await mkdir(pathResolve(ROOT, 'reports'), { recursive: true });
-  await writeFile(reportPath, JSON.stringify(report, null, 2));
-  console.log(`\n   Reporte: ${reportPath}`);
-}
+// El reporte se emite siempre — en modo dry-run va a un archivo con sufijo
+// `-dryrun` para no pisar el reporte oficial de la última ingesta real.
+const fecha = new Date().toISOString().slice(0, 10);
+const reportName = DRY_RUN
+  ? `ingestParvulario-${fecha}-dryrun.json`
+  : `ingestParvulario-${fecha}.json`;
+const reportPath = pathResolve(ROOT, 'reports', reportName);
+const { mkdir } = await import('node:fs/promises');
+await mkdir(pathResolve(ROOT, 'reports'), { recursive: true });
+await writeFile(reportPath, JSON.stringify(report, null, 2));
+console.log(`\n   Reporte: ${reportPath}`);
 
 process.exit(0);

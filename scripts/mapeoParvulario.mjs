@@ -63,10 +63,10 @@ function normalizarIndicadorId(raw) {
 
 async function getSheets() {
   const svc = JSON.parse(await readFile(pathResolve(__dirname, 'service-account.json'), 'utf-8'));
-  const auth = new google.auth.JWT(svc.client_email, null, svc.private_key, [
-    'https://www.googleapis.com/auth/spreadsheets.readonly',
-  ]);
-  await auth.authorize();
+  const auth = new google.auth.GoogleAuth({
+    credentials: svc,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
   return google.sheets({ version: 'v4', auth });
 }
 

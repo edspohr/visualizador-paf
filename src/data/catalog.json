@@ -2279,7 +2279,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.16",
@@ -2298,7 +2299,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.17",
@@ -2317,7 +2319,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.18",
@@ -2336,7 +2339,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 2",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.19",
@@ -2355,7 +2359,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 2",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.20",
@@ -2393,7 +2398,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 2",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.22",
@@ -2412,7 +2418,8 @@
         "fuente": "Consultor",
         "frecuencia": "anual",
         "inicio": "Sem 2",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.23",
@@ -2431,7 +2438,8 @@
         "fuente": "Consultor",
         "frecuencia": "anual",
         "inicio": "Sem 2",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.24",
@@ -2450,7 +2458,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.25",
@@ -2469,7 +2478,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.26",
@@ -2488,7 +2498,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.27",
@@ -2507,7 +2518,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "desagregaNivel": true
       },
       {
         "id": "I.28",
@@ -2735,7 +2747,8 @@
         "fuente": "Consultor",
         "frecuencia": "semestral",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.40",
@@ -2754,7 +2767,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 2",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.41",
@@ -2773,7 +2787,8 @@
         "fuente": "Consultor",
         "frecuencia": "semestral",
         "inicio": "Sem 3",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.42",
@@ -2792,7 +2807,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 4",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.43",
@@ -2849,7 +2865,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.46",
@@ -2868,7 +2885,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.47",
@@ -2887,7 +2905,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.48",
@@ -2906,7 +2925,8 @@
         "fuente": "Consultor",
         "frecuencia": "semestral",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.49",
@@ -2925,7 +2945,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 3",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.50",
@@ -2944,7 +2965,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.51",
@@ -2963,7 +2985,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 2",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.52",
@@ -2982,7 +3005,8 @@
         "fuente": "Jardín",
         "frecuencia": "semestral",
         "inicio": "Sem 2",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.53",
@@ -3001,7 +3025,8 @@
         "fuente": "Jardín",
         "frecuencia": "mensual",
         "inicio": "Sem 1",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       },
       {
         "id": "I.54",
@@ -3020,7 +3045,8 @@
         "fuente": "Jardín",
         "frecuencia": "anual",
         "inicio": "Sem 2",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "desagregaNivel": true
       }
     ]
   },

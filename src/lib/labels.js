@@ -27,7 +27,7 @@ export function ambitoCodigo(a) {
 // Ámbito name overrides keyed as `${programa}:${ambitoId}`.
 // Applied at display time so a catalog re-parse doesn't revert them.
 const AMBITO_NAME_OVERRIDES = {
-  'parvulario:A1': 'LIDERAZGO PARA LA GESTIÓN INSTITUCIONAL DE LA ALIANZA FAMILIA-JARDIN',
+  'parvulario:A1': 'Liderazgo para la gestión institucional de la alianza familia-jardín',
 };
 
 // a: ámbito object with { id, nombre } (or nombre string + separate id)

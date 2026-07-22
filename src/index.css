@@ -12,8 +12,11 @@
   --color-purple-1: rgb(179, 67, 120);
   --color-purple-2: rgb(142, 69, 112);
   --color-teal:     rgb(20, 130, 130);
+  --color-lime:     rgb(101, 163, 13);
   --color-gray-light: rgb(160, 165, 169);
+  --color-gray-ui:    rgb(160, 165, 169);
   --color-gray-dark:  rgb(51, 51, 51);
+  --color-bg:         #F5F6F8;
 }
 
 @layer base {

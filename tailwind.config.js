@@ -33,6 +33,11 @@ export default {
           300: 'rgb(255, 220, 0)',
           400: 'rgb(204, 176, 0)',
         },
+        lime: {
+          DEFAULT: 'rgb(101, 163, 13)',
+          300: 'rgb(190, 242, 100)',
+          600: 'rgb(101, 163, 13)',
+        },
         // Secondary accent tones
         pink:    'rgb(226, 64, 142)',
         crimson: 'rgb(229, 53, 23)',

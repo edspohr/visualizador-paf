@@ -239,3 +239,33 @@ export function useValoresAnioNivel(anio, nivel) {
     });
   }, [anio, nivel]);
 }
+
+// Devuelve los valores por sala de TODOS los niveles operativos del año.
+// Se usa cuando el desglose "Por nivel" está activo y queremos partir los datos
+// por cada nivel simultáneamente (una única query con `in`, 6 valores — bajo el
+// límite de 30 de Firestore). Cuando `enabled === false` retorna [] para no
+// disparar la lectura.
+const NIVELES_OPERATIVOS = [
+  'sala_cuna_menor',
+  'sala_cuna_mayor',
+  'nivel_medio_menor',
+  'nivel_medio_mayor',
+  'transicion_1',
+  'transicion_2',
+];
+
+export function useValoresAnioNiveles(anio, enabled = true) {
+  return useFirestore(async () => {
+    if (!anio || !enabled) return [];
+    const q = query(
+      collection(db, 'resultados_real'),
+      where('anio', '==', anio),
+      where('nivel', 'in', NIVELES_OPERATIVOS),
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => {
+      const data = d.data();
+      return { id: d.id, ...data, indicadorId: normalizarIndicadorId(data.indicadorId) };
+    });
+  }, [anio, enabled]);
+}

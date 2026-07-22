@@ -19,4 +19,5 @@ export {
   useValoresIndicador,
   useValoresAnio,
   useValoresAnioNivel,
+  useValoresAnioNiveles,
 } from '../data/realQueries.js';

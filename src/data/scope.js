@@ -55,6 +55,52 @@ export function indicadoresAplicables(indicadores, est, mes) {
   return indicadores.filter(ind => isAplicable2026(ind, est, mes));
 }
 
+/**
+ * Estado de aplicabilidad para propósitos de UI:
+ *   'aplicable'          — el semestre mínimo requerido ya se alcanzó.
+ *   'no-aplicable-aun'   — el indicador existe en el catálogo pero su semestre
+ *                          de inicio aún no fue alcanzado por este centro (por
+ *                          ejemplo `inicio: 'Sem 3'` con cohorte 2026-2027 en
+ *                          año 1). No entra en agregados, pero se muestra con
+ *                          una nota para que el usuario no lo interprete como
+ *                          "sin datos".
+ *
+ * Devuelve también el semestre mínimo requerido y el semestre acumulado del
+ * centro, para que la capa de UI pueda construir un mensaje específico
+ * ("aplica desde año 2", "aplica desde el semestre 3", etc.).
+ */
+export function estadoAplicabilidad(indicador, est, mes) {
+  if (!est) {
+    return { estado: 'aplicable', minReq: 1, acumulado: 4 };
+  }
+  const minReq = semestreMinimoRequerido(indicador.inicio);
+  const acumulado = semestreAcumulado2026(est, mes);
+  return {
+    estado: minReq <= acumulado ? 'aplicable' : 'no-aplicable-aun',
+    minReq,
+    acumulado,
+  };
+}
+
+/**
+ * Copy en es-CL para explicar por qué un indicador aún no aplica. Se apoya en
+ * el `inicio` original para dar un mensaje cercano al lenguaje del catálogo.
+ */
+export function descripcionNoAplicable(indicador) {
+  const inicio = indicador.inicio;
+  if (typeof inicio === 'string') {
+    const t = inicio.trim();
+    if (/^Sem\s+([2-4])$/i.test(t)) {
+      const n = t.match(/([2-4])/)[1];
+      return `Aplica desde el semestre ${n} de la implementación del programa.`;
+    }
+    if (/^Segundo\s+a[nñ]o$/i.test(t)) {
+      return 'Aplica desde el segundo año de implementación del programa.';
+    }
+  }
+  return 'Aplica en una etapa posterior de la implementación del programa.';
+}
+
 // ─── Cumplimiento 2026 ────────────────────────────────────────────────────
 
 import { calcularLogro } from './establecimientos.js';

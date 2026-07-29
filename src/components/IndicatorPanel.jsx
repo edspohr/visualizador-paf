@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronUp, ListChecks, Package } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock, ListChecks, Package } from 'lucide-react';
 import { calcularLogro, estadoValor } from '../data/establecimientos.js';
-import { isAplicable2026 } from '../data/scope.js';
+import { estadoAplicabilidad, descripcionNoAplicable } from '../data/scope.js';
 import { IndicatorProgress } from './Shared.jsx';
 import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
 
@@ -41,17 +41,20 @@ export default function IndicatorPanel({
   const [openAmbitos, setOpenAmbitos] = useState({});
   const toggle = (key) => setOpenAmbitos(prev => ({ ...prev, [key]: !prev[key] }));
 
+  // Nota: NO filtramos por isAplicable2026 acá. Los indicadores no-aplicables-aun
+  // se anotan como tales y se renderizan al pie del bloque de logro/estrategia
+  // con un mensaje explicativo, sin entrar en los agregados. Ver bloque I del
+  // plan implementación 2026-07-29.
   const filasIndicadores = useMemo(() => {
     if (!establecimiento) return [];
-    return INDS
-      .filter(ind => isAplicable2026(ind, establecimiento, mes))
-      .map(ind => {
-        const entry = valoresReales.get(ind.id);
-        const valor = entry?.valor ?? null;
-        const estado = entry?.estado ?? 'validado';
-        const logro = calcularLogro(valor, ind);
-        return { ind, valor, logro, estado };
-      });
+    return INDS.map(ind => {
+      const entry = valoresReales.get(ind.id);
+      const valor = entry?.valor ?? null;
+      const estado = entry?.estado ?? 'validado';
+      const logro = calcularLogro(valor, ind);
+      const aplicabilidad = estadoAplicabilidad(ind, establecimiento, mes).estado;
+      return { ind, valor, logro, estado, aplicabilidad };
+    });
   }, [INDS, establecimiento, mes, valoresReales]);
 
   const estrategiaFilas = filasIndicadores.filter(f => f.ind.clasificacion === 'estrategia');
@@ -93,16 +96,22 @@ export default function IndicatorPanel({
 // Header % = "% cumplimiento": AVG(min(1, logro)) sobre indicadores con meta
 // (estrategia + logro), contando 0 los faltantes.
 function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true }) {
-  const filasTodas = [...filasEstrategia, ...filasLogro];
-  const conMeta = filasTodas.filter(f => f.ind.metaNum !== null && f.ind.unidad !== 'sin_meta');
+  // Partición: aplicables (entran en agregados y se muestran normalmente) vs
+  // no-aplicables-aun (se muestran compactos con nota, no entran en agregados).
+  const estrategiaAplic = filasEstrategia.filter(f => f.aplicabilidad === 'aplicable');
+  const estrategiaAun   = filasEstrategia.filter(f => f.aplicabilidad !== 'aplicable');
+  const logroAplic      = filasLogro.filter(f => f.aplicabilidad === 'aplicable');
+  const logroAun        = filasLogro.filter(f => f.aplicabilidad !== 'aplicable');
+
+  // El % de cumplimiento y los contadores solo consideran indicadores
+  // aplicables con meta — mantiene la fórmula que se defiende con el cliente.
+  const filasAgregado = [...estrategiaAplic, ...logroAplic];
+  const conMeta = filasAgregado.filter(f => f.ind.metaNum !== null && f.ind.unidad !== 'sin_meta');
   const promedioAmbito = conMeta.length
     ? conMeta.reduce((s, f) => s + (f.logro === null ? 0 : Math.min(1, f.logro)), 0) / conMeta.length
     : null;
-
-  // Distingue "con dato" de "sin dato" sobre indicadores que tienen meta.
-  // Sin meta no cuenta (no es reportable).
-  const conDato   = conMeta.filter(f => estadoValor(f.valor, f.ind) === 'con_dato').length;
-  const sinDato   = conMeta.length - conDato;
+  const conDato = conMeta.filter(f => estadoValor(f.valor, f.ind) === 'con_dato').length;
+  const sinDato = conMeta.length - conDato;
 
   return (
     <div className="border border-border rounded-xl overflow-hidden">
@@ -137,16 +146,21 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                 </p>
                 <div className="flex-1 h-px bg-border"/>
               </div>
-              <div className="divide-y divide-border">
-                {filasEstrategia.map(fila => (
-                  <IndicadorRow
-                    key={fila.ind.id}
-                    fila={fila}
-                    onDrilldown={onDrilldown}
-                    anioEnCurso={anioEnCurso}
-                  />
-                ))}
-              </div>
+              {estrategiaAplic.length > 0 && (
+                <div className="divide-y divide-border">
+                  {estrategiaAplic.map(fila => (
+                    <IndicadorRow
+                      key={fila.ind.id}
+                      fila={fila}
+                      onDrilldown={onDrilldown}
+                      anioEnCurso={anioEnCurso}
+                    />
+                  ))}
+                </div>
+              )}
+              {estrategiaAun.length > 0 && (
+                <NoAplicableAun filas={estrategiaAun} />
+              )}
             </>
           )}
           {filasLogro.length > 0 && (
@@ -158,16 +172,21 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                 </p>
                 <div className="flex-1 h-px bg-border"/>
               </div>
-              <div className="divide-y divide-border">
-                {filasLogro.map(fila => (
-                  <IndicadorRow
-                    key={fila.ind.id}
-                    fila={fila}
-                    onDrilldown={onDrilldown}
-                    anioEnCurso={anioEnCurso}
-                  />
-                ))}
-              </div>
+              {logroAplic.length > 0 && (
+                <div className="divide-y divide-border">
+                  {logroAplic.map(fila => (
+                    <IndicadorRow
+                      key={fila.ind.id}
+                      fila={fila}
+                      onDrilldown={onDrilldown}
+                      anioEnCurso={anioEnCurso}
+                    />
+                  ))}
+                </div>
+              )}
+              {logroAun.length > 0 && (
+                <NoAplicableAun filas={logroAun} />
+              )}
             </>
           )}
         </div>
@@ -202,6 +221,34 @@ function IndicadorRow({ fila, onDrilldown, anioEnCurso }) {
           anioEnCurso={anioEnCurso}
         />
       </div>
+    </div>
+  );
+}
+
+// Muestra los indicadores que aún no aplican al centro (por semestre de inicio
+// posterior al que el centro ha alcanzado). No entran en el % del ámbito ni en
+// ranking, pero se muestran para que el usuario sepa que existen y por qué
+// están silenciados. Distinto de "Sin datos" (aplicable pero sin valor).
+function NoAplicableAun({ filas }) {
+  return (
+    <div className="border-t border-border bg-bg/30 px-4 py-3">
+      <p className="flex items-start gap-2 text-xs text-gray-ui leading-snug mb-2">
+        <Clock size={12} className="shrink-0 mt-0.5" />
+        <span>
+          Estos indicadores están definidos para este ámbito, pero no aplican
+          todavía a este centro educativo según el año de implementación en
+          el que se encuentra. No entran en el porcentaje del ámbito.
+        </span>
+      </p>
+      <ul className="space-y-1">
+        {filas.map(({ ind }) => (
+          <li key={ind.id} className="flex items-start gap-3 text-xs text-gray-ui">
+            <span className="font-mono shrink-0 w-12">{indicadorCodigo(ind.id)}</span>
+            <span className="flex-1">{ind.nombre}</span>
+            <span className="shrink-0 italic">{descripcionNoAplicable(ind)}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
+import { preCanonicalParvularioToCanonical } from './lib/canonicalIds.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -426,8 +427,16 @@ async function ingestParvTab(spec, cache) {
   const emitted = [];
   const skipped = [];
   for (const ind of spec.mapCol) {
-    const indicador = IND_PARV_BY_ID[ind.id];
-    if (!indicador) { skipped.push({ id: ind.id, reason: 'no en catálogo' }); continue; }
+    // Traduce el ID pre-canónico (como fue escrito en los mapCol antes del
+    // 2026-07-29) a canónico. `null` significa que el indicador fue eliminado
+    // en la renumeración canónica (I.22, I.23) — se saltea sin ruido.
+    const canonId = preCanonicalParvularioToCanonical(ind.id);
+    if (canonId === null) {
+      skipped.push({ id: ind.id, reason: 'eliminado en canónico (I.22/I.23)' });
+      continue;
+    }
+    const indicador = IND_PARV_BY_ID[canonId];
+    if (!indicador) { skipped.push({ id: canonId, reason: 'no en catálogo' }); continue; }
     let col = findCol(header, ind.header);
     if (col < 0) {
       // Fallback: prefix match on the first 40 chars.
@@ -455,7 +464,7 @@ async function ingestParvTab(spec, cache) {
           programa: 'parvulario',
           establecimientoId: estId,
           establecimientoNombre: nombre,
-          indicadorId: ind.id,
+          indicadorId: canonId,
           ambito: indicador.ambito,
           cohorte: spec.cohorte,
           anio: spec.anio,
@@ -480,7 +489,7 @@ async function ingestParvTab(spec, cache) {
           programa: 'parvulario',
           establecimientoId: estId,
           establecimientoNombre: nombre,
-          indicadorId: ind.id,
+          indicadorId: canonId,
           ambito: indicador.ambito,
           cohorte: spec.cohorte,
           anio: spec.anio,
@@ -659,15 +668,19 @@ if (TRACK === 'both' || TRACK === 'parvulario') {
       const fsId = nameToFsId.get(`parvulario|${normName(nombre)}`);
       if (!fsId) { saltados++; continue; }
       for (const indId of zf.ids) {
-        const indicador = IND_PARV_BY_ID[indId];
+        // Los IDs de ZERO_FALLBACK están declarados pre-canónico; los
+        // traducimos a canónico antes de leer el catálogo y escribir el doc.
+        const canonId = preCanonicalParvularioToCanonical(indId);
+        if (canonId === null) continue;
+        const indicador = IND_PARV_BY_ID[canonId];
         if (!indicador) continue;
-        const key = `${fsId}|${indId}|${zf.anio}`;
+        const key = `${fsId}|${canonId}|${zf.anio}`;
         if (yaEmitido.has(key)) continue;   // valor real ya presente
         const doc = {
           programa: 'parvulario',
           establecimientoId: fsId,
           establecimientoNombre: nombre,
-          indicadorId: indId,
+          indicadorId: canonId,
           ambito: indicador.ambito,
           cohorte: zf.cohorte,
           anio: zf.anio,

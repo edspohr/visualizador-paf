@@ -23,7 +23,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve as pathResolve } from 'node:path';
 import { google } from 'googleapis';
-import { extractPlanillaId, planillaToCatalog } from './lib/parvularioIds.mjs';
+import { extractPlanillaId, planillaToCanonical } from './lib/parvularioIds.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -100,7 +100,7 @@ async function analizarPlanilla(sheets, planilla) {
         const planillaId = extractPlanillaId(String(h));
         if (planillaId) {
           (isSala ? result.planillaSala : result.planillaJardin).add(planillaId);
-          const catId = planillaToCatalog(planillaId);
+          const catId = planillaToCanonical(planillaId);
           if (catId) {
             (isSala ? result.catalogoSala : result.catalogoJardin).add(catId);
           } else {
@@ -222,13 +222,11 @@ function renderMarkdown({ catalogoIds, planillas, bases, fecha }) {
   }
 
   md += `\n## Notas sobre la numeración\n\n`;
-  md += `La numeración de las pestañas VISUALIZADOR está desfasada respecto al catálogo. Este reporte aplica la traducción **planilla → catálogo** antes de comparar, para que los conteos coincidan con lo que la UI y \`ingestParvulario.mjs\` consumen.\n\n`;
+  md += `Desde el 2026-07-29 el catálogo Parvulario usa la numeración canónica del cliente (53 indicadores I.1–I.53). La traducción planilla → catálogo ahora es prácticamente identidad; solo I.45–I.54 mantienen un shift de −1.\n\n`;
   md += `Reglas (ver \`scripts/lib/parvularioIds.mjs\`):\n\n`;
-  md += `- planilla \`I.1\` ("N° de visitas al jardín") → **no existe** en catálogo (huérfano).\n`;
-  md += `- planilla \`I.2..I.22\` → catálogo \`I.1..I.21\` (shift −1).\n`;
-  md += `- planilla \`I.23..I.43\` → catálogo \`I.24..I.44\` (shift +1; catálogo \`I.22\` y \`I.23\` no tienen fuente).\n`;
+  md += `- planilla \`I.1..I.43\` → canónico \`I.1..I.43\` (identidad).\n`;
   md += `- planilla \`I.44\` → **no existe** (saltada en las planillas).\n`;
-  md += `- planilla \`I.45..I.54\` → catálogo \`I.45..I.54\` (identidad).\n\n`;
+  md += `- planilla \`I.45..I.54\` → canónico \`I.44..I.53\` (shift −1).\n\n`;
   md += `La extracción de IDs desde los headers tolera el typo \`"I.,20"\` presente en las 3 planillas.\n`;
 
   md += `\n---\n\nGenerado por \`scripts/mapeoParvulario.mjs\`.\n`;
@@ -242,7 +240,7 @@ function renderCatWithPlanilla(catSet, planillaSet) {
   const planillaList = [...planillaSet];
   for (const catId of catSet) {
     // Encontrar el ID planilla que mapea a este catId.
-    const planillaId = planillaList.find(pid => planillaToCatalog(pid) === catId);
+    const planillaId = planillaList.find(pid => planillaToCanonical(pid) === catId);
     pairs.push({ catId, planillaId });
   }
   pairs.sort((a, b) => Number(a.catId.slice(2)) - Number(b.catId.slice(2)));

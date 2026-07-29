@@ -40,7 +40,7 @@ import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
-import { extractPlanillaId, planillaToCatalog } from './lib/parvularioIds.mjs';
+import { extractPlanillaId, planillaToCanonical } from './lib/parvularioIds.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -312,7 +312,7 @@ function ingestJardinTab({ workbookId, workbookLabel, tab, rows, cohorte, anio }
   for (let c = 0; c < header.length; c++) {
     const planillaId = extractPlanillaId(header[c]);
     if (!planillaId) continue;
-    const catId = planillaToCatalog(planillaId);
+    const catId = planillaToCanonical(planillaId);
     if (!catId) {
       warnings.push(`${tab}: planilla ${planillaId} sin equivalente en catálogo (col ${c})`);
       continue;
@@ -377,7 +377,7 @@ function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio })
   for (let c = 0; c < header.length; c++) {
     const planillaId = extractPlanillaId(header[c]);
     if (!planillaId) continue;
-    const catId = planillaToCatalog(planillaId);
+    const catId = planillaToCanonical(planillaId);
     if (!catId) { warnings.push(`${tab}: planilla ${planillaId} sin equivalente en catálogo`); continue; }
     const ind = IND_BY_ID[catId];
     if (!ind) { warnings.push(`${tab}: catálogo ${catId} no existe`); continue; }

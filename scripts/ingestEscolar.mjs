@@ -175,8 +175,11 @@ const ACTIVIDADES = [
   { id: 'I36', label: /nota promedio de la evaluacion de consejo de profesores/, aggregate: 'first_number_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de consejo de profesores' },
   // I37 — nota promedio formaciones territoriales (Sin esp → provisional)
   { id: 'I37', label: /nota promedio de la evaluacion de la instancia de formacion docente/, aggregate: 'first_number_from_col1', estado: 'provisional', headerHint: 'Nota promedio de la evaluación de la instancia de formación docente' },
-  // I48 — nota promedio formaciones de monitores
-  { id: 'I48', label: /nota promedio de la evaluacion de formacion a apoderados monitores/, aggregate: 'first_number_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de formación a apoderados monitores' },
+  // I47 — nota promedio formaciones de monitores.
+  // Canonical rename 2026-07-29: era 'I48' en la numeración pre-canónica; con
+  // la eliminación de old I.46 (fomento lector) y el shift -1 en I.47–I.52,
+  // este indicador pasa a canonical I.47.
+  { id: 'I47', label: /nota promedio de la evaluacion de formacion a apoderados monitores/, aggregate: 'first_number_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de formación a apoderados monitores' },
   // I9 — plan de acción diseñado
   { id: 'I9',  label: /^existe plan de accion familia escuela disenado$/,    aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe plan de acción familia escuela diseñado' },
   // I33 — director cumple meta liderazgo (Consultor, validado)
@@ -571,10 +574,12 @@ async function ingestCoursesRC(schoolName, rcId, wbLabel) {
     const fraccion = salasWithMonitorActivo.size / COURSE_ORDER.length;
     results.push({ indId: 'I27', valor: fraccion, raw: `${salasWithMonitorActivo.size}/${COURSE_ORDER.length} salas`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
   }
-  // I47 — # apoderados monitores que implementaron taller (validado)
+  // I46 — # apoderados monitores que implementaron taller (validado).
+  // Canonical rename 2026-07-29: era 'I47' pre-canónico; ver rationale arriba
+  // (old I.46 eliminado, shift -1 en I.47–I.52).
   const totalMonActivos = [...monitoresActivosPerSala.values()].reduce((a, b) => a + b, 0);
   if (totalMonActivos > 0) {
-    results.push({ indId: 'I47', valor: totalMonActivos, raw: `${totalMonActivos} monitores activos totales`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
+    results.push({ indId: 'I46', valor: totalMonActivos, raw: `${totalMonActivos} monitores activos totales`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
   }
   // I28 — cantidad semanas envío BV por sala (mean)
   if (bvSalas.length) {
@@ -593,8 +598,9 @@ async function ingestCoursesRC(schoolName, rcId, wbLabel) {
 
 // ─── Encuesta apoderados — siempre sin dato (tab estructurada pero vacía) ─
 // Se documenta como "sin dato" y se agrega al log de mismatches.
-
-const ENCUESTA_INDS = ['I22', 'I29', 'I30', 'I31', 'I42', 'I43', 'I44', 'I45', 'I46'];
+// El antiguo 'I46' de esta lista fue eliminado del catálogo canónico
+// (2026-07-29); ver scripts/lib/canonicalIds.mjs.
+const ENCUESTA_INDS = ['I22', 'I29', 'I30', 'I31', 'I42', 'I43', 'I44', 'I45'];
 function noteEncuestaEmpty(schoolName) {
   for (const id of ENCUESTA_INDS) {
     // Not logged as mismatch since it's expected mid-year; noted separately

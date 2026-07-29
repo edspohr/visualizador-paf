@@ -123,6 +123,27 @@ export const AMBITO_NAMES = {
   },
 };
 
+// ─── Traducción pre-canónico → canónico ────────────────────────────────────
+// Útil para scripts que fueron escritos contra la numeración antigua (por
+// ejemplo `scripts/ingestExtended.mjs` con sus `mapCol`). Aplica el rename
+// declarado en el `canonical` correspondiente; retorna `null` si el ID
+// pre-canónico fue eliminado (Parvulario I.22/I.23, Escolar I.46).
+
+export function preCanonicalToCanonical(preId, canonical) {
+  if (!preId || typeof preId !== 'string') return null;
+  if ((canonical.deletions ?? []).includes(preId)) return null;
+  return canonical.renames?.[preId] ?? preId;
+}
+
+// Atajos por programa para uso directo en los ingest scripts.
+export function preCanonicalParvularioToCanonical(preId) {
+  return preCanonicalToCanonical(preId, PARVULARIO_CANONICAL);
+}
+
+export function preCanonicalEscolar2026ToCanonical(preId) {
+  return preCanonicalToCanonical(preId, ESCOLAR2026_CANONICAL);
+}
+
 // ─── Aplicación ────────────────────────────────────────────────────────────
 
 // Aplica `canonical` sobre una lista de indicadores parseada del XLSX. Devuelve

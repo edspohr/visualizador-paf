@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, ArrowLeftRight, RotateCcw } from 'lucide-react'
 import { calcularLogro } from '../../data/establecimientos.js';
 import { isAplicable2026 } from '../../data/scope.js';
 import { formatValue } from '../../data/expectedValue.js';
-import { ambitoCodigo, indicadorCodigo } from '../../lib/labels.js';
+import { ambitoCodigo, ambitoNombre, indicadorCodigo } from '../../lib/labels.js';
 import { useValoresAnioNivel, useValoresAnioNiveles } from '../../lib/queries.js';
 
 // ─── Constantes de niveles operativos ────────────────────────────────────────
@@ -383,6 +383,7 @@ export default function ComparadorIndicador({
   sostenedores = [],
   valoresPorEst2026,
   valoresPorEst2025,
+  programa = 'escolar',
 }) {
   const initA = { year: 2026, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS' };
   const initB = { year: 2025, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS' };
@@ -637,7 +638,7 @@ export default function ComparadorIndicador({
             className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-gray-dark outline-none"
           >
             <option value="TODOS">Todos los ámbitos</option>
-            {AMBITOS.map(a => <option key={a.id} value={a.id}>{ambitoCodigo(a)} · {a.nombre}</option>)}
+            {AMBITOS.map(a => <option key={a.id} value={a.id}>{ambitoCodigo(a)} · {ambitoNombre(a, programa)}</option>)}
           </select>
         </div>
         <div>

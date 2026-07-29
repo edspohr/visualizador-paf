@@ -26,8 +26,16 @@ export function ambitoCodigo(a) {
 
 // Ámbito name overrides keyed as `${programa}:${ambitoId}`.
 // Applied at display time so a catalog re-parse doesn't revert them.
+// Capitalization intentionally differs between programs to match the client's
+// order documents (Parvulario "Equipos" plural, Escolar "Equipo" singular).
 const AMBITO_NAME_OVERRIDES = {
-  'parvulario:A1': 'Liderazgo para la gestión institucional de la alianza familia-jardín',
+  'parvulario:A1': 'Gestión institucional',
+  'parvulario:A2': 'Formación Equipos educativos',
+  'parvulario:A3': 'Formación Apoderados',
+  'escolar:A1': 'Gestión institucional',
+  'escolar:A2': 'Formación Equipo educativo',
+  'escolar:A3': 'Formación Apoderados',
+  'escolar:A4': 'Formación Estudiantes',
 };
 
 // a: ámbito object with { id, nombre } (or nombre string + separate id)

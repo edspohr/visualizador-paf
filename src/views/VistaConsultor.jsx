@@ -328,6 +328,7 @@ export default function VistaConsultor() {
             sostenedores={SLEPS_DATA}
             valoresPorEst2026={valoresPorEst}
             valoresPorEst2025={valoresPorEst2025}
+            programa={programa}
           />
         )}
       </div>

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-07T15:13:22.447Z",
+  "generatedAt": "2026-07-29T22:46:59.220Z",
   "source": {
     "escolar": "src/data/catalogs/Sistema indicadores PAF Escolar 2026.xlsx",
     "parvulario": "src/data/catalogs/Sistema indicadores PAF Parvulario.xlsx"
@@ -9,25 +9,25 @@
       {
         "id": "A1",
         "codigo": "A.1",
-        "nombre": "Liderazgo para la gestión de la alianza familia-escuela",
+        "nombre": "Gestión institucional",
         "color": "navy"
       },
       {
         "id": "A2",
         "codigo": "A.2",
-        "nombre": "Formación equipos educativos",
+        "nombre": "Formación Equipo educativo",
         "color": "sky"
       },
       {
         "id": "A3",
         "codigo": "A.3",
-        "nombre": "Participación de apoderados en el desarrollo y aprendizaje",
+        "nombre": "Formación Apoderados",
         "color": "lime"
       },
       {
         "id": "A4",
         "codigo": "A.4",
-        "nombre": "Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
+        "nombre": "Formación Estudiantes",
         "color": "navy"
       }
     ],
@@ -35,19 +35,19 @@
       {
         "id": "A1",
         "codigo": "A.1",
-        "nombre": "Gestión institucional de la alianza familia-jardín",
+        "nombre": "Gestión institucional",
         "color": "navy"
       },
       {
         "id": "A2",
         "codigo": "A.2",
-        "nombre": "Formación equipos educativos",
+        "nombre": "Formación Equipos educativos",
         "color": "sky"
       },
       {
         "id": "A3",
         "codigo": "A.3",
-        "nombre": "Participación y formación de apoderados",
+        "nombre": "Formación Apoderados",
         "color": "lime"
       }
     ]
@@ -975,10 +975,10 @@
         "ambito": "A3",
         "actividadNombre": "Fiesta de las familias",
         "nombre": "Numero de personas de la comunidad educativa que participan en fiesta de la familia por cada 100 estudiantes",
-        "meta": "20",
-        "metaNum": 20,
-        "tipoMeta": "numero",
-        "unidad": "conteo",
+        "meta": "20%",
+        "metaNum": 0.2,
+        "tipoMeta": "porcentaje",
+        "unidad": "%",
         "tipo": "actividad",
         "fuente": "Sin especificar",
         "frecuencia": "anual",
@@ -1551,11 +1551,11 @@
         "metaNum": 10,
         "tipoMeta": "numero",
         "unidad": "conteo",
-        "tipo": "producto",
+        "tipo": "actividad",
         "fuente": "Encuesta apoderados",
         "frecuencia": "anual",
         "inicio": "Primer año",
-        "clasificacion": "producto"
+        "clasificacion": "estrategia"
       },
       {
         "id": "I.30",
@@ -1760,11 +1760,11 @@
         "metaNum": 0.7,
         "tipoMeta": "porcentaje",
         "unidad": "%",
-        "tipo": "actividad",
+        "tipo": "producto",
         "fuente": "Sin especificar",
         "frecuencia": "anual",
         "inicio": null,
-        "clasificacion": "estrategia"
+        "clasificacion": "producto"
       },
       {
         "id": "I.41",
@@ -1779,11 +1779,11 @@
         "metaNum": 0.5,
         "tipoMeta": "porcentaje",
         "unidad": "%",
-        "tipo": "actividad",
+        "tipo": "producto",
         "fuente": "Sin especificar",
         "frecuencia": "anual",
         "inicio": null,
-        "clasificacion": "estrategia"
+        "clasificacion": "producto"
       },
       {
         "id": "I.42",
@@ -1798,11 +1798,11 @@
         "metaNum": 0.7,
         "tipoMeta": "porcentaje",
         "unidad": "%",
-        "tipo": "actividad",
+        "tipo": "producto",
         "fuente": "Encuesta apoderados",
         "frecuencia": "anual",
         "inicio": "Primer año",
-        "clasificacion": "estrategia"
+        "clasificacion": "producto"
       },
       {
         "id": "I.43",
@@ -1810,7 +1810,7 @@
         "version": "2026",
         "estrategiaId": "P3",
         "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A4",
+        "ambito": "A3",
         "actividadNombre": "Biblioteca viajera (nt1 – 2° básico)",
         "nombre": "Promedio de libros de Biblioteca Viajera que declaran utilizar las familias que responden encuesta",
         "meta": "7",
@@ -1829,7 +1829,7 @@
         "version": "2026",
         "estrategiaId": "P3",
         "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A4",
+        "ambito": "A3",
         "actividadNombre": "Lecturas viajeras (3° a 8° básico)",
         "nombre": "Promedio de Lecturas Viajeras que declaran utilizar las familias que responden la encuesta",
         "meta": "10",
@@ -1848,7 +1848,7 @@
         "version": "2026",
         "estrategiaId": "P3",
         "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A4",
+        "ambito": "A3",
         "actividadNombre": "Mantel de Palabras",
         "nombre": "% de apoderados que contestan la encuesta y declaran utilizar el mantel de palabras",
         "meta": "80%",
@@ -1863,25 +1863,6 @@
       },
       {
         "id": "I.46",
-        "programa": "escolar",
-        "version": "2026",
-        "estrategiaId": "P3",
-        "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A4",
-        "actividadNombre": "Apoderados usan las estrategias para involucramiento entregada por los docentes",
-        "nombre": "Cantidad promedio de instrumentos de fomento lector y desarrollo de lenguaje que declaran utilizar las familias que contestan la encuesta",
-        "meta": "10",
-        "metaNum": 10,
-        "tipoMeta": "numero",
-        "unidad": "conteo",
-        "tipo": "producto",
-        "fuente": "Sin especificar",
-        "frecuencia": "anual",
-        "inicio": "Primer año",
-        "clasificacion": "producto"
-      },
-      {
-        "id": "I.47",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P4",
@@ -1900,7 +1881,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.48",
+        "id": "I.47",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P4",
@@ -1919,7 +1900,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.49",
+        "id": "I.48",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -1931,14 +1912,14 @@
         "metaNum": 3,
         "tipoMeta": "numero",
         "unidad": "conteo",
-        "tipo": "actividad",
+        "tipo": "producto",
         "fuente": "Sin especificar",
         "frecuencia": "anual",
         "inicio": null,
-        "clasificacion": "estrategia"
+        "clasificacion": "producto"
       },
       {
-        "id": "I.50",
+        "id": "I.49",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -1957,7 +1938,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.51",
+        "id": "I.50",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -1976,7 +1957,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.52",
+        "id": "I.51",
         "programa": "escolar",
         "version": "2026",
         "estrategiaId": "P5",
@@ -2001,18 +1982,18 @@
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E1",
-        "estrategiaNombre": "GESTIÓN INSTITUCIONAL DE LA ALIANZA FAMILIA-JARDÍN",
+        "estrategiaNombre": null,
         "ambito": "A1",
-        "actividadNombre": "Reuniones con directora en jardín infantil.",
-        "nombre": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
-        "meta": "11",
-        "metaNum": 11,
-        "tipoMeta": "numero",
-        "unidad": "conteo",
+        "actividadNombre": null,
+        "nombre": "N° de visitas al jardín infantil",
+        "meta": "—",
+        "metaNum": null,
+        "tipoMeta": "sin_meta",
+        "unidad": "sin_meta",
         "tipo": "actividad",
-        "fuente": "Consultor",
+        "fuente": "Planilla central",
         "frecuencia": "mensual",
-        "inicio": "Sem 1",
+        "inicio": null,
         "clasificacion": "estrategia"
       },
       {
@@ -2022,8 +2003,8 @@
         "estrategiaId": "E1",
         "estrategiaNombre": "GESTIÓN INSTITUCIONAL DE LA ALIANZA FAMILIA-JARDÍN",
         "ambito": "A1",
-        "actividadNombre": "Reuniones con educadoras en jardín infantil.",
-        "nombre": "N° de reuniones desarrolladas con educadoras del jardín infantil.",
+        "actividadNombre": "Reuniones con directora en jardín infantil.",
+        "nombre": "N° de reuniones desarrolladas con directora o directora subrogante del jardín infantil.",
         "meta": "11",
         "metaNum": 11,
         "tipoMeta": "numero",
@@ -2042,6 +2023,25 @@
         "estrategiaNombre": "GESTIÓN INSTITUCIONAL DE LA ALIANZA FAMILIA-JARDÍN",
         "ambito": "A1",
         "actividadNombre": "Reuniones con educadoras en jardín infantil.",
+        "nombre": "N° de reuniones desarrolladas con educadoras del jardín infantil.",
+        "meta": "11",
+        "metaNum": 11,
+        "tipoMeta": "numero",
+        "unidad": "conteo",
+        "tipo": "actividad",
+        "fuente": "Consultor",
+        "frecuencia": "mensual",
+        "inicio": "Sem 1",
+        "clasificacion": "estrategia"
+      },
+      {
+        "id": "I.4",
+        "programa": "parvulario",
+        "version": "2026",
+        "estrategiaId": "E1",
+        "estrategiaNombre": "GESTIÓN INSTITUCIONAL DE LA ALIANZA FAMILIA-JARDÍN",
+        "ambito": "A1",
+        "actividadNombre": "Reuniones con educadoras en jardín infantil.",
         "nombre": "% de educadoras que participan en reuniones.",
         "meta": "75%",
         "metaNum": 0.75,
@@ -2054,7 +2054,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.4",
+        "id": "I.5",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E1",
@@ -2073,7 +2073,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.5",
+        "id": "I.6",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E1",
@@ -2092,7 +2092,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.6",
+        "id": "I.7",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E1",
@@ -2100,10 +2100,10 @@
         "ambito": "A1",
         "actividadNombre": "1 reunión territorial con coordinadoras.",
         "nombre": "N° de reuniones territoriales con coordinadoras desarrolladas",
-        "meta": "1",
+        "meta": "100%",
         "metaNum": 1,
-        "tipoMeta": "numero",
-        "unidad": "conteo",
+        "tipoMeta": "porcentaje",
+        "unidad": "%",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "semestral",
@@ -2111,7 +2111,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.7",
+        "id": "I.8",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E1",
@@ -2130,7 +2130,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.8",
+        "id": "I.9",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E2",
@@ -2138,10 +2138,10 @@
         "ambito": "A2",
         "actividadNombre": "1 instancia de sensibilización y presentación del Programa.",
         "nombre": "N° de instancias de sensibilización y presentación del Programa desarrolladas",
-        "meta": "Sí",
+        "meta": "100%",
         "metaNum": 1,
-        "tipoMeta": "booleano",
-        "unidad": "binario",
+        "tipoMeta": "porcentaje",
+        "unidad": "%",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "anual",
@@ -2149,7 +2149,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.9",
+        "id": "I.10",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E2",
@@ -2168,7 +2168,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.10",
+        "id": "I.11",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E2",
@@ -2187,7 +2187,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.11",
+        "id": "I.12",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E2",
@@ -2206,7 +2206,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.12",
+        "id": "I.13",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E2",
@@ -2225,7 +2225,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.13",
+        "id": "I.14",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E2",
@@ -2244,7 +2244,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.14",
+        "id": "I.15",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2264,7 +2264,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.15",
+        "id": "I.16",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2284,7 +2284,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.16",
+        "id": "I.17",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2304,7 +2304,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.17",
+        "id": "I.18",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2324,7 +2324,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.18",
+        "id": "I.19",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2344,7 +2344,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.19",
+        "id": "I.20",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2364,7 +2364,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.20",
+        "id": "I.21",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E3",
@@ -2384,7 +2384,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.21",
+        "id": "I.22",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E4",
@@ -2404,45 +2404,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.22",
-        "programa": "parvulario",
-        "version": "2026",
-        "estrategiaId": "E5",
-        "estrategiaNombre": "FORMACIÓN DE APODERADOS",
-        "ambito": "A3",
-        "actividadNombre": "3 Comités comunales",
-        "nombre": "N° de comités comunales en los que participa el jardín infantil",
-        "meta": "3",
-        "metaNum": 3,
-        "tipoMeta": "numero",
-        "unidad": "conteo",
-        "tipo": "actividad",
-        "fuente": "Consultor",
-        "frecuencia": "anual",
-        "inicio": "Sem 2",
-        "clasificacion": "estrategia"
-      },
-      {
         "id": "I.23",
-        "programa": "parvulario",
-        "version": "2026",
-        "estrategiaId": "E5",
-        "estrategiaNombre": "FORMACIÓN DE APODERADOS",
-        "ambito": "A3",
-        "actividadNombre": "Fiesta de la familia",
-        "nombre": "% de familias que participan en la actividad",
-        "meta": "25%",
-        "metaNum": 0.25,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
-        "tipo": "actividad",
-        "fuente": "Consultor",
-        "frecuencia": "anual",
-        "inicio": "Sem 2",
-        "clasificacion": "estrategia"
-      },
-      {
-        "id": "I.24",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2462,7 +2424,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.25",
+        "id": "I.24",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2482,7 +2444,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.26",
+        "id": "I.25",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2502,7 +2464,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.27",
+        "id": "I.26",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2522,7 +2484,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.28",
+        "id": "I.27",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2542,7 +2504,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.29",
+        "id": "I.28",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2550,10 +2512,10 @@
         "ambito": "A3",
         "actividadNombre": "1 Formación territorial de monitores (apoderados y agentes educativas).",
         "nombre": "N° formaciones territoriales de monitores desarrolladas",
-        "meta": "1",
+        "meta": "100%",
         "metaNum": 1,
-        "tipoMeta": "numero",
-        "unidad": "conteo",
+        "tipoMeta": "porcentaje",
+        "unidad": "%",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "anual",
@@ -2561,7 +2523,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.30",
+        "id": "I.29",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2580,7 +2542,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.31",
+        "id": "I.30",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2599,7 +2561,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.32",
+        "id": "I.31",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2618,7 +2580,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.33",
+        "id": "I.32",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2637,7 +2599,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.34",
+        "id": "I.33",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "E6",
@@ -2656,7 +2618,7 @@
         "clasificacion": "estrategia"
       },
       {
-        "id": "I.35",
+        "id": "I.34",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P1",
@@ -2675,7 +2637,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.36",
+        "id": "I.35",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P1",
@@ -2694,7 +2656,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.37",
+        "id": "I.36",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P1",
@@ -2713,7 +2675,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.38",
+        "id": "I.37",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P2",
@@ -2732,7 +2694,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.39",
+        "id": "I.38",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P2",
@@ -2751,7 +2713,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.40",
+        "id": "I.39",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P2",
@@ -2771,7 +2733,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.41",
+        "id": "I.40",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P2",
@@ -2791,7 +2753,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.42",
+        "id": "I.41",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P2",
@@ -2811,7 +2773,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.43",
+        "id": "I.42",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P2",
@@ -2831,7 +2793,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.44",
+        "id": "I.43",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2850,7 +2812,7 @@
         "clasificacion": "producto"
       },
       {
-        "id": "I.45",
+        "id": "I.44",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2870,7 +2832,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.46",
+        "id": "I.45",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2890,7 +2852,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.47",
+        "id": "I.46",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2910,7 +2872,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.48",
+        "id": "I.47",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2930,7 +2892,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.49",
+        "id": "I.48",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2950,7 +2912,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.50",
+        "id": "I.49",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2970,7 +2932,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.51",
+        "id": "I.50",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -2990,7 +2952,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.52",
+        "id": "I.51",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P3",
@@ -3010,7 +2972,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.53",
+        "id": "I.52",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P4",
@@ -3030,7 +2992,7 @@
         "desagregaNivel": true
       },
       {
-        "id": "I.54",
+        "id": "I.53",
         "programa": "parvulario",
         "version": "2026",
         "estrategiaId": "P4",
@@ -3053,8 +3015,8 @@
   },
   "totals": {
     "escolar2025": 50,
-    "escolar2026": 52,
-    "parvulario": 54,
-    "headline_2026_plus_parvulario": 106
+    "escolar2026": 51,
+    "parvulario": 53,
+    "headline_2026_plus_parvulario": 104
   }
 }

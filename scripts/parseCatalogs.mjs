@@ -16,6 +16,13 @@ import XLSX from 'xlsx';
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve as pathResolve } from 'node:path';
+import {
+  PARVULARIO_CANONICAL,
+  ESCOLAR2026_CANONICAL,
+  AMBITO_NAMES,
+  applyCanonical,
+  assertCanonical,
+} from './lib/canonicalIds.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -24,16 +31,15 @@ const ESCOLAR_XLSX    = pathResolve(ROOT, 'src/data/catalogs/Sistema indicadores
 const PARVULARIO_XLSX = pathResolve(ROOT, 'src/data/catalogs/Sistema indicadores PAF Parvulario.xlsx');
 const OUT_JSON        = pathResolve(ROOT, 'src/data/catalog.json');
 
-// Indicadores Parvulario (en IDs de catálogo) que llegan con granularidad sala
-// en las pestañas VISUALIZADOR SALAS de las 3 planillas centrales. Este flag
-// habilita el filtro Nivel del comparador en la UI. La lista se deriva del
-// mapeo header-driven: se toma la unión de IDs presentes como columna en
-// SALAS (aunque hoy no traigan datos) y se traduce a coordenadas de catálogo
-// vía scripts/lib/parvularioIds.mjs.
+// Indicadores Parvulario que llegan con granularidad sala en las pestañas
+// VISUALIZADOR SALAS de las 3 planillas centrales. Este flag habilita el
+// filtro Nivel del comparador en la UI. Se persiste aquí (código) para que
+// sobreviva a regeneraciones de catalog.json.
 //
-// Se persiste aquí (código) para que sobreviva a regeneraciones de
-// catalog.json. Fuente de verdad: `scripts/mapeoParvulario.mjs` (sección
-// "Desglose por sala" del reporte).
+// IMPORTANTE: los IDs están en NUMERACIÓN PRE-CANÓNICA (la del XLSX fuente),
+// no en la canónica. Se aplica sobre el resultado del parseo antes de
+// `applyCanonical`, para que el flag "viaje" con el indicador cuando se lo
+// renombra. Los IDs canónicos correspondientes se validan en el assert final.
 const PARVULARIO_DESAGREGA_NIVEL = new Set([
   'I.14', 'I.15', 'I.16', 'I.17', 'I.18', 'I.19',
   'I.20', 'I.21',
@@ -396,46 +402,76 @@ function unidadFromTipoMeta(tipoMeta) {
 
 // ─── Ámbitos canónicos ─────────────────────────────────────────────────────
 
+// Ámbitos derivados de AMBITO_NAMES en scripts/lib/canonicalIds.mjs — fuente
+// única de verdad para el nombre display de cada ámbito. Los overrides de
+// display puros viven en src/lib/labels.js y toman precedencia; aquí solo
+// mantenemos catalog.json internamente consistente.
 const AMBITOS_ESCOLAR = [
-  { id: 'A1', codigo: 'A.1', nombre: 'Liderazgo para la gestión de la alianza familia-escuela', color: 'navy' },
-  { id: 'A2', codigo: 'A.2', nombre: 'Formación equipos educativos', color: 'sky' },
-  { id: 'A3', codigo: 'A.3', nombre: 'Participación de apoderados en el desarrollo y aprendizaje', color: 'lime' },
-  { id: 'A4', codigo: 'A.4', nombre: 'Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes', color: 'navy' },
+  { id: 'A1', codigo: 'A.1', nombre: AMBITO_NAMES.escolar.A1, color: 'navy' },
+  { id: 'A2', codigo: 'A.2', nombre: AMBITO_NAMES.escolar.A2, color: 'sky' },
+  { id: 'A3', codigo: 'A.3', nombre: AMBITO_NAMES.escolar.A3, color: 'lime' },
+  { id: 'A4', codigo: 'A.4', nombre: AMBITO_NAMES.escolar.A4, color: 'navy' },
 ];
 
 const AMBITOS_PARVULARIO = [
-  { id: 'A1', codigo: 'A.1', nombre: 'Gestión institucional de la alianza familia-jardín', color: 'navy' },
-  { id: 'A2', codigo: 'A.2', nombre: 'Formación equipos educativos', color: 'sky' },
-  { id: 'A3', codigo: 'A.3', nombre: 'Participación y formación de apoderados', color: 'lime' },
+  { id: 'A1', codigo: 'A.1', nombre: AMBITO_NAMES.parvulario.A1, color: 'navy' },
+  { id: 'A2', codigo: 'A.2', nombre: AMBITO_NAMES.parvulario.A2, color: 'sky' },
+  { id: 'A3', codigo: 'A.3', nombre: AMBITO_NAMES.parvulario.A3, color: 'lime' },
 ];
 
 // ─── Main ─────────────────────────────────────────────────────────────────
 
-const escolar2025 = parseEscolar2025();
-const escolar2026 = parseEscolar2026();
-const parvulario  = parseParvulario();
+const escolar2025Raw = parseEscolar2025();
+const escolar2026Raw = parseEscolar2026();
+const parvularioRaw  = parseParvulario();
 
-const CHECKSUMS = {
+// Checksum del parseo bruto contra el XLSX fuente. Si el XLSX cambia y
+// los conteos brutos difieren, el mapa canónico también puede necesitar
+// actualización — falla ruidosamente.
+const RAW_CHECKSUMS = {
   escolar2025_expected: 50,
   escolar2026_expected: 52,
   parvulario_expected:  54,
-  escolar2025_actual:   escolar2025.length,
-  escolar2026_actual:   escolar2026.length,
-  parvulario_actual:    parvulario.length,
+  escolar2025_actual:   escolar2025Raw.length,
+  escolar2026_actual:   escolar2026Raw.length,
+  parvulario_actual:    parvularioRaw.length,
 };
 
-console.log('\nChecksums:');
-console.table(CHECKSUMS);
+console.log('\nRaw parse (pre-canonicalization):');
+console.table(RAW_CHECKSUMS);
 
-const fails = [];
-if (escolar2025.length !== 50) fails.push(`escolar2025 count mismatch: got ${escolar2025.length}, expected 50`);
-if (escolar2026.length !== 52) fails.push(`escolar2026 count mismatch: got ${escolar2026.length}, expected 52`);
-if (parvulario.length  !== 54) fails.push(`parvulario  count mismatch: got ${parvulario.length}, expected 54`);
-if (fails.length) {
-  console.error('\n❌ Checksum failures:');
-  fails.forEach(f => console.error('  -', f));
+const rawFails = [];
+if (escolar2025Raw.length !== 50) rawFails.push(`escolar2025 raw count mismatch: got ${escolar2025Raw.length}, expected 50`);
+if (escolar2026Raw.length !== 52) rawFails.push(`escolar2026 raw count mismatch: got ${escolar2026Raw.length}, expected 52`);
+if (parvularioRaw.length  !== 54) rawFails.push(`parvulario  raw count mismatch: got ${parvularioRaw.length}, expected 54`);
+if (rawFails.length) {
+  console.error('\n❌ Raw parse checksum failures — el XLSX fuente cambió; revisar scripts/lib/canonicalIds.mjs:');
+  rawFails.forEach(f => console.error('  -', f));
   process.exit(1);
 }
+
+// Aplicar canonicalización: renombres, adiciones, eliminaciones y overrides
+// definidos en scripts/lib/canonicalIds.mjs. El resultado es la lista que
+// consume la UI y contra la que se debe alinear Firestore.
+const parvulario  = applyCanonical(parvularioRaw,  PARVULARIO_CANONICAL);
+const escolar2026 = applyCanonical(escolar2026Raw, ESCOLAR2026_CANONICAL);
+const escolar2025 = escolar2025Raw; // No canonicalizado por ahora — ver Q4 del plan.
+
+console.log('\nPost-canonicalization:');
+console.table({
+  parvulario:  { antes: parvularioRaw.length, ahora: parvulario.length,  esperado: PARVULARIO_CANONICAL.expectations.total },
+  escolar2026: { antes: escolar2026Raw.length, ahora: escolar2026.length, esperado: ESCOLAR2026_CANONICAL.expectations.total },
+  escolar2025: { antes: escolar2025Raw.length, ahora: escolar2025.length, esperado: escolar2025Raw.length },
+});
+
+try {
+  assertCanonical(parvulario,  PARVULARIO_CANONICAL,  'parvulario');
+  assertCanonical(escolar2026, ESCOLAR2026_CANONICAL, 'escolar2026');
+} catch (err) {
+  console.error(`\n❌ ${err.message}`);
+  process.exit(1);
+}
+console.log('\n✅ Canonicalization asserts OK.');
 
 const catalog = {
   generatedAt: new Date().toISOString(),

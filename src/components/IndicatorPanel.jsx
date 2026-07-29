@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { ChevronDown, ChevronUp, ListChecks, Package } from 'lucide-react';
 import { calcularLogro, estadoValor } from '../data/establecimientos.js';
 import { isAplicable2026 } from '../data/scope.js';
 import { IndicatorProgress } from './Shared.jsx';
@@ -59,7 +59,10 @@ export default function IndicatorPanel({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium tracking-wider uppercase text-gray-ui px-1 pb-1">
+      <p
+        className="text-xs font-semibold tracking-wider uppercase px-1 pb-2 mb-1 border-b border-border"
+        style={{ color: 'var(--color-cyan)' }}
+      >
         Indicadores por ámbito
       </p>
       {AMBITOS.map(a => {
@@ -126,23 +129,32 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
       {isOpen && (
         <div className="border-t border-border">
           {filasEstrategia.length > 0 && (
-            <div className="divide-y divide-border">
-              {filasEstrategia.map(fila => (
-                <IndicadorRow
-                  key={fila.ind.id}
-                  fila={fila}
-                  onDrilldown={onDrilldown}
-                  anioEnCurso={anioEnCurso}
-                />
-              ))}
-            </div>
+            <>
+              <div className="flex items-center gap-3 px-4 pt-4 pb-2 bg-bg/50">
+                <ListChecks size={13} style={{ color: 'var(--color-cyan)' }} className="shrink-0"/>
+                <p className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--color-cyan)' }}>
+                  Indicadores del ámbito
+                </p>
+                <div className="flex-1 h-px bg-border"/>
+              </div>
+              <div className="divide-y divide-border">
+                {filasEstrategia.map(fila => (
+                  <IndicadorRow
+                    key={fila.ind.id}
+                    fila={fila}
+                    onDrilldown={onDrilldown}
+                    anioEnCurso={anioEnCurso}
+                  />
+                ))}
+              </div>
+            </>
           )}
           {filasLogro.length > 0 && (
             <>
               <div className="flex items-center gap-3 px-4 pt-4 pb-2 bg-bg/50 border-t border-border">
                 <Package size={13} style={{ color: 'var(--color-magenta)' }} className="shrink-0"/>
                 <p className="text-xs font-semibold tracking-wider uppercase" style={{ color: 'var(--color-magenta)' }}>
-                  Indicadores de logro asociados
+                  Indicadores de logro
                 </p>
                 <div className="flex-1 h-px bg-border"/>
               </div>

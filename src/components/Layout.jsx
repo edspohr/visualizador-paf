@@ -236,7 +236,7 @@ export default function Layout({ children }) {
 
       <footer className="border-t border-border bg-white py-4 mt-8">
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Consultora Focus · Fundación CAP</span>
+          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Fundación CAP</span>
           <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-50" />
         </div>
       </footer>

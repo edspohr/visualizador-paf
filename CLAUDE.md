@@ -1,192 +1,251 @@
-# Contexto para Claude Code — Visualizador PAF Mock
+# Contexto para Claude Code — Visualizador PAF
 
 ## Qué es esto
 
-Prototipo navegable de los dashboards del **Programa Aprender en Familia (PAF)** que opera Consultora Focus junto a Fundación CAP. Cliente: **Luis Agurto · Consultora Focus**. Reunión clave: **lunes 25 mayo en la tarde**.
+Plataforma **en producción** de monitoreo del **Programa Aprender en Familia (PAF)** que opera Consultora Focus junto a Fundación CAP. Cubre las dos vertientes del programa: **Escolar** (2025–2027, 2026–2028) y **Parvulario** (2025–2026, 2026–2027).
 
-El objetivo del mock NO es producto final. Es **validar look & feel, modelo de visualización y arquitectura de accesos** con el cliente antes de implementar en Superset + Supabase. Los datos son sintéticos pero consistentes con la estructura real de indicadores y establecimientos del programa.
+Los datos son reales: provienen de planillas de trabajo mantenidas por Focus y se ingestan en Firestore. El deploy vive en Firebase Hosting.
+
+- **URL producción:** https://visualizador-paf.web.app
+- **Proyecto Firebase:** `visualizador-paf`
+- **Contacto cliente principal:** Luis Agurto (lagurto@focus.cl). No técnico. Todo lo que él vea debe estar libre de código y jerga.
+- **Contacto técnico Focus:** Sebastián Peters (speters@focus.cl).
+
+Este archivo describe la arquitectura y las convenciones activas. **Reescribir cuando cambien.** Fue reescrito el 2026-07-29 tras la retroalimentación del cliente sobre el modelo canónico de indicadores.
+
+---
 
 ## Stack
 
-- **React 18 + Vite + Tailwind CSS + Recharts** — elegido para ser replicable 1:1 en Superset
-- **Firebase Hosting** para deploy (CLI ya instalado localmente)
-- **No hay backend** — datos en `src/data/*.js` con PRNG determinístico
+- **Frontend:** React 18 + Vite + Tailwind CSS + Recharts.
+- **Estado remoto:** `@tanstack/react-query` sobre Firestore.
+- **Auth:** Firebase Auth (Google OAuth + email/password).
+- **Datos:** Firestore (colección `resultados_real`, `progresoTrimestral_real`, `establecimientos_real`, `usuarios`, `config/*`).
+- **Ingesta:** scripts Node ESM en `scripts/` que leen planillas Google Sheets y XLSX en `scripts/datos/`.
+- **Deploy:** Firebase Hosting (`npm run deploy`) y reglas/índices Firestore (`npm run deploy:rules`).
 
-## Estructura de datos clave
+No hay backend propio: el navegador consulta Firestore directamente con reglas RLS por perfil.
 
-```
-src/data/indicadores.js
-  ├─ AMBITOS_ESCOLAR (4 ámbitos: Liderazgo, Formación, Participación, Fomento Lector)
-  ├─ AMBITOS_PARVULARIO (3 ámbitos)
-  ├─ INDICADORES_ESCOLAR (~27 indicadores subset de los 50 reales)
-  └─ INDICADORES_PARVULARIO (~19 indicadores subset de los 53 reales)
+---
 
-src/data/establecimientos.js
-  ├─ SLEPS (4: Los Parques, Santa Rosa, Del Pino, Santa Corina)
-  ├─ ESCUELAS (5 de SLEP Los Parques, cohorte 2025-2027 — las que tienen URLs verificadas)
-  ├─ JARDINES (13 distribuidos en Santa Rosa / Del Pino / Santa Corina)
-  ├─ generarValorIndicador() — PRNG determinístico por (indicador, establecimiento, mes)
-  ├─ calcularLogro() — valor/meta clamped [0, 1.2]
-  ├─ colorSemaforo() — <60% rojo, <85% ámbar, >=85% verde (lime)
-  └─ logroPorAmbito() / promedioSlepAmbito() / evolucionAmbito() — agregadores
-```
+## Mapa del código
 
-## Modelo de los 5 perfiles (RLS)
+### Datos
 
-Definidos en `src/lib/context.jsx → PERFILES`:
+- **`src/data/catalog.json`** — catálogo persistido de ámbitos e indicadores por programa y año. Generado por `scripts/parseCatalogs.mjs`. **No editar a mano**: cualquier corrección debe pasar por el pipeline de parseo + mapa canónico (ver "Numeración canónica" abajo).
+  - `indicadores.escolar2025` — 50 indicadores (histórico, ver "Comparación entre años").
+  - `indicadores.escolar2026` — indicadores vigentes escolares.
+  - `indicadores.parvulario` — indicadores vigentes parvulario.
+  - Campos por indicador: `id`, `programa`, `version`, `estrategiaId`, `estrategiaNombre`, `ambito`, `actividadNombre`, `nombre`, `meta`, `metaNum`, `tipoMeta`, `unidad`, `tipo`, `fuente`, `frecuencia`, `inicio`, `clasificacion` (`'estrategia'` = indicador de ámbito, `'producto'` = indicador de logro), `desagregaNivel` (parvulario, opcional).
+- **`src/data/catalogs/`** — planillas fuente del catálogo (`Sistema indicadores PAF Escolar 2026.xlsx`, `Sistema indicadores PAF Parvulario.xlsx`).
+- **`src/data/establecimientos.js`** — helpers puros de dominio: `calcularLogro`, `estadoValor` (`'sin_meta' | 'sin_dato' | 'con_dato'`), `colorSemaforo`, `labelSemaforo`, `currentMonth`, `lastClosedMonth`, `capClosedPeriod`.
+- **`src/data/scope.js`** — reglas de universo:
+  - Año base = **2026**.
+  - `isAplicable2026(indicador, est, mes)`: el indicador aplica cuando el semestre acumulado del establecimiento en 2026 (según cohorte) alcanza el semestre mínimo requerido por `indicador.inicio`.
+  - `cumplimientoIndicadores`: promedio de `min(1, calcularLogro)` sobre los indicadores aplicables **con meta**. Un indicador aplicable **sin valor** cuenta como **0**.
+- **`src/data/expectedValue.js`** — `formatValue(indicador, valor)` para display por unidad.
+- **`src/data/matricula.js`** — reglas de visibilidad de matrícula por perfil.
+
+### Consultas y hooks
+
+- **`src/lib/queries.js` / `src/data/realQueries.js`** — todos los hooks de datos. Los más usados:
+  - `useEstablecimientos`, `useEscuelas`, `useJardines`, `useSleps`.
+  - `useIndicadores(programa)`, `useAmbitos(programa)` — leen `catalog.json`.
+  - `useValoresAnio(anio)` — todos los `resultados_real` de un año (excluye docs con campo `nivel` para no doblecontar).
+  - `useValoresAnioNivel(anio, nivel)`.
+  - `useValoresAnioNiveles(anio, enabled)` — todos los niveles operativos en una sola query (`where nivel in [...]`), usado por el comparador en modo "por nivel".
+  - `useValoresIndicador(estId, anio)`, `useProgresoTrimestral`, `useMesCerrado`, `usePipelineMetadata`.
+
+### Vistas y componentes
+
+- **`src/views/`**
+  - `Login.jsx` — Google OAuth + email/password.
+  - `PendienteAsignacion.jsx` — placeholder para usuarios sin perfil.
+  - `VistaEscuela.jsx` — vista de un establecimiento (escuela o jardín).
+  - `VistaSostenedor.jsx` — vista de un SLEP con toggle escolar/parvulario cuando hay ambos.
+  - `VistaConsultor.jsx` — vista nacional para consultor y CAP. Filtros por sostenedor / cohorte / año de implementación / comuna. Contiene el comparador.
+  - `GestionUsuarios.jsx`, `DashboardConsultores.jsx` — solo `superadmin`.
+- **`src/views/comparador/ComparadorIndicador.jsx`** — comparador A/B por indicador. Soporta desgloses "agrupado", "por establecimiento" y "por nivel" (parvulario).
+- **`src/components/`**
+  - `IndicatorPanel.jsx` — grilla de indicadores agrupados por ámbito, colapsables. Separa estrategia (indicadores del ámbito) de producto (indicadores de logro).
+  - `IndicatorDrilldown.jsx` — modal de detalle de un indicador para un establecimiento.
+  - `IndicatorRanking.jsx` — top/bottom 3 por ratio de logro.
+  - `IndicatorAveragePicker.jsx`, `SostenedorAveragePicker.jsx`, `SostenedorVsPromedio.jsx`, `HeatmapEstablecimientosIndicadores.jsx`.
+  - `Shared.jsx` — `IndicatorProgress`, `KpiCard`, `SemaforoBadge`, `AmbitoCard`, primitivos.
+  - `Glosario.jsx` — acordeón de siglas.
+  - `Layout.jsx` — header + switcher de perfil + footer.
+- **`src/lib/`**
+  - `context.jsx` — `AppProvider`, `useApp`, definición de perfiles, listener de Firebase Auth y sincronización de `usuarios`.
+  - `firebase.js` — cliente Firebase.
+  - `labels.js` — `indicadorCodigo`, `ambitoCodigo`, `ambitoNombre`. Contiene `AMBITO_NAME_OVERRIDES` (mapa `${programa}:${ambitoId}` → nombre display) para renombrar ámbitos en UI sin tocar los datos almacenados.
+  - `features.js` — feature flags (por ej. `FEATURES.heatmap`, controlado por `VITE_FEATURE_HEATMAP`).
+
+### Scripts
+
+- **`scripts/parseCatalogs.mjs`** — reconstruye `catalog.json` desde los XLSX en `src/data/catalogs/`. Debe aplicar el mapa canónico al final (ver más abajo). No es idempotente en escritura: rompe cualquier edición manual del JSON.
+- **`scripts/lib/parvularioIds.mjs`** — traducción entre numeración de planilla y numeración de catálogo (`extractPlanillaId`, `planillaToCatalog`). Tolera tipos como `"I.,20"`.
+- **`scripts/ingestParvulario.mjs`** — ingesta desde Planillas Centrales (3 cohortes/años) → `establecimientos_real` + `resultados_real`. Escribe agregado por jardín y variantes por sala (`nivel`, `nivelEspecifico`, `nivelGeneral`).
+- **`scripts/ingestEscolar.mjs`** — ingesta escolar desde 18 planillas de Google Drive. Marca `estado: 'validado' | 'provisional'`.
+- **`scripts/ingestRosterEscolar.mjs`** — actualiza `nNinos`, `nAgentes`, `rbd` en `establecimientos_real`.
+- **`scripts/ingestExtended.mjs`** — cierra huecos con `ZERO_FALLBACK` (emite `valor: 0` con `raw: "sin actividad reportada"` para columnas vacías en indicadores aplicables). **No confundir "reported zero" con "sin datos".**
+- **`scripts/mapeoParvulario.mjs`** — reporte de cobertura → `docs/mapeo-parvulario-YYYY-MM-DD.md`.
+- **`scripts/migrateEscolarIndicadorIds.mjs`** — ejemplo canónico de migración Firestore (dry-run, idempotente, con manejo de colisiones). Usarlo como plantilla para nuevas migraciones.
+- **`scripts/checkColorTokens.mjs`** — guardián de tokens de color; corre antes de `vite build`.
+- **`scripts/auditFill.mjs`** — auditoría de llenado.
+
+### Firestore
+
+Colecciones:
+
+- **`establecimientos_real/{doc_id}`** — Doc IDs `jar-{slug}` (parvulario) o `esc-{slug}` (escolar).
+- **`resultados_real/{doc_id}`** — dos formatos:
+  - Agregado por establecimiento: `parv_${estId}_${indId}_${anio}` / `esc_${estId}_${indId}_${anio}`.
+  - Por sala (parvulario): `parv_${estId}_${indId}_${anio}_${nivelSlug}` con campos `nivel`, `nivelEspecifico`, `nivelGeneral`.
+  - Todos los IDs pasan por `sanitizeDocId(/[^a-zA-Z0-9_.-]/g → _)`.
+- **`progresoTrimestral_real/{doc_id}`**.
+- **`usuarios/{uid}`** — `email`, `nombre`, `perfilDefault` (`escuela | jardin | sostenedor | consultor | cap | superadmin | pendiente`), `establecimientoId`, `proveedor`.
+- **`config/dataSource`**, **`config/mesCerrado`**, **`config/pipelineMetadata`**.
+
+Índices: ver `firestore.indexes.json`. Cualquier nueva query compuesta requiere agregar el índice y deployar con `npm run deploy:rules` **antes** del hosting.
+
+---
+
+## Numeración canónica de indicadores
+
+**Fuente de verdad** (en orden de precedencia, según instrucción del cliente 2026-07-29):
+
+1. `Orden de indicadores para visualizador` (documentos separados Parvulario y Escolar). Manda para numeración, pertenencia a ámbito, nombres de ámbito y separación ámbito/logro.
+2. `Indicadores PAF Escolar` / `Indicadores PAF Parvulario`. Manda para metas, frecuencias y fuentes.
+3. Planillas centrales. Manda para valores.
+
+Toda numeración previa (subset "mock", numeraciones de planilla) es subordinada. Los mapeos históricos viven en `scripts/lib/parvularioIds.mjs` y deben actualizarse cuando cambia el canónico.
+
+Estructura canónica vigente:
+
+**Parvulario — 53 indicadores (I.1–I.53) en 3 ámbitos:**
+
+| Ámbito | Nombre display | Indicadores del ámbito | Indicadores de logro |
+|---|---|---|---|
+| A.1 | Gestión institucional | I.1 – I.8 (8) | I.34 – I.36 (3) |
+| A.2 | Formación Equipos educativos | I.9 – I.14 (6) | I.37 – I.42 (6) |
+| A.3 | Formación Apoderados | I.15 – I.33 (19) | I.43 – I.53 (11) |
+
+**Escolar 2026 — 51 indicadores (I.1–I.51) en 4 ámbitos:**
+
+| Ámbito | Nombre display | Indicadores del ámbito | Indicadores de logro |
+|---|---|---|---|
+| A.1 | Gestión institucional | I.1 – I.10 (10) | I.33 – I.35 (3) |
+| A.2 | Formación Equipo educativo | I.11 – I.20 (10) | I.36 – I.38 (3) |
+| A.3 | Formación Apoderados | I.21 – I.27 (7) | I.39 – I.47 (9) |
+| A.4 | Formación Estudiantes | I.28 – I.32 (5) | I.48 – I.51 (4) |
+
+Los overrides de nombre de ámbito viven en `src/lib/labels.js → AMBITO_NAME_OVERRIDES`, no en Firestore.
+
+---
+
+## Perfiles
+
+Seis perfiles activos, definidos en `src/lib/context.jsx → PERFILES`:
 
 | Perfil | Vista | Alcance |
 |---|---|---|
-| `escuela` | VistaEscuela | 1 establecimiento (de ESCUELAS) |
-| `jardin` | VistaEscuela | 1 establecimiento (de JARDINES) |
-| `sostenedor` | VistaSostenedor | Toda su red de un SLEP |
-| `consultor` | VistaConsultor | Vista nacional con filtros |
-| `cap` | VistaConsultor | Vista nacional, mes cerrado, banner magenta |
+| `escuela` | VistaEscuela | 1 establecimiento escolar |
+| `jardin` | VistaEscuela | 1 jardín |
+| `sostenedor` | VistaSostenedor | Red completa de un SLEP |
+| `consultor` | VistaConsultor | Nacional, mes en curso |
+| `cap` | VistaConsultor | Nacional, mes cerrado (banner distintivo) |
+| `superadmin` | Layout + admin | Todo + `/usuarios` + `/dashboard-consultores` |
 
-El login es simulado (selector visual en `/src/views/Login.jsx`). El perfil se guarda en `localStorage` con clave `paf_perfil`. El header tiene un switcher que permite cambiar de perfil en cualquier momento (útil para demos).
+Además existe `pendiente` para usuarios nuevos sin perfil asignado.
 
-## Paleta (NO cambiar sin avisar)
+El perfil se resuelve por `usuarios.perfilDefault`. Los correos en whitelist (`espohr@gmail.com`, `lagurto@focus.cl`, `speters@focus.cl`) se autopromueven a `superadmin` en el primer login.
+
+---
+
+## Paleta y tokens (NO cambiar sin coordinación)
+
+Todos los colores vienen de custom properties CSS definidas en `src/index.css`. Nunca introducir hex crudos: `scripts/checkColorTokens.mjs` corre antes de `vite build` y falla si aparecen tokens no definidos.
+
+Tokens principales:
 
 ```
-navy   #1A365D   — primario, títulos, header
-sky    #5B9BD5   — banners, encabezados de sección
-lime   #8CC63F   — accent, semáforo verde, infancia
-ink    #333333   — texto principal
-muted  #6B7280   — texto secundario
-bg     #F4F6F7   — fondo de sección
-border #E5E7EB   — bordes sutiles
+--color-cyan       rgb(0, 138, 201)     — primario
+--color-magenta    rgb(228, 21, 105)    — logros / acento
+--color-yellow     rgb(255, 220, 0)
+--color-red        rgb(229, 53, 23)
+--color-purple-1   rgb(179, 67, 120)
+--color-purple-2   rgb(142, 69, 112)
+--color-teal       rgb(20, 130, 130)
+--color-lime       rgb(101, 163, 13)    — semáforo verde
+--color-gray-light rgb(160, 165, 169)
+--color-gray-ui    rgb(160, 165, 169)
+--color-gray-dark  rgb(51, 51, 51)
+--color-bg         #F5F6F8
 ```
 
-Tailwind tiene estos colores configurados con escala 50-900 para navy/sky/lime.
+Existen alias legacy (`tag-navy`, `tag-sky`, `tag-lime`) que mapean a cyan.
 
-## Mejoras realizadas (sesión pre-reunión 24 mayo)
+---
 
-1. ✅ **AmbitoCard semáforo** — punto interno centrado en `src/components/Shared.jsx`. Removido `leading-none` del contenedor flex y `block` del span; ahora usa solo `flex items-center justify-center` + `shrink-0`.
-2. ✅ **Iconos del dropdown de perfil** — estandarizados a `text-navy bg-navy-50` para todos los perfiles. Antes `lime` y `sky` con `/10` opacity resultaban invisibles sobre fondo blanco.
-3. ✅ **Bias sintético Del Pino y Santa Corina** — subido de `0.65/0.60` a `0.75/0.73`. Ahora aterrizan en amber ("En desarrollo") en lugar de rojo, consistente con ser cohorte más nueva (2026-2027).
-4. ✅ **Vista móvil** — banner pills con `flex-wrap` en VistaEscuela y VistaSostenedor. Filas de indicadores en VistaEscuela pasan a `flex-col` en mobile y `flex-row` en `sm:` con metadata en `flex-wrap`.
-5. ✅ **Logos integrados** — `logo-paf.png` en header (badge `w-20 h-20` blanco redondeado), Login (mismo badge con título a la derecha) y favicon. `logo-focus.svg` en footer con `opacity-40`.
-6. ✅ **Firebase configurado y deployado** — proyecto `visualizador-paf`, URL: https://visualizador-paf.web.app. Archivos `.firebaserc` y `firebase.json` creados. Para redesployar: `npm run deploy`.
-7. ✅ **"SLEP" → "Sostenedor" en UI** — todo texto visible renombrado (banners, subtítulos, leyendas de charts, KPI sublabels, dropdown de entidades). Campos internos `slep`, `idSlep`, `SLEPS` sin tocar. Patterns `.replace('SLEP ','')` actualizados a regex `/^SLEP\s+/` para display limpio.
-8. ✅ **Etiqueta semáforo rojo** — `labelSemaforo` cambia `'Bajo lo esperado'` → `'En camino'` para la banda `< 0.6`. KPI card "Bajo lo esperado" en VistaConsultor actualizado a "En camino" también.
-9. ✅ **Modelo de 5 perfiles** — añadido perfil `cap` (Fundación CAP, `icono: 'award'`) en `context.jsx`. Login muestra 5 cards en `lg:grid-cols-5`. `App.jsx` enruta `cap` → `VistaConsultor`. `Award` registrado en `ICONOS` de `Login.jsx` y `Layout.jsx`.
-10. ✅ **Helpers temporales** — `currentMonth()` y `lastClosedMonth()` en `establecimientos.js`. `MES_ACTUAL` ahora llama `currentMonth()`. `evolucionAmbito` acepta `mesHasta` param.
-12. ✅ **`IndicatorProgress` component** — `src/components/Shared.jsx`. Horizontal bar showing actual (filled, semáforo color), expected-to-date (vertical tick at computed position), and annual target (right label with Target icon). Bottom row: Actual / Esperado / Meta. Binary shows Sí/No; % formats as percentage; conteo/promedio rounds to 1 decimal. Hover `title` explains tick semantics. Used in VistaEscuela indicator detail replacing `ProgressBar`.
-14. ✅ **`IndicatorDrilldown` modal** — `src/components/IndicatorDrilldown.jsx`. Click any indicator row in VistaEscuela to open. Contains: header (name, code, ámbito/tipo/semáforo badges, metadata), hero `IndicatorProgress` (large), monthly evolution LineChart (actual solid + expected dashed in gray), and sostenedor comparison table (consultor/cap only). Closes on Escape, backdrop click, or X. Mobile: full-screen, scrollable with bottom close button.
-13. ✅ **`expectedValue.js`** — `src/data/expectedValue.js`. `expectedToDate(indicador, mes)` computes accrued expected value by frequency (mensual=linear, trimestral/semestral=step, anual=0 until Dec, binario=0 until midyear). `formatValue(indicador, v)` formats raw value by unit.
-11. ✅ **Filtro temporal por perfil en VistaConsultor** — `effectiveMonth`: consultor → mes actual, CAP → mes cerrado anterior. Todas las agregaciones (`logroPorAmbito`) reciben `effectiveMonth`. Banner CAP: fondo magenta, título "Vista de cierre · Fundación CAP", subtítulo con "validados" en `text-lime-300`. Banner consultor: subtítulo muestra fecha dinámica del día.
+## Estado del valor y agregación
 
-## Mejoras realizadas (post-demo 25 mayo, CAP-ready)
+`src/data/establecimientos.js → estadoValor(valor, indicador)` distingue tres estados:
 
-15. ✅ **YoY toggle en VistaConsultor** — state `yoy` (boolean). Default: `true` para CAP, `false` para consultor. Toggle UI en sección de filtros. Cuando ON: ámbito cards muestran "2025: XX%" + delta en pp (cyan si positivo, red si negativo) en esquina inferior derecha. Bar chart de sostenedores agrega serie 2025 con `fillOpacity: 0.35`.
-16. ✅ **Año en `generarValorIndicador`** — parámetro `anio` (default 2026) incluido en `hashSeed` para datos determinísticos por año. `biasBySlep(slep, anio)` resta 0.10 a todos los sostenedores cuando `anio === 2025`, produciendo resultados visiblemente menores. `logroPorAmbito`, `evolucionAmbito`, `promedioSlepAmbito` reciben `anio` opcional.
-17. ✅ **Comparador side-by-side en VistaConsultor** — sección "Comparación entre períodos" con dos dropdowns (opciones Enero–Diciembre 2025 y 2026). Defaults: CAP → Abril 2025 vs Abril 2026; consultor → Mayo 2025 vs Mayo 2026. Layout: dos columnas de AmbitoCards + bar chart comparativo con ambos períodos como series.
-18. ✅ **Decisiones no especificadas**: icono CAP = `Award` de lucide-react; comparador de períodos colocado antes de la tabla de establecimientos (mejor flujo narrativo: primero big picture → detalle); 2025 en bar chart usa mismo color con opacidad reducida (más limpio que barras de color distinto).
+- `'sin_meta'` — el indicador no tiene meta reportable (`tipoMeta === 'sin_meta'` o `metaNum` nulo).
+- `'sin_dato'` — tiene meta pero no hay valor en Firestore.
+- `'con_dato'` — hay valor.
 
-## Mejoras realizadas (sesión 6 — post-demo, sub-indicadores en todos los perfiles)
+Regla de agregación (`scope.js → cumplimientoIndicadores`): sobre indicadores **aplicables y con meta**, promedio de `min(1, logro)`. Un `sin_dato` aplicable cuenta como **0**. Un `sin_meta` no entra en el denominador.
 
-19. ✅ **Colores distintos por perfil** — Login usa `PERFIL_ACCENT` keyed by `p.id` (no `p.color`). Layout dropdown usa `PERFIL_ICON_STYLE` por `p.id`. Escuela=cyan, Jardín=yellow, Sostenedor=magenta, Consultor=purple-1, CAP=red.
-20. ✅ **Consultor card corregida** — Nombre cambiado a `'Consultor'` (sin "/CAP"). Descripción: `'Coordinación Focus'`.
-21. ✅ **YoY siempre visible** — Toggle eliminado. AmbitoCards en VistaConsultor siempre muestran "2025: XX%" + delta en pp en esquina inferior. Bar chart de sostenedores siempre incluye serie 2025.
-22. ✅ **Comparador de períodos colapsable** — Envuelto en componente `Collapsible` (`defaultOpen=false`). Se expande/colapsa con chevron. Consultor y CAP pueden comparar cualquier mes/año contra otro.
-23. ✅ **`IndicatorPanel` extraído a componente compartido** — `src/components/IndicatorPanel.jsx`. Props: `INDS, AMBITOS, establecimientoId, slep, mes, onDrilldown`. Cada ámbito es colapsable; cada indicador muestra metadata + `IndicatorProgress` y abre drilldown al hacer clic.
-24. ✅ **Sub-indicadores en VistaConsultor y CAP** — `EstablecimientoList` renderiza cada establecimiento como fila colapsable; cuando se abre, muestra `IndicatorPanel` con el filtro correcto por establecimiento.
-25. ✅ **Sub-indicadores en VistaSostenedor** — Ranking de establecimientos ahora colapsable. Al expandir cada fila, muestra `IndicatorPanel`. `drilldown` state es `{ ind, estId, slepId }`. `IndicatorDrilldown` renderizado al final.
-26. ✅ **Sub-indicadores en VistaEscuela** — Inline loop reemplazado por `<IndicatorPanel>`. Imports `TipoBadge, IndicatorProgress` removidos de VistaEscuela (ahora están solo en IndicatorPanel y Shared).
+`ZERO_FALLBACK` (en `ingestExtended.mjs`) es **distinto** de `sin_dato`: significa "sin actividad reportada" y se persiste como `valor: 0` con `raw: "sin actividad reportada"`. No colapsar los dos casos en la UI.
 
-## Mejoras realizadas (2026-06-21 — Phase 1: Data foundation)
+---
 
-27. ✅ **Enriquecimiento de establecimientos (1A)** — `src/data/establecimientos.js`. Cada `ESCUELA` y `JARDIN` ahora incluye: `comuna` (round-robin sobre las comunas del SLEP), `nNinos` (PRNG: escuelas 200–600, jardines 40–120), `nAgentes` (PRNG: 15–40 / 6–15), `consultorEmail` (uno de tres placeholders, PRNG determinístico). Función `anioImplementacion(est, anio)` exportada: retorna año de implementación 1-based clamped al rango de la cohorte. Agregado `JAR-014` (Jardín Los Alamos, SLEP-LP) para que Los Parques tenga ambos tipos y el toggle sostenedor escuela/jardín sea demostrativo en todos los SLEP. Guards `sin_meta` añadidos en `logroPorAmbito`, `evolucionAmbito` y `promedioSlepAmbito` (indicadores con `metaNum:null` se excluyen del ratio).
-28. ✅ **Catálogo completo de indicadores (1B)** — `src/data/indicadores.js`. Reemplazado el subset por el catálogo completo: **50 escolar** (leídos de "Matriz Única" en `matriz_unica_PAF Escolar.xlsx`) y **54 parvulario** (leídos de `Sistema indicadores TDC PAF Parvulario.xlsx`). Schema nuevo: `{ id, ambito, actividad, nombre, tipo, meta, metaNum, unidad, frecuencia, fuente, clasificacion }`. `clasificacion ∈ {'estrategia','producto'}`. Nombres AMBITOS_ESCOLAR alineados a la matriz. Indicadores solo-2025 (E.5, E.6, E.18–E.22, E.48–E.50) marcados `unidad:'sin_meta', metaNum:null`. Parvulario: E1→A1, E2→A2, E3–E6→A3; Productos P1→A1, P2→A2, P3+P4→A3.
-
-## Mejoras realizadas (2026-06-21 — Phase 2: Remove ámbito-aggregation UI)
-
-29. ✅ **Eliminación de UI de agregación por ámbito** — Per instrucción del cliente (Luis): "eliminar los índices que agrupan por ámbito y el gráfico asociado". Removido de las tres vistas:
-    - **VistaEscuela**: eliminados KpiCards "Mejor ámbito" y "Ámbito crítico"; eliminada la sección "Logro por ámbito" (AmbitoCard grid); eliminado LineChart de evolución mensual; eliminado BarChart comparativo vs sostenedor. Conservado: KpiCard "Logro global" + IndicatorPanel.
-    - **VistaSostenedor**: eliminados KpiCards "Mejor ámbito" y "Ámbito crítico"; eliminada la sección "Logro por ámbito (red completa)" (AmbitoCard grid); eliminado RadarChart vs otros sostenedores. Conservados: KpiCards "Establecimientos" y "En meta" + lista de establecimientos colapsable.
-    - **VistaConsultor**: eliminados KpiCards "Mejor ámbito", "Ámbito crítico" y "Mayor avance YoY"; eliminada sección "Logro nacional por ámbito" (AmbitoCard grid + YoY); eliminado BarChart comparativo entre sostenedores; eliminado Collapsible "Comparación entre períodos" (comparador de ámbitos). Conservados: KpiCard "Establecimientos" + filtros + lista de establecimientos colapsable.
-    - Imports limpiados: `AmbitoCard`, `BarChart`, `LineChart`, `RadarChart` y componentes relacionados removidos de los tres archivos. `PageHeader`, `Collapsible`, `ProgressBar`, `PERIOD_OPTIONS`, `buildPeriodOptions`, `logrosNacionales`, `porSlep`, `ambitoColors` también eliminados.
-
-## Mejoras realizadas (2026-06-22 — Phase 3: Indicator display, peer bars, glossary)
-
-30. ✅ **`promedioTerritorioIndicador` helper (3A)** — `src/data/establecimientos.js`. Promedia el valor RAW de un indicador sobre los establecimientos del mismo `slep` Y `tipo` (Escuela vs Jardín), devuelve `null` para `sin_meta`. Escuelas comparan con escuelas, jardines con jardines, del mismo territorio.
-31. ✅ **`IndicatorProgress` reescrito (3B)** — `src/components/Shared.jsx`. Nueva firma: `{ indicador, valor, promedioTerritorio, large }`. Dos barras horizontales en escala compartida (max = metaNum): barra 1 "Este establecimiento" (cyan), barra 2 "Promedio del territorio" (gray-light). Footer: "Meta anual" con ícono Target + "Actualización: {frecuencia}". Sin colores de semáforo, sin etiquetas de juicio ("en meta", etc.), sin tick "Esperado" ni uso de `expectedToDate`.
-32. ✅ **`IndicatorPanel` actualizado (3C)** — `src/components/IndicatorPanel.jsx`. Computa `promedioTerritorioIndicador` por fila y lo pasa a `IndicatorProgress`. Removidos `TipoBadge` y `SemaforoBadge` a nivel de fila e indicador; encabezado de ámbito muestra solo `codigo + nombre + % redondeado`. Mantiene Actividad, Fuente, Frec.
-33. ✅ **`IndicatorDrilldown` actualizado (3D)** — `src/components/IndicatorDrilldown.jsx`. Hero: `IndicatorProgress` con dos barras (peer territory average). LineChart: "Este establecimiento" (cyan sólido) vs "Promedio del territorio" (gray); removida línea "Esperado" y todo uso de `expectedToDate`. Removidos `TipoBadge` y `SemaforoBadge` del header. Tabla de sostenedores (consultor/cap): columnas Sostenedor | Promedio; removida columna "Esperado" y badges de estado.
-34. ✅ **`Glosario` (3E)** — `src/components/Glosario.jsx`. Acordeón colapsable (expandible con ícono `BookOpen`). 12 siglas: pp, AE, BV, CAUE, EFE, IF, JI, MFC, MPC, PAF, PEI, PME. Renderizado al final de VistaEscuela, VistaSostenedor y VistaConsultor (cubre los 5 perfiles). Neutral, tokens de marca.
-
-## Mejoras realizadas (2026-06-22 — Phase 4: Indicadores de producto section)
-
-35. ✅ **Sección "Indicadores de producto" en `IndicatorPanel`** — `src/components/IndicatorPanel.jsx`. Los indicadores se dividen por `clasificacion`: primero los 32/34 de estrategia (agrupados por ámbito colapsable, igual que antes); luego una sección separada "Indicadores de producto" (encabezado con ícono `Package` magenta + línea divisora) con los 18/20 de producto agrupados del mismo modo por ámbito. La lógica de `AmbitoGroup` se extrajo a un componente interno para evitar duplicación. Las claves de estado para grupos producto llevan prefijo `prod-` para no colisionar con los de estrategia. Aplica a los 5 perfiles sin cambios en las vistas.
-
-## Mejoras realizadas (2026-06-22 — Phase 5: Executive ranking + indicator picker)
-
-36. ✅ **`IndicatorRanking` (5A)** — `src/components/IndicatorRanking.jsx`. Muestra top-3 ("Mayor desarrollo") y bottom-3 ("Menor desarrollo") indicadores por ratio de logro. Cada ítem: nombre, código ámbito, valor vs meta anual (`formatValue`), frecuencia. Sin colores de juicio. El llamador pre-computa `[{ indicador, valor, ratio }]` y excluye `sin_meta`.
-37. ✅ **`IndicatorAveragePicker` (5B)** — `src/components/IndicatorAveragePicker.jsx`. Dropdown de indicadores elegibles + BarChart horizontal (recharts) en color cyan con el promedio por entidad. `breakdownBy='establecimiento'` promedia por establecimiento; `breakdownBy='sostenedor'` agrupa por SLEP. Muestra meta anual + frecuencia arriba del gráfico.
-38. ✅ **Integración en las 3 vistas (5C)**:
-    - **VistaEscuela**: `IndicatorRanking` entre el KPI global y el panel de detalle, calculado para el establecimiento actual.
-    - **VistaSostenedor**: `IndicatorRanking` (promedio de la red) + `IndicatorAveragePicker breakdownBy='establecimiento'` antes de la lista de establecimientos. `useMemo` para `rankingItems`.
-    - **VistaConsultor**: `IndicatorRanking` (promedio del conjunto filtrado) + `IndicatorAveragePicker` con `breakdownBy` dinámico: `'sostenedor'` cuando filtro TODOS, `'establecimiento'` cuando filtrado a un SLEP. `conLogros` también memoizado.
-
-## Mejoras realizadas (2026-06-22 — Phase 6: Filters, toggle, single-color bars)
-
-39. ✅ **Filtros ampliados en VistaConsultor (6A)** — `src/views/VistaConsultor.jsx`. Añadidos dos filtros nuevos: "Año de implementación" (opciones Año 1 / Año 2 según `anioImplementacion(est, anio)`, determinado por mes de cierre) y "Comuna" (valores distintos de `est.comuna` ordenados alfabéticamente). Los 4 filtros (Sostenedor, Cohorte, Año, Comuna) se combinan en AND dentro del `filtrados` useMemo. Layout del panel de filtros cambiado a `grid-cols-2 sm:grid-cols-4`. Import de `anioImplementacion` añadido.
-40. ✅ **Toggle Escuela / Jardín en VistaSostenedor (6B)** — `src/views/VistaSostenedor.jsx`. Estado `tipoActivo` ('escolar'|'parvulario') inicializado en 'escolar'. Toggle de dos botones con fondo cyan activo aparece solo cuando el SLEP tiene ambos tipos (`tieneAmbos`). Cambiar tipo resetea `openEst`. AMBITOS/INDS/establecimientos derivados de `programaTipo`. Título de sección cambiado a "Detalle por escuela y/o jardín infantil". Todos los hooks llamados antes del early return.
-41. ✅ **Barras de un solo color (6C)** — `VistaConsultor.jsx` y `VistaSostenedor.jsx`. `SemaforoBadge` removido de las filas de resumen de establecimientos en ambas vistas (badge semáforo tricolor eliminado). Import de `SemaforoBadge` removido de ambos archivos. El logro global se muestra solo como número, sin indicador de color.
-
-## Mejoras realizadas (2026-06-22 — Phase 7: Per-indicator comparator)
-
-42. ✅ **Comparador por indicador en VistaConsultor (7)** — `src/views/VistaConsultor.jsx`. Sección colapsable "Comparación por indicador" (`defaultOpen=false`, encabezado con ícono `GitCompareArrows` cyan). Dos grupos independientes A (cyan) y B (magenta) con 6 selectores cada uno: Mes, Año, Sostenedor, Cohorte, Año de implementación, Comuna, y control de ámbito ("Todos" o un ámbito específico). `computeSideData` promedia `calcularLogro` (0–100%) por indicador sobre los establecimientos que coinciden con los filtros del lado, usando `generarValorIndicador(ind, e.id, e.slep, mes, year)`. `chartData` fusiona las listas A y B por id de indicador (unión de ids, `null` si un lado no cubre ese indicador). Gráfico de barras agrupadas horizontal (recharts): dos barras por indicador, A=cyan, B=magenta, alturas dinámicas. Leyenda dinámica generada por `buildLabel`. Defaults: A → mes actual, año actual; B → mismo mes, año anterior. `filtrarEstablecimientos` y `buildLabel` son funciones module-level para evitar recreación. Todos los hooks dentro de `ComparadorIndicador` respetan las reglas. Aplica solo a perfiles consultor y CAP (ambos usan VistaConsultor).
-
-## Mejoras realizadas (2026-06-22 — Phase 8: Fundación totals + coordinator grouping)
-
-43. ✅ **Tira de totales (8A)** — `src/views/VistaConsultor.jsx`. Cuatro `TotalCard` (Establecimientos, Niños y niñas, Agentes educativos, Comunas) en grid 2×2 / 4-col que reemplazan el único `KpiCard`. Cada card: ícono en `bg-cyan-50`, valor grande, sublabel. Los valores se computan con `useMemo` sobre `filtrados` (reactivo a los 4 filtros). `TotalCard` es un componente local. Niños = suma `nNinos`; Agentes = suma `nAgentes`; Comunas = `Set` de `est.comuna`. Aplica a perfil consultor y CAP.
-44. ✅ **Agrupación por consultor (8B)** — `src/views/VistaConsultor.jsx`. Estado `agruparConsultor` (boolean, default `false`). Botón toggle en el encabezado de la lista con íconos `ToggleLeft`/`ToggleRight` y borde cyan cuando activo. `EstablecimientoList` recibe `agruparConsultor`; cuando ON agrupa `conLogros` por `consultorEmail` (o 'Sin asignar'), ordena grupos por promedio descendente, y muestra un collapsible por grupo (encabezado: email + conteo + promedio del grupo). Dentro de cada grupo se renderizan las filas individuales vía `EstRowItem` (lógica de fila extraída para reutilización). El drilldown sigue funcionando a través del prop `onDrilldown`. El estado `openEst` (filas abiertas) se comparte entre vista plana y agrupada.
-
-## Cosas pendientes
-
-- **1-pager de modelo de datos** — Doc/PDF con las 3 tablas principales para llevar a la reunión (se trabaja en Claude chat por separado).
-
-## Cosas que NO tocar sin pensar
-
-- El cálculo del agregado por ámbito (`logroPorAmbito`) — es la fórmula que vamos a defender en la reunión: `AVG(min(1, valor/meta))` sobre los indicadores del ámbito.
-- La distinción operativo/táctico — viene de la matriz_única real del cliente.
-- La jerarquía Cohorte / Año implementación / SLEP / Establecimiento / Sala — es lo que pide Luis en su correo del 12 may.
-
-## Cómo correr local
+## Cómo correr
 
 ```bash
 npm install
 npm run dev          # http://localhost:5173
+npm run build        # incluye check de tokens
 ```
 
-## Cómo deployar a Firebase Hosting
+## Cómo deployar
 
 ```bash
-firebase login       # solo primera vez
+npm run deploy:rules # reglas + índices Firestore (si cambiaron)
 npm run deploy       # build + firebase deploy --only hosting
 ```
 
-**URL:** https://visualizador-paf.web.app — proyecto `visualizador-paf`, ya configurado.
+## Cómo ingestar / mapear
 
-## Roadmap del proyecto (contexto general)
+```bash
+npm run ingest:parvulario -- --dry-run
+npm run ingest:escolar    -- --dry-run
+npm run mapeo-parvulario                # regenera docs/mapeo-parvulario-YYYY-MM-DD.md
+```
 
-- Hito 1 ✅ — Kickoff y arquitectura (22 abril)
-- Sprint 1+2 (en curso retroactivo) — Auditoría de Sheets + modelo de datos
-- **Sprint 3 (cierre 29 may)** — Dashboards funcionales + RLS configurado → Hito 2 cobrable
-- Sprint 4 (2-13 jun) — Landing, QA, manuales
-- Cierre (16-19 jun) — Capacitación + acta de cierre → Hito 3 cobrable
+Todas las migraciones nuevas deben soportar `--dry-run`, ser idempotentes y escribir un reporte en `reports/`. Ver `scripts/migrateEscolarIndicadorIds.mjs` como plantilla.
 
-Este mock es para **anticipar la validación de Sprint 3 antes de la fecha contractual**.
+---
 
-## Stack productivo final (no este mock)
+## Convenciones
 
-- **Supabase (PostgreSQL)** como BD operacional + RLS nativo
-- **Apps Script + Cloud Run** como pipeline desde los ~149 Google Sheets activos
-- **Superset en elest.io** como capa de visualización analítica
-- **Hashing SHA-256 de RUTs** antes de cargar (decisión técnica de privacidad)
+- **Idioma:** todo lo visible al usuario en español (es-CL). Código, comentarios, commits y docs internos en inglés.
+- **Commits:** convencionales y atómicos (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`).
+- **Tokens de color:** solo via CSS custom properties. Prohibido hex.
+- **Data migrations:** siempre `--dry-run` primero, siempre idempotentes, siempre con reporte.
+- **Cambios de UI:** verificar en `npm run dev` en los 6 perfiles y en **ambas cohortes** (2025-2026 y 2026-2027 en parvulario; 2025-2027 y 2026-2028 en escolar) porque el scope-gating difiere.
 
-Decisiones que aún están abiertas con el cliente:
-- Confirmación del enfoque "agregado por ámbito" como semáforo de portada (lo defendemos en la reunión)
-- Validación de la matriz_única como mapeo RLS definitivo
-- Aprobación del hashing de RUTs como solución a privacidad de menores
+## Cosas que no tocar sin pensar
+
+- `src/data/scope.js → isAplicable2026` y `cumplimientoIndicadores`: son las fórmulas defendidas frente al cliente.
+- La distinción `estrategia` / `producto` (indicador de ámbito vs indicador de logro): viene del catálogo canónico.
+- La numeración canónica (ver arriba): cualquier renumeración exige migrar Firestore.
+- La jerarquía Cohorte / Año implementación / SLEP / Establecimiento / Sala.
+
+---
+
+## Historial breve
+
+- **2026-07-29** — Reescritura de este archivo. Ciclo de retroalimentación cliente: renumeración canónica de indicadores (Parvulario a 53, Escolar 2026 a 51), reasignación de ámbitos escolares, fix del comparador por año, jerarquía de títulos, ámbitos con nombres cortos, tratamiento explícito de "Sin datos", quita de "Focus" del pie de página. Plan en `docs/plan-implementacion-2026-07-29.md`.
+- Versiones anteriores del archivo describían el proyecto como "mock" con datos sintéticos generados por PRNG. Esa fase terminó cuando se conectó Firestore y se cargaron los datos reales de ambas cohortes.

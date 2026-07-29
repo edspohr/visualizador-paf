@@ -381,10 +381,12 @@ export default function ComparadorIndicador({
   comunasDisponibles,
   defaultMes,
   sostenedores = [],
-  valoresPorEst2026,
-  valoresPorEst2025,
+  valoresPorEstByYear,
   programa = 'escolar',
 }) {
+  // valoresPorEstByYear: Map<anio, Map<estId, Map<indicadorId, valor>>>
+  // Se recibe pre-normalizado por año real (no por posición A/B), para que la
+  // clave del map siempre refleje el año verdadero de los datos.
   const initA = { year: 2026, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS' };
   const initB = { year: 2025, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS' };
   const [filtersA, setFiltersA] = useState(initA);
@@ -426,14 +428,20 @@ export default function ComparadorIndicador({
   const nivelesAllB = nivelesAllBQ.data ?? [];
 
   const valoresMapByYear = useMemo(() => {
-    const to2026 = new Map();
-    for (const [estId, m] of valoresPorEst2026) {
-      const inner = new Map();
-      for (const [indId, entry] of m) inner.set(indId, entry?.valor ?? entry);
-      to2026.set(estId, inner);
+    // Normaliza cada entrada por año: acepta `{ valor }` o valor plano
+    // (los distintos hooks upstream difieren en shape).
+    const out = new Map();
+    for (const [anio, porEst] of valoresPorEstByYear ?? new Map()) {
+      const norm = new Map();
+      for (const [estId, m] of porEst) {
+        const inner = new Map();
+        for (const [indId, entry] of m) inner.set(indId, entry?.valor ?? entry);
+        norm.set(estId, inner);
+      }
+      out.set(anio, norm);
     }
-    return new Map([[2025, valoresPorEst2025], [2026, to2026]]);
-  }, [valoresPorEst2025, valoresPorEst2026]);
+    return out;
+  }, [valoresPorEstByYear]);
 
   function buildNivelMap(docs) {
     const buckets = new Map();
@@ -551,13 +559,31 @@ export default function ComparadorIndicador({
   const labelA = buildLabel(filtersA, sostenedores);
   const labelB = buildLabel(filtersB, sostenedores);
 
-  const estsA = filtrarEstablecimientos(todos, filtersA).length;
-  const estsB = filtrarEstablecimientos(todos, filtersB).length;
+  // Denominadores por lado: cuántos centros pasan el filtro y cuántos de esos
+  // tienen al menos un valor en el año seleccionado. Sirve para distinguir
+  // "cero por falta de datos" de "cero por dato real".
+  function contarConDatos(filters) {
+    const ests = filtrarEstablecimientos(todos, filters);
+    const mapa = valoresMapByYear.get(filters.year);
+    if (!mapa) return { centros: ests.length, conDatos: 0 };
+    const conDatos = ests.filter(e => (mapa.get(e.id)?.size ?? 0) > 0).length;
+    return { centros: ests.length, conDatos };
+  }
+  const denomA = contarConDatos(filtersA);
+  const denomB = contarConDatos(filtersB);
+  const estsA = denomA.centros;
+  const estsB = denomB.centros;
 
-  const summaryA = `${labelA} — ${estsA} centros`;
-  const summaryB = `${labelB} — ${estsB} centros`;
+  const summaryA = `${labelA} — ${estsA} centros · ${denomA.conDatos} con datos`;
+  const summaryB = `${labelB} — ${estsB} centros · ${denomB.conDatos} con datos`;
 
-  const anyData2025 = valoresPorEst2025.size > 0;
+  // Detecta lados apuntando a años sin datos cargados en Firestore.
+  const aniosSinDatos = [];
+  for (const yr of [filtersA.year, filtersB.year]) {
+    const mapa = valoresMapByYear.get(yr);
+    const hay = mapa && Array.from(mapa.values()).some(m => m.size > 0);
+    if (!hay && !aniosSinDatos.includes(yr)) aniosSinDatos.push(yr);
+  }
 
   const { xDomain, xTickFormat, valueFormat } = useMemo(() => {
     if (chartMode === 'ratio') {
@@ -704,9 +730,11 @@ export default function ComparadorIndicador({
         />
       </div>
 
-      {(filtersA.year === 2025 || filtersB.year === 2025) && !anyData2025 && (
+      {aniosSinDatos.length > 0 && (
         <div className="mb-3 p-3 rounded-xl text-xs" style={{ background: 'rgb(252,244,231)', color: '#8a5a00' }}>
-          Sin datos cargados para el período 2025 en Firestore. Las barras del lado 2025 aparecerán como "—".
+          {aniosSinDatos.length === 1
+            ? `Sin datos cargados para ${aniosSinDatos[0]} en Firestore. Las barras de ese año aparecerán como "—".`
+            : `Sin datos cargados para ${aniosSinDatos.join(' ni ')} en Firestore. Las barras correspondientes aparecerán como "—".`}
         </div>
       )}
 
@@ -716,10 +744,16 @@ export default function ComparadorIndicador({
         </div>
       )}
 
-      {/* Leyenda compacta A/B */}
+      {/* Leyenda compacta A/B con año explícito */}
       <div className="flex flex-wrap gap-3 text-xs text-gray-ui mb-3">
-        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-cyan)' }}/>Grupo A</span>
-        <span><span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-magenta)' }}/>Grupo B</span>
+        <span>
+          <span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-cyan)' }}/>
+          Grupo A · {filtersA.year}
+        </span>
+        <span>
+          <span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-magenta)' }}/>
+          Grupo B · {filtersB.year}
+        </span>
       </div>
 
       {chartData.length === 0 ? (

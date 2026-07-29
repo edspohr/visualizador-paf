@@ -204,9 +204,10 @@ export function useValoresIndicador(establecimientoId, anio) {
 
 // Devuelve los agregados por jardín (docs SIN campo `nivel`). Los docs por
 // sala (con `nivel`) se excluyen para no contarlos dos veces al agregar.
-export function useValoresAnio(anio) {
+// `enabled: false` evita disparar la query (útil cuando otro hook ya trae ese año).
+export function useValoresAnio(anio, enabled = true) {
   return useFirestore(async () => {
-    if (!anio) return [];
+    if (!anio || !enabled) return [];
     const q = query(collection(db, 'resultados_real'), where('anio', '==', anio));
     const snap = await getDocs(q);
     return snap.docs
@@ -217,7 +218,7 @@ export function useValoresAnio(anio) {
       // Excluir docs con `nivel` para evitar doble conteo. El comparador
       // usa `useValoresAnioNivel` cuando necesita el desglose por sala.
       .filter((d) => !d.nivel);
-  }, [anio]);
+  }, [anio, enabled]);
 }
 
 // Devuelve los valores por sala filtrados por nivel bucket

@@ -90,17 +90,41 @@ export default function VistaConsultor() {
   }, [valoresAnioQ.data]);
   const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId)?.valor ?? null;
 
-  // Valores 2025 para el comparador — solo se descargan cuando el usuario abre el panel.
-  const valores2025Q = useValoresAnio(2025);
-  const valoresPorEst2025 = useMemo(() => {
-    const m = new Map();
-    for (const v of (valores2025Q.data ?? [])) {
-      if (v.valor === null || v.valor === undefined) continue;
-      if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
-      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+  // Datos del comparador: siempre necesita 2025 y 2026 disponibles. Uno de los
+  // dos años lo trae `valoresAnioQ` (el del selector global); el otro va aquí.
+  // Cuando el selector global coincide con el año, no disparamos la lectura.
+  const valores2025Q = useValoresAnio(2025, anioSeleccionado !== 2025);
+  const valores2026Q = useValoresAnio(2026, anioSeleccionado !== 2026);
+
+  // Map<anio, Map<estId, Map<indicadorId, valor>>>. Consumido por el comparador.
+  // La clave YY es el año real de los datos, no una literal fija — esto evita
+  // que el comparador confunda A=2025 con B=2026 cuando ambos vienen del mismo
+  // hook global.
+  const valoresPorEstByYear = useMemo(() => {
+    const buildMap = (rows) => {
+      const m = new Map();
+      for (const v of (rows ?? [])) {
+        if (v.valor === null || v.valor === undefined) continue;
+        if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
+        m.get(v.establecimientoId).set(v.indicadorId, v.valor);
+      }
+      return m;
+    };
+    const primarioRaw = valoresAnioQ.data ?? [];
+    const primario = buildMap(primarioRaw);
+    const otros = {
+      2025: valores2025Q.data ?? [],
+      2026: valores2026Q.data ?? [],
+    };
+    const out = new Map();
+    out.set(anioSeleccionado, primario);
+    for (const [anio, rows] of Object.entries(otros)) {
+      const yr = Number(anio);
+      if (yr === anioSeleccionado) continue;
+      out.set(yr, buildMap(rows));
     }
-    return m;
-  }, [valores2025Q.data]);
+    return out;
+  }, [anioSeleccionado, valoresAnioQ.data, valores2025Q.data, valores2026Q.data]);
 
   const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
                    indicadoresQ.isLoading || ambitosQ.isLoading;
@@ -326,8 +350,7 @@ export default function VistaConsultor() {
             comunasDisponibles={comunasDisponibles}
             defaultMes={effectiveMonth}
             sostenedores={SLEPS_DATA}
-            valoresPorEst2026={valoresPorEst}
-            valoresPorEst2025={valoresPorEst2025}
+            valoresPorEstByYear={valoresPorEstByYear}
             programa={programa}
           />
         )}

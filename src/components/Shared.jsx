@@ -205,15 +205,30 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
     );
   }
 
-  // Sin dato reportado: el indicador es medible pero aún no llegó valor a Firestore.
+  // Sin datos: el indicador es medible pero aún no llegó valor a Firestore.
+  // El agregado del ámbito lo cuenta como 0 en el denominador (ver scope.js);
+  // aquí lo mostramos explícito para que las brechas sean visibles y no se
+  // confundan con "no aplica" ni con un cero reportado.
   if (est === 'sin_dato') {
+    const barH = large ? 'h-3.5' : 'h-2.5';
     return (
-      <div className="w-full text-xs py-1 flex items-center gap-1.5" style={{ color: 'var(--color-gray-ui)' }}>
-        <AlertCircle size={12} className="shrink-0" />
-        Sin dato reportado
-        <span className="text-gray-ui font-light ml-auto">
-          Meta anual: <span className="font-medium text-gray-ui">{formatValue(indicador, metaNum)}</span>
-        </span>
+      <div className="w-full space-y-1.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="flex items-center gap-1.5 italic" style={{ color: 'var(--color-gray-ui)' }}>
+            <AlertCircle size={12} className="shrink-0" />
+            Sin datos
+          </span>
+          <span className="text-gray-ui font-light">
+            Meta anual: <span className="font-medium text-gray-ui">{formatValue(indicador, metaNum)}</span>
+          </span>
+        </div>
+        {/* Barra vacía con patrón diagonal sutil para distinguir de un cero reportado */}
+        <div
+          className={`w-full ${barH} rounded-full border border-border`}
+          style={{
+            background: 'repeating-linear-gradient(45deg, transparent 0 4px, var(--color-bg) 4px 8px)',
+          }}
+        />
       </div>
     );
   }

@@ -1,4 +1,6 @@
-# Mapeo Escolar 2026 — cobertura vs numeración canónica (2026-07-29)
+# Mapeo Escolar 2026 — cobertura vs numeración canónica
+
+> **Actualización 2026-07-30**: este reporte fue superado en detalle por el nuevo manifiesto de cobertura (`docs/escolar-coverage-manifest.md` + `.json`), producido por el módulo declarativo `scripts/lib/escolarMapping.mjs` y la escalera de resolución de 5 estados. El presente reporte se conserva como snapshot del análisis inicial del 29 de julio.
 
 > Generado tras la renumeración canónica del catálogo Escolar 2026 (51 indicadores, I.1–I.51). Este reporte es la lectura estática del código de `scripts/ingestEscolar.mjs` — no ejecuta la ingesta en vivo.
 

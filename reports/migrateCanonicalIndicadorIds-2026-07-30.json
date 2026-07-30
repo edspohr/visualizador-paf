@@ -1,32 +1,32 @@
 {
-  "ranAt": "2026-07-30T00:07:02.447Z",
+  "ranAt": "2026-07-30T00:55:25.203Z",
   "program": "both",
   "phase": "full",
   "dryRun": true,
   "deleteOrphans": false,
   "counts": {
-    "total": 4775,
-    "identity": 470,
-    "rename": 3912,
-    "deleteOrphan": 375,
+    "total": 8794,
+    "identity": 472,
+    "rename": 7647,
+    "deleteOrphan": 657,
     "skip": 18,
     "byProgram": {
-      "parvulario": 4257,
-      "escolar": 518,
+      "parvulario": 8274,
+      "escolar": 520,
       "otros": 0
     }
   },
   "writeResult": {
-    "escritos": 3912,
-    "saltados": 488,
-    "borrarOriginales": 375
+    "escritos": 7647,
+    "saltados": 490,
+    "borrarOriginales": 657
   },
   "verifyResult": {
     "ok": true,
-    "count": 3912
+    "count": 7647
   },
   "finalResult": {
-    "renombrados": 3912,
+    "renombrados": 7647,
     "orphansBorrados": 0,
     "tempBorrados": 0
   }

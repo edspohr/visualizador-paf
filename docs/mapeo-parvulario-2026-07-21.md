@@ -1,4 +1,57 @@
-# Mapeo Parvulario · 2026-07-21
+# Mapeo Parvulario
+
+## ⚠ Revisión 2026-07-30 — renumeración canónica
+
+Este reporte fue emitido originalmente el 21 de julio bajo la numeración pre-canónica del catálogo Parvulario (54 indicadores). El 29 de julio el catálogo se renumeró para coincidir con el documento "Orden de indicadores para visualizador" del cliente, lo que dejó a **este reporte con IDs desfasados**. En vez de sobrescribirlo (perdiendo trazabilidad frente a Luis, que ya lo leyó), se conserva el reporte original más abajo y se agrega acá una tabla de correspondencia.
+
+### Cambios estructurales
+
+- Se agregó el canónico **I.1** "N° de visitas al jardín infantil". Antes se registraba como "huérfano" (planilla `I.1` sin equivalente en catálogo); ahora es un indicador canónico con placeholder de "Sin meta reportable" pendiente de que Focus complete su metadata (ver informe cliente 2026-07-29).
+- Se **eliminaron** los antiguos catálogo `I.22` "N° de comités comunales…" y catálogo `I.23` "% de familias que participan en la actividad" — ninguno tenía fuente en las planillas.
+- El resto del catálogo se re-numeró para eliminar los shifts pre/post-huérfano y volver a la numeración canónica del cliente.
+
+### Crosswalk antiguo → canónico
+
+| Rango antiguo | Rango canónico | Nota |
+|---|---|---|
+| (nuevo) | **I.1** | "N° visitas al jardín" — agregado |
+| I.1 – I.21 | I.2 – I.22 | shift +1 |
+| I.22, I.23 | — | eliminados |
+| I.24 – I.54 | I.23 – I.53 | shift −1 |
+
+Ejemplos concretos que Focus puede reconocer:
+
+| Antiguo | Canónico | Nombre |
+|---|---|---|
+| I.14 | I.15 | N° de semanas que fueron enviados libros de la BV al hogar |
+| I.24 | I.23 | N° de talleres formativos desarrollados para madres/padres/cuidadores |
+| I.35 | I.34 | Plan de acción diseñado e incorporado en PME y PEI |
+| I.36 | I.35 | % de acciones implementadas del plan de acción |
+| I.37 | I.36 | % de metas logradas del plan de acción |
+| I.54 | I.53 | % de familias que completan ciclo de talleres Entre Familias |
+
+### Estado post-renumeración
+
+- Catálogo canónico Parvulario: **53 indicadores** (antes 54).
+- Indicadores con fuente en las Planillas Centrales: **49** de los 53.
+- Sin datos hoy: **4 indicadores canónicos** — I.35 (% acciones plan), I.36 (% metas plan), I.37 (% agentes malla formativa completa), I.53 (% familias que completan ciclo Entre Familias).
+- Ya no hay huérfanos ni faltantes por defecto de mapeo — los que quedan son casos donde la planilla simplemente no tiene el dato aún, y aparecen como "Sin datos" en la interfaz.
+
+### Cambios en la traducción planilla → canónico
+
+La traducción entre numeración de planilla y numeración de catálogo se simplificó a casi identidad:
+
+- planilla `I.1..I.43` → canónico `I.1..I.43` (identidad).
+- planilla `I.44` → no existe en planillas.
+- planilla `I.45..I.54` → canónico `I.44..I.53` (shift −1).
+
+### Regenerar
+
+`npm run mapeo-parvulario` regenera este reporte en formato canónico. Cuando se corra la próxima vez, sobrescribirá el archivo con la versión canónica limpia. Hasta entonces, este preámbulo con el crosswalk sirve para leer el reporte antiguo desde la memoria del ciclo del 21 de julio.
+
+---
+
+# (Reporte original del 21 de julio, en numeración pre-canónica)
 
 Comparación del catálogo local `src/data/catalog.json` (54 indicadores) contra las pestañas "VISUALIZADOR JARDÍN" / "VISUALIZADOR SALAS" de las 3 planillas centrales.
 

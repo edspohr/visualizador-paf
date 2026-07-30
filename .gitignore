@@ -12,3 +12,9 @@ firestore-debug.log
 # Fuentes .xlsx del cliente con PII (nombres, teléfonos, emails de director/coordinador)
 scripts/datos/*
 !scripts/datos/README.md
+
+# Raw harvest snapshots (E3): rangos crudos de Google Sheets cacheados para
+# re-parseo offline. No van al repo — pueden contener valores intermedios y
+# se regeneran del harvest.
+.cache/
+

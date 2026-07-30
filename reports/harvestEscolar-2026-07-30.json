@@ -1,0 +1,60 @@
+{
+  "ranAt": "2026-07-30T04:49:39.232Z",
+  "dryRun": false,
+  "resume": false,
+  "totalPlanillasEnCorrida": 5,
+  "outcomes": {
+    "ok": 5,
+    "cachedSkipped": 0,
+    "error": 0
+  },
+  "piiRedactedTotal": 1434,
+  "durationSeconds": 11,
+  "results": [
+    {
+      "spreadsheetId": "1m0GBH1xciC_gLvkJqV7XjMjsnLcahYbMe308IipKgp0",
+      "label": "Escuela Esperanza Joven · 2026 · registro-coordinacion",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 22,
+      "piiRedacted": 514,
+      "duration": 3856
+    },
+    {
+      "spreadsheetId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
+      "label": "Escuela Esperanza Joven · 2026 · datos-consultor",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 26,
+      "piiRedacted": 896,
+      "duration": 2166
+    },
+    {
+      "spreadsheetId": "18RW_v7dez1gULV8yWNCK1ZoK98aRx9Zk9EjrqFXyUw4",
+      "label": "Escuela Esperanza Joven · 2026 · curso·PKA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 13,
+      "duration": 968
+    },
+    {
+      "spreadsheetId": "1FY4MbC4LAg6_wjE9lTuo1F_L9GgC0bLeVihVQPL4D48",
+      "label": "Escuela Esperanza Joven · 2026 · curso·PKB",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 0,
+      "duration": 1247
+    },
+    {
+      "spreadsheetId": "1AjRtFzoHvlF0XnIPCO0xH_8waqvbwS8WgBHN7HPwR1I",
+      "label": "Escuela Esperanza Joven · 2026 · curso·KA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 11,
+      "duration": 1929
+    }
+  ]
+}

@@ -23,6 +23,7 @@ import {
   applyCanonical,
   assertCanonical,
 } from './lib/canonicalIds.mjs';
+import { assertMappingCompleto } from './lib/escolarMapping.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -467,11 +468,12 @@ console.table({
 try {
   assertCanonical(parvulario,  PARVULARIO_CANONICAL,  'parvulario');
   assertCanonical(escolar2026, ESCOLAR2026_CANONICAL, 'escolar2026');
+  assertMappingCompleto(escolar2026);
 } catch (err) {
   console.error(`\n❌ ${err.message}`);
   process.exit(1);
 }
-console.log('\n✅ Canonicalization asserts OK.');
+console.log('\n✅ Canonicalization + mapping asserts OK.');
 
 const catalog = {
   generatedAt: new Date().toISOString(),

@@ -8,7 +8,7 @@ import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
 /**
  * Renders indicators grouped by ámbito colapsable. Dentro de cada ámbito:
  * primero los indicadores de estrategia y, si existen, una sub-sección
- * "Indicadores de logro asociados" con los productos de ese mismo ámbito.
+ * "Indicadores de logro" con los productos de ese mismo ámbito.
  * Todos los valores vienen de `valoresReales`
  * (Map<indicadorId, { valor, estado }>) — no hay fallback sintético.
  *
@@ -92,7 +92,7 @@ export default function IndicatorPanel({
 }
 
 // Collapsible ámbito group. Muestra estrategia y, si existen, un divisor con
-// "Indicadores de logro asociados" seguido de los productos del mismo ámbito.
+// "Indicadores de logro" seguido de los productos del mismo ámbito.
 // Header % = "% cumplimiento": AVG(min(1, logro)) sobre indicadores con meta
 // (estrategia + logro), contando 0 los faltantes.
 function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true }) {

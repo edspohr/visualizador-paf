@@ -1,0 +1,33 @@
+{
+  "ranAt": "2026-07-30T00:07:02.447Z",
+  "program": "both",
+  "phase": "full",
+  "dryRun": true,
+  "deleteOrphans": false,
+  "counts": {
+    "total": 4775,
+    "identity": 470,
+    "rename": 3912,
+    "deleteOrphan": 375,
+    "skip": 18,
+    "byProgram": {
+      "parvulario": 4257,
+      "escolar": 518,
+      "otros": 0
+    }
+  },
+  "writeResult": {
+    "escritos": 3912,
+    "saltados": 488,
+    "borrarOriginales": 375
+  },
+  "verifyResult": {
+    "ok": true,
+    "count": 3912
+  },
+  "finalResult": {
+    "renombrados": 3912,
+    "orphansBorrados": 0,
+    "tempBorrados": 0
+  }
+}

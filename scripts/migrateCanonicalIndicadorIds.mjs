@@ -1,3 +1,25 @@
+// ⚠️  ADVERTENCIA — SCRIPT DEPRECADO 2026-07-29 ⚠️
+//
+// La ejecución de este script contra producción el 2026-07-29 tuvo dos fallas:
+//
+//   1) Fase finalize secuencial con verify per-doc → throttling de Firestore
+//      → ~30x más lenta de lo planeado. Se colgó a mitad de camino.
+//   2) El mapa de renombres en canonicalIds.mjs NO es inyectivo: aplicarlo
+//      dos veces produce garbage. El diseño de idempotencia asumía que sí
+//      lo era. Un rescate posterior con WriteBatch tuvo un bug de
+//      ordenamiento adicional que borró ~705 docs Parvulario.
+//
+// Recuperación: se re-corrió `npm run ingest:parvulario` y
+// `npm run ingest:escolar` — la ingesta reconstruye resultados_real desde
+// las planillas fuente en formato canónico e idempotente.
+//
+// LECCIÓN: para futuras renumeraciones canónicas, prefiere re-ingestar
+// desde la fuente en vez de migrar Firestore in-place. Si es imprescindible
+// migrar, cambia esta implementación por (a) WriteBatch en 3 pasadas
+// (set-all, verify-all, delete-orphans-all), y (b) hazla idempotente con un
+// campo `canonicalVersion` en cada doc para detectar segundas aplicaciones.
+//
+// ─────────────────────────────────────────────────────────────────────────
 // Migración canónica de `indicadorId` en `resultados_real`.
 //
 // Lleva los documentos Firestore a la numeración canónica declarada en

@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-08T22:53:20.839Z",
+  "generatedAt": "2026-07-30T00:35:06.855Z",
   "dryRun": false,
   "totals": {
-    "resultados": 500,
-    "resultadosRecolectados": 500,
+    "resultados": 502,
+    "resultadosRecolectados": 502,
     "porEstado": {
-      "validado": 167,
+      "validado": 169,
       "provisional": 333
     },
     "escuelasCubiertas": 18,
@@ -37,8 +37,8 @@
     "I.4",
     "I.40",
     "I.41",
+    "I.46",
     "I.47",
-    "I.48",
     "I.5",
     "I.6",
     "I.7",
@@ -210,7 +210,7 @@
     },
     {
       "schoolName": "Escuela Platón",
-      "indId": "I48",
+      "indId": "I47",
       "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
       "tab": "Actividades"
     },
@@ -240,7 +240,7 @@
     },
     {
       "schoolName": "Escuela España",
-      "indId": "I48",
+      "indId": "I47",
       "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
       "tab": "Actividades"
     },
@@ -258,7 +258,7 @@
     },
     {
       "schoolName": "Escuela Inglaterra",
-      "indId": "I48",
+      "indId": "I47",
       "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
       "tab": "Actividades"
     },

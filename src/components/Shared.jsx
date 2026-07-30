@@ -1,5 +1,5 @@
 import { TrendingUp, TrendingDown, Minus, Target, AlertCircle } from 'lucide-react';
-import { colorSemaforo, labelSemaforo, estadoValor } from '../data/establecimientos.js';
+import { colorSemaforo, labelSemaforo, estadoValor, getCoberturaLabel } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
 import { ambitoCodigo } from '../lib/labels.js';
 
@@ -174,7 +174,7 @@ export function PageHeader({ eyebrow, title, subtitle, action }) {
 // `estado`: 'validado' | 'provisional' — when provisional, own-value is muted
 // (rendered in gray-ui) and gets a tooltip. Peer value is territory average
 // (mixed estados) so it stays validado-styled.
-export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado', anioEnCurso = true }) {
+export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado', anioEnCurso = true, coberturaEstado = null, raw = null }) {
   const { metaNum, unidad } = indicador;
   // Actividades en año en curso muestran "N de M" hacia meta anual, no % de logro.
   // El % es engañoso mientras el año no cierra (ver plan Sección D).
@@ -183,6 +183,33 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
   const provisionalTitle = 'Valor provisional, pendiente de confirmación por Focus';
   const ownValueCls = isProvisional ? 'font-medium text-gray-ui' : 'font-medium';
   const ownValueStyle = isProvisional ? undefined : { color: 'var(--color-cyan)' };
+
+  // E8: si nos pasan un estado de cobertura desde el manifiesto, tiene precedencia
+  // sobre la lógica basada sólo en `valor`. Distingue "trabajo nuestro pendiente"
+  // (SIN_FUENTE / FUENTE_NO_ACCESIBLE) de "reporte pendiente" (SIN_DATO) y de
+  // "cero reportado" (ZERO_FALLBACK con raw='sin actividad reportada').
+  if (coberturaEstado === 'SIN_FUENTE_MAPEADA' || coberturaEstado === 'FUENTE_NO_ACCESIBLE') {
+    const { label } = getCoberturaLabel(coberturaEstado);
+    const barH = large ? 'h-3.5' : 'h-2.5';
+    return (
+      <div className="w-full space-y-1.5">
+        <div className="flex items-center justify-between text-xs">
+          <span className="flex items-center gap-1.5 italic" style={{ color: 'var(--color-gray-ui)' }}>
+            <AlertCircle size={12} className="shrink-0" />
+            {label}
+          </span>
+          <span className="text-gray-ui font-light">
+            Meta anual: <span className="font-medium text-gray-ui">{formatValue(indicador, metaNum)}</span>
+          </span>
+        </div>
+        {/* Barra vacía con línea punteada — diferente del hash de "Sin datos"
+            para señalar que la brecha es de nuestro lado, no del reporte. */}
+        <div
+          className={`w-full ${barH} rounded-full border border-dashed border-border`}
+        />
+      </div>
+    );
+  }
 
   const est = estadoValor(valor, indicador);
 
@@ -248,7 +275,13 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
 
   // For binary + fractional values (aggregate), format as % de "Sí"
   const fmtBinary = (v) => `${Math.round(v * 100)}% Sí`;
+  // E8: si el valor es 0 y el raw dice "sin actividad reportada" (ZERO_FALLBACK),
+  // mostramos la frase completa en vez de sólo "0". Requiere que la capa de
+  // consulta thread el campo `raw` — hoy no lo hace por defecto, pero el
+  // fallback al "0" plano es correcto también.
+  const esCeroReportado = valor === 0 && typeof raw === 'string' && /sin actividad reportada/i.test(raw);
   const fmtValue = (v) => {
+    if (esCeroReportado) return 'Sin actividad reportada';
     if (isBinary && v !== null && v !== 0 && v !== 1) return fmtBinary(v);
     if (modoAvance && v !== null) return `${formatValue(indicador, v)} de ${formatValue(indicador, metaNum)}`;
     return formatValue(indicador, v);

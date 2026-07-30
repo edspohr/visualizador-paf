@@ -49,12 +49,59 @@ export function calcularLogro(valor, indicador) {
  *
  * Esta distinción es la que UI mostraba fusionada como "Sin meta definida",
  * confundiendo al usuario cuando en realidad el problema era falta de reporte.
+ *
+ * Extendida en E8 con dos estados adicionales para el manifiesto de
+ * cobertura Escolar:
+ *   - 'sin_fuente_mapeada'  : no tenemos coordenada declarada para leer
+ *                             este indicador. Trabajo pendiente nuestro.
+ *   - 'fuente_no_accesible' : coordenada declarada pero la última lectura
+ *                             falló (permisos, tab renombrado, error de red).
+ *                             También trabajo pendiente nuestro.
+ * Estos dos estados se resuelven en la capa del manifiesto (E5) y se
+ * pasan a la UI vía prop `coberturaEstado` en IndicatorProgress. NO se
+ * derivan de `valor` — no forman parte de esta función. Ver
+ * `getCoberturaLabel` abajo para el label y la clase visual.
  */
 export function estadoValor(valor, indicador) {
   const tipoMeta = indicador.tipoMeta ?? tipoMetaFromUnidad(indicador.unidad);
   if (tipoMeta === 'sin_meta' || indicador.metaNum === null || indicador.metaNum === undefined) return 'sin_meta';
   if (valor === null || valor === undefined) return 'sin_dato';
   return 'con_dato';
+}
+
+/**
+ * Mapea un estado de cobertura del manifiesto a lo que la UI debe mostrar.
+ * Devuelve { label, tono, agrupacion } donde:
+ *   - label:      texto en es-CL para el usuario final (sostenedor o CAP).
+ *                 Sin jerga, sin nombres de archivo, sin IDs de spreadsheet.
+ *   - tono:       'pendiente-nuestro' | 'pendiente-reporte' | 'no-aplica' | 'ok'
+ *                 → decide el estilo visual sin sobrecargar el panel con
+ *                 cinco tratamientos distintos.
+ *   - agrupacion: en qué bloque de la sección va ('aplicable' | 'no-aplicable').
+ *
+ * Diseño intencional (E8): en lugar de 5 tratamientos visuales distintos,
+ * agrupamos en 3 tonos. La distinción fina (SIN_FUENTE vs FUENTE_NO_ACCESIBLE,
+ * NO_CORRESPONDE vs NO_CORRESPONDE_AUN) queda en los reportes internos
+ * (docs/escolar-coverage-manifest.*), no en cada fila del panel.
+ */
+export function getCoberturaLabel(coberturaEstado) {
+  switch (coberturaEstado) {
+    case 'NO_CORRESPONDE_AUN':
+      return { label: 'Aplica más adelante en la implementación', tono: 'no-aplica', agrupacion: 'no-aplicable' };
+    case 'NO_CORRESPONDE':
+      return { label: 'No aplica a este centro', tono: 'no-aplica', agrupacion: 'no-aplicable' };
+    case 'SIN_FUENTE_MAPEADA':
+      return { label: 'Cobertura pendiente (nuestra)', tono: 'pendiente-nuestro', agrupacion: 'aplicable' };
+    case 'FUENTE_NO_ACCESIBLE':
+      return { label: 'Revisión pendiente (nuestra)', tono: 'pendiente-nuestro', agrupacion: 'aplicable' };
+    case 'SIN_DATO_REPORTADO':
+      return { label: 'Sin datos', tono: 'pendiente-reporte', agrupacion: 'aplicable' };
+    case 'CERO_REPORTADO':
+      return { label: 'Sin actividad reportada', tono: 'ok', agrupacion: 'aplicable' };
+    case 'CON_DATO_REPORTADO':
+    default:
+      return { label: null, tono: 'ok', agrupacion: 'aplicable' };
+  }
 }
 
 /**

@@ -239,9 +239,30 @@ for (const esc of escuelas) {
   manifest.escuelas.push(escManifest);
 }
 
+// ─── Planillas inaccesibles desde el harvest ───────────────────────────────
+// Como el mapping E4 sólo declara fuentes 2026, las 2025 no se traducen a
+// FUENTE_NO_ACCESIBLE a nivel de tupla (colapsan en SIN_FUENTE_MAPEADA). Aún
+// así, la lista de planillas que el harvest no pudo leer es información
+// operativa importante — la reportamos como bloque independiente.
+const harvestErrorsList = [];
+for (const [spreadsheetId, err] of Object.entries(checkpoint.errors)) {
+  const entry = idx.entries.find(e => e.spreadsheetId === spreadsheetId);
+  if (!entry) continue;
+  harvestErrorsList.push({
+    escuela: entry.escuela,
+    cohorte: entry.cohorte,
+    anio: entry.anio,
+    arquetipo: entry.arquetipo,
+    curso: entry.cursoCanonical,
+    tipoError: err.kind,
+    codigo: err.code,
+    mensaje: err.message?.slice(0, 200),
+  });
+}
 manifest.generatedAt = new Date().toISOString();
 manifest.stats = stats;
 manifest.withFirestore = WITH_FIRESTORE;
+manifest.harvestErrorsPorPlanilla = harvestErrorsList;
 
 await writeFile(OUT_JSON, JSON.stringify(manifest, null, 2));
 console.log(`\n[coverage] ✅ ${OUT_JSON}`);
@@ -279,6 +300,29 @@ ${Object.entries(stats.porIndicador)
     const razon = ESCOLAR_MAPPING.find(m => m.id === id)?.razon || '';
     return `- **${id} · ${ind?.nombre?.slice(0, 70)}**: ${s.SIN_FUENTE_MAPEADA} tuplas — ${razon}`;
   }).join('\n')}
+
+## Planillas inaccesibles desde el harvest
+
+${harvestErrorsList.length === 0 ? 'Ninguna.' : `Total: **${harvestErrorsList.length} planillas** que no se pudieron leer.
+
+Por tipo de error:
+${(() => {
+  const byKind = {};
+  for (const h of harvestErrorsList) byKind[h.tipoError + (h.mensaje?.includes('not found') ? ' (no encontrado)' : ' (sin permisos)')] = (byKind[h.tipoError + (h.mensaje?.includes('not found') ? ' (no encontrado)' : ' (sin permisos)')] || 0) + 1;
+  return Object.entries(byKind).map(([k, v]) => `- ${k}: ${v}`).join('\n');
+})()}
+
+Por escuela × año:
+${(() => {
+  const byGroup = {};
+  for (const h of harvestErrorsList) {
+    const k = `${h.escuela} · ${h.anio}`;
+    byGroup[k] = (byGroup[k] || 0) + 1;
+  }
+  return Object.entries(byGroup).sort().map(([k, v]) => `- ${k}: ${v} planillas`).join('\n');
+})()}
+
+Estas planillas están declaradas en el índice pero el service account que hace el harvest no las pudo abrir. Casi todas son planillas del bloque 2025 de escuelas cohorte 2025-2027 — la cuenta de servicio no tiene acceso concedido a ese bloque. Es una acción de permisos que Focus debe resolver antes de que la plataforma pueda ingestar datos históricos 2025 de Escolar.`}
 
 ## Nota
 

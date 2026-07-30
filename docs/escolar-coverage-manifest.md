@@ -70,6 +70,24 @@ Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 - **I.50 · % de salas que realizan actividad de mediación del Mantel de Palabras,**: 23 tuplas — Mediación Mantel previo. Sin fuente declarada.
 - **I.51 · Cantidad promedio  de actividades de mediación del mantel post envío d**: 23 tuplas — Mediación Mantel post-envío. Sin fuente declarada.
 
+## Planillas inaccesibles desde el harvest
+
+Total: **69 planillas** que no se pudieron leer.
+
+Por tipo de error:
+- permanent (no encontrado): 1
+- permanent (sin permisos): 68
+
+Por escuela × año:
+- Escuela Abate Molina · 2025: 12 planillas
+- Escuela Básica Sendero del Saber · 2026: 1 planillas
+- Escuela España · 2025: 10 planillas
+- Escuela Gil de Castro · 2025: 12 planillas
+- Escuela Inglaterra · 2025: 22 planillas
+- Escuela Platón · 2025: 12 planillas
+
+Estas planillas están declaradas en el índice pero el service account que hace el harvest no las pudo abrir. Casi todas son planillas del bloque 2025 de escuelas cohorte 2025-2027 — la cuenta de servicio no tiene acceso concedido a ese bloque. Es una acción de permisos que Focus debe resolver antes de que la plataforma pueda ingestar datos históricos 2025 de Escolar.
+
 ## Nota
 
 Este manifiesto declara qué se espera y qué se tiene declarado como fuente.

@@ -82,16 +82,34 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
 
 ### Scripts
 
-- **`scripts/parseCatalogs.mjs`** — reconstruye `catalog.json` desde los XLSX en `src/data/catalogs/`. Debe aplicar el mapa canónico al final (ver más abajo). No es idempotente en escritura: rompe cualquier edición manual del JSON.
-- **`scripts/lib/parvularioIds.mjs`** — traducción entre numeración de planilla y numeración de catálogo (`extractPlanillaId`, `planillaToCatalog`). Tolera tipos como `"I.,20"`.
-- **`scripts/ingestParvulario.mjs`** — ingesta desde Planillas Centrales (3 cohortes/años) → `establecimientos_real` + `resultados_real`. Escribe agregado por jardín y variantes por sala (`nivel`, `nivelEspecifico`, `nivelGeneral`).
-- **`scripts/ingestEscolar.mjs`** — ingesta escolar desde 18 planillas de Google Drive. Marca `estado: 'validado' | 'provisional'`.
+Ingesta y catálogo:
+
+- **`scripts/parseCatalogs.mjs`** — reconstruye `catalog.json` desde los XLSX en `src/data/catalogs/`. Aplica el mapa canónico + assert de completitud del mapping Escolar (E4). No es idempotente en escritura: rompe cualquier edición manual del JSON.
+- **`scripts/lib/canonicalIds.mjs`** — mapa canónico (adiciones, renombres, eliminaciones, overrides de ámbito/clasificación). Fuente única para el catálogo Y para migraciones Firestore.
+- **`scripts/lib/parvularioIds.mjs`** — traducción entre numeración de planilla y numeración canónica (`extractPlanillaId`, `planillaToCanonical`). Tolera typos como `"I.,20"`.
+- **`scripts/lib/escolarMapping.mjs`** — mapeo declarativo (año × arquetipo × indicador canónico × niveles aplicables) para Escolar. `assertMappingCompleto()` corre en `parseCatalogs.mjs` y falla si algún indicador canónico no tiene entrada (mapeada o explícitamente `NO_MAPEADO`).
+- **`scripts/ingestParvulario.mjs`** — ingesta desde 3 Planillas Centrales → `establecimientos_real` + `resultados_real`. Escribe agregado por jardín y variantes por sala.
+- **`scripts/ingestEscolar.mjs`** — ingesta escolar desde 18 workbooks de Google Drive. Marca `estado: 'validado' | 'provisional'`.
 - **`scripts/ingestRosterEscolar.mjs`** — actualiza `nNinos`, `nAgentes`, `rbd` en `establecimientos_real`.
-- **`scripts/ingestExtended.mjs`** — cierra huecos con `ZERO_FALLBACK` (emite `valor: 0` con `raw: "sin actividad reportada"` para columnas vacías en indicadores aplicables). **No confundir "reported zero" con "sin datos".**
+- **`scripts/ingestExtended.mjs`** — cierra huecos con `ZERO_FALLBACK` (emite `valor: 0` con `raw: "sin actividad reportada"`). **No confundir "reported zero" con "sin datos".**
 - **`scripts/mapeoParvulario.mjs`** — reporte de cobertura → `docs/mapeo-parvulario-YYYY-MM-DD.md`.
-- **`scripts/migrateEscolarIndicadorIds.mjs`** — ejemplo canónico de migración Firestore (dry-run, idempotente, con manejo de colisiones). Usarlo como plantilla para nuevas migraciones.
+
+Escolar addendum (ciclo 2026-07-30):
+
+- **`scripts/parseEscolarIndex.mjs`** — parsea `docs/Planillas PAF Escolar.xlsx` → `src/data/escolarPlanillaIndex.json` (inventario de las 466 planillas esperadas por escuela × año × arquetipo × curso, con IDs de spreadsheet normalizados).
+- **`scripts/harvestEscolar.mjs`** — baja las 466 planillas Escolar al cache `.cache/harvest/` con checkpoint resumible, retry con backoff/jitter, y redacción PII en vuelo (RUTs + nombres completos). `--dry-run`, `--resume`, `--sample=N`, `--only=<id>[,<id>...]`.
+- **`scripts/generateEscolarCoverageManifest.mjs`** — resuelve, por cada tupla (escuela × año × indicador × curso), uno de 5 estados de cobertura (NO_CORRESPONDE_AUN / NO_CORRESPONDE / SIN_FUENTE_MAPEADA / FUENTE_NO_ACCESIBLE / SIN_DATO_REPORTADO). Emite `docs/escolar-coverage-manifest.{json,md}`. `--with-firestore` agrega CON_DATO / CERO_REPORTADO.
+- **`scripts/importConsolidated2025.mjs`** — lee el workbook consolidado 2025 de Sebastián (Base Vertical + Indicadores + Nombre escuelas), importa metas/cumplimiento como capa de contraste (E6). **No lee la pestaña `Estudiantes`** (PII).
+- **`scripts/metasDiscrepancyReport.mjs`** — cruza catálogo 2025 vs canónico 2026 por nombre aproximado. Emite `docs/escolar-metas-discrepancy.md`.
+- **`scripts/piiAssertion.mjs`** — barrera de última milla. Escanea Firestore (`--all` cubre roster + progreso + usuarios) y opcionalmente `.cache/harvest/` (`--cache`) buscando patrones RUT, nombres completos en mayúsculas sostenidas, y campos prohibidos (`rut`, `nombreEstudiante`, etc.). Exit 1 en cualquier hit.
+- **`scripts/diagnoseComparador.mjs`** — dump side-by-side de `resultados_real` por indicador × sostenedor × años. Usado para el fix del comparador en Bloque F.
+
+Migraciones y utilidades:
+
+- **`scripts/migrateEscolarIndicadorIds.mjs`** — normaliza `indicadorId` de la forma `I1` → `I.1`. Idempotente.
+- **`scripts/migrateCanonicalIndicadorIds.mjs`** — **DEPRECADO** tras el incidente del 2026-07-29 (dos bugs: throttling sequential + non-injective rename map). Ver header del archivo. Para futuras renumeraciones canónicas: prefiere re-ingestar desde la fuente en vez de migrar Firestore in-place.
 - **`scripts/checkColorTokens.mjs`** — guardián de tokens de color; corre antes de `vite build`.
-- **`scripts/auditFill.mjs`** — auditoría de llenado.
+- **`scripts/auditFill.mjs`** — auditoría de llenado (etapa 6).
 
 ### Firestore
 
@@ -107,6 +125,45 @@ Colecciones:
 - **`config/dataSource`**, **`config/mesCerrado`**, **`config/pipelineMetadata`**.
 
 Índices: ver `firestore.indexes.json`. Cualquier nueva query compuesta requiere agregar el índice y deployar con `npm run deploy:rules` **antes** del hosting.
+
+---
+
+## Cobertura de fuentes Escolar (addendum 2026-07-30)
+
+Escolar no tiene una planilla central única como Parvulario. El programa opera con **466 planillas individuales** — para cada escuela × año, una planilla "Registro Coordinación" (o "Registro UTP" en 2025), una "Datos Consultor", y una por cada curso existente (PKA/PKB/KA/KB/1A/1B/…/8A/8B, +8C en 2025).
+
+El inventario canónico de esas 466 planillas vive en `src/data/escolarPlanillaIndex.json`, generado por `scripts/parseEscolarIndex.mjs` a partir del archivo `docs/Planillas PAF Escolar.xlsx` que compartió Sebastián. Nunca inferir la lista de planillas — leerla siempre desde el índice.
+
+### Flujo Escolar
+
+1. **Índice** (`parseEscolarIndex.mjs`) declara las 466 planillas esperadas.
+2. **Harvest** (`harvestEscolar.mjs`) baja los rangos crudos al cache `.cache/harvest/`, con checkpoint resumible. Toda la PII (RUTs, nombres completos) se redacta al vuelo antes de escribir a disco.
+3. **Mapeo** (`scripts/lib/escolarMapping.mjs`) declara, por indicador canónico, dónde buscar el valor en el cache (tab, columna/rango, transformación). `NO_MAPEADO` es un estado explícito con razón.
+4. **Manifiesto** (`generateEscolarCoverageManifest.mjs`) resuelve cada tupla (escuela × año × indicador × curso) a uno de 5 estados:
+
+| Estado | Significado | Dueño |
+|---|---|---|
+| `NO_CORRESPONDE_AUN` | Fuera del universo por año de implementación | Nadie (diseño) |
+| `NO_CORRESPONDE` | Fuera del universo estructural (curso no existe; nivel no aplica) | Nadie |
+| `SIN_FUENTE_MAPEADA` | No hay coordenada declarada en el mapeo | **Nosotros** |
+| `FUENTE_NO_ACCESIBLE` | Coordenada declarada, harvest falló (permisos, tab renombrado) | **Nosotros** |
+| `SIN_DATO_REPORTADO` | Leído OK, celda vacía o sentinel | Focus |
+
+Plus `CON_DATO_REPORTADO` y `CERO_REPORTADO` (para ZERO_FALLBACK) cuando se corre con `--with-firestore`.
+
+Este manifiesto **no cambia** la fórmula de agregación. Un `SIN_DATO_REPORTADO` aplicable sigue contando 0 en el denominador del ámbito. El manifiesto cambia qué se **muestra y reporta**, no qué se **computa**.
+
+---
+
+## Disciplina de PII
+
+Los workbooks Escolar contienen datos personales de estudiantes (RUT, nombre completo, curso) especialmente en la pestaña `Estudiantes` del consolidado 2025 y en las planillas por curso. Reglas absolutas:
+
+- **La pestaña `Estudiantes` del consolidado 2025 NO se lee** desde ningún script que persista datos. Cualquier agregado a nivel sala (por ejemplo cobertura de entrevistas) debe computarse en un script separado que sostenga los datos personales solo en memoria y escriba únicamente el agregado.
+- **`harvestEscolar.mjs` redacta al vuelo** cualquier RUT (`\b\d{1,2}\.?\d{3}\.?\d{3}[-\s]?[0-9kK]\b`) y cualquier secuencia de 4+ palabras en MAYÚSCULA SOSTENIDA (patrón del tab Estudiantes) antes de escribir al cache. Nombres institucionales ("Escuela Villa San Miguel") están whitelisted.
+- **`scripts/piiAssertion.mjs`** es la barrera de última milla: exit code 1 si detecta cualquier fuga en Firestore o en el cache. Correr después de cada ingesta / harvest y antes de cada deploy.
+- **`.cache/`** está gitignored. Nunca commitear snapshots del harvest.
+- **Compliance framing:** Ley 21.719 (Chile) sobre protección de datos personales. La instrucción operativa está en `docs/informe-revision-escolar-2026-07-30.md`. Cualquier framing legal formal debe validarse con asesor antes de aparecer en documentos de cara al cliente.
 
 ---
 
@@ -247,5 +304,6 @@ Todas las migraciones nuevas deben soportar `--dry-run`, ser idempotentes y escr
 
 ## Historial breve
 
-- **2026-07-29** — Reescritura de este archivo. Ciclo de retroalimentación cliente: renumeración canónica de indicadores (Parvulario a 53, Escolar 2026 a 51), reasignación de ámbitos escolares, fix del comparador por año, jerarquía de títulos, ámbitos con nombres cortos, tratamiento explícito de "Sin datos", quita de "Focus" del pie de página. Plan en `docs/plan-implementacion-2026-07-29.md`.
+- **2026-07-30** — Addendum Escolar. Se agregó infraestructura para el track Escolar completa: inventario de las 466 planillas individuales (`escolarPlanillaIndex.json`), harvest resumible con checkpoint y redacción PII en vuelo (`harvestEscolar.mjs`), mapping declarativo por arquetipo (`escolarMapping.mjs`) con assert de completitud, manifiesto de cobertura con 5 estados (`generateEscolarCoverageManifest.mjs`), import del consolidado 2025 de Sebastián como capa de contraste (`importConsolidated2025.mjs`), reporte de discrepancias de metas 2025 vs 2026, aserción PII ejecutable (`piiAssertion.mjs`), tratamiento UI de los 5 estados de cobertura en `IndicatorProgress`. Harvest completo ejecutado: 396/466 OK, 69 permanentemente inaccesibles (68 planillas 2025 de Los Parques sin acceso + 1 link roto). 37.773 valores PII redactados al vuelo, 0 hits en Firestore o cache. Ciclo cerrado con tag `cycle-2026-07-30-escolar-addendum`. Estado detallado en `docs/informe-cobertura-fuentes-2026-07-30.md`.
+- **2026-07-29** — Ciclo de retroalimentación cliente: renumeración canónica de indicadores (Parvulario a 53, Escolar 2026 a 51), reasignación de ámbitos escolares, fix del comparador por año, jerarquía de títulos, ámbitos con nombres cortos, tratamiento explícito de "Sin datos", quita de "Focus" del pie de página. Reescritura de este archivo también. Plan en `/Users/espohr/.claude/plans/master-prompt-quirky-hanrahan.md` (fuera del repo, en el harness de plan-mode).
 - Versiones anteriores del archivo describían el proyecto como "mock" con datos sintéticos generados por PRNG. Esa fase terminó cuando se conectó Firestore y se cargaron los datos reales de ambas cohortes.

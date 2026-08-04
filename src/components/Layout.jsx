@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Users, BarChart3 } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useEntidadDelPerfil } from '../lib/queries.js';
 
 const ICONOS = {
   school: School,
@@ -33,22 +33,40 @@ export default function Layout({ children }) {
   // temporalmente si el superadmin está "viendo como" otro perfil desde el dropdown.
   const esUsuarioRealSuperadmin = usuarioDoc?.perfilDefault === 'superadmin';
 
-  // Queries — el Layout se renderiza en todas las vistas autenticadas
+  // For consultor/cap/superadmin we load all establishments (broad queries are
+  // allowed by Firestore rules). For limited profiles (jardin/escuela/sostenedor)
+  // we use narrow queries that rules permit.
+  const esAccesoCompleto = perfil.id === 'consultor' || perfil.id === 'cap' || perfil.id === 'superadmin';
   const escuelasQ = useEscuelas();
   const jardinesQ = useJardines();
   const slepsQ = useSleps();
-  const escuelas = escuelasQ.data ?? [];
-  const jardines = jardinesQ.data ?? [];
-  const sleps = slepsQ.data ?? [];
+  const escuelas = esAccesoCompleto ? (escuelasQ.data ?? []) : [];
+  const jardines = esAccesoCompleto ? (jardinesQ.data ?? []) : [];
+  const sleps = esAccesoCompleto ? (slepsQ.data ?? []) : [];
 
-  const entidad = resolverEntidad(perfil.contexto, [...escuelas, ...jardines], sleps);
+  const entidadQ = useEntidadDelPerfil(
+    esAccesoCompleto ? null : perfil,
+    escuelas, jardines, sleps
+  );
+
+  // Resolve current entity for the header label
+  const entidad = esAccesoCompleto
+    ? resolverEntidad(perfil.contexto, [...escuelas, ...jardines], sleps)
+    : entidadQ.establecimiento ?? entidadQ.slep;
+
   const esSuperadmin = perfil.id === 'superadmin';
   const permiteProgramaSwitch = perfil.id === 'consultor' || perfil.id === 'cap' || perfil.id === 'superadmin';
 
   let opcionesEntidad = [];
-  if (perfil.id === 'escuela') opcionesEntidad = escuelas;
-  else if (perfil.id === 'jardin') opcionesEntidad = jardines;
-  else if (perfil.id === 'sostenedor') opcionesEntidad = sleps;
+  if (esAccesoCompleto) {
+    if (perfil.id === 'superadmin' || perfil.id === 'consultor' || perfil.id === 'cap') {
+      // Consultor/cap/superadmin: entity dropdown not shown in layout (they use VistaConsultor)
+    }
+  } else if (perfil.id === 'escuela' || perfil.id === 'jardin') {
+    opcionesEntidad = entidadQ.establecimiento ? [entidadQ.establecimiento] : [];
+  } else if (perfil.id === 'sostenedor') {
+    opcionesEntidad = entidadQ.slep ? [entidadQ.slep] : [];
+  }
 
   // Base classes for pill controls on the white header
   const pillBase = 'flex items-center gap-2 border border-border hover:bg-bg px-3 py-2 rounded-xl text-sm font-light text-gray-dark transition';
@@ -147,7 +165,7 @@ export default function Layout({ children }) {
                           style={entidad?.id === e.id ? { color: 'var(--color-cyan)' } : {}}
                         >
                           <p className="truncate">{e.nombre}</p>
-                          {e.slep && <p className="text-xs text-gray-ui font-light truncate">{sleps.find(s => s.id === e.slep)?.nombre.replace(/^SLEP\s+/, '')}</p>}
+                          {e.slep && <p className="text-xs text-gray-ui font-light truncate">{(sleps.find(s => s.id === e.slep) ?? entidadQ.slep)?.nombre.replace(/^SLEP\s+/, '')}</p>}
                           {e.comuna && !e.slep && <p className="text-xs text-gray-ui font-light truncate">{e.comuna}</p>}
                         </button>
                       ))}

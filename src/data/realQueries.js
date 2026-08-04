@@ -10,9 +10,13 @@ import catalog from './catalog.json';
 
 // ─── Generic hook wrapper ────────────────────────────────────────────────
 
-function useFirestore(fn, deps) {
+function useFirestore(fn, deps, { enabled = true } = {}) {
   const [state, setState] = useState({ data: null, isLoading: true, error: null });
   useEffect(() => {
+    if (!enabled) {
+      setState({ data: null, isLoading: false, error: null });
+      return;
+    }
     let cancelled = false;
     setState({ data: null, isLoading: true, error: null });
     fn()
@@ -20,7 +24,7 @@ function useFirestore(fn, deps) {
       .catch((error) => { if (!cancelled) setState({ data: null, isLoading: false, error }); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, enabled]);
   return state;
 }
 
@@ -117,6 +121,118 @@ export function useSlep(slepId) {
     [all.data, slepId]
   );
   return { data, isLoading: all.isLoading, error: all.error };
+}
+
+// Reads only the SLEP row for a given slepId by querying establecimientos_real
+// filtered to that SLEP — passes Firestore rules for sostenedor profile.
+export function useSlepDoc(slepId) {
+  return useFirestore(async () => {
+    if (!slepId) return null;
+    const q = query(collection(db, 'establecimientos_real'), where('slep', '==', slepId));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    // Derive SLEP metadata from the first matching establishment
+    const est = snap.docs[0].data();
+    const comunas = new Set(snap.docs.map(d => d.data().comuna).filter(Boolean));
+    return {
+      id: slepId,
+      nombre: est.sostenedor || slepId,
+      comuna: [...comunas].sort().join(' / '),
+    };
+  }, [slepId]);
+}
+
+// Profile-aware hook: returns the minimal set of establishment data that
+// Firestore rules permit for the current user profile.
+// Returns: { establecimiento, slep, establecimientos, isLoading, error }
+//   - escuela/jardin: establecimiento = single est doc, slep = SLEP doc, establecimientos = [establecimiento]
+//   - sostenedor: establecimiento = null, slep = SLEP doc, establecimientos = all ests in that SLEP
+//   - consultor/cap/superadmin: uses broad hooks (same as before)
+export function useEntidadDelPerfil(perfil, allEscuelas, allJardines, allSleps) {
+  const perfilId = perfil?.id;
+  const contextoId = perfil?.contexto?.id;
+
+  // Limited-profile single-est path
+  const singleEstQ = useEstablecimiento(
+    (perfilId === 'escuela' || perfilId === 'jardin') ? contextoId : null
+  );
+  const singleEst = singleEstQ.data;
+
+  // Derive slepId from the resolved est (for escuela/jardin)
+  const derivedSlepId = perfilId === 'sostenedor'
+    ? contextoId
+    : singleEst?.slep ?? null;
+
+  const slepDocQ = useSlepDoc(
+    (perfilId === 'escuela' || perfilId === 'jardin' || perfilId === 'sostenedor')
+      ? derivedSlepId
+      : null
+  );
+
+  const slepEstsQ = useEstablecimientosPorSlep(
+    perfilId === 'sostenedor' ? contextoId : null
+  );
+
+  if (perfilId === 'escuela' || perfilId === 'jardin') {
+    const isLoading = singleEstQ.isLoading || slepDocQ.isLoading;
+    const error = singleEstQ.error || slepDocQ.error;
+    return {
+      establecimiento: singleEst,
+      slep: slepDocQ.data,
+      establecimientos: singleEst ? [singleEst] : [],
+      isLoading,
+      error,
+    };
+  }
+
+  if (perfilId === 'sostenedor') {
+    const isLoading = slepDocQ.isLoading || slepEstsQ.isLoading;
+    const error = slepDocQ.error || slepEstsQ.error;
+    return {
+      establecimiento: null,
+      slep: slepDocQ.data,
+      establecimientos: slepEstsQ.data ?? [],
+      isLoading,
+      error,
+    };
+  }
+
+  // consultor / cap / superadmin — use the pre-loaded broad arrays passed in
+  const escuelas = allEscuelas ?? [];
+  const jardines = allJardines ?? [];
+  const sleps = allSleps ?? [];
+  return {
+    establecimiento: null,
+    slep: null,
+    establecimientos: [...escuelas, ...jardines],
+    isLoading: false,
+    error: null,
+    // expose full arrays for consultor views
+    _escuelas: escuelas,
+    _jardines: jardines,
+    _sleps: sleps,
+  };
+}
+
+// Scoped resultados query for sostenedor: only reads docs belonging to their SLEP.
+// Requires the `slep` field to be present on resultados_real docs (backfilled by
+// scripts/backfillSlepOnResultados.mjs) and a composite index on (slep, anio).
+export function useValoresSlepAnio(slepId, anio) {
+  return useFirestore(async () => {
+    if (!slepId || !anio) return [];
+    const q = query(
+      collection(db, 'resultados_real'),
+      where('slep', '==', slepId),
+      where('anio', '==', anio),
+    );
+    const snap = await getDocs(q);
+    return snap.docs
+      .map((d) => {
+        const data = d.data();
+        return { id: d.id, ...data, indicadorId: normalizarIndicadorId(data.indicadorId) };
+      })
+      .filter((d) => !d.nivel);
+  }, [slepId, anio]);
 }
 
 // ─── Indicadores / Ámbitos (catálogo local) ───────────────────────────────

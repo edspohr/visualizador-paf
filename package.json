@@ -17,7 +17,11 @@
     "ingest:escolar": "node scripts/ingestEscolar.mjs",
     "ingest:roster-escolar": "node scripts/ingestRosterEscolar.mjs",
     "snapshot-matricula": "node scripts/snapshotMatricula.mjs",
-    "mapeo-parvulario": "node scripts/mapeoParvulario.mjs"
+    "mapeo-parvulario": "node scripts/mapeoParvulario.mjs",
+    "validate:users": "node scripts/validateUserAssignments.mjs",
+    "backfill:slep-resultados": "node scripts/backfillSlepOnResultados.mjs",
+    "backfill:slep-usuarios": "node scripts/backfillSlepIdOnUsuarios.mjs",
+    "diagnose:auth": "node scripts/diagnoseAuthResolution.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

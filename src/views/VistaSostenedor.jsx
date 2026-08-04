@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
+import { useApp } from '../lib/context.jsx';
+import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresSlepAnio } from '../lib/queries.js';
 import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { matriculaVisible, formatearFechaCorte } from '../data/matricula.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
@@ -38,16 +38,12 @@ export default function VistaSostenedor() {
   const toggleEst = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
   const handleTipoChange = (tipo) => { setTipoActivo(tipo); setOpenEst({}); };
 
-  const escuelasQ = useEscuelas();
-  const jardinesQ = useJardines();
-  const slepsQ = useSleps();
+  const entidadQ = useEntidadDelPerfil(perfil);
+  const slep = entidadQ.slep;
+  const todosEstablecimientos = entidadQ.establecimientos;
 
-  const escuelasAll = escuelasQ.data ?? [];
-  const jardinesAll = jardinesQ.data ?? [];
-  const slep = resolverEntidad(perfil.contexto, [...escuelasAll, ...jardinesAll], slepsQ.data ?? []);
-
-  const escuelasSlep = slep ? escuelasAll.filter(e => e.slep === slep.id) : [];
-  const jardinesSlep = slep ? jardinesAll.filter(j => j.slep === slep.id) : [];
+  const escuelasSlep = todosEstablecimientos.filter(e => e.programa === 'escolar');
+  const jardinesSlep = todosEstablecimientos.filter(e => e.programa === 'parvulario');
 
   const tieneAmbos = escuelasSlep.length > 0 && jardinesSlep.length > 0;
   const defaultTipo = escuelasSlep.length > 0 ? 'escolar' : 'parvulario';
@@ -56,26 +52,31 @@ export default function VistaSostenedor() {
   const indicadoresQ = useIndicadores(programaTipo);
   const ambitosQ = useAmbitos(programaTipo);
 
-  const valoresAnioQ = useValoresAnio(anioSeleccionado);
+  // Scoped query: only reads resultados for this SLEP (passes Firestore rules after
+  // the W1(d) backfill adds the `slep` field to resultados_real docs).
+  const slepId = slep?.id ?? perfil?.contexto?.id ?? null;
+  const valoresSlepQ = useValoresSlepAnio(slepId, anioSeleccionado);
   // Map<estId, Map<indicadorId, { valor, estado }>>
   const valoresPorEst = useMemo(() => {
     const m = new Map();
-    for (const v of (valoresAnioQ.data ?? [])) {
+    for (const v of (valoresSlepQ.data ?? [])) {
       if (v.valor === null || v.valor === undefined) continue;
       if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
       m.get(v.establecimientoId).set(v.indicadorId, { valor: v.valor, estado: v.estado ?? 'validado' });
     }
     return m;
-  }, [valoresAnioQ.data]);
+  }, [valoresSlepQ.data]);
   const getValor = (indicadorId, estId) => valoresPorEst.get(estId)?.get(indicadorId)?.valor ?? null;
 
-  const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
-                   indicadoresQ.isLoading || ambitosQ.isLoading;
+  const cargando = entidadQ.isLoading || indicadoresQ.isLoading || ambitosQ.isLoading;
 
   const AMBITOS = ambitosQ.data ?? [];
   const INDS = indicadoresQ.data ?? [];
   const establecimientos = programaTipo === 'escolar' ? escuelasSlep : jardinesSlep;
-  const todosDelTipo = programaTipo === 'escolar' ? escuelasAll : jardinesAll;
+  // For limited sostenedor profile, todosDelTipo = establecimientos within this SLEP.
+  // SostenedorVsPromedio uses this for cross-SLEP comparison; for sostenedor profile
+  // it will only show within-SLEP comparison (correct behavior).
+  const todosDelTipo = establecimientos;
 
   // Promedios/cumplimiento por centro sobre indicadores aplicables 2026.
   const conCumplimiento = useMemo(() => (
@@ -250,7 +251,7 @@ export default function VistaSostenedor() {
       <SostenedorVsPromedio
         INDS={INDS}
         establecimientos={todosDelTipo}
-        sostenedores={slepsQ.data ?? []}
+        sostenedores={slep ? [slep] : []}
         sostenedorActual={slep.id}
         mes={mesEfectivo}
         getValor={getValor}
@@ -321,7 +322,7 @@ export default function VistaSostenedor() {
           perfil={perfil.id}
           onClose={() => setDrilldown(null)}
           todosEstablecimientos={todosDelTipo}
-          sostenedores={slepsQ.data ?? []}
+          sostenedores={slep ? [slep] : []}
           anio={anioSeleccionado}
           anioEnCurso={anioEnCurso}
           {...drilldownExtras}

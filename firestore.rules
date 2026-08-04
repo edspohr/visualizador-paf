@@ -147,11 +147,13 @@ service cloud.firestore {
     }
 
     // ─── /resultados_real/{docId} — Etapa 3/5 ingesta real ─────────────
-    // Mismo modelo que /valoresIndicador.
+    // Sostenedor scoped to their SLEP via the denormalized `slep` field
+    // (backfilled by scripts/backfillSlepOnResultados.mjs). Docs without
+    // the `slep` field will be denied for sostenedor until the backfill runs.
     match /resultados_real/{docId} {
       allow read: if esUsuarioValido() && (
         (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
-        esSostenedor() ||
+        (esSostenedor() && resource.data.slep == getUsuario().slepId) ||
         esAccesoCompleto()
       );
       allow write: if false;
@@ -161,7 +163,7 @@ service cloud.firestore {
     match /progresoTrimestral_real/{docId} {
       allow read: if esUsuarioValido() && (
         (esEscuelaOJardin() && resource.data.establecimientoId == getUsuario().establecimientoId) ||
-        esSostenedor() ||
+        (esSostenedor() && resource.data.slep == getUsuario().slepId) ||
         esAccesoCompleto()
       );
       allow write: if false;

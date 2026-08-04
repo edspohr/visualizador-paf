@@ -58,10 +58,19 @@ export default function GestionUsuarios() {
     }
   };
 
-  const cambiarEstablecimiento = async (uid, establecimientoId) => {
+  const cambiarEstablecimiento = async (uid, value, perfilId) => {
     try {
-      await actualizarUsuarioDoc(uid, { establecimientoId: establecimientoId || null });
-      setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, establecimientoId: establecimientoId || null } : u));
+      if (perfilId === 'sostenedor') {
+        // value is a slepId — store in slepId, clear establecimientoId
+        await actualizarUsuarioDoc(uid, { slepId: value || null, establecimientoId: null });
+        setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, slepId: value || null, establecimientoId: null } : u));
+      } else {
+        // jardin/escuela: store establecimientoId AND derive slepId from the est doc
+        const est = [...catalogo.escuelas, ...catalogo.jardines].find(e => e.id === value);
+        const slepId = est?.slep ?? null;
+        await actualizarUsuarioDoc(uid, { establecimientoId: value || null, slepId });
+        setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, establecimientoId: value || null, slepId } : u));
+      }
     } catch (err) {
       setError(err?.message ?? 'No se pudo actualizar.');
     }
@@ -167,7 +176,7 @@ export default function GestionUsuarios() {
                   key={u.uid}
                   u={u}
                   onCambiarPerfil={(id) => cambiarPerfil(u.uid, id)}
-                  onCambiarEstablecimiento={(id) => cambiarEstablecimiento(u.uid, id)}
+                  onCambiarEstablecimiento={(id) => cambiarEstablecimiento(u.uid, id, u.perfilDefault)}
                   onEliminar={() => eliminar(u.uid)}
                   onAsignarConsultor={() => setAsignacionUid(u.uid)}
                   catalogo={catalogo}
@@ -294,12 +303,21 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
     setError('');
     setLoading(true);
     try {
+      let assignmentFields;
+      if (perfil === 'sostenedor') {
+        assignmentFields = { slepId: establecimientoId || null, establecimientoId: null };
+      } else if (perfil === 'escuela' || perfil === 'jardin') {
+        const est = [...catalogo.escuelas, ...catalogo.jardines].find(e => e.id === establecimientoId);
+        assignmentFields = { establecimientoId: establecimientoId || null, slepId: est?.slep ?? null };
+      } else {
+        assignmentFields = { establecimientoId: null };
+      }
       await crearUsuarioComoAdmin({
         email: email.trim(),
         password,
         nombre: nombre.trim(),
         perfilDefault: perfil,
-        establecimientoId: establecimientoId || null,
+        ...assignmentFields,
       });
       onCreado();
     } catch (err) {

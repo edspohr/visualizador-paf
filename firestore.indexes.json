@@ -39,6 +39,14 @@
         { "fieldPath": "establecimientoId", "order": "ASCENDING" },
         { "fieldPath": "anio",              "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "resultados_real",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "slep", "order": "ASCENDING" },
+        { "fieldPath": "anio", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

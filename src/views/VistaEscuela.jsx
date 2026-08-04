@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import { useApp, resolverEntidad } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresIndicador, useValoresAnio } from '../lib/queries.js';
+import { useApp } from '../lib/context.jsx';
+import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresIndicador } from '../lib/queries.js';
 import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables } from '../data/scope.js';
 import { KpiCard } from '../components/Shared.jsx';
@@ -34,29 +34,24 @@ export default function VistaEscuela() {
   const esJardin = perfil.id === 'jardin';
   const programa = esJardin ? 'parvulario' : 'escolar';
 
-  const escuelasQ = useEscuelas();
-  const jardinesQ = useJardines();
-  const slepsQ = useSleps();
+  const entidadQ = useEntidadDelPerfil(perfil);
   const indicadoresQ = useIndicadores(programa);
   const ambitosQ = useAmbitos(programa);
 
-  // Valores del propio centro (uso el hook específico por establecimiento).
+  // Valores del propio centro.
   const entidadIdFromCtx = perfil.contexto?.id;
   const valoresQ = useValoresIndicador(entidadIdFromCtx, anioSeleccionado);
 
-  // Valores del año completo para calcular el promedio del territorio (peers)
-  // en la vista de detalle e IndicatorDrilldown.
-  const valoresAnioQ = useValoresAnio(anioSeleccionado);
-
-  const cargando = escuelasQ.isLoading || jardinesQ.isLoading || slepsQ.isLoading ||
-                   indicadoresQ.isLoading || ambitosQ.isLoading;
+  const cargando = entidadQ.isLoading || indicadoresQ.isLoading || ambitosQ.isLoading;
 
   const AMBITOS = ambitosQ.data ?? [];
   const INDS = indicadoresQ.data ?? [];
-  const todosEstablecimientos = [...(escuelasQ.data ?? []), ...(jardinesQ.data ?? [])];
-  const sostenedores = slepsQ.data ?? [];
-
-  const entidad = resolverEntidad(perfil.contexto, todosEstablecimientos, sostenedores);
+  const entidad = entidadQ.establecimiento;
+  const sostenedores = entidadQ.slep ? [entidadQ.slep] : [];
+  // todosEstablecimientos is only needed for the peer-average drilldown path;
+  // W1(peer) will replace that computation with a precomputed aggregate. Until
+  // then we pass the single establishment so drilldown renders without crashing.
+  const todosEstablecimientos = entidadQ.establecimientos;
 
   const valoresReales = useMemo(() => new Map(
     (valoresQ.data ?? [])
@@ -64,16 +59,10 @@ export default function VistaEscuela() {
       .map(v => [v.indicadorId, { valor: v.valor, estado: v.estado ?? 'validado' }])
   ), [valoresQ.data]);
 
-  // Map<estId, Map<indicadorId, valor>> del programa completo (para peers).
-  const valoresPorEst = useMemo(() => {
-    const m = new Map();
-    for (const v of (valoresAnioQ.data ?? [])) {
-      if (v.valor === null || v.valor === undefined) continue;
-      if (!m.has(v.establecimientoId)) m.set(v.establecimientoId, new Map());
-      m.get(v.establecimientoId).set(v.indicadorId, v.valor);
-    }
-    return m;
-  }, [valoresAnioQ.data]);
+  // Peer-average computation will be replaced by W1(peer) precomputed aggregates.
+  // Until then, valoresPorEst contains only this establishment's own values so the
+  // drilldown peer line renders as null (handled gracefully by IndicatorDrilldown).
+  const valoresPorEst = useMemo(() => new Map(), []);
 
   // % cumplimiento del centro sobre indicadores aplicables 2026, faltantes=0.
   const cumplimiento = useMemo(() => {
@@ -119,27 +108,16 @@ export default function VistaEscuela() {
 
   const slep = sostenedores.find(s => s.id === entidad.slep);
 
-  // Promedio del territorio (mismo tipo + mismo SLEP) para el indicador abierto
-  // en el drilldown — se calcula desde Firestore, no PRNG.
+  // Peer-average (promedioTerritorio) will be provided by W1(peer) precomputed
+  // aggregates. Until that ships, we pass null so the drilldown renders without it.
   let drilldownExtras = {};
   if (drilldown) {
-    const pares = todosEstablecimientos.filter(e => e.slep === entidad.slep && e.tipo === entidad.tipo);
-    const vals = [];
-    const valoresTerritorio = new Map();
-    for (const p of pares) {
-      const v = valoresPorEst.get(p.id)?.get(drilldown.id);
-      if (v !== null && v !== undefined) {
-        vals.push(v);
-        valoresTerritorio.set(p.id, v);
-      }
-    }
-    const promTerritorio = vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
     const entry = valoresReales.get(drilldown.id);
     drilldownExtras = {
       valor: entry?.valor ?? null,
       estado: entry?.estado ?? 'validado',
-      promedioTerritorio: promTerritorio,
-      valoresTerritorio,
+      promedioTerritorio: null,
+      valoresTerritorio: new Map(),
     };
   }
 

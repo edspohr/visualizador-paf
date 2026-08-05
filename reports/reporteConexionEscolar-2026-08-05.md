@@ -17,13 +17,13 @@ El estado tiene cuatro valores:
 
 | Estado | Tuplas | % |
 |---|---:|---:|
-| Con dato | 502 | 54.7% |
-| Sin dato | 0 | 0.0% |
-| Faltante | 38 | 4.1% |
-| Sin fuente | 378 | 41.2% |
+| Con dato | 556 | 60.6% |
+| Sin dato | 38 | 4.1% |
+| Faltante | 0 | 0.0% |
+| Sin fuente | 324 | 35.3% |
 | **Total** | **918** | 100% |
 
-## Indicadores conectados a fuente (30/51)
+## Indicadores conectados a fuente (33/51)
 
 Estos indicadores tienen al menos un documento en Firestore para alguna escuela × año, lo que confirma que la coordenada de lectura está declarada:
 
@@ -38,8 +38,11 @@ Estos indicadores tienen al menos un documento en Firestore para alguna escuela 
 | I.7 | A1 | Coordinador asiste a formación de liderazgo territorial |
 | I.8 | A1 | Director asiste a formación de liderazgo, por escuela |
 | I.9 | A1 | Existe plan de acción familia escuela diseñado |
+| I.10 | A1 | Existe plan de acción familia escuela actualizado |
 | I.11 | A2 | Número de módulos formativos realizados anualmente en la escuela |
 | I.12 | A2 | % de profesores jefe que asisten a módulos formativos |
+| I.13 | A2 | Director asiste a módulos formativos |
+| I.14 | A2 | Coordinador asiste a módulos formativos |
 | I.15 | A2 | Número de formaciones territoriales anuales para docentes y asistentes de la educación |
 | I.16 | A2 | % de profesores jefe que asisten a formaciones territoriales |
 | I.17 | A2 | Director asiste a formaciones territoriales |
@@ -60,15 +63,12 @@ Estos indicadores tienen al menos un documento en Firestore para alguna escuela 
 | I.46 | A3 | Número de apoderados monitores que implementaron Taller de Apoderados (que hayan realizado al menos un taller) |
 | I.47 | A3 | Nota promedio que ponen los asistentes a las formaciones de monitores |
 
-## Indicadores sin fuente (21/51) — pendiente de Sebastián
+## Indicadores sin fuente (18/51) — pendiente de Sebastián
 
 Estos indicadores no tienen coordenada de lectura declarada en ninguna escuela. Necesitamos, para cada uno, la planilla / pestaña / columna donde se reporta — o marca "no vigente en 2026":
 
 | ID | Ámbito | Nombre | Planilla de origen |
 |---|---|---|---|
-| I.10 | A1 | Existe plan de acción familia escuela actualizado | *(por definir)* |
-| I.13 | A2 | Director asiste a módulos formativos | *(por definir)* |
-| I.14 | A2 | Coordinador asiste a módulos formativos | *(por definir)* |
 | I.21 | A3 | Número de talleres para apoderados presenciales realizados en promedio por sala | *(por definir)* |
 | I.22 | A3 | %  promedio de asistencia anual de apoderados a taller para apoderados presenciales | *(por definir)* |
 | I.23 | A3 | Número de Taller digitales para Apoderados enviados en promedio por sala | *(por definir)* |
@@ -94,24 +94,24 @@ Conteo por escuela de las 51 tuplas indicador × 2026:
 
 | Sostenedor | Escuela | Con dato | Sin dato | Faltante | Sin fuente |
 |---|---|---:|---:|---:|---:|
-| SLEP Los Parques | Escuela Abate Molina | 29 | 0 | 1 | 21 |
-| SLEP Los Parques | Escuela España | 28 | 0 | 2 | 21 |
-| SLEP Los Parques | Escuela Gil de Castro | 29 | 0 | 1 | 21 |
-| SLEP Los Parques | Escuela Inglaterra | 28 | 0 | 2 | 21 |
-| SLEP Los Parques | Escuela Platón | 28 | 0 | 2 | 21 |
-| SLEP Santa Corina | Escuela Pedro Aguirre Cerda | 30 | 0 | 0 | 21 |
-| SLEP Santa Corina | Escuela Profesor Ramón del Río | 30 | 0 | 0 | 21 |
-| SLEP Santa Corina | Escuela Ramón Freire | 28 | 0 | 2 | 21 |
-| SLEP Santa Corina | República de Austria | 29 | 0 | 1 | 21 |
-| SLEP Santa Rosa | Escuela Básica Sendero del Saber | 21 | 0 | 9 | 21 |
-| SLEP Santa Rosa | Escuela Ciudad de Barcelona | 29 | 0 | 1 | 21 |
-| SLEP Santa Rosa | Escuela Esperanza Joven | 22 | 0 | 8 | 21 |
-| SLEP Santa Rosa | Escuela La Victoria | 29 | 0 | 1 | 21 |
-| SLEP Santa Rosa | Escuela Lo Valledor | 28 | 0 | 2 | 21 |
-| SLEP Santa Rosa | Escuela República De Las Filipinas | 29 | 0 | 1 | 21 |
-| SLEP Santa Rosa | Escuela Ricardo Latcham | 27 | 0 | 3 | 21 |
-| SLEP Santa Rosa | Escuela Territorio Antártico | 29 | 0 | 1 | 21 |
-| SLEP Santa Rosa | Escuela Villa San Miguel | 29 | 0 | 1 | 21 |
+| SLEP Los Parques | Escuela Abate Molina | 32 | 1 | 0 | 18 |
+| SLEP Los Parques | Escuela España | 31 | 2 | 0 | 18 |
+| SLEP Los Parques | Escuela Gil de Castro | 32 | 1 | 0 | 18 |
+| SLEP Los Parques | Escuela Inglaterra | 31 | 2 | 0 | 18 |
+| SLEP Los Parques | Escuela Platón | 31 | 2 | 0 | 18 |
+| SLEP Santa Corina | Escuela Pedro Aguirre Cerda | 33 | 0 | 0 | 18 |
+| SLEP Santa Corina | Escuela Profesor Ramón del Río | 33 | 0 | 0 | 18 |
+| SLEP Santa Corina | Escuela Ramón Freire | 31 | 2 | 0 | 18 |
+| SLEP Santa Corina | República de Austria | 32 | 1 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Básica Sendero del Saber | 24 | 9 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Ciudad de Barcelona | 32 | 1 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Esperanza Joven | 25 | 8 | 0 | 18 |
+| SLEP Santa Rosa | Escuela La Victoria | 32 | 1 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Lo Valledor | 31 | 2 | 0 | 18 |
+| SLEP Santa Rosa | Escuela República De Las Filipinas | 32 | 1 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Ricardo Latcham | 30 | 3 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Territorio Antártico | 32 | 1 | 0 | 18 |
+| SLEP Santa Rosa | Escuela Villa San Miguel | 32 | 1 | 0 | 18 |
 
 ## Matriz escuela × indicador — 2026 (símbolos)
 
@@ -119,21 +119,21 @@ Leyenda: ✅ Con dato · ○ Sin dato · ⚠ Faltante · ✗ Sin fuente
 
 | Escuela | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 | 50 | 51 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Escuela Abate Molina | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela España | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Gil de Castro | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Inglaterra | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Platón | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Pedro Aguirre Cerda | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Profesor Ramón del Río | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Ramón Freire | ✅ | ✅ | ✅ | ⚠ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| República de Austria | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Básica Sendero del Saber | ✅ | ✅ | ✅ | ⚠ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ⚠ | ⚠ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ⚠ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ⚠ | ⚠ | ✗ | ✗ | ✗ | ✗ | ⚠ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Ciudad de Barcelona | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Esperanza Joven | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ⚠ | ⚠ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ⚠ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ⚠ | ⚠ | ✗ | ✗ | ✗ | ✗ | ⚠ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela La Victoria | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Lo Valledor | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ⚠ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela República De Las Filipinas | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Ricardo Latcham | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ⚠ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Territorio Antártico | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
-| Escuela Villa San Miguel | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ⚠ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Abate Molina | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela España | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Gil de Castro | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Inglaterra | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Platón | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Pedro Aguirre Cerda | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Profesor Ramón del Río | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Ramón Freire | ✅ | ✅ | ✅ | ○ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| República de Austria | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Básica Sendero del Saber | ✅ | ✅ | ✅ | ○ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ○ | ○ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ○ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ○ | ○ | ✗ | ✗ | ✗ | ✗ | ○ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Ciudad de Barcelona | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Esperanza Joven | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ○ | ○ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ○ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ○ | ○ | ✗ | ✗ | ✗ | ✗ | ○ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela La Victoria | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Lo Valledor | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ○ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela República De Las Filipinas | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Ricardo Latcham | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ○ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Territorio Antártico | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |
+| Escuela Villa San Miguel | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✗ | ✅ | ✅ | ○ | ✅ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ |

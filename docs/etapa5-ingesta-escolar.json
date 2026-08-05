@@ -1,22 +1,25 @@
 {
-  "generatedAt": "2026-07-30T00:35:06.855Z",
+  "generatedAt": "2026-08-05T08:45:25.942Z",
   "dryRun": false,
   "totals": {
-    "resultados": 502,
-    "resultadosRecolectados": 502,
+    "resultados": 548,
+    "resultadosRecolectados": 548,
     "porEstado": {
-      "validado": 169,
-      "provisional": 333
+      "validado": 167,
+      "provisional": 381
     },
     "escuelasCubiertas": 18,
-    "indicadoresCubiertos": 30,
-    "reads": 72,
-    "headerMismatches": 39
+    "indicadoresCubiertos": 33,
+    "reads": 90,
+    "headerMismatches": 142
   },
   "indicadoresCubiertos": [
     "I.1",
+    "I.10",
     "I.11",
     "I.12",
+    "I.13",
+    "I.14",
     "I.15",
     "I.16",
     "I.17",
@@ -65,10 +68,82 @@
       "tab": "RC per-course"
     },
     {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Esperanza Joven",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Profesor Ramón del Río",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela Ramón Freire",
@@ -83,16 +158,124 @@
       "tab": "Reuniones equipo de Gestión"
     },
     {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "República de Austria",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
     },
     {
+      "schoolName": "República de Austria",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Pedro Aguirre Cerda",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela Básica Sendero del Saber",
@@ -119,6 +302,42 @@
       "tab": "RC per-course"
     },
     {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Villa San Miguel",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -129,6 +348,42 @@
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela Territorio Antártico",
@@ -143,6 +398,42 @@
       "tab": "Actividades"
     },
     {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Lo Valledor",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -153,6 +444,42 @@
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela La Victoria",
@@ -167,6 +494,42 @@
       "tab": "Actividades"
     },
     {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Ricardo Latcham",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -177,6 +540,42 @@
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela Ciudad de Barcelona",
@@ -191,6 +590,42 @@
       "tab": "Actividades"
     },
     {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela República De Las Filipinas",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -201,6 +636,12 @@
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I19",
+      "expected": "batchGet cursos: Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute per user' of service 'sheets.googleapis.com' for consumer 'project_number:719942512215'.",
+      "tab": "RC per-course"
     },
     {
       "schoolName": "Escuela Platón",
@@ -219,6 +660,42 @@
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Platón",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela Abate Molina",
@@ -233,6 +710,42 @@
       "tab": "Actividades"
     },
     {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Abate Molina",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela España",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -251,6 +764,42 @@
       "tab": "Actividades"
     },
     {
+      "schoolName": "Escuela España",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela España",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Inglaterra",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -269,6 +818,42 @@
       "tab": "Actividades"
     },
     {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Inglaterra",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
       "schoolName": "Escuela Gil de Castro",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -279,6 +864,42 @@
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela Gil de Castro",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     }
   ],
   "muestra": [

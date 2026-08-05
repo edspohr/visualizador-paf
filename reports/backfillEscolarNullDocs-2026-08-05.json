@@ -1,0 +1,311 @@
+{
+  "generatedAt": "2026-08-05T11:17:31.647Z",
+  "dryRun": false,
+  "totalWritten": 38,
+  "slots": [
+    {
+      "docId": "esc_esc-abate-molina_I_37_2026",
+      "establecimientoId": "esc-abate-molina",
+      "establecimientoNombre": "Escuela Abate Molina",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_4_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.4",
+      "indicadorNombre": "% promedio de asistencia de coordinadores a las reuniones del equipo de gestión",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_19_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.19",
+      "indicadorNombre": "Porcentaje promedio de familias entrevistadas por profesor jefe al menos una vez en el año por sala",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_20_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.20",
+      "indicadorNombre": "Porcentaje promedio de familias entrevistadas por profesor jefe al menos dos veces en el año por sala",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_26_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.26",
+      "indicadorNombre": "Número de apoderados monitores formados (que hayan asistido a al menos una instancia de formación)",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_27_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.27",
+      "indicadorNombre": "Número de salas cubiertas por apoderados monitores",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_37_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_40_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.40",
+      "indicadorNombre": "% promedio de apoderados que participan de al menos un taller para apoderados presencial",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_41_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.41",
+      "indicadorNombre": "% promedio de apoderados que participan del 100% de los Talleres para apoderados presencial",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I_46_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.46",
+      "indicadorNombre": "Número de apoderados monitores que implementaron Taller de Apoderados (que hayan realizado al menos un taller)",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-ciudad-de-barcelona_I_37_2026",
+      "establecimientoId": "esc-ciudad-de-barcelona",
+      "establecimientoNombre": "Escuela Ciudad de Barcelona",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-espana_I_37_2026",
+      "establecimientoId": "esc-espana",
+      "establecimientoNombre": "Escuela España",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-espana_I_47_2026",
+      "establecimientoId": "esc-espana",
+      "establecimientoNombre": "Escuela España",
+      "indicadorId": "I.47",
+      "indicadorNombre": "Nota promedio que ponen los asistentes a las formaciones de monitores",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_19_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.19",
+      "indicadorNombre": "Porcentaje promedio de familias entrevistadas por profesor jefe al menos una vez en el año por sala",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_20_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.20",
+      "indicadorNombre": "Porcentaje promedio de familias entrevistadas por profesor jefe al menos dos veces en el año por sala",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_26_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.26",
+      "indicadorNombre": "Número de apoderados monitores formados (que hayan asistido a al menos una instancia de formación)",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_27_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.27",
+      "indicadorNombre": "Número de salas cubiertas por apoderados monitores",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_37_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_40_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.40",
+      "indicadorNombre": "% promedio de apoderados que participan de al menos un taller para apoderados presencial",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_41_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.41",
+      "indicadorNombre": "% promedio de apoderados que participan del 100% de los Talleres para apoderados presencial",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I_46_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.46",
+      "indicadorNombre": "Número de apoderados monitores que implementaron Taller de Apoderados (que hayan realizado al menos un taller)",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-gil-de-castro_I_37_2026",
+      "establecimientoId": "esc-gil-de-castro",
+      "establecimientoNombre": "Escuela Gil de Castro",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-inglaterra_I_37_2026",
+      "establecimientoId": "esc-inglaterra",
+      "establecimientoNombre": "Escuela Inglaterra",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-inglaterra_I_47_2026",
+      "establecimientoId": "esc-inglaterra",
+      "establecimientoNombre": "Escuela Inglaterra",
+      "indicadorId": "I.47",
+      "indicadorNombre": "Nota promedio que ponen los asistentes a las formaciones de monitores",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-la-victoria_I_37_2026",
+      "establecimientoId": "esc-la-victoria",
+      "establecimientoNombre": "Escuela La Victoria",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-lo-valledor_I_26_2026",
+      "establecimientoId": "esc-lo-valledor",
+      "establecimientoNombre": "Escuela Lo Valledor",
+      "indicadorId": "I.26",
+      "indicadorNombre": "Número de apoderados monitores formados (que hayan asistido a al menos una instancia de formación)",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-lo-valledor_I_37_2026",
+      "establecimientoId": "esc-lo-valledor",
+      "establecimientoNombre": "Escuela Lo Valledor",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-platon_I_37_2026",
+      "establecimientoId": "esc-platon",
+      "establecimientoNombre": "Escuela Platón",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-platon_I_47_2026",
+      "establecimientoId": "esc-platon",
+      "establecimientoNombre": "Escuela Platón",
+      "indicadorId": "I.47",
+      "indicadorNombre": "Nota promedio que ponen los asistentes a las formaciones de monitores",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-ramon-freire_I_4_2026",
+      "establecimientoId": "esc-ramon-freire",
+      "establecimientoNombre": "Escuela Ramón Freire",
+      "indicadorId": "I.4",
+      "indicadorNombre": "% promedio de asistencia de coordinadores a las reuniones del equipo de gestión",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-ramon-freire_I_26_2026",
+      "establecimientoId": "esc-ramon-freire",
+      "establecimientoNombre": "Escuela Ramón Freire",
+      "indicadorId": "I.26",
+      "indicadorNombre": "Número de apoderados monitores formados (que hayan asistido a al menos una instancia de formación)",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-republica-de-austria_I_26_2026",
+      "establecimientoId": "esc-republica-de-austria",
+      "establecimientoNombre": "República de Austria",
+      "indicadorId": "I.26",
+      "indicadorNombre": "Número de apoderados monitores formados (que hayan asistido a al menos una instancia de formación)",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-republica-de-las-filipinas_I_37_2026",
+      "establecimientoId": "esc-republica-de-las-filipinas",
+      "establecimientoNombre": "Escuela República De Las Filipinas",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-ricardo-latcham_I_27_2026",
+      "establecimientoId": "esc-ricardo-latcham",
+      "establecimientoNombre": "Escuela Ricardo Latcham",
+      "indicadorId": "I.27",
+      "indicadorNombre": "Número de salas cubiertas por apoderados monitores",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-ricardo-latcham_I_37_2026",
+      "establecimientoId": "esc-ricardo-latcham",
+      "establecimientoNombre": "Escuela Ricardo Latcham",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-ricardo-latcham_I_46_2026",
+      "establecimientoId": "esc-ricardo-latcham",
+      "establecimientoNombre": "Escuela Ricardo Latcham",
+      "indicadorId": "I.46",
+      "indicadorNombre": "Número de apoderados monitores que implementaron Taller de Apoderados (que hayan realizado al menos un taller)",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-territorio-antartico_I_37_2026",
+      "establecimientoId": "esc-territorio-antartico",
+      "establecimientoNombre": "Escuela Territorio Antártico",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-villa-san-miguel_I_37_2026",
+      "establecimientoId": "esc-villa-san-miguel",
+      "establecimientoNombre": "Escuela Villa San Miguel",
+      "indicadorId": "I.37",
+      "indicadorNombre": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "slep": "SLEP-SR"
+    }
+  ]
+}

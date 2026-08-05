@@ -94,7 +94,9 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.9',  scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Existe plan de acción familia escuela diseñado"', transformacion: 'first_bool_from_col1', estado: 'provisional' },
   ]},
-  { id: 'I.10', mapeo: 'NO_MAPEADO', razon: 'Existe plan actualizado — probablemente derivable del tab Actividades, junto a I.9. Confirmar con Sebastián.' },
+  { id: 'I.10', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Existe plan de acción familia escuela diseñado"', transformacion: 'first_bool_from_col1', estado: 'provisional', notas: 'Misma celda que I.9 — "actualizado" y "diseñado" comparten fila (confirmado 2026-08-05 vía discovery de cache).' },
+  ]},
   { id: 'I.33', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Director cumple meta de liderazgo planificada"', transformacion: 'first_bool_from_col1', estado: 'validado' },
   ]},
@@ -110,8 +112,12 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.12', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', rango: 'por profesor jefe', transformacion: 'mean_over_docentes', estado: 'validado' },
   ]},
-  { id: 'I.13', mapeo: 'NO_MAPEADO', razon: 'Director asiste a módulos formativos. Sin fuente declarada. Confirmar planilla.' },
-  { id: 'I.14', mapeo: 'NO_MAPEADO', razon: 'Coordinador asiste a módulos formativos. Sin fuente declarada. Confirmar planilla.' },
+  { id: 'I.13', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', columna: 'Cargo=Director/a × CD1..CD4', transformacion: 'ratio_true_over_total', estado: 'provisional', notas: 'Wired 2026-08-05 vía discovery: row cuyo cargo es Director/a, promedio de trues en cols CD1..CD4.' },
+  ]},
+  { id: 'I.14', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', columna: 'Cargo=Coordinador/a × CD1..CD4', transformacion: 'ratio_true_over_total', estado: 'provisional', notas: 'Wired 2026-08-05: idem I.13 pero row Coordinador/a.' },
+  ]},
   { id: 'I.15', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Instancias de formación territorial para docentes"', transformacion: 'count_true_from_col1', estado: 'provisional' },
   ]},
@@ -141,10 +147,10 @@ export const ESCOLAR_MAPPING = [
   ]},
 
   // ─── A.3 · Formación Apoderados (I.21–I.27 estrategia, I.39–I.47 producto) ─
-  { id: 'I.21', mapeo: 'NO_MAPEADO', razon: 'Nº talleres presenciales por sala. Sin fuente declarada.' },
-  { id: 'I.22', mapeo: 'NO_MAPEADO', razon: 'Se reporta por Encuesta Apoderados, tab estructurada pero sin datos hoy.' },
-  { id: 'I.23', mapeo: 'NO_MAPEADO', razon: 'Nº talleres digitales enviados por sala. Sin fuente declarada.' },
-  { id: 'I.24', mapeo: 'NO_MAPEADO', razon: 'Visualizaciones de talleres digitales. Sin fuente declarada.' },
+  { id: 'I.21', mapeo: 'NO_MAPEADO', razon: 'Nº talleres presenciales por sala. Discovery 2026-08-05: viven en course-workbooks (arquetipo=curso) en tab Actividades, sección "Actividades con Apoderados/as", rows con "Taller presencial: ...". Requiere ingest per-curso agregando por escuela (promedio conteo por sala). Follow-up.' },
+  { id: 'I.22', mapeo: 'NO_MAPEADO', razon: 'Asistencia a taller presencial. No encontrado en Encuesta apoderados (discovery 2026-08-05) — Sebastián debe confirmar dónde se reporta.' },
+  { id: 'I.23', mapeo: 'NO_MAPEADO', razon: 'Nº talleres digitales enviados por sala. Sin fuente declarada. Confirmar con Sebastián.' },
+  { id: 'I.24', mapeo: 'NO_MAPEADO', razon: 'Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián.' },
   { id: 'I.25', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Instancia de formación para apoderados monitores"', transformacion: 'count_true_from_col1', estado: 'validado' },
   ]},
@@ -154,17 +160,25 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.27', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'salas con monitor activo', transformacion: 'ratio_salas_cubiertas', estado: 'provisional' },
   ]},
-  { id: 'I.39', mapeo: 'NO_MAPEADO', razon: '% Talleres liderados por dupla monitor-profesor. Sin fuente declarada.' },
+  { id: 'I.39', mapeo: 'NO_MAPEADO', razon: '% Talleres liderados por dupla monitor-profesor. Discovery 2026-08-05: course-workbooks tab Actividades tiene row "¿Quién lidera el taller?" (R18) — el layout es libre-texto, requiere parseo custom. Follow-up.' },
   { id: 'I.40', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'Talleres TF1..4', transformacion: 'atLeast_over_total', estado: 'provisional' },
   ]},
   { id: 'I.41', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'Talleres TF1..4', transformacion: 'all4_over_total', estado: 'provisional' },
   ]},
-  { id: 'I.42', mapeo: 'NO_MAPEADO', razon: 'Se reporta por Encuesta Apoderados, tab estructurada pero sin datos hoy.' },
-  { id: 'I.43', mapeo: 'NO_MAPEADO', razon: 'BV que declaran usar familias. Encuesta Apoderados. Sin datos hoy.' },
-  { id: 'I.44', mapeo: 'NO_MAPEADO', razon: 'LV que declaran usar familias. Encuesta Apoderados. Sin datos hoy.' },
-  { id: 'I.45', mapeo: 'NO_MAPEADO', razon: 'Mantel que declaran usar familias. Encuesta Apoderados. Sin datos hoy.' },
+  { id: 'I.42', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"descargado y visualizado"', transformacion: 'first_number', estado: 'validado', notas: 'Wired 2026-08-05: R2 col B (label) / col C (valor).' },
+  ]},
+  { id: 'I.43', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"Biblioteca Viajera declaran"', transformacion: 'first_number', estado: 'validado', notas: 'Wired 2026-08-05: R3.' },
+  ]},
+  { id: 'I.44', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"Lecturas Viajeras declaran"', transformacion: 'first_number', estado: 'validado', notas: 'Wired 2026-08-05: R4.' },
+  ]},
+  { id: 'I.45', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"mantel de palabras"', transformacion: 'first_number', estado: 'validado', notas: 'Wired 2026-08-05: R5.' },
+  ]},
   { id: 'I.46', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'monitores activos', transformacion: 'count', estado: 'validado' },
   ]},
@@ -176,14 +190,18 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.28', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'Bibliotecas Viajeras', transformacion: 'mean_over_salas', estado: 'provisional' },
   ]},
-  { id: 'I.29', mapeo: 'NO_MAPEADO', razon: 'Libros de BV recibidos por estudiante. Encuesta Apoderados. Sin datos hoy.' },
-  { id: 'I.30', mapeo: 'NO_MAPEADO', razon: 'Envío de Lecturas Viajeras. Encuesta Apoderados. Sin datos hoy.' },
-  { id: 'I.31', mapeo: 'NO_MAPEADO', razon: 'Salas que envían Mantel. Encuesta Apoderados. Sin datos hoy.' },
-  { id: 'I.32', mapeo: 'NO_MAPEADO', razon: 'Nº talleres para estudiantes. Sin fuente declarada.' },
-  { id: 'I.48', mapeo: 'NO_MAPEADO', razon: 'Mediación BV. Sin fuente declarada.' },
-  { id: 'I.49', mapeo: 'NO_MAPEADO', razon: 'Mediación LV. Sin fuente declarada.' },
-  { id: 'I.50', mapeo: 'NO_MAPEADO', razon: 'Mediación Mantel previo. Sin fuente declarada.' },
-  { id: 'I.51', mapeo: 'NO_MAPEADO', razon: 'Mediación Mantel post-envío. Sin fuente declarada.' },
+  { id: 'I.29', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"Biblioteca Viajera declaran"', transformacion: 'first_number', estado: 'provisional', notas: 'Wired 2026-08-05: misma celda que I.43 (R3). Sebastián validará semántica.' },
+  ]},
+  { id: 'I.30', mapeo: 'NO_MAPEADO', razon: 'Envío de Lecturas Viajeras. Discovery 2026-08-05: en course-workbooks (2A-4B) tab Actividades sección Biblioteca Viajera / Lecturas Viajeras. Follow-up per-curso.' },
+  { id: 'I.31', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"mantel de palabras"', transformacion: 'first_number', estado: 'provisional', notas: 'Wired 2026-08-05: misma celda que I.45 (R5). Sebastián validará semántica.' },
+  ]},
+  { id: 'I.32', mapeo: 'NO_MAPEADO', razon: 'Nº talleres para estudiantes. Discovery 2026-08-05: course-workbooks 1A-8B tab Actividades sección "Actividades con Estudiantes" (rows Mantel/Biblioteca por sala). Follow-up per-curso.' },
+  { id: 'I.48', mapeo: 'NO_MAPEADO', razon: 'Mediación BV. Discovery 2026-08-05: course-workbooks tab Actividades "Actividad de aula Biblioteca viajera" rows (bools per actividad). Follow-up per-curso.' },
+  { id: 'I.49', mapeo: 'NO_MAPEADO', razon: 'Mediación LV. Discovery 2026-08-05: course-workbooks tab Actividades sección Lecturas Viajeras. Follow-up per-curso.' },
+  { id: 'I.50', mapeo: 'NO_MAPEADO', razon: 'Mediación Mantel previo. Discovery 2026-08-05: course-workbooks tab Actividades "Mediación Mantel de Palabras" row. Follow-up per-curso.' },
+  { id: 'I.51', mapeo: 'NO_MAPEADO', razon: 'Mediación Mantel post-envío. Discovery 2026-08-05: course-workbooks tab Actividades "Monitoreo Mantel de Palabras" rows. Follow-up per-curso.' },
 ];
 
 // ─── Aserción: cada indicador canónico tiene entrada explícita ─────────────

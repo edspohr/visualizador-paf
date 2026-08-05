@@ -190,6 +190,10 @@ const ACTIVIDADES = [
   { id: 'I38', label: /^existe en el establecimiento un sistema de planificacion, pauta y monitoreo de entrevistas para apoderados que cumple con estandares paf$/, aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe en el establecimiento un sistema de planificación…' },
   // I34 — % cumplimiento plan de acción
   { id: 'I34', label: /^porcentaje de cumplimiento del plan de accion familia escuela$/, aggregate: 'first_number_from_col1', estado: 'provisional', headerHint: 'Porcentaje de cumplimiento del plan de acción familia escuela' },
+  // I10 — Plan de acción actualizado. Sebastián 2026-08-05: es la misma celda
+  // de I9 (plan diseñado) — el "actualizado" se marca cuando se revisa el mismo
+  // plan. Provisional hasta que Sebastián confirme el layout definitivo.
+  { id: 'I10', label: /^existe plan de accion familia escuela disenado$/, aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe plan de acción familia escuela (diseñado = actualizado por defecto)' },
 ];
 
 // For "Director asiste" / "Coordinador asiste" the value depends on sub-header columns.
@@ -423,6 +427,31 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
       } else logMismatch(schoolName, 'I16', 'columnas Instancias de formación 1/2 con datos', 'Datos docentes');
     } else logMismatch(schoolName, 'I16', 'filas Prof. Jefe / Docente', 'Datos docentes');
   } else logMismatch(schoolName, 'I16', 'columnas Instancias de formación 1, 2', 'Datos docentes');
+
+  // I13 — Director asiste a módulos formativos (% asistencia sobre módulos totales)
+  // I14 — Coordinador asiste a módulos formativos (idem)
+  // Se lee el row cuyo cargo es Director/a (I13) o Coordinador/a (I14), y se computa
+  // ratio de trues sobre CD1..CD4 (módulos formativos). Discovery 2026-08-05.
+  if (cdCols.length) {
+    const rowsData = rows.slice(hdrIdx + 1).filter(r => r && String(r[cargoCol] || '').trim());
+    const directorRow = rowsData.find(r => /^director\/?a?$/i.test(String(r[cargoCol] || '').trim()));
+    const coordRow    = rowsData.find(r => /^coordinador\/?a?$/i.test(String(r[cargoCol] || '').trim()));
+    if (directorRow) {
+      const bools = cdCols.map(c => parseBool(directorRow[c])).filter(v => v !== null);
+      if (bools.length) {
+        const valor = bools.filter(v => v === 1).length / bools.length;
+        results.push({ indId: 'I13', valor, raw: `director: ${bools.filter(v=>v===1).length}/${bools.length} módulos`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+      } else logMismatch(schoolName, 'I13', 'row Director sin datos en CD1..CD4', 'Datos docentes');
+    } else logMismatch(schoolName, 'I13', 'row con Cargo=Director/a', 'Datos docentes');
+    if (coordRow) {
+      const bools = cdCols.map(c => parseBool(coordRow[c])).filter(v => v !== null);
+      if (bools.length) {
+        const valor = bools.filter(v => v === 1).length / bools.length;
+        results.push({ indId: 'I14', valor, raw: `coordinador: ${bools.filter(v=>v===1).length}/${bools.length} módulos`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+      } else logMismatch(schoolName, 'I14', 'row Coordinador sin datos en CD1..CD4', 'Datos docentes');
+    } else logMismatch(schoolName, 'I14', 'row con Cargo=Coordinador/a', 'Datos docentes');
+  } else logMismatch(schoolName, 'I13/I14', 'columnas CD1..CD4 no encontradas', 'Datos docentes');
+
   return results;
 }
 
@@ -596,15 +625,44 @@ async function ingestCoursesRC(schoolName, rcId, wbLabel) {
   return results;
 }
 
-// ─── Encuesta apoderados — siempre sin dato (tab estructurada pero vacía) ─
-// Se documenta como "sin dato" y se agrega al log de mismatches.
-// El antiguo 'I46' de esta lista fue eliminado del catálogo canónico
-// (2026-07-29); ver scripts/lib/canonicalIds.mjs.
-const ENCUESTA_INDS = ['I22', 'I29', 'I30', 'I31', 'I42', 'I43', 'I44', 'I45'];
-function noteEncuestaEmpty(schoolName) {
-  for (const id of ENCUESTA_INDS) {
-    // Not logged as mismatch since it's expected mid-year; noted separately
+// ─── Encuesta apoderados — 6 indicadores (2026-08-05) ────────────────────────
+// Layout confirmado (18/18 escuelas):
+//   R2: % apoderados que declaran haber descargado y visualizado talleres  → I.42
+//   R3: Promedio libros Biblioteca Viajera que declaran utilizar           → I.43 (y I.29, misma celda)
+//   R4: Promedio Lecturas Viajeras que declaran utilizar                   → I.44
+//   R5: % apoderados que declaran utilizar mantel de palabras              → I.45 (y I.31, misma celda)
+// Nota: I.22 (asistencia a taller presencial) e I.30 (envío de LV) NO están
+// en este tab según discovery del 2026-08-05 — quedan sin fuente.
+const ENCUESTA_SPECS = [
+  { id: 'I42', row: 2, labelPattern: /descargado y visualizado/i,   estado: 'validado', hint: '% apoderados con talleres descargados/visualizados' },
+  { id: 'I43', row: 3, labelPattern: /biblioteca viajera.*declaran/i, estado: 'validado', hint: 'Promedio libros BV declarados' },
+  { id: 'I44', row: 4, labelPattern: /lecturas viajeras.*declaran/i,   estado: 'validado', hint: 'Promedio LV declarados' },
+  { id: 'I45', row: 5, labelPattern: /mantel de palabras/i,            estado: 'validado', hint: '% mantel de palabras declarado' },
+  // I.29 e I.31 apuntan a las mismas celdas (semántica igual a I.43 e I.45)
+  { id: 'I29', row: 3, labelPattern: /biblioteca viajera.*declaran/i, estado: 'provisional', hint: 'Promedio libros BV (= I.43)' },
+  { id: 'I31', row: 5, labelPattern: /mantel de palabras/i,            estado: 'provisional', hint: '% mantel (= I.45)' },
+];
+
+function ingestEncuestaApoderados(rows, schoolName, wbId, wbLabel) {
+  const results = [];
+  for (const spec of ENCUESTA_SPECS) {
+    // Prefer pattern-based row lookup (safer than fixed index) but keep fixed row as fallback.
+    let rowIdx = -1;
+    for (let i = 0; i < Math.min(rows.length, 20); i++) {
+      const r = rows[i] || [];
+      const label = String(r[1] || '');
+      if (spec.labelPattern.test(label)) { rowIdx = i; break; }
+    }
+    if (rowIdx < 0) { logMismatch(schoolName, spec.id, spec.hint, 'Encuesta apoderados'); continue; }
+    const row = rows[rowIdx] || [];
+    // Value cell — Col B (index 1) has the label, col C+ has the value. Some schools
+    // put it in col B when the value slot is offset — try C then D.
+    const valor = parseNum(row[2]) ?? parseNum(row[3]) ?? null;
+    const raw = String(row[2] ?? row[3] ?? '');
+    if (valor === null) { logMismatch(schoolName, spec.id, spec.hint + ' (celda vacía)', 'Encuesta apoderados'); continue; }
+    results.push({ indId: spec.id, valor, raw, estado: spec.estado, tab: 'Encuesta apoderados', row: rowIdx + 1, wbId, wbLabel });
   }
+  return results;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────
@@ -679,7 +737,14 @@ for (const s of schools) {
       allResults.push(...res);
     } catch (e) { console.warn(`      RC per-course ERROR: ${e.errors?.[0]?.message || e.message}`); }
   }
-  noteEncuestaEmpty(s.name);
+  // Datos Consultor · Encuesta apoderados (6 indicadores confirmados 2026-08-05)
+  try {
+    const rows = await readTab(s.dcId, 'Encuesta apoderados', 'A1:Z20');
+    const res = ingestEncuestaApoderados(rows, s.name, s.dcId, 'Datos Consultor · Encuesta apoderados');
+    for (const r of res) r.establecimientoId = s.slug, r.establecimientoNombre = s.name, r.cohorte = s.cohorte;
+    console.log(`      Encuesta apoderados:         ${res.length} valores`);
+    allResults.push(...res);
+  } catch (e) { console.warn(`      Encuesta ERROR: ${e.errors?.[0]?.message || e.message}`); }
 }
 
 // Normaliza el id de indicador a forma canónica con punto ('I1' → 'I.1').

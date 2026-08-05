@@ -23,7 +23,8 @@
     "backfill:slep-usuarios": "node scripts/backfillSlepIdOnUsuarios.mjs",
     "diagnose:auth": "node scripts/diagnoseAuthResolution.mjs",
     "parse:homologacion": "node scripts/parseHomologacion.mjs",
-    "reporte:conexion-escolar": "node scripts/reporteConexionEscolar.mjs"
+    "reporte:conexion-escolar": "node scripts/reporteConexionEscolar.mjs",
+    "backfill:escolar-null": "node scripts/backfillEscolarNullDocs.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

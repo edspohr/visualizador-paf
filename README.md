@@ -12,15 +12,18 @@ Plataforma de monitoreo en producción del **Programa Aprender en Familia** (PAF
 
 ---
 
-## Estado actual (30 de julio de 2026)
+## Estado actual (5 de agosto de 2026)
 
 - **Catálogo Parvulario:** 53 indicadores canónicos (I.1–I.53), 3 ámbitos.
 - **Catálogo Escolar 2026:** 51 indicadores canónicos (I.1–I.51), 4 ámbitos.
 - **Datos en Firestore:** 5.010 documentos Parvulario + 502 documentos Escolar.
 - **Cobertura de indicadores con datos:** Parvulario 49/53 · Escolar 30/51.
-- **Cobertura de fuentes** (planillas efectivamente leídas): Parvulario 3/3 Planillas Centrales · Escolar 396/466 planillas individuales (69 inaccesibles — ver informe de cobertura).
+- **Cobertura de fuentes** (planillas efectivamente leídas): Parvulario 3/3 Planillas Centrales · Escolar 465/466 planillas individuales (1 link roto permanente: Sendero del Saber KA — ver informe de cobertura).
+- **Perfiles funcionando:** jardin, escuela, sostenedor (queries estrechas que pasan las reglas Firestore), consultor, cap, superadmin.
+- **Homologación 2025↔2026 (Escolar):** 29 pares de indicadores mapeados; el comparador alinea años automáticamente.
+- **Estados de cobertura en UI:** cada fila de indicador Escolar muestra el estado del manifiesto (sin fuente, sin dato, con dato).
 
-El estado detallado y las definiciones pendientes de Focus están en `docs/informe-cobertura-fuentes-2026-07-30.md`.
+El estado detallado y las definiciones pendientes de Focus están en `docs/informe-cobertura-fuentes-2026-08-05.md`.
 
 ---
 
@@ -114,7 +117,8 @@ Todo el detalle de arquitectura, fuentes, catálogos canónicos, colecciones Fir
 **Vigente (leer estos primero):**
 
 - `CLAUDE.md` — arquitectura, convenciones, catálogos canónicos, qué NO tocar.
-- `docs/informe-cobertura-fuentes-2026-07-30.md` — estado actual de cobertura de datos por programa, con las definiciones pendientes de Focus separadas por track.
+- `docs/informe-cobertura-fuentes-2026-08-05.md` — estado actualizado de cobertura de datos al 5 de agosto (re-harvest 465/466, correcciones territoriales, W3–W4).
+- `docs/informe-cobertura-fuentes-2026-07-30.md` — estado base del 30 de julio (referencia histórica).
 - `docs/informe-revision-2026-07-29.md` — informe para Luis (Parvulario) del ciclo cliente de julio.
 - `docs/informe-revision-escolar-2026-07-30.md` — informe para Sebastián (Escolar) del addendum de julio.
 - `docs/mapeo-parvulario-2026-07-21.md` — mapeo Parvulario con crosswalk antiguo→canónico (para leer el reporte de julio contra la numeración actual).
@@ -144,7 +148,8 @@ Ver `docs/README.md` para un índice más detallado.
 
 ## Roadmap corto
 
-Ver `docs/informe-cobertura-fuentes-2026-07-30.md` para el listado exacto de acciones pendientes por track. Puntos operativos más grandes:
+Ver `docs/informe-cobertura-fuentes-2026-08-05.md` para el listado exacto de acciones pendientes. Puntos operativos más grandes:
 
 - **Parvulario:** completar metadata de I.1 con Focus; resolver los 4 indicadores sin datos.
-- **Escolar:** obtener acceso a las 68 planillas 2025 de Los Parques; identificar fuente de los 13 indicadores sin mapeo; revisar los 333 documentos marcados como provisionales con Sebastián.
+- **Escolar:** arreglar link de Sendero del Saber KA (Sebastián); identificar fuente de los 13 indicadores sin mapeo; revisar los 333 documentos marcados como provisionales; definir tratamiento comparación año-a-año.
+- **Validación de perfiles:** confirmar con cuentas reales de jardin/escuela/sostenedor que las vistas cargan correctamente tras el fix de auth (W1).

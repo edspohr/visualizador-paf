@@ -64,6 +64,7 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
   - `VistaEscuela.jsx` — vista de un establecimiento (escuela o jardín).
   - `VistaSostenedor.jsx` — vista de un SLEP con toggle escolar/parvulario cuando hay ambos.
   - `VistaConsultor.jsx` — vista nacional para consultor y CAP. Filtros por sostenedor / cohorte / año de implementación / comuna. Contiene el comparador.
+  - `VistaGeografia.jsx` — mapa Leaflet de los 42 establecimientos (superadmin, feature-flagged `VITE_FEATURE_GEOGRAFIA`). CircleMarkers coloreados por cumplimiento, tamaño por matrícula.
   - `GestionUsuarios.jsx`, `DashboardConsultores.jsx` — solo `superadmin`.
 - **`src/views/comparador/ComparadorIndicador.jsx`** — comparador A/B por indicador. Soporta desgloses "agrupado", "por establecimiento" y "por nivel" (parvulario).
 - **`src/components/`**
@@ -78,7 +79,7 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
   - `context.jsx` — `AppProvider`, `useApp`, definición de perfiles, listener de Firebase Auth y sincronización de `usuarios`.
   - `firebase.js` — cliente Firebase.
   - `labels.js` — `indicadorCodigo`, `ambitoCodigo`, `ambitoNombre`. Contiene `AMBITO_NAME_OVERRIDES` (mapa `${programa}:${ambitoId}` → nombre display) para renombrar ámbitos en UI sin tocar los datos almacenados.
-  - `features.js` — feature flags (por ej. `FEATURES.heatmap`, controlado por `VITE_FEATURE_HEATMAP`).
+  - `features.js` — feature flags: `FEATURES.heatmap` (`VITE_FEATURE_HEATMAP`), `FEATURES.geografia` (`VITE_FEATURE_GEOGRAFIA`). Ambos off por defecto en producción.
 
 ### Scripts
 

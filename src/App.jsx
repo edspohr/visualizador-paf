@@ -10,7 +10,6 @@ import VistaConsultor from './views/VistaConsultor.jsx';
 import GestionUsuarios from './views/GestionUsuarios.jsx';
 import DashboardConsultores from './views/DashboardConsultores.jsx';
 import { lazy, Suspense } from 'react';
-import { FEATURES } from './lib/features.js';
 const VistaGeografia = lazy(() => import('./views/VistaGeografia.jsx'));
 import PendienteAsignacion from './views/PendienteAsignacion.jsx';
 
@@ -67,7 +66,7 @@ export default function App() {
         <Route path="/" element={<VistaPorPerfil />} />
         {esSuperadmin && <Route path="/usuarios" element={<GestionUsuarios />} />}
         {esSuperadmin && <Route path="/consultores" element={<DashboardConsultores />} />}
-        {esSuperadmin && FEATURES.geografia && (
+        {esSuperadmin && (
           <Route path="/geografia" element={
             <Suspense fallback={<div className="flex items-center justify-center py-16 text-gray-ui text-sm"><Loader2 size={16} className="animate-spin mr-2"/>Cargando mapa…</div>}>
               <VistaGeografia />

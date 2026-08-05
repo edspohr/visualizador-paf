@@ -168,5 +168,25 @@ service cloud.firestore {
       );
       allow write: if false;
     }
+
+    // ─── /aggregatesTerritorio_real/{docId} — W1(peer) ─────────────────
+    // Derived, precomputed peer averages. Two tiers:
+    //   - aggregateKind='slep-tipo' : one per (programa × slep × tipo × anio × indicador)
+    //   - aggregateKind='programa'  : one per (programa × tipo × anio × indicador), fallback
+    // Privacy: only publishable=true docs are readable by limited profiles.
+    //   K_MIN=4 reporters + YoY composition-delta gate enforced by the compute script.
+    // Full-access roles can read all aggregates (including publishable=false ones)
+    // for internal analysis, since the same information exists in resultados_real.
+    match /aggregatesTerritorio_real/{docId} {
+      allow read: if esUsuarioValido() && (
+        esAccesoCompleto() ||
+        (resource.data.publishable == true && (
+          (resource.data.aggregateKind == 'slep-tipo' &&
+            resource.data.slep == getUsuario().slepId) ||
+          resource.data.aggregateKind == 'programa'
+        ))
+      );
+      allow write: if false;   // written only by the compute pipeline (Admin SDK)
+    }
   }
 }

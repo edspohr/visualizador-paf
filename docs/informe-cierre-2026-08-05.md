@@ -88,6 +88,16 @@ Esta vista es de uso interno (solo superadmin) y está desactivada por defecto e
 
 ---
 
+## 7. Comparación entre pares (perfil Jardín y Escuela)
+
+**Contexto:** En la ficha detallada de cada indicador aparece un valor de referencia llamado "Promedio del territorio" — el promedio del mismo indicador entre jardines o escuelas del mismo SLEP.
+
+**Cambio:** Los perfiles Jardín y Escuela ya cuentan con esta comparación (antes solo la veían Consultor, CAP, Sostenedor y Superadmin). Para respetar la privacidad de los centros según la Ley 21.719, el promedio del territorio se muestra únicamente cuando hay al menos 4 centros del mismo tipo reportando ese indicador en el SLEP, y cuando la comparación año a año no permitiría aislar el valor de un centro individual. Cuando el promedio del territorio no puede publicarse por alguna de esas dos razones, la ficha muestra en su lugar el "Promedio del programa" — el promedio de todos los jardines o todas las escuelas del PAF completo (24 y 18 respectivamente) — con una nota que lo explica.
+
+**Cómo se calcula:** Los promedios están precomputados y viven en una colección aparte (`aggregatesTerritorio_real`). El pipeline se recalcula automáticamente después de cada ingesta; el promedio del programa está garantizado siempre (los universos de 24/18 superan holgadamente el mínimo de 4).
+
+---
+
 ## Elementos que siguen abiertos
 
 Los siguientes puntos requieren decisión o acción de parte de Focus para avanzar. Se detallan en `docs/informe-cobertura-fuentes-2026-08-05.md`.

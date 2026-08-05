@@ -12,6 +12,7 @@ export {
   useEstablecimientosPorSlep,
   useSlepDoc,
   useEntidadDelPerfil,
+  useTerritorioAggregate,
   useValoresSlepAnio,
   useIndicadores,
   useAmbitos,

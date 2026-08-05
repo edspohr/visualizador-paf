@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../lib/context.jsx';
-import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresIndicador } from '../lib/queries.js';
+import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresIndicador, useTerritorioAggregate } from '../lib/queries.js';
 import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables } from '../data/scope.js';
 import { KpiCard } from '../components/Shared.jsx';
@@ -41,6 +41,16 @@ export default function VistaEscuela() {
   // Valores del propio centro.
   const entidadIdFromCtx = perfil.contexto?.id;
   const valoresQ = useValoresIndicador(entidadIdFromCtx, anioSeleccionado);
+
+  // Peer average (W1(peer)): precomputed aggregate. Called unconditionally with
+  // null args when there's no drilldown so React hooks stay stable across renders.
+  const aggQ = useTerritorioAggregate(
+    drilldown ? programa : null,
+    drilldown ? entidadQ.establecimiento?.slep : null,
+    drilldown ? entidadQ.establecimiento?.tipo : null,
+    drilldown ? anioSeleccionado : null,
+    drilldown ? drilldown.id : null,
+  );
 
   const cargando = entidadQ.isLoading || indicadoresQ.isLoading || ambitosQ.isLoading;
 
@@ -108,15 +118,15 @@ export default function VistaEscuela() {
 
   const slep = sostenedores.find(s => s.id === entidad.slep);
 
-  // Peer-average (promedioTerritorio) will be provided by W1(peer) precomputed
-  // aggregates. Until that ships, we pass null so the drilldown renders without it.
   let drilldownExtras = {};
   if (drilldown) {
     const entry = valoresReales.get(drilldown.id);
     drilldownExtras = {
       valor: entry?.valor ?? null,
       estado: entry?.estado ?? 'validado',
-      promedioTerritorio: null,
+      promedioTerritorio: aggQ.data?.mean ?? null,
+      promedioSource: aggQ.data?.source ?? null,
+      promedioNReporters: aggQ.data?.nReporters ?? null,
       valoresTerritorio: new Map(),
     };
   }

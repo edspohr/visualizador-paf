@@ -42,6 +42,8 @@ export default function IndicatorDrilldown({
   valor = null,
   estado = 'validado',
   promedioTerritorio = null,
+  promedioSource = null,       // 'slep-tipo' | 'programa' | null
+  promedioNReporters = null,
   todosEstablecimientos = [],
   sostenedores = [],
   valoresTerritorio = new Map(),
@@ -58,6 +60,10 @@ export default function IndicatorDrilldown({
   const est = todosEstablecimientos.find(e => e.id === establecimientoId);
   const tipo = est?.tipo ?? 'Escuela';
 
+  const promedioLabel = promedioSource === 'programa'
+    ? 'Promedio del programa'
+    : 'Promedio del territorio';
+
   // Datos de evolución mensual solo se muestran cuando el llamador provee un
   // `series` prop. En esta vista mock (mes puntual) omitimos la línea temporal
   // y mostramos la comparación estática de este mes.
@@ -67,9 +73,9 @@ export default function IndicatorDrilldown({
       : [{
           mes: MESES[mes - 1],
           'Este centro educativo': fmtChartVal(indicador, valor),
-          'Promedio del territorio': fmtChartVal(indicador, promedioTerritorio),
+          [promedioLabel]: fmtChartVal(indicador, promedioTerritorio),
         }]
-  ), [indicador, valor, promedioTerritorio, mes]);
+  ), [indicador, valor, promedioTerritorio, mes, promedioLabel]);
 
   const showSostenedorTable = perfil === 'consultor' || perfil === 'cap';
   const showEstablecimientoTable = perfil === 'sostenedor';
@@ -133,7 +139,17 @@ export default function IndicatorDrilldown({
         {evol.length > 0 && (
           <div className="px-6 py-5 border-b border-border">
             <p className="text-xs font-medium tracking-wider uppercase text-gray-ui mb-1">Comparativa del mes</p>
-            <p className="text-sm text-gray-dark mb-4">Este centro educativo vs promedio de {tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio</p>
+            <p className="text-sm text-gray-dark mb-1">
+              {promedioSource === 'programa'
+                ? `Este centro educativo vs promedio de todos los ${tipo === 'Jardín' ? 'jardines' : 'escuelas'} del programa`
+                : `Este centro educativo vs promedio de ${tipo === 'Jardín' ? 'jardines' : 'escuelas'} del territorio`}
+            </p>
+            {promedioSource === 'programa' && (
+              <p className="text-xs text-gray-ui mb-4">
+                El promedio del territorio no puede publicarse este mes para preservar la privacidad de los centros. Se muestra el promedio del programa completo.
+              </p>
+            )}
+            {promedioSource !== 'programa' && <div className="mb-4"></div>}
             <div className="h-52">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={evol} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
@@ -161,7 +177,7 @@ export default function IndicatorDrilldown({
                   />
                   <Line
                     type="monotone"
-                    dataKey="Promedio del territorio"
+                    dataKey={promedioLabel}
                     stroke="var(--color-gray-light)"
                     strokeWidth={2}
                     dot={false}

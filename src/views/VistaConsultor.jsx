@@ -18,6 +18,10 @@ import ComparadorIndicador from './comparador/ComparadorIndicador.jsx';
 
 const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
+// Trims whitespace from a field value before string comparison, so that a stray
+// space or encoding difference in Firestore doesn't silently break filters.
+const canon = (v) => (v == null ? '' : String(v).trim());
+
 // Sublabel del TotalCard "Niñas y niños" — refleja si el número corresponde a
 // un snapshot congelado (perfil CAP) o al dato vivo.
 function buildMatriculaSub(perfilId, usaSnapshot, fechaCorte) {
@@ -143,14 +147,14 @@ export default function VistaConsultor() {
   const heatmapVisible = FEATURES.heatmap && perfil.id === 'superadmin';
 
   const filtrados = useMemo(() => todos.filter(e =>
-    (filtroSlep === 'TODOS' || e.slep === filtroSlep) &&
-    (filtroCohorte === 'TODAS' || e.cohorte === filtroCohorte) &&
-    (filtroComuna === 'TODAS' || e.comuna === filtroComuna)
+    (filtroSlep === 'TODOS' || canon(e.slep) === filtroSlep) &&
+    (filtroCohorte === 'TODAS' || canon(e.cohorte) === filtroCohorte) &&
+    (filtroComuna === 'TODAS' || canon(e.comuna) === filtroComuna)
   ), [todos, filtroSlep, filtroCohorte, filtroComuna]);
 
-  const slepsDisponibles = [...new Set(todos.map(e => e.slep))].map(id => SLEPS_DATA.find(s => s.id === id)).filter(Boolean);
-  const cohortesDisponibles = [...new Set(todos.map(e => e.cohorte))];
-  const comunasDisponibles = [...new Set(todos.map(e => e.comuna))].sort();
+  const slepsDisponibles = [...new Set(todos.map(e => canon(e.slep)).filter(Boolean))].map(id => SLEPS_DATA.find(s => s.id === id)).filter(Boolean);
+  const cohortesDisponibles = [...new Set(todos.map(e => canon(e.cohorte)).filter(Boolean))];
+  const comunasDisponibles = [...new Set(todos.map(e => canon(e.comuna)).filter(Boolean))].sort();
 
   const conCumplimiento = useMemo(() => filtrados.map(e => {
     const aplicables = indicadoresAplicables(INDS, e, effectiveMonth);
@@ -200,7 +204,7 @@ export default function VistaConsultor() {
       ninos,
       matriculaSub: buildMatriculaSub(perfil.id, usaSnapshot, fechaCorte),
       agentes: filtrados.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
-      comunas: new Set(filtrados.map(e => e.comuna)).size,
+      comunas: new Set(filtrados.map(e => canon(e.comuna)).filter(Boolean)).size,
     };
   }, [filtrados, perfil.id, effectiveMonth, anioSeleccionado]);
 

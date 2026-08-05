@@ -103,6 +103,8 @@ Escolar addendum (ciclo 2026-07-30):
 - **`scripts/metasDiscrepancyReport.mjs`** — cruza catálogo 2025 vs canónico 2026 por nombre aproximado. Emite `docs/escolar-metas-discrepancy.md`.
 - **`scripts/piiAssertion.mjs`** — barrera de última milla. Escanea Firestore (`--all` cubre roster + progreso + usuarios) y opcionalmente `.cache/harvest/` (`--cache`) buscando patrones RUT, nombres completos en mayúsculas sostenidas, y campos prohibidos (`rut`, `nombreEstudiante`, etc.). Exit 1 en cualquier hit.
 - **`scripts/diagnoseComparador.mjs`** — dump side-by-side de `resultados_real` por indicador × sostenedor × años. Usado para el fix del comparador en Bloque F.
+- **`scripts/diagnoseAuthResolution.mjs`** — diagnóstico de assignments de usuarios (read-only). Verifica que cada `usuarios` doc con perfil limitado apunte a un establecimiento existente. Emite `reports/diagnoseAuthResolution-YYYY-MM-DD.json`.
+- **`scripts/diagnoseTerritorial.mjs`** — diagnóstico de campos territoriales en `establecimientos_real` (slep, comuna, programa). Detecta nulos, variantes de acento/mayúsculas. Read-only.
 
 Migraciones y utilidades:
 
@@ -110,6 +112,10 @@ Migraciones y utilidades:
 - **`scripts/migrateCanonicalIndicadorIds.mjs`** — **DEPRECADO** tras el incidente del 2026-07-29 (dos bugs: throttling sequential + non-injective rename map). Ver header del archivo. Para futuras renumeraciones canónicas: prefiere re-ingestar desde la fuente en vez de migrar Firestore in-place.
 - **`scripts/checkColorTokens.mjs`** — guardián de tokens de color; corre antes de `vite build`.
 - **`scripts/auditFill.mjs`** — auditoría de llenado (etapa 6).
+- **`scripts/backfillSlepOnResultados.mjs`** — backfill one-shot: escribe campo `slep` en `resultados_real` y `progresoTrimestral_real` derivándolo de `establecimientos_real[establecimientoId].slep`. Requerido para la regla Firestore W1(d). Idempotente, `--dry-run`.
+- **`scripts/backfillSlepIdOnUsuarios.mjs`** — backfill one-shot: escribe `slepId` en `usuarios` para perfiles jardin/escuela derivándolo del establecimiento asignado. Idempotente, `--dry-run`.
+- **`scripts/validateUserAssignments.mjs`** — pre-deploy gate. Verifica assignments de usuarios y presencia del campo `slep` en resultados. Exit 1 en errores. `npm run validate:users`.
+- **`scripts/repairTerritorial.mjs`** — repair one-shot: corrige `slep`, `comuna`, `sostenedor` en `establecimientos_real` con valores canónicos confirmados. `--dry-run`. Idempotente.
 
 ### Firestore
 
@@ -120,8 +126,10 @@ Colecciones:
   - Agregado por establecimiento: `parv_${estId}_${indId}_${anio}` / `esc_${estId}_${indId}_${anio}`.
   - Por sala (parvulario): `parv_${estId}_${indId}_${anio}_${nivelSlug}` con campos `nivel`, `nivelEspecifico`, `nivelGeneral`.
   - Todos los IDs pasan por `sanitizeDocId(/[^a-zA-Z0-9_.-]/g → _)`.
-- **`progresoTrimestral_real/{doc_id}`**.
-- **`usuarios/{uid}`** — `email`, `nombre`, `perfilDefault` (`escuela | jardin | sostenedor | consultor | cap | superadmin | pendiente`), `establecimientoId`, `proveedor`.
+  - Campo `slep` denormalizado (backfill 2026-08-04): requerido para la regla Firestore de sostenedor. Todo nuevo doc de ingesta debe incluir `slep`.
+- **`progresoTrimestral_real/{doc_id}`** — campo `slep` denormalizado igual que `resultados_real`.
+- **`usuarios/{uid}`** — `email`, `nombre`, `perfilDefault` (`escuela | jardin | sostenedor | consultor | cap | superadmin | pendiente`), `establecimientoId` (jardin/escuela), `slepId` (jardin/escuela/sostenedor), `proveedor`.
+  - `slepId` es obligatorio para jardin/escuela/sostenedor: lo usan las reglas Firestore y el hook `useEntidadDelPerfil` para peer-averages.
 - **`config/dataSource`**, **`config/mesCerrado`**, **`config/pipelineMetadata`**.
 
 Índices: ver `firestore.indexes.json`. Cualquier nueva query compuesta requiere agregar el índice y deployar con `npm run deploy:rules` **antes** del hosting.

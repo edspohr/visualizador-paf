@@ -210,8 +210,10 @@ Estructura canónica vigente:
 |---|---|---|---|
 | A.1 | Gestión institucional | I.1 – I.10 (10) | I.33 – I.35 (3) |
 | A.2 | Formación Equipo educativo | I.11 – I.20 (10) | I.36 – I.38 (3) |
-| A.3 | Formación Apoderados | I.21 – I.27 (7) | I.39 – I.47 (9) |
-| A.4 | Formación Estudiantes | I.28 – I.32 (5) | I.48 – I.51 (4) |
+| A.3 | Formación Apoderados | I.21 – I.27 (7) | I.39, I.40, I.41, I.42, I.46, I.47 (6) |
+| A.4 | Formación Estudiantes | I.28 – I.32 (5) | I.43, I.44, I.45, I.48, I.49, I.50, I.51 (7) |
+
+Nota: I.43/I.44/I.45 (fomento lector declarado por familias) están en A.4 desde 2026-08-05 por indicación explícita de Sebastián y consistente con la homologación XLSX (columna "Estrategia: P3: Fomento lector").
 
 Los overrides de nombre de ámbito viven en `src/lib/labels.js → AMBITO_NAME_OVERRIDES`, no en Firestore.
 

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-29T22:46:59.220Z",
+  "generatedAt": "2026-08-05T07:44:34.032Z",
   "source": {
     "escolar": "src/data/catalogs/Sistema indicadores PAF Escolar 2026.xlsx",
     "parvulario": "src/data/catalogs/Sistema indicadores PAF Parvulario.xlsx"
@@ -1810,7 +1810,7 @@
         "version": "2026",
         "estrategiaId": "P3",
         "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A3",
+        "ambito": "A4",
         "actividadNombre": "Biblioteca viajera (nt1 – 2° básico)",
         "nombre": "Promedio de libros de Biblioteca Viajera que declaran utilizar las familias que responden encuesta",
         "meta": "7",
@@ -1829,7 +1829,7 @@
         "version": "2026",
         "estrategiaId": "P3",
         "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A3",
+        "ambito": "A4",
         "actividadNombre": "Lecturas viajeras (3° a 8° básico)",
         "nombre": "Promedio de Lecturas Viajeras que declaran utilizar las familias que responden la encuesta",
         "meta": "10",
@@ -1848,7 +1848,7 @@
         "version": "2026",
         "estrategiaId": "P3",
         "estrategiaNombre": "P3: Fomento lector y desarrollo del lenguaje en niños, niñas y adolescentes",
-        "ambito": "A3",
+        "ambito": "A4",
         "actividadNombre": "Mantel de Palabras",
         "nombre": "% de apoderados que contestan la encuesta y declaran utilizar el mantel de palabras",
         "meta": "80%",

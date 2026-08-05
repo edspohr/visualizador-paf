@@ -1,0 +1,919 @@
+escuela,sostenedor,indicadorId,ambito,estado,valor
+"Escuela Abate Molina","SLEP Los Parques",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Abate Molina","SLEP Los Parques",I.3,A1,CONECTADO_CON_DATO,0.07692307692307693
+"Escuela Abate Molina","SLEP Los Parques",I.4,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Abate Molina","SLEP Los Parques",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Abate Molina","SLEP Los Parques",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.9,A1,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.10,A1,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Abate Molina","SLEP Los Parques",I.12,A2,CONECTADO_CON_DATO,0.375
+"Escuela Abate Molina","SLEP Los Parques",I.13,A2,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.14,A2,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.19,A2,CONECTADO_CON_DATO,0.003389830508474576
+"Escuela Abate Molina","SLEP Los Parques",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.21,A3,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.22,A3,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.23,A3,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.24,A3,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Abate Molina","SLEP Los Parques",I.26,A3,CONECTADO_CON_DATO,14
+"Escuela Abate Molina","SLEP Los Parques",I.27,A3,CONECTADO_CON_DATO,0.45
+"Escuela Abate Molina","SLEP Los Parques",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.29,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.30,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.31,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.32,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.34,A1,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.35,A1,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.36,A2,CONECTADO_CON_DATO,6.6
+"Escuela Abate Molina","SLEP Los Parques",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Abate Molina","SLEP Los Parques",I.38,A2,CONECTADO_CON_DATO,1
+"Escuela Abate Molina","SLEP Los Parques",I.39,A3,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.40,A3,CONECTADO_CON_DATO,0.4610169491525424
+"Escuela Abate Molina","SLEP Los Parques",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Abate Molina","SLEP Los Parques",I.42,A3,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.43,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.44,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.45,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.46,A3,CONECTADO_CON_DATO,135
+"Escuela Abate Molina","SLEP Los Parques",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Abate Molina","SLEP Los Parques",I.48,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.49,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.50,A4,SIN_FUENTE,
+"Escuela Abate Molina","SLEP Los Parques",I.51,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.2,A1,CONECTADO_CON_DATO,3
+"Escuela España","SLEP Los Parques",I.3,A1,CONECTADO_CON_DATO,0.15384615384615385
+"Escuela España","SLEP Los Parques",I.4,A1,CONECTADO_CON_DATO,0.19230769230769232
+"Escuela España","SLEP Los Parques",I.5,A1,CONECTADO_CON_DATO,3
+"Escuela España","SLEP Los Parques",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.9,A1,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.10,A1,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela España","SLEP Los Parques",I.12,A2,CONECTADO_CON_DATO,0.5
+"Escuela España","SLEP Los Parques",I.13,A2,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.14,A2,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.21,A3,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.22,A3,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.23,A3,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.24,A3,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela España","SLEP Los Parques",I.26,A3,CONECTADO_CON_DATO,7
+"Escuela España","SLEP Los Parques",I.27,A3,CONECTADO_CON_DATO,0.1
+"Escuela España","SLEP Los Parques",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.29,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.30,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.31,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.32,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.34,A1,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.35,A1,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.36,A2,CONECTADO_CON_DATO,6.3
+"Escuela España","SLEP Los Parques",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela España","SLEP Los Parques",I.38,A2,CONECTADO_CON_DATO,1
+"Escuela España","SLEP Los Parques",I.39,A3,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.40,A3,CONECTADO_CON_DATO,0.011673151750972763
+"Escuela España","SLEP Los Parques",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela España","SLEP Los Parques",I.42,A3,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.43,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.44,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.45,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.46,A3,CONECTADO_CON_DATO,3
+"Escuela España","SLEP Los Parques",I.47,A3,CONECTADO_SIN_DOC,
+"Escuela España","SLEP Los Parques",I.48,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.49,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.50,A4,SIN_FUENTE,
+"Escuela España","SLEP Los Parques",I.51,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Gil de Castro","SLEP Los Parques",I.3,A1,CONECTADO_CON_DATO,0.15384615384615385
+"Escuela Gil de Castro","SLEP Los Parques",I.4,A1,CONECTADO_CON_DATO,0.19230769230769232
+"Escuela Gil de Castro","SLEP Los Parques",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Gil de Castro","SLEP Los Parques",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Gil de Castro","SLEP Los Parques",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Gil de Castro","SLEP Los Parques",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.9,A1,CONECTADO_CON_DATO,1
+"Escuela Gil de Castro","SLEP Los Parques",I.10,A1,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Gil de Castro","SLEP Los Parques",I.12,A2,CONECTADO_CON_DATO,0.675
+"Escuela Gil de Castro","SLEP Los Parques",I.13,A2,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.14,A2,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Gil de Castro","SLEP Los Parques",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Gil de Castro","SLEP Los Parques",I.19,A2,CONECTADO_CON_DATO,0.4935897435897436
+"Escuela Gil de Castro","SLEP Los Parques",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.21,A3,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.22,A3,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.23,A3,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.24,A3,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Gil de Castro","SLEP Los Parques",I.26,A3,CONECTADO_CON_DATO,11
+"Escuela Gil de Castro","SLEP Los Parques",I.27,A3,CONECTADO_CON_DATO,0.5
+"Escuela Gil de Castro","SLEP Los Parques",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.29,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.30,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.31,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.32,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.34,A1,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.36,A2,CONECTADO_CON_DATO,6.5
+"Escuela Gil de Castro","SLEP Los Parques",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Gil de Castro","SLEP Los Parques",I.38,A2,CONECTADO_CON_DATO,1
+"Escuela Gil de Castro","SLEP Los Parques",I.39,A3,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.40,A3,CONECTADO_CON_DATO,0.7307692307692307
+"Escuela Gil de Castro","SLEP Los Parques",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Gil de Castro","SLEP Los Parques",I.42,A3,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.43,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.44,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.45,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.46,A3,CONECTADO_CON_DATO,20
+"Escuela Gil de Castro","SLEP Los Parques",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Gil de Castro","SLEP Los Parques",I.48,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.49,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.50,A4,SIN_FUENTE,
+"Escuela Gil de Castro","SLEP Los Parques",I.51,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.2,A1,CONECTADO_CON_DATO,3
+"Escuela Inglaterra","SLEP Los Parques",I.3,A1,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.4,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Inglaterra","SLEP Los Parques",I.5,A1,CONECTADO_CON_DATO,3
+"Escuela Inglaterra","SLEP Los Parques",I.6,A1,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Inglaterra","SLEP Los Parques",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.9,A1,CONECTADO_CON_DATO,1
+"Escuela Inglaterra","SLEP Los Parques",I.10,A1,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Inglaterra","SLEP Los Parques",I.12,A2,CONECTADO_CON_DATO,0.4375
+"Escuela Inglaterra","SLEP Los Parques",I.13,A2,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.14,A2,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.17,A2,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Inglaterra","SLEP Los Parques",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.21,A3,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.22,A3,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.23,A3,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.24,A3,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Inglaterra","SLEP Los Parques",I.26,A3,CONECTADO_CON_DATO,21
+"Escuela Inglaterra","SLEP Los Parques",I.27,A3,CONECTADO_CON_DATO,0.2
+"Escuela Inglaterra","SLEP Los Parques",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.29,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.30,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.31,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.32,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.34,A1,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.36,A2,CONECTADO_CON_DATO,6.5
+"Escuela Inglaterra","SLEP Los Parques",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Inglaterra","SLEP Los Parques",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.39,A3,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.40,A3,CONECTADO_CON_DATO,0.46015037593984964
+"Escuela Inglaterra","SLEP Los Parques",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Inglaterra","SLEP Los Parques",I.42,A3,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.43,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.44,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.45,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.46,A3,CONECTADO_CON_DATO,7
+"Escuela Inglaterra","SLEP Los Parques",I.47,A3,CONECTADO_SIN_DOC,
+"Escuela Inglaterra","SLEP Los Parques",I.48,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.49,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.50,A4,SIN_FUENTE,
+"Escuela Inglaterra","SLEP Los Parques",I.51,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.2,A1,CONECTADO_CON_DATO,3
+"Escuela Platón","SLEP Los Parques",I.3,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Platón","SLEP Los Parques",I.4,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Platón","SLEP Los Parques",I.5,A1,CONECTADO_CON_DATO,3
+"Escuela Platón","SLEP Los Parques",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Platón","SLEP Los Parques",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Platón","SLEP Los Parques",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.9,A1,CONECTADO_CON_DATO,1
+"Escuela Platón","SLEP Los Parques",I.10,A1,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Platón","SLEP Los Parques",I.12,A2,CONECTADO_CON_DATO,0.5
+"Escuela Platón","SLEP Los Parques",I.13,A2,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.14,A2,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Platón","SLEP Los Parques",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Platón","SLEP Los Parques",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.21,A3,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.22,A3,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.23,A3,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.24,A3,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Platón","SLEP Los Parques",I.26,A3,CONECTADO_CON_DATO,7
+"Escuela Platón","SLEP Los Parques",I.27,A3,CONECTADO_CON_DATO,0.2
+"Escuela Platón","SLEP Los Parques",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.29,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.30,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.31,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.32,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.34,A1,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.35,A1,CONECTADO_CON_DATO,1
+"Escuela Platón","SLEP Los Parques",I.36,A2,CONECTADO_CON_DATO,6.9
+"Escuela Platón","SLEP Los Parques",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Platón","SLEP Los Parques",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.39,A3,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.40,A3,CONECTADO_CON_DATO,0.42805755395683454
+"Escuela Platón","SLEP Los Parques",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Platón","SLEP Los Parques",I.42,A3,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.43,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.44,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.45,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.46,A3,CONECTADO_CON_DATO,4
+"Escuela Platón","SLEP Los Parques",I.47,A3,CONECTADO_SIN_DOC,
+"Escuela Platón","SLEP Los Parques",I.48,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.49,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.50,A4,SIN_FUENTE,
+"Escuela Platón","SLEP Los Parques",I.51,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.3,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.4,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.10,A1,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.12,A2,CONECTADO_CON_DATO,0.425
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.13,A2,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.14,A2,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.15,A2,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.21,A3,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.22,A3,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.23,A3,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.24,A3,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.26,A3,CONECTADO_CON_DATO,12
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.27,A3,CONECTADO_CON_DATO,0.05
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.29,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.30,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.31,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.32,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.34,A1,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.36,A2,CONECTADO_CON_DATO,6.6
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.37,A2,CONECTADO_CON_DATO,6.5
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.39,A3,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.40,A3,CONECTADO_CON_DATO,0.5150602409638554
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.42,A3,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.43,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.44,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.45,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.46,A3,CONECTADO_CON_DATO,1
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.47,A3,CONECTADO_CON_DATO,6.9
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.48,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.49,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.50,A4,SIN_FUENTE,
+"Escuela Pedro Aguirre Cerda","SLEP Santa Corina",I.51,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.1,A1,CONECTADO_CON_DATO,1
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.2,A1,CONECTADO_CON_DATO,5
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.3,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.4,A1,CONECTADO_CON_DATO,0.358974358974359
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.5,A1,CONECTADO_CON_DATO,5
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.6,A1,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.10,A1,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.12,A2,CONECTADO_CON_DATO,0.6
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.13,A2,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.14,A2,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.15,A2,CONECTADO_CON_DATO,1
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.16,A2,CONECTADO_CON_DATO,0.5
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.17,A2,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.19,A2,CONECTADO_CON_DATO,0.3159509202453988
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.21,A3,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.22,A3,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.23,A3,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.24,A3,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.26,A3,CONECTADO_CON_DATO,21
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.27,A3,CONECTADO_CON_DATO,0.35
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.28,A4,CONECTADO_CON_DATO,3.45
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.29,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.30,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.31,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.32,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.34,A1,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.36,A2,CONECTADO_CON_DATO,6.8
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.37,A2,CONECTADO_CON_DATO,6.7
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.39,A3,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.40,A3,CONECTADO_CON_DATO,0.5797546012269938
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.42,A3,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.43,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.44,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.45,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.46,A3,CONECTADO_CON_DATO,7
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.48,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.49,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.50,A4,SIN_FUENTE,
+"Escuela Profesor Ramón del Río","SLEP Santa Corina",I.51,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Ramón Freire","SLEP Santa Corina",I.3,A1,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.4,A1,CONECTADO_SIN_DOC,
+"Escuela Ramón Freire","SLEP Santa Corina",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Ramón Freire","SLEP Santa Corina",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Ramón Freire","SLEP Santa Corina",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Ramón Freire","SLEP Santa Corina",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.10,A1,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Ramón Freire","SLEP Santa Corina",I.12,A2,CONECTADO_CON_DATO,0.4305555555555556
+"Escuela Ramón Freire","SLEP Santa Corina",I.13,A2,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.14,A2,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.15,A2,CONECTADO_CON_DATO,1
+"Escuela Ramón Freire","SLEP Santa Corina",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Ramón Freire","SLEP Santa Corina",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Ramón Freire","SLEP Santa Corina",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.21,A3,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.22,A3,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.23,A3,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.24,A3,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Ramón Freire","SLEP Santa Corina",I.26,A3,CONECTADO_SIN_DOC,
+"Escuela Ramón Freire","SLEP Santa Corina",I.27,A3,CONECTADO_CON_DATO,0.7
+"Escuela Ramón Freire","SLEP Santa Corina",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.29,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.30,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.31,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.32,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.34,A1,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.36,A2,CONECTADO_CON_DATO,6.4
+"Escuela Ramón Freire","SLEP Santa Corina",I.37,A2,CONECTADO_CON_DATO,6.7
+"Escuela Ramón Freire","SLEP Santa Corina",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.39,A3,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.40,A3,CONECTADO_CON_DATO,0.4190687361419069
+"Escuela Ramón Freire","SLEP Santa Corina",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Ramón Freire","SLEP Santa Corina",I.42,A3,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.43,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.44,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.45,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.46,A3,CONECTADO_CON_DATO,22
+"Escuela Ramón Freire","SLEP Santa Corina",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Ramón Freire","SLEP Santa Corina",I.48,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.49,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.50,A4,SIN_FUENTE,
+"Escuela Ramón Freire","SLEP Santa Corina",I.51,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.1,A1,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.2,A1,CONECTADO_CON_DATO,4
+"República de Austria","SLEP Santa Corina",I.3,A1,CONECTADO_CON_DATO,0.3076923076923077
+"República de Austria","SLEP Santa Corina",I.4,A1,CONECTADO_CON_DATO,0.2692307692307692
+"República de Austria","SLEP Santa Corina",I.5,A1,CONECTADO_CON_DATO,4
+"República de Austria","SLEP Santa Corina",I.6,A1,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.7,A1,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.8,A1,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.9,A1,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.10,A1,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.11,A2,CONECTADO_CON_DATO,3
+"República de Austria","SLEP Santa Corina",I.12,A2,CONECTADO_CON_DATO,0.3815789473684211
+"República de Austria","SLEP Santa Corina",I.13,A2,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.14,A2,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.15,A2,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.16,A2,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.17,A2,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.18,A2,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.19,A2,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.20,A2,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.21,A3,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.22,A3,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.23,A3,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.24,A3,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.25,A3,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.26,A3,CONECTADO_SIN_DOC,
+"República de Austria","SLEP Santa Corina",I.27,A3,CONECTADO_CON_DATO,0.05
+"República de Austria","SLEP Santa Corina",I.28,A4,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.29,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.30,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.31,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.32,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.33,A1,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.34,A1,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.35,A1,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.36,A2,CONECTADO_CON_DATO,6.4
+"República de Austria","SLEP Santa Corina",I.37,A2,CONECTADO_CON_DATO,6.7
+"República de Austria","SLEP Santa Corina",I.38,A2,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.39,A3,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.40,A3,CONECTADO_CON_DATO,0.0701219512195122
+"República de Austria","SLEP Santa Corina",I.41,A3,CONECTADO_CON_DATO,0
+"República de Austria","SLEP Santa Corina",I.42,A3,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.43,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.44,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.45,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.46,A3,CONECTADO_CON_DATO,1
+"República de Austria","SLEP Santa Corina",I.47,A3,CONECTADO_CON_DATO,7
+"República de Austria","SLEP Santa Corina",I.48,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.49,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.50,A4,SIN_FUENTE,
+"República de Austria","SLEP Santa Corina",I.51,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.15384615384615385
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.4,A1,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.625
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.19,A2,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.20,A2,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.26,A3,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.27,A3,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.6
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.40,A3,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.41,A3,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.46,A3,CONECTADO_SIN_DOC,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,6.8
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Básica Sendero del Saber","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.45
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.26,A3,CONECTADO_CON_DATO,16
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.27,A3,CONECTADO_CON_DATO,0.4
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.7
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.5458937198067633
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.46,A3,CONECTADO_CON_DATO,11
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,6.8
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Ciudad de Barcelona","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,3
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.15384615384615385
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,3
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.25
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.19,A2,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.20,A2,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.26,A3,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.27,A3,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.8
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.40,A3,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.41,A3,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.46,A3,CONECTADO_SIN_DOC,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Esperanza Joven","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,1
+"Escuela La Victoria","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela La Victoria","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela La Victoria","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela La Victoria","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela La Victoria","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela La Victoria","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.4444444444444444
+"Escuela La Victoria","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0.24867724867724866
+"Escuela La Victoria","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0.031746031746031744
+"Escuela La Victoria","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela La Victoria","SLEP Santa Rosa",I.26,A3,CONECTADO_CON_DATO,8
+"Escuela La Victoria","SLEP Santa Rosa",I.27,A3,CONECTADO_CON_DATO,0.05
+"Escuela La Victoria","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.1
+"Escuela La Victoria","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela La Victoria","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.026455026455026454
+"Escuela La Victoria","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela La Victoria","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.46,A3,CONECTADO_CON_DATO,1
+"Escuela La Victoria","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela La Victoria","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela La Victoria","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Lo Valledor","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Lo Valledor","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Lo Valledor","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Lo Valledor","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Lo Valledor","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.4
+"Escuela Lo Valledor","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.26,A3,CONECTADO_SIN_DOC,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.27,A3,CONECTADO_CON_DATO,0.05
+"Escuela Lo Valledor","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.7
+"Escuela Lo Valledor","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.23353293413173654
+"Escuela Lo Valledor","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Lo Valledor","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.46,A3,CONECTADO_CON_DATO,1
+"Escuela Lo Valledor","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Lo Valledor","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Lo Valledor","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.15384615384615385
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.325
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0.565
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.26,A3,CONECTADO_CON_DATO,13
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.27,A3,CONECTADO_CON_DATO,0.4
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.4
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.545
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.46,A3,CONECTADO_CON_DATO,108
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,6.3
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela República De Las Filipinas","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.3076923076923077
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.2692307692307692
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.375
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0.1947565543071161
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,2
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.26,A3,CONECTADO_CON_DATO,11
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.27,A3,CONECTADO_SIN_DOC,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,7
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.4157303370786517
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.46,A3,CONECTADO_SIN_DOC,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Ricardo Latcham","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.2692307692307692
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.35294117647058826
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.26,A3,CONECTADO_CON_DATO,16
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.27,A3,CONECTADO_CON_DATO,0.25
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.9
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.6403225806451613
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.46,A3,CONECTADO_CON_DATO,6
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Territorio Antártico","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.1,A1,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.2,A1,CONECTADO_CON_DATO,4
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.3,A1,CONECTADO_CON_DATO,0.23076923076923078
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.4,A1,CONECTADO_CON_DATO,0.20512820512820512
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.5,A1,CONECTADO_CON_DATO,4
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.6,A1,CONECTADO_CON_DATO,1
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.7,A1,CONECTADO_CON_DATO,1
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.8,A1,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.9,A1,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.10,A1,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.11,A2,CONECTADO_CON_DATO,3
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.12,A2,CONECTADO_CON_DATO,0.125
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.13,A2,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.14,A2,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.15,A2,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.16,A2,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.17,A2,CONECTADO_CON_DATO,1
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.18,A2,CONECTADO_CON_DATO,1
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.19,A2,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.20,A2,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.21,A3,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.22,A3,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.23,A3,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.24,A3,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.25,A3,CONECTADO_CON_DATO,1
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.26,A3,CONECTADO_CON_DATO,9
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.27,A3,CONECTADO_CON_DATO,0.35
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.28,A4,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.29,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.30,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.31,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.32,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.33,A1,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.34,A1,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.35,A1,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.36,A2,CONECTADO_CON_DATO,6.6
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.37,A2,CONECTADO_SIN_DOC,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.38,A2,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.39,A3,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.40,A3,CONECTADO_CON_DATO,0.5014409221902018
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.41,A3,CONECTADO_CON_DATO,0
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.42,A3,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.43,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.44,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.45,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.46,A3,CONECTADO_CON_DATO,8
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.47,A3,CONECTADO_CON_DATO,7
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.48,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.49,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.50,A4,SIN_FUENTE,
+"Escuela Villa San Miguel","SLEP Santa Rosa",I.51,A4,SIN_FUENTE,

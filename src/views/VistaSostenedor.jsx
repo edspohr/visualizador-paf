@@ -17,6 +17,8 @@ const ANIO_ACTUAL = 2026;
 const ANIOS_DISPONIBLES = [2025, 2026];
 const LS_KEY_ANIO = 'paf_anio_gestion';
 
+const canon = (v) => (v == null ? '' : String(v).trim());
+
 function anioInicial() {
   if (typeof window === 'undefined') return ANIO_ACTUAL;
   const stored = Number(window.localStorage.getItem(LS_KEY_ANIO));
@@ -112,7 +114,7 @@ export default function VistaSostenedor() {
             : 'matrícula vigente')
         : 'matrícula estimada',
       agentes: todosSlep.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
-      comunas: new Set(todosSlep.map(e => e.comuna)).size,
+      comunas: new Set(todosSlep.map(e => canon(e.comuna)).filter(Boolean)).size,
     };
   }, [todosSlep, perfil.id, mesEfectivo, anioSeleccionado]);
 

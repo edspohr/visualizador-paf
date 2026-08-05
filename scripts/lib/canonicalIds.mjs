@@ -73,7 +73,8 @@ export const PARVULARIO_CANONICAL = {
 // - Overrides post-rename (sobre IDs canónicos):
 //     I.29:            clasificación → estrategia
 //     I.40, I.41, I.42: clasificación → producto
-//     I.43, I.44, I.45: ámbito → A3
+//     I.43, I.44, I.45: ámbito → A4 (fomento lector — confirmed by Sebastián 2026-08-05,
+//                       consistent with homologación XLSX "Estrategia: P3: Fomento lector")
 //     I.48 (era I.49): clasificación → producto
 
 const escolar2026Renames = {};
@@ -89,9 +90,9 @@ export const ESCOLAR2026_CANONICAL = {
     'I.40': { clasificacion: 'producto', tipo: 'producto' },
     'I.41': { clasificacion: 'producto', tipo: 'producto' },
     'I.42': { clasificacion: 'producto', tipo: 'producto' },
-    'I.43': { ambito: 'A3' },
-    'I.44': { ambito: 'A3' },
-    'I.45': { ambito: 'A3' },
+    'I.43': { ambito: 'A4' },
+    'I.44': { ambito: 'A4' },
+    'I.45': { ambito: 'A4' },
     'I.48': { clasificacion: 'producto', tipo: 'producto' },
   },
   expectations: {
@@ -99,8 +100,8 @@ export const ESCOLAR2026_CANONICAL = {
     porAmbito: {
       A1: { estrategia: 10, producto: 3 },
       A2: { estrategia: 10, producto: 3 },
-      A3: { estrategia: 7, producto: 9 },
-      A4: { estrategia: 5, producto: 4 },
+      A3: { estrategia: 7, producto: 6 },
+      A4: { estrategia: 5, producto: 7 },
     },
   },
 };

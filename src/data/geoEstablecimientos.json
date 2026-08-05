@@ -1,0 +1,384 @@
+{
+  "generatedAt": "2026-08-05T06:57:25.411Z",
+  "note": "Coordinates are comuna centroids with deterministic per-ID jitter (~±900m). For display only.",
+  "features": [
+    {
+      "id": "esc-abate-molina",
+      "nombre": "Escuela Abate Molina",
+      "comuna": "Quinta Normal",
+      "programa": "escolar",
+      "slep": "SLEP-LP",
+      "lat": -33.43832,
+      "lng": -70.71297
+    },
+    {
+      "id": "esc-basica-sendero-del-saber",
+      "nombre": "Escuela Básica Sendero del Saber",
+      "comuna": "San Ramón",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.53354,
+      "lng": -70.64491
+    },
+    {
+      "id": "esc-ciudad-de-barcelona",
+      "nombre": "Escuela Ciudad de Barcelona",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.49778,
+      "lng": -70.65982
+    },
+    {
+      "id": "esc-espana",
+      "nombre": "Escuela España",
+      "comuna": "Quinta Normal",
+      "programa": "escolar",
+      "slep": "SLEP-LP",
+      "lat": -33.45016,
+      "lng": -70.70945
+    },
+    {
+      "id": "esc-esperanza-joven",
+      "nombre": "Escuela Esperanza Joven",
+      "comuna": "La Cisterna",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.53716,
+      "lng": -70.65751
+    },
+    {
+      "id": "esc-gil-de-castro",
+      "nombre": "Escuela Gil de Castro",
+      "comuna": "Quinta Normal",
+      "programa": "escolar",
+      "slep": "SLEP-LP",
+      "lat": -33.43962,
+      "lng": -70.70982
+    },
+    {
+      "id": "esc-inglaterra",
+      "nombre": "Escuela Inglaterra",
+      "comuna": "Quinta Normal",
+      "programa": "escolar",
+      "slep": "SLEP-LP",
+      "lat": -33.43968,
+      "lng": -70.71433
+    },
+    {
+      "id": "esc-la-victoria",
+      "nombre": "Escuela La Victoria",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.48903,
+      "lng": -70.65184
+    },
+    {
+      "id": "esc-lo-valledor",
+      "nombre": "Escuela Lo Valledor",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.48736,
+      "lng": -70.65017
+    },
+    {
+      "id": "esc-pedro-aguirre-cerda",
+      "nombre": "Escuela Pedro Aguirre Cerda",
+      "comuna": "Cerrillos",
+      "programa": "escolar",
+      "slep": "SLEP-SC",
+      "lat": -33.48414,
+      "lng": -70.71788
+    },
+    {
+      "id": "esc-platon",
+      "nombre": "Escuela Platón",
+      "comuna": "Quinta Normal",
+      "programa": "escolar",
+      "slep": "SLEP-LP",
+      "lat": -33.44293,
+      "lng": -70.70222
+    },
+    {
+      "id": "esc-profesor-ramon-del-rio",
+      "nombre": "Escuela Profesor Ramón del Río",
+      "comuna": "Estación Central",
+      "programa": "escolar",
+      "slep": "SLEP-SC",
+      "lat": -33.44981,
+      "lng": -70.68904
+    },
+    {
+      "id": "esc-ramon-freire",
+      "nombre": "Escuela Ramón Freire",
+      "comuna": "Maipú",
+      "programa": "escolar",
+      "slep": "SLEP-SC",
+      "lat": -33.51605,
+      "lng": -70.7655
+    },
+    {
+      "id": "esc-republica-de-austria",
+      "nombre": "República de Austria",
+      "comuna": "Estación Central",
+      "programa": "escolar",
+      "slep": "SLEP-SC",
+      "lat": -33.46264,
+      "lng": -70.69458
+    },
+    {
+      "id": "esc-republica-de-las-filipinas",
+      "nombre": "Escuela República De Las Filipinas",
+      "comuna": "Lo Espejo",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.52903,
+      "lng": -70.68589
+    },
+    {
+      "id": "esc-ricardo-latcham",
+      "nombre": "Escuela Ricardo Latcham",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.49357,
+      "lng": -70.65612
+    },
+    {
+      "id": "esc-territorio-antartico",
+      "nombre": "Escuela Territorio Antártico",
+      "comuna": "San Miguel",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.50087,
+      "lng": -70.65161
+    },
+    {
+      "id": "esc-villa-san-miguel",
+      "nombre": "Escuela Villa San Miguel",
+      "comuna": "San Miguel",
+      "programa": "escolar",
+      "slep": "SLEP-SR",
+      "lat": -33.50695,
+      "lng": -70.65154
+    },
+    {
+      "id": "jar-akun-pichiwentxu",
+      "nombre": "Akun Pichiwentxu",
+      "comuna": "San Ramón",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.53671,
+      "lng": -70.6322
+    },
+    {
+      "id": "jar-andres-bello",
+      "nombre": "Andres Bello",
+      "comuna": "San Miguel",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.50226,
+      "lng": -70.64711
+    },
+    {
+      "id": "jar-angel-fantuzzi",
+      "nombre": "Angel Fantuzzi",
+      "comuna": "Cerrillos",
+      "programa": "parvulario",
+      "slep": "SLEP-SC",
+      "lat": -33.49103,
+      "lng": -70.71924
+    },
+    {
+      "id": "jar-caballito-feliz",
+      "nombre": "Caballito feliz",
+      "comuna": "San Ramón",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.53105,
+      "lng": -70.6363
+    },
+    {
+      "id": "jar-cedin",
+      "nombre": "Cedin",
+      "comuna": "La Pintana",
+      "programa": "parvulario",
+      "slep": "SLEP-DP",
+      "lat": -33.58858,
+      "lng": -70.6312
+    },
+    {
+      "id": "jar-ciudad-de-barcelona",
+      "nombre": "Ciudad de Barcelona",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.49704,
+      "lng": -70.65908
+    },
+    {
+      "id": "jar-el-tranque",
+      "nombre": "El Tranque",
+      "comuna": "Maipú",
+      "programa": "parvulario",
+      "slep": "SLEP-SC",
+      "lat": -33.51543,
+      "lng": -70.76014
+    },
+    {
+      "id": "jar-eluney",
+      "nombre": "Eluney",
+      "comuna": "San Bernardo",
+      "programa": "parvulario",
+      "slep": "SLEP-DP",
+      "lat": -33.58915,
+      "lng": -70.70844
+    },
+    {
+      "id": "jar-enrique-backausse",
+      "nombre": "Enrique Backausse",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.49893,
+      "lng": -70.65201
+    },
+    {
+      "id": "jar-estacion-alegria",
+      "nombre": "Estación Alegría",
+      "comuna": "Estación Central",
+      "programa": "parvulario",
+      "slep": "SLEP-SC",
+      "lat": -33.46084,
+      "lng": -70.68663
+    },
+    {
+      "id": "jar-la-hormiguita",
+      "nombre": "La Hormiguita",
+      "comuna": "San Ramón",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.54562,
+      "lng": -70.63692
+    },
+    {
+      "id": "jar-la-marina",
+      "nombre": "La Marina",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.48895,
+      "lng": -70.6538
+    },
+    {
+      "id": "jar-llano-subercaseaux",
+      "nombre": "Llano Subercaseaux",
+      "comuna": "San Miguel",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.503,
+      "lng": -70.64964
+    },
+    {
+      "id": "jar-modelo",
+      "nombre": "Modelo",
+      "comuna": "San Ramón",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.53614,
+      "lng": -70.63252
+    },
+    {
+      "id": "jar-ochagavia",
+      "nombre": "Ochagavía",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.48714,
+      "lng": -70.652
+    },
+    {
+      "id": "jar-paula-jaraquemada",
+      "nombre": "Paula Jaraquemada",
+      "comuna": "El Bosque",
+      "programa": "parvulario",
+      "slep": "SLEP-DP",
+      "lat": -33.56214,
+      "lng": -70.67442
+    },
+    {
+      "id": "jar-pequeno-aymara",
+      "nombre": "Pequeño Aymará",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.48906,
+      "lng": -70.6503
+    },
+    {
+      "id": "jar-poetas-de-chile",
+      "nombre": "Poetas de Chile",
+      "comuna": "Pedro Aguirre Cerda",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.49893,
+      "lng": -70.64548
+    },
+    {
+      "id": "jar-principes-del-reino",
+      "nombre": "Príncipes del Reino",
+      "comuna": "San Ramón",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.54063,
+      "lng": -70.64537
+    },
+    {
+      "id": "jar-salomon-sack",
+      "nombre": "Salomón Sack",
+      "comuna": "Cerrillos",
+      "programa": "parvulario",
+      "slep": "SLEP-SC",
+      "lat": -33.48145,
+      "lng": -70.7222
+    },
+    {
+      "id": "jar-santa-fe",
+      "nombre": "Santa Fe",
+      "comuna": "San Miguel",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.49537,
+      "lng": -70.64802
+    },
+    {
+      "id": "jar-sueno-de-colores",
+      "nombre": "Sueño De Colores",
+      "comuna": "San Bernardo",
+      "programa": "parvulario",
+      "slep": "SLEP-DP",
+      "lat": -33.59475,
+      "lng": -70.71314
+    },
+    {
+      "id": "jar-tierra-de-angeles",
+      "nombre": "Tierra De Angeles",
+      "comuna": "San Bernardo",
+      "programa": "parvulario",
+      "slep": "SLEP-DP",
+      "lat": -33.5866,
+      "lng": -70.72128
+    },
+    {
+      "id": "jar-villa-san-miguel",
+      "nombre": "Villa San Miguel",
+      "comuna": "San Miguel",
+      "programa": "parvulario",
+      "slep": "SLEP-SR",
+      "lat": -33.50282,
+      "lng": -70.64742
+    }
+  ]
+}

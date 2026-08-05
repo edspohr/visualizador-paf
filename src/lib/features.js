@@ -9,4 +9,5 @@
 
 export const FEATURES = {
   heatmap: import.meta.env?.VITE_FEATURE_HEATMAP === 'true',
+  geografia: import.meta.env?.VITE_FEATURE_GEOGRAFIA === 'true',
 };

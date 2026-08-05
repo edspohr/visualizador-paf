@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Users, BarChart3 } from 'lucide-react';
+import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Users, BarChart3, Map } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useEntidadDelPerfil } from '../lib/queries.js';
+import { FEATURES } from '../lib/features.js';
 
 const ICONOS = {
   school: School,
@@ -124,6 +125,17 @@ export default function Layout({ children }) {
                 >
                   <BarChart3 size={14} /> Consultores
                 </NavLink>
+                {FEATURES.geografia && (
+                  <NavLink
+                    to="/geografia"
+                    className={({ isActive }) =>
+                      `flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition ${isActive ? 'text-white' : 'text-gray-dark hover:bg-bg'}`
+                    }
+                    style={({ isActive }) => (isActive ? { background: 'var(--color-teal)' } : {})}
+                  >
+                    <Map size={14} /> Geografía
+                  </NavLink>
+                )}
               </nav>
             )}
 

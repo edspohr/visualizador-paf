@@ -417,6 +417,7 @@ export default function VistaConsultor() {
           sostenedores={SLEPS_DATA}
           programa={programa}
           anioEnCurso={anioEnCurso}
+          anio={anioSeleccionado}
         />
       </div>
 
@@ -462,7 +463,7 @@ function TotalCard({ label, value, sub, Icon }) {
 
 // ─── (Comparador por indicador extraído a ./comparador/ComparadorIndicador.jsx) ─
 
-function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, valoresPorEst, sostenedores, programa, anioEnCurso = true }) {
+function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, onDrilldown, valoresPorEst, sostenedores, programa, anioEnCurso = true, anio = 2026 }) {
   return (
     <div key={c.est.id} className="border border-border rounded-xl overflow-hidden">
       <button
@@ -498,6 +499,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
             onDrilldown={(ind) => onDrilldown(ind, c.est.id, c.est.slep)}
             programa={programa}
             anioEnCurso={anioEnCurso}
+            anio={anio}
           />
         </div>
       )}
@@ -505,7 +507,7 @@ function EstRowItem({ c, idx, openEst, toggle, INDS, AMBITOS, effectiveMonth, on
   );
 }
 
-function EstablecimientoList({ conCumplimiento, AMBITOS, INDS, effectiveMonth, onDrilldown, valoresPorEst, sostenedores, programa, anioEnCurso = true }) {
+function EstablecimientoList({ conCumplimiento, AMBITOS, INDS, effectiveMonth, onDrilldown, valoresPorEst, sostenedores, programa, anioEnCurso = true, anio = 2026 }) {
   const [openEst, setOpenEst] = useState({});
   const toggle = (id) => setOpenEst(prev => ({ ...prev, [id]: !prev[id] }));
   const sorted = [...conCumplimiento].sort((a, b) => b.cumpl - a.cumpl);
@@ -515,7 +517,7 @@ function EstablecimientoList({ conCumplimiento, AMBITOS, INDS, effectiveMonth, o
         <EstRowItem key={c.est.id} c={c} idx={idx} openEst={openEst} toggle={toggle}
           INDS={INDS} AMBITOS={AMBITOS} effectiveMonth={effectiveMonth} onDrilldown={onDrilldown}
           valoresPorEst={valoresPorEst} sostenedores={sostenedores} programa={programa}
-          anioEnCurso={anioEnCurso}/>
+          anioEnCurso={anioEnCurso} anio={anio}/>
       ))}
     </div>
   );

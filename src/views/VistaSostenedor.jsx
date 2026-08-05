@@ -301,6 +301,7 @@ export default function VistaSostenedor() {
                     onDrilldown={(ind) => setDrilldown({ ind, estId: est.id, slepId: est.slep })}
                     programa={programaTipo}
                     anioEnCurso={anioEnCurso}
+                    anio={anioSeleccionado}
                   />
                 </div>
               )}

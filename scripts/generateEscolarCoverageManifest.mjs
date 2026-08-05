@@ -265,7 +265,11 @@ manifest.withFirestore = WITH_FIRESTORE;
 manifest.harvestErrorsPorPlanilla = harvestErrorsList;
 
 await writeFile(OUT_JSON, JSON.stringify(manifest, null, 2));
+// Dual-write to src/data/ so the UI can import it at build time.
+const OUT_JSON_SRC = pathResolve(ROOT, 'src/data/escolarCoverageManifest.json');
+await writeFile(OUT_JSON_SRC, JSON.stringify(manifest, null, 2));
 console.log(`\n[coverage] ✅ ${OUT_JSON}`);
+console.log(`[coverage] ✅ ${OUT_JSON_SRC} (runtime import)`);
 console.log(`  Total tuplas: ${Object.values(stats.estados).reduce((s, v) => s + v, 0)}`);
 console.log(`  Por estado:`, stats.estados);
 

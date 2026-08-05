@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Clock, ListChecks, Package } from 'lucide-react';
 import { calcularLogro, estadoValor } from '../data/establecimientos.js';
 import { estadoAplicabilidad, descripcionNoAplicable } from '../data/scope.js';
+import { getCoberturaEscolar } from '../data/coverage.js';
 import { IndicatorProgress } from './Shared.jsx';
 import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
 
@@ -27,6 +28,7 @@ import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
  *   valoresReales         — Map(indicadorId → { valor, estado }) from Firestore
  *   onDrilldown           — callback(ind) when a row is clicked
  *   programa              — 'escolar' | 'parvulario'
+ *   anio                  — selected year (2025 | 2026), used for coverage lookup
  */
 export default function IndicatorPanel({
   INDS,
@@ -37,6 +39,7 @@ export default function IndicatorPanel({
   onDrilldown,
   programa = 'escolar',
   anioEnCurso = true,
+  anio = 2026,
 }) {
   const [openAmbitos, setOpenAmbitos] = useState({});
   const toggle = (key) => setOpenAmbitos(prev => ({ ...prev, [key]: !prev[key] }));
@@ -53,9 +56,12 @@ export default function IndicatorPanel({
       const estado = entry?.estado ?? 'validado';
       const logro = calcularLogro(valor, ind);
       const aplicabilidad = estadoAplicabilidad(ind, establecimiento, mes).estado;
-      return { ind, valor, logro, estado, aplicabilidad };
+      const coberturaEstado = programa === 'escolar'
+        ? getCoberturaEscolar(establecimiento.id, anio, ind.id)
+        : null;
+      return { ind, valor, logro, estado, aplicabilidad, coberturaEstado };
     });
-  }, [INDS, establecimiento, mes, valoresReales]);
+  }, [INDS, establecimiento, mes, valoresReales, programa, anio]);
 
   const estrategiaFilas = filasIndicadores.filter(f => f.ind.clasificacion === 'estrategia');
   const productoFilas   = filasIndicadores.filter(f => f.ind.clasificacion === 'producto');
@@ -84,6 +90,7 @@ export default function IndicatorPanel({
             onToggle={() => toggle(a.id)}
             onDrilldown={onDrilldown}
             anioEnCurso={anioEnCurso}
+            programa={programa}
           />
         );
       })}
@@ -95,7 +102,7 @@ export default function IndicatorPanel({
 // "Indicadores de logro" seguido de los productos del mismo ámbito.
 // Header % = "% cumplimiento": AVG(min(1, logro)) sobre indicadores con meta
 // (estrategia + logro), contando 0 los faltantes.
-function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true }) {
+function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true, programa = 'escolar' }) {
   // Partición: aplicables (entran en agregados y se muestran normalmente) vs
   // no-aplicables-aun (se muestran compactos con nota, no entran en agregados).
   const estrategiaAplic = filasEstrategia.filter(f => f.aplicabilidad === 'aplicable');
@@ -111,7 +118,11 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
     ? conMeta.reduce((s, f) => s + (f.logro === null ? 0 : Math.min(1, f.logro)), 0) / conMeta.length
     : null;
   const conDato = conMeta.filter(f => estadoValor(f.valor, f.ind) === 'con_dato').length;
-  const sinDato = conMeta.length - conDato;
+  // For Escolar: richer header using coverage states.
+  const sinFuente = programa === 'escolar'
+    ? conMeta.filter(f => f.coberturaEstado === 'SIN_FUENTE_MAPEADA' || f.coberturaEstado === 'FUENTE_NO_ACCESIBLE').length
+    : 0;
+  const sinDato = conMeta.length - conDato - sinFuente;
 
   return (
     <div className="border border-border rounded-xl overflow-hidden">
@@ -126,7 +137,9 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
         <div className="flex items-center gap-3 shrink-0">
           {conMeta.length > 0 && (
             <span className="text-xs text-gray-ui font-light">
-              {conDato} con dato{sinDato > 0 ? ` · ${sinDato} sin dato` : ''}
+              {conDato} con dato
+              {sinDato > 0 ? ` · ${sinDato} sin dato` : ''}
+              {sinFuente > 0 ? ` · ${sinFuente} sin fuente` : ''}
             </span>
           )}
           {promedioAmbito !== null && (
@@ -154,6 +167,7 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                       fila={fila}
                       onDrilldown={onDrilldown}
                       anioEnCurso={anioEnCurso}
+                      programa={programa}
                     />
                   ))}
                 </div>
@@ -180,6 +194,7 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                       fila={fila}
                       onDrilldown={onDrilldown}
                       anioEnCurso={anioEnCurso}
+                      programa={programa}
                     />
                   ))}
                 </div>
@@ -195,8 +210,9 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
   );
 }
 
-function IndicadorRow({ fila, onDrilldown, anioEnCurso }) {
-  const { ind, valor, estado } = fila;
+function IndicadorRow({ fila, onDrilldown, anioEnCurso, programa = 'escolar' }) {
+  const { ind, valor, estado, coberturaEstado } = fila;
+  const coberturaEfectiva = programa === 'escolar' ? coberturaEstado : null;
   return (
     <div
       className="px-4 py-3 hover:bg-bg transition cursor-pointer"
@@ -219,6 +235,7 @@ function IndicadorRow({ fila, onDrilldown, anioEnCurso }) {
           valor={valor}
           estado={estado}
           anioEnCurso={anioEnCurso}
+          coberturaEstado={coberturaEfectiva}
         />
       </div>
     </div>

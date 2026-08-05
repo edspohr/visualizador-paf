@@ -186,6 +186,7 @@ export default function VistaEscuela() {
           onDrilldown={(ind) => setDrilldown(ind)}
           programa={programa}
           anioEnCurso={anioEnCurso}
+          anio={anioSeleccionado}
         />
       </div>
 

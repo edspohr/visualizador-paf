@@ -1,0 +1,18 @@
+{
+  "date": "2026-08-05",
+  "improvements": [],
+  "regressions": [],
+  "transitions": {},
+  "bStats": {
+    "NO_CORRESPONDE_AUN": 681,
+    "SIN_DATO_REPORTADO": 499,
+    "SIN_FUENTE_MAPEADA": 628,
+    "CON_DATO_REPORTADO": 28
+  },
+  "aStats": {
+    "NO_CORRESPONDE_AUN": 681,
+    "SIN_DATO_REPORTADO": 499,
+    "SIN_FUENTE_MAPEADA": 628,
+    "CON_DATO_REPORTADO": 28
+  }
+}

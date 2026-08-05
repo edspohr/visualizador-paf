@@ -13043,7 +13043,7 @@
       ]
     }
   ],
-  "generatedAt": "2026-08-05T06:06:45.793Z",
+  "generatedAt": "2026-07-30T12:06:41.058Z",
   "stats": {
     "estados": {
       "NO_CORRESPONDE_AUN": 681,
@@ -13346,6 +13346,686 @@
       "tipoError": "permanent",
       "codigo": 404,
       "mensaje": "Requested entity was not found."
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "registro-utp",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "datos-consultor",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "PKA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "KA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "1A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "2A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "3A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "4A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "5A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "6A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "7A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Gil de Castro",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "8A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "registro-utp",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "datos-consultor",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "PKA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "KA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "1A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "2A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "3A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "4A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "5A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "6A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "7A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Abate Molina",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "8A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "registro-utp",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "datos-consultor",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "PKA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "PKB",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "KA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "KB",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "1A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "1B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "2A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "2B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "3A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "3B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "4A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "4B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "5A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "5B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "6A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "6B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "7A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "7B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "8A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Inglaterra",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "8B",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "registro-utp",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "datos-consultor",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "PKA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "KA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "3A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "4A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "5A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "6A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "7A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela España",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "8A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "registro-utp",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "datos-consultor",
+      "curso": null,
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "PKA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "KA",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "1A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "2A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "3A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "4A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "5A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "6A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "7A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
+    },
+    {
+      "escuela": "Escuela Platón",
+      "cohorte": "2025-2027",
+      "anio": 2025,
+      "arquetipo": "curso",
+      "curso": "8A",
+      "tipoError": "permanent",
+      "codigo": 403,
+      "mensaje": "The caller does not have permission"
     }
   ]
 }

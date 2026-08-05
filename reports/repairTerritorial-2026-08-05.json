@@ -1,0 +1,175 @@
+{
+  "generatedAt": "2026-08-05T05:42:34.480Z",
+  "dryRun": false,
+  "repaired": [
+    {
+      "id": "esc-profesor-ramon-del-rio",
+      "diff": {
+        "slep": {
+          "from": null,
+          "to": "SLEP-SC"
+        },
+        "comuna": {
+          "from": null,
+          "to": "Estación Central"
+        },
+        "sostenedor": {
+          "from": null,
+          "to": "SLEP Santa Corina"
+        }
+      },
+      "reason": "slep/comuna/sostenedor were null — confirmed SLEP-SC, Estación Central (W1b)"
+    },
+    {
+      "id": "jar-angel-fantuzzi",
+      "diff": {
+        "comuna": {
+          "from": "CERRILLOS",
+          "to": "Cerrillos"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-cedin",
+      "diff": {
+        "comuna": {
+          "from": "LA PINTANA",
+          "to": "La Pintana"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-ciudad-de-barcelona",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-el-tranque",
+      "diff": {
+        "comuna": {
+          "from": "MAIPÚ",
+          "to": "Maipú"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-eluney",
+      "diff": {
+        "comuna": {
+          "from": "SAN BERNARDO",
+          "to": "San Bernardo"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-enrique-backausse",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-estacion-alegria",
+      "diff": {
+        "comuna": {
+          "from": "ESTACIÓN CENTRAL",
+          "to": "Estación Central"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-la-marina",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-ochagavia",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-paula-jaraquemada",
+      "diff": {
+        "comuna": {
+          "from": "EL BOSQUE",
+          "to": "El Bosque"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-pequeno-aymara",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-poetas-de-chile",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-salomon-sack",
+      "diff": {
+        "comuna": {
+          "from": "CERRILLOS",
+          "to": "Cerrillos"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-sueno-de-colores",
+      "diff": {
+        "comuna": {
+          "from": "SAN BERNARDO",
+          "to": "San Bernardo"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    },
+    {
+      "id": "jar-tierra-de-angeles",
+      "diff": {
+        "comuna": {
+          "from": "SAN BERNARDO",
+          "to": "San Bernardo"
+        }
+      },
+      "reason": "ALLCAPS → mixed case"
+    }
+  ],
+  "errors": []
+}

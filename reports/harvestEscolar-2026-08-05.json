@@ -1,0 +1,636 @@
+{
+  "ranAt": "2026-08-05T06:04:58.691Z",
+  "dryRun": false,
+  "resume": false,
+  "totalPlanillasEnCorrida": 69,
+  "outcomes": {
+    "ok": 68,
+    "cachedSkipped": 0,
+    "error": 1
+  },
+  "piiRedactedTotal": 12619,
+  "durationSeconds": 134,
+  "results": [
+    {
+      "spreadsheetId": "1NrlZzH-rOipIVvNRaZM4TJJ7oVfeIH_M0e6wm_doGnE",
+      "label": "Escuela Básica Sendero del Saber · 2026 · curso·KA",
+      "outcome": "error",
+      "attempts": 1,
+      "kind": "permanent",
+      "error": "Requested entity was not found.",
+      "duration": 661
+    },
+    {
+      "spreadsheetId": "1vwKyiGpPSHvcxHmwRlGQiWE6_n94t8cmfAGRztZvw0o",
+      "label": "Escuela Gil de Castro · 2025 · registro-utp",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 13,
+      "piiRedacted": 504,
+      "duration": 783
+    },
+    {
+      "spreadsheetId": "1xU0Tnj1y3Wm8YG0WdIlFLGnU_PZxCjsrptSyzK7zmlg",
+      "label": "Escuela Gil de Castro · 2025 · datos-consultor",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 14,
+      "piiRedacted": 505,
+      "duration": 840
+    },
+    {
+      "spreadsheetId": "1oo0iTEbEUJ2YUWd3MrBG_3xPm0QyvVjhu0epJ7DdoXI",
+      "label": "Escuela Gil de Castro · 2025 · curso·PKA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 17,
+      "duration": 744
+    },
+    {
+      "spreadsheetId": "1sEEsRYYs4gs2RNHInOQU-77IInNEYCzpe5iFd1bI7_8",
+      "label": "Escuela Gil de Castro · 2025 · curso·KA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 36,
+      "duration": 1003
+    },
+    {
+      "spreadsheetId": "17kQRm34XpRzXJR-YENOwWRV-IwoCK45Qs15cPsuPApU",
+      "label": "Escuela Gil de Castro · 2025 · curso·1A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 42,
+      "duration": 1254
+    },
+    {
+      "spreadsheetId": "1VAQFacyvpb-ebMsdu1r5EAAzvjvZSv49Z-WPyKlWSuc",
+      "label": "Escuela Gil de Castro · 2025 · curso·2A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 30,
+      "duration": 1948
+    },
+    {
+      "spreadsheetId": "123UaloofwYGWmUnVw36YMuu7A9XjAYVA9p8J5fLmLX4",
+      "label": "Escuela Gil de Castro · 2025 · curso·3A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 30,
+      "duration": 987
+    },
+    {
+      "spreadsheetId": "1fMBjjfF5SAKL6DDzdS3xiVrYlu0pBzGb3zWZ4F4SgYE",
+      "label": "Escuela Gil de Castro · 2025 · curso·4A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 37,
+      "duration": 955
+    },
+    {
+      "spreadsheetId": "1EMiEGqMVypg2bKuz7n2Pmez1K2No15NQPmY3j90QkIU",
+      "label": "Escuela Gil de Castro · 2025 · curso·5A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 24,
+      "duration": 977
+    },
+    {
+      "spreadsheetId": "1HhvwkDUjk-V53XnehoG0wBkvLWTtjqkfci-ZJiJXNWg",
+      "label": "Escuela Gil de Castro · 2025 · curso·6A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 37,
+      "duration": 1295
+    },
+    {
+      "spreadsheetId": "1rEqISoj7GUNzBua-Atr1HzoIyb3T8Thsw_qiDq02uCg",
+      "label": "Escuela Gil de Castro · 2025 · curso·7A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 33,
+      "duration": 1639
+    },
+    {
+      "spreadsheetId": "1GGdBFhZvye35KEShD01v2GEzSQS0h3tWKU1MYDw1Wsk",
+      "label": "Escuela Gil de Castro · 2025 · curso·8A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 33,
+      "duration": 1825
+    },
+    {
+      "spreadsheetId": "15bFIfN7L0VBFsKiJtForW6PONrDbqBc30WY91uGEJIg",
+      "label": "Escuela Abate Molina · 2025 · registro-utp",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 13,
+      "piiRedacted": 860,
+      "duration": 3110
+    },
+    {
+      "spreadsheetId": "1Vm-S8gz9WjtulLhva8aBSasKLK3iAmRJNgvwozQvw1w",
+      "label": "Escuela Abate Molina · 2025 · datos-consultor",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 14,
+      "piiRedacted": 860,
+      "duration": 1179
+    },
+    {
+      "spreadsheetId": "1cBLGqgA6J4UZZsFSV7YPLV-uzvdZO4oh29y5vryR8tg",
+      "label": "Escuela Abate Molina · 2025 · curso·PKA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 24,
+      "duration": 1020
+    },
+    {
+      "spreadsheetId": "1wmtjXdfP7NkslpcCzBGL_Olgj3ZUDDbzf2Sd-beKXV4",
+      "label": "Escuela Abate Molina · 2025 · curso·KA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 34,
+      "duration": 1074
+    },
+    {
+      "spreadsheetId": "1bC9MeCrJVI7xf5WZAzK0FAzt4YvRoAMNRZCosTmqbiY",
+      "label": "Escuela Abate Molina · 2025 · curso·1A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 58,
+      "duration": 1815
+    },
+    {
+      "spreadsheetId": "10pArFCHZj6RKelfDWBx8nBC0s78y99fB9Fsn9EV_x7I",
+      "label": "Escuela Abate Molina · 2025 · curso·2A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 62,
+      "duration": 1061
+    },
+    {
+      "spreadsheetId": "1l1oKWyAxrEJz1fJMNdgdw0VrL1lm1Wj1nSWQQ7iL508",
+      "label": "Escuela Abate Molina · 2025 · curso·3A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 56,
+      "duration": 1017
+    },
+    {
+      "spreadsheetId": "1Yl-mE5Vps_Ere71s809HVN-q9_C2Q4iWQKLDEoAkW7w",
+      "label": "Escuela Abate Molina · 2025 · curso·4A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 55,
+      "duration": 1035
+    },
+    {
+      "spreadsheetId": "12fAVCx3reC0DgqPMap3ZEYH8xZFoFthTPJy2DmPPmCc",
+      "label": "Escuela Abate Molina · 2025 · curso·5A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 64,
+      "duration": 1005
+    },
+    {
+      "spreadsheetId": "1FC-ifFLPEpek2K9mzt7rXDoh0lyF5lnGDi1b56VD7Mg",
+      "label": "Escuela Abate Molina · 2025 · curso·6A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 63,
+      "duration": 1149
+    },
+    {
+      "spreadsheetId": "1_-YiOGJ58l2ASHmXF97sjuoThWJdtNwmQHNeXJX_XGk",
+      "label": "Escuela Abate Molina · 2025 · curso·7A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 64,
+      "duration": 967
+    },
+    {
+      "spreadsheetId": "11MBvjoNdDFnS4TMyZTIpF1vM2CIA2E7tmpkXhuCWljI",
+      "label": "Escuela Abate Molina · 2025 · curso·8A",
+      "outcome": "ok",
+      "attempts": 4,
+      "tabsCount": 2,
+      "piiRedacted": 60,
+      "duration": 11745
+    },
+    {
+      "spreadsheetId": "15dzZ5MK1qgRRWoTzPFJGRQ9xcbT5muGSRBsM7CbayN8",
+      "label": "Escuela Inglaterra · 2025 · registro-utp",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 24,
+      "piiRedacted": 1736,
+      "duration": 4008
+    },
+    {
+      "spreadsheetId": "1o52IxdLtp4y7dUIKJabHnjfshlf0vTC5zQz6gIXfdWc",
+      "label": "Escuela Inglaterra · 2025 · datos-consultor",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 25,
+      "piiRedacted": 1736,
+      "duration": 924
+    },
+    {
+      "spreadsheetId": "1Hn_MVC_-jyMD9o7uIw7L4smnUcgWcBWmTy5GF3D4tnM",
+      "label": "Escuela Inglaterra · 2025 · curso·PKA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 64,
+      "duration": 969
+    },
+    {
+      "spreadsheetId": "1mUeu-Vm5srukyxKdtFZSFiy-TWDN1KEIECV68txRaLA",
+      "label": "Escuela Inglaterra · 2025 · curso·PKB",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 61,
+      "duration": 1203
+    },
+    {
+      "spreadsheetId": "116dyV2f4BOC3wCWNT5I6JI4-HjJpv8dYxwp_1wFjBfs",
+      "label": "Escuela Inglaterra · 2025 · curso·KA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 59,
+      "duration": 1611
+    },
+    {
+      "spreadsheetId": "17-Jp3MFEuE-uXehtClUb8kqys0MKA_FpMlvkKByFJok",
+      "label": "Escuela Inglaterra · 2025 · curso·KB",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 55,
+      "duration": 1085
+    },
+    {
+      "spreadsheetId": "1ZHMmyhHkrygfDSfxaNpjX3C77naSW7Ce5dbH-LE7Ab8",
+      "label": "Escuela Inglaterra · 2025 · curso·1A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 70,
+      "duration": 1070
+    },
+    {
+      "spreadsheetId": "16sjh_sdHhSPNOUHOOZCLoCjZ7ax6P951yG5lXDRXB7g",
+      "label": "Escuela Inglaterra · 2025 · curso·1B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 65,
+      "duration": 1135
+    },
+    {
+      "spreadsheetId": "1lPjGN7PqpBRT7pCAct5AwAYJPXNSv3SNZH2N-fa9M0U",
+      "label": "Escuela Inglaterra · 2025 · curso·2A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 72,
+      "duration": 1029
+    },
+    {
+      "spreadsheetId": "1uUEr7C4_wPmKkbgwstSXdGz8dBlvKGGt-5rq4j4PjS4",
+      "label": "Escuela Inglaterra · 2025 · curso·2B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 71,
+      "duration": 1022
+    },
+    {
+      "spreadsheetId": "1CUEjkFJMRQ_dCTH4LVVB_nhVeX0xltl-LOBTKfxWuwk",
+      "label": "Escuela Inglaterra · 2025 · curso·3A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 68,
+      "duration": 1017
+    },
+    {
+      "spreadsheetId": "1HSphsuqbgytsCFXCMRKlc4KarRxg3SeLknkH7TP-EE4",
+      "label": "Escuela Inglaterra · 2025 · curso·3B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 70,
+      "duration": 970
+    },
+    {
+      "spreadsheetId": "1TjHvHHUm2syjdlcJwwj-YIUDUItHRSbwg98UaftPVPM",
+      "label": "Escuela Inglaterra · 2025 · curso·4A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 65,
+      "duration": 1092
+    },
+    {
+      "spreadsheetId": "1ORhDpQ93dcXidYF9hSg0bID6jGFkSjEHzE0y9HXdHsE",
+      "label": "Escuela Inglaterra · 2025 · curso·4B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 68,
+      "duration": 1030
+    },
+    {
+      "spreadsheetId": "1TXH_F7UbCBFFAC_n6l_DKc0JNl_-imG9D38IXdJHYyU",
+      "label": "Escuela Inglaterra · 2025 · curso·5A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 65,
+      "duration": 1027
+    },
+    {
+      "spreadsheetId": "1ESitINoamTVqKsR_t43DjCe2FH7PrLj1WwKONmaY5h0",
+      "label": "Escuela Inglaterra · 2025 · curso·5B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 62,
+      "duration": 1194
+    },
+    {
+      "spreadsheetId": "1Ja-HZRzFhPMHHqhzYEo7PrCgqe0SS2Jbta7yWWdIhQk",
+      "label": "Escuela Inglaterra · 2025 · curso·6A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 65,
+      "duration": 1379
+    },
+    {
+      "spreadsheetId": "1-A8R8Iq2WxlzF1O67tbG84hPcSg8E_phr06ilDdL73w",
+      "label": "Escuela Inglaterra · 2025 · curso·6B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 82,
+      "duration": 932
+    },
+    {
+      "spreadsheetId": "1TPvLR7gTl-5D11hbrCayaxpYkeCC_zZGYdAx5eIWrzc",
+      "label": "Escuela Inglaterra · 2025 · curso·7A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 71,
+      "duration": 1013
+    },
+    {
+      "spreadsheetId": "1EoqRwQQFEndYNN673ExyPnEuhcZMc4ZcTUI177VZCyI",
+      "label": "Escuela Inglaterra · 2025 · curso·7B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 68,
+      "duration": 924
+    },
+    {
+      "spreadsheetId": "1PbU5Zb6FW_uLUK2G1SOtPcI2B04FbLRJ4LTumgNmHXc",
+      "label": "Escuela Inglaterra · 2025 · curso·8A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 43,
+      "duration": 1019
+    },
+    {
+      "spreadsheetId": "1nCFKegDcV9Gz3ziW7za5cUG4A6pUwuB7ti4lAdaRhd4",
+      "label": "Escuela Inglaterra · 2025 · curso·8B",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 63,
+      "duration": 938
+    },
+    {
+      "spreadsheetId": "1ZZJHqqhbTPWwBkSxn9DolhqYIrekEreFCb_yUvrVvZI",
+      "label": "Escuela España · 2025 · registro-utp",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 13,
+      "piiRedacted": 920,
+      "duration": 2877
+    },
+    {
+      "spreadsheetId": "1YHwzphyCKu3KguAXZ6gwStoAZaVuPrpHpo8d3Au3eLM",
+      "label": "Escuela España · 2025 · datos-consultor",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 14,
+      "piiRedacted": 919,
+      "duration": 1201
+    },
+    {
+      "spreadsheetId": "1DGrDn5ls66YVDVCRuGqyWexVyGVVP_zWQeaemaUTLS0",
+      "label": "Escuela España · 2025 · curso·PKA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 37,
+      "duration": 1075
+    },
+    {
+      "spreadsheetId": "1aOqlzvaCw93IaKFooXg0ruQtzEGzDb2RLMbi2MaHkbU",
+      "label": "Escuela España · 2025 · curso·KA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 51,
+      "duration": 958
+    },
+    {
+      "spreadsheetId": "1RnN3_3_jvcOAdPiAz7x_HMV4dwYoQaik_--UBMx-mr0",
+      "label": "Escuela España · 2025 · curso·3A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 64,
+      "duration": 1009
+    },
+    {
+      "spreadsheetId": "1UnDyuHpj_grXwq5o0wQFGIHkBBGH1gWJvQ9B2KDbEsI",
+      "label": "Escuela España · 2025 · curso·4A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 63,
+      "duration": 1000
+    },
+    {
+      "spreadsheetId": "1k4vvn_qoH4x-4KTKfwoQw3NT2RIC9OTDvjO1wABLUKY",
+      "label": "Escuela España · 2025 · curso·5A",
+      "outcome": "ok",
+      "attempts": 5,
+      "tabsCount": 2,
+      "piiRedacted": 62,
+      "duration": 26240
+    },
+    {
+      "spreadsheetId": "1vpUnLE5nCBFuB7oFwPLIS8BXvyet82GEj47TVBdO2Qo",
+      "label": "Escuela España · 2025 · curso·6A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 65,
+      "duration": 1188
+    },
+    {
+      "spreadsheetId": "1_BkdrQ9ehEEmeMqb4sbhvFMWXTBB_2IhqarpSruEa7A",
+      "label": "Escuela España · 2025 · curso·7A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 56,
+      "duration": 1031
+    },
+    {
+      "spreadsheetId": "1pyuP8xHCBoEIU3h3C7QXIiltnAAjTho4tOp43DNcKjI",
+      "label": "Escuela España · 2025 · curso·8A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 38,
+      "duration": 1236
+    },
+    {
+      "spreadsheetId": "1ucpIqC75KBIwNmgReht4PH32NswVaGNYWbJJLwC7kmQ",
+      "label": "Escuela Platón · 2025 · registro-utp",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 13,
+      "piiRedacted": 756,
+      "duration": 3386
+    },
+    {
+      "spreadsheetId": "1EcdHsobHjrxRir-Bn0iBGkCk4G0roaBCJolzXKxNzE8",
+      "label": "Escuela Platón · 2025 · datos-consultor",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 14,
+      "piiRedacted": 756,
+      "duration": 1229
+    },
+    {
+      "spreadsheetId": "1kzI9psjl5WEIWmwsz-ZuA032z3jkOYNiURJf0Fj_nDs",
+      "label": "Escuela Platón · 2025 · curso·PKA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 27,
+      "duration": 984
+    },
+    {
+      "spreadsheetId": "1bS6dEoZcA9PXFRGZ_s8z9gNkc7sNOirU27XNa6W9HkE",
+      "label": "Escuela Platón · 2025 · curso·KA",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 22,
+      "duration": 977
+    },
+    {
+      "spreadsheetId": "1kQzurWpVRJbltYjCOIR5pTLbBRVNFUGpAqBGVd-KEow",
+      "label": "Escuela Platón · 2025 · curso·1A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 55,
+      "duration": 1122
+    },
+    {
+      "spreadsheetId": "1tX9umUkzHbLklsblAwVmg6iCPBkDYbhiYt3hqPg7ZJ4",
+      "label": "Escuela Platón · 2025 · curso·2A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 47,
+      "duration": 862
+    },
+    {
+      "spreadsheetId": "1PXkHTSfg8RKthVkvnqttijqQRjIGUH_6FJpbd4S-N5M",
+      "label": "Escuela Platón · 2025 · curso·3A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 53,
+      "duration": 951
+    },
+    {
+      "spreadsheetId": "1J6co_g_RfnOSHsenGBrtD3XXXCmtDManavsz78eCKTg",
+      "label": "Escuela Platón · 2025 · curso·4A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 60,
+      "duration": 957
+    },
+    {
+      "spreadsheetId": "1HeKcshfWLzSQA_FBAAU1P-fpL6fgDoK0QzOnqAe2nNk",
+      "label": "Escuela Platón · 2025 · curso·5A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 44,
+      "duration": 1033
+    },
+    {
+      "spreadsheetId": "1AF-ctRgqdbCaTPH-8pnJ1dAsuOvnwmELluNFkB8M9zI",
+      "label": "Escuela Platón · 2025 · curso·6A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 58,
+      "duration": 909
+    },
+    {
+      "spreadsheetId": "1UhdES1PMLeppW49fMwjDeWY7uQH5xfPkquYl_NQqPqM",
+      "label": "Escuela Platón · 2025 · curso·7A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 50,
+      "duration": 1044
+    },
+    {
+      "spreadsheetId": "1UUu3mzVyd-0B05jzeOnguqngfw-e5rROndIHDnSnuGw",
+      "label": "Escuela Platón · 2025 · curso·8A",
+      "outcome": "ok",
+      "attempts": 2,
+      "tabsCount": 2,
+      "piiRedacted": 49,
+      "duration": 920
+    }
+  ]
+}

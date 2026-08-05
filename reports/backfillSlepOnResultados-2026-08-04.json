@@ -1,0 +1,169 @@
+{
+  "generatedAt": "2026-08-04T20:44:15.003Z",
+  "dryRun": false,
+  "resultados_real": {
+    "total": 5530,
+    "backfilled": 5499,
+    "missing": 31,
+    "missingDetails": [
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.11_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.12_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.15_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.16_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.17_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.18_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.19_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.1_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.20_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.25_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.26_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.27_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.28_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.2_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.33_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.35_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.36_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.37_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.38_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.3_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.40_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.41_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.46_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.47_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.4_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.5_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.6_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.7_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.8_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.9_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_undefined_undefined",
+        "establecimientoId": "esc-profesor-ramon-del-rio"
+      }
+    ],
+    "sampleUpdates": [
+      {
+        "id": "esc_esc-abate-molina_I.11_2026",
+        "establecimientoId": "esc-abate-molina",
+        "slep": "SLEP-LP"
+      },
+      {
+        "id": "esc_esc-abate-molina_I.12_2026",
+        "establecimientoId": "esc-abate-molina",
+        "slep": "SLEP-LP"
+      },
+      {
+        "id": "esc_esc-abate-molina_I.15_2026",
+        "establecimientoId": "esc-abate-molina",
+        "slep": "SLEP-LP"
+      },
+      {
+        "id": "esc_esc-abate-molina_I.16_2026",
+        "establecimientoId": "esc-abate-molina",
+        "slep": "SLEP-LP"
+      },
+      {
+        "id": "esc_esc-abate-molina_I.17_2026",
+        "establecimientoId": "esc-abate-molina",
+        "slep": "SLEP-LP"
+      }
+    ]
+  },
+  "progresoTrimestral_real": {
+    "total": 0,
+    "backfilled": 0,
+    "missing": 0,
+    "missingDetails": [],
+    "sampleUpdates": []
+  }
+}

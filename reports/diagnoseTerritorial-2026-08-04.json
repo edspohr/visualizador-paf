@@ -1,0 +1,392 @@
+{
+  "generatedAt": "2026-08-04T20:57:42.048Z",
+  "total": 42,
+  "byPrograma": [
+    {
+      "programa": "escolar",
+      "count": 18,
+      "slepCounts": {
+        "SLEP-LP": 5,
+        "SLEP-SR": 9,
+        "SLEP-SC": 3
+      },
+      "comunaCounts": {
+        "Quinta Normal": 5,
+        "San Ramón": 1,
+        "Pedro Aguirre Cerda": 4,
+        "La Cisterna": 1,
+        "Cerrillos": 1,
+        "Maipú": 1,
+        "Estación Central": 1,
+        "Lo Espejo": 1,
+        "San Miguel": 2
+      },
+      "missingSlep": [
+        "esc-profesor-ramon-del-rio"
+      ],
+      "missingComuna": [
+        "esc-profesor-ramon-del-rio"
+      ],
+      "docs": [
+        {
+          "id": "esc-abate-molina",
+          "nombre": "Escuela Abate Molina",
+          "slep": "SLEP-LP",
+          "comuna": "Quinta Normal",
+          "cohorte": "2025-2027",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-basica-sendero-del-saber",
+          "nombre": "Escuela Básica Sendero del Saber",
+          "slep": "SLEP-SR",
+          "comuna": "San Ramón",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-ciudad-de-barcelona",
+          "nombre": "Escuela Ciudad de Barcelona",
+          "slep": "SLEP-SR",
+          "comuna": "Pedro Aguirre Cerda",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-espana",
+          "nombre": "Escuela España",
+          "slep": "SLEP-LP",
+          "comuna": "Quinta Normal",
+          "cohorte": "2025-2027",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-esperanza-joven",
+          "nombre": "Escuela Esperanza Joven",
+          "slep": "SLEP-SR",
+          "comuna": "La Cisterna",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-gil-de-castro",
+          "nombre": "Escuela Gil de Castro",
+          "slep": "SLEP-LP",
+          "comuna": "Quinta Normal",
+          "cohorte": "2025-2027",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-inglaterra",
+          "nombre": "Escuela Inglaterra",
+          "slep": "SLEP-LP",
+          "comuna": "Quinta Normal",
+          "cohorte": "2025-2027",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-la-victoria",
+          "nombre": "Escuela La Victoria",
+          "slep": "SLEP-SR",
+          "comuna": "Pedro Aguirre Cerda",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-lo-valledor",
+          "nombre": "Escuela Lo Valledor",
+          "slep": "SLEP-SR",
+          "comuna": "Pedro Aguirre Cerda",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-pedro-aguirre-cerda",
+          "nombre": "Escuela Pedro Aguirre Cerda",
+          "slep": "SLEP-SC",
+          "comuna": "Cerrillos",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-platon",
+          "nombre": "Escuela Platón",
+          "slep": "SLEP-LP",
+          "comuna": "Quinta Normal",
+          "cohorte": "2025-2027",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-profesor-ramon-del-rio",
+          "nombre": "Escuela Profesor Ramón del Río",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-ramon-freire",
+          "nombre": "Escuela Ramón Freire",
+          "slep": "SLEP-SC",
+          "comuna": "Maipú",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-republica-de-austria",
+          "nombre": "República de Austria",
+          "slep": "SLEP-SC",
+          "comuna": "Estación Central",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-republica-de-las-filipinas",
+          "nombre": "Escuela República De Las Filipinas",
+          "slep": "SLEP-SR",
+          "comuna": "Lo Espejo",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-ricardo-latcham",
+          "nombre": "Escuela Ricardo Latcham",
+          "slep": "SLEP-SR",
+          "comuna": "Pedro Aguirre Cerda",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-territorio-antartico",
+          "nombre": "Escuela Territorio Antártico",
+          "slep": "SLEP-SR",
+          "comuna": "San Miguel",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        },
+        {
+          "id": "esc-villa-san-miguel",
+          "nombre": "Escuela Villa San Miguel",
+          "slep": "SLEP-SR",
+          "comuna": "San Miguel",
+          "cohorte": "2026-2028",
+          "tipo": "Escuela"
+        }
+      ]
+    },
+    {
+      "programa": "parvulario",
+      "count": 24,
+      "slepCounts": {
+        "SLEP-SR": 15,
+        "SLEP-SC": 4,
+        "SLEP-DP": 5
+      },
+      "comunaCounts": {
+        "San Ramón": 5,
+        "San Miguel": 4,
+        "CERRILLOS": 2,
+        "LA PINTANA": 1,
+        "PAC": 6,
+        "MAIPÚ": 1,
+        "SAN BERNARDO": 3,
+        "ESTACIÓN CENTRAL": 1,
+        "EL BOSQUE": 1
+      },
+      "missingSlep": [],
+      "missingComuna": [],
+      "docs": [
+        {
+          "id": "jar-akun-pichiwentxu",
+          "nombre": "Akun Pichiwentxu",
+          "slep": "SLEP-SR",
+          "comuna": "San Ramón",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-andres-bello",
+          "nombre": "Andres Bello",
+          "slep": "SLEP-SR",
+          "comuna": "San Miguel",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-angel-fantuzzi",
+          "nombre": "Angel Fantuzzi",
+          "slep": "SLEP-SC",
+          "comuna": "CERRILLOS",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-caballito-feliz",
+          "nombre": "Caballito feliz",
+          "slep": "SLEP-SR",
+          "comuna": "San Ramón",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-cedin",
+          "nombre": "Cedin (Centro Educacional para el desarrollo infantil).",
+          "slep": "SLEP-DP",
+          "comuna": "LA PINTANA",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-ciudad-de-barcelona",
+          "nombre": "Ciudad de Barcelona",
+          "slep": "SLEP-SR",
+          "comuna": "PAC",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-el-tranque",
+          "nombre": "El Tranque",
+          "slep": "SLEP-SC",
+          "comuna": "MAIPÚ",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-eluney",
+          "nombre": "Eluney",
+          "slep": "SLEP-DP",
+          "comuna": "SAN BERNARDO",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-enrique-backausse",
+          "nombre": "Enrique Backausse",
+          "slep": "SLEP-SR",
+          "comuna": "PAC",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-estacion-alegria",
+          "nombre": "Estación Alegría",
+          "slep": "SLEP-SC",
+          "comuna": "ESTACIÓN CENTRAL",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-la-hormiguita",
+          "nombre": "La Hormiguita",
+          "slep": "SLEP-SR",
+          "comuna": "San Ramón",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-la-marina",
+          "nombre": "La Marina",
+          "slep": "SLEP-SR",
+          "comuna": "PAC",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-llano-subercaseaux",
+          "nombre": "Llano Subercaseaux",
+          "slep": "SLEP-SR",
+          "comuna": "San Miguel",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-modelo",
+          "nombre": "Modelo",
+          "slep": "SLEP-SR",
+          "comuna": "San Ramón",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-ochagavia",
+          "nombre": "Ochagavía",
+          "slep": "SLEP-SR",
+          "comuna": "PAC",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-paula-jaraquemada",
+          "nombre": "Paula Jaraquemada",
+          "slep": "SLEP-DP",
+          "comuna": "EL BOSQUE",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-pequeno-aymara",
+          "nombre": "Pequeño Aymará",
+          "slep": "SLEP-SR",
+          "comuna": "PAC",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-poetas-de-chile",
+          "nombre": "Poetas de Chile",
+          "slep": "SLEP-SR",
+          "comuna": "PAC",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-principes-del-reino",
+          "nombre": "Príncipes del Reino",
+          "slep": "SLEP-SR",
+          "comuna": "San Ramón",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-salomon-sack",
+          "nombre": "Salomón Sack",
+          "slep": "SLEP-SC",
+          "comuna": "CERRILLOS",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-santa-fe",
+          "nombre": "Santa Fe",
+          "slep": "SLEP-SR",
+          "comuna": "San Miguel",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-sueno-de-colores",
+          "nombre": "Sueño De Colores",
+          "slep": "SLEP-DP",
+          "comuna": "SAN BERNARDO",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-tierra-de-angeles",
+          "nombre": "Tierra De Angeles",
+          "slep": "SLEP-DP",
+          "comuna": "SAN BERNARDO",
+          "cohorte": "2026-2027",
+          "tipo": "Jardín"
+        },
+        {
+          "id": "jar-villa-san-miguel",
+          "nombre": "Villa San Miguel",
+          "slep": "SLEP-SR",
+          "comuna": "San Miguel",
+          "cohorte": "2025-2026",
+          "tipo": "Jardín"
+        }
+      ]
+    }
+  ]
+}

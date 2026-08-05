@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-08-04T20:44:58.580Z",
+  "dryRun": false,
+  "updated": [
+    {
+      "uid": "5QQPXYsBg5aFmxnGRKh7rmmb3382",
+      "email": "direccion.jardinlamarina@slepsantarosa.cl",
+      "slepId": "SLEP-SR",
+      "was": null
+    },
+    {
+      "uid": "6NmPxpPuysX0O284Wx0wT8hNm8U2",
+      "email": "c.manriquez@edudelpino.gob.cl",
+      "slepId": "SLEP-DP",
+      "was": null
+    },
+    {
+      "uid": "bqL33MwoPOSEanOUw1X9oFMfvun2",
+      "email": "luchito.zk@gmail.com",
+      "slepId": "SLEP-SR",
+      "was": null
+    }
+  ],
+  "warnings": []
+}

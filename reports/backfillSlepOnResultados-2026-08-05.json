@@ -1,0 +1,44 @@
+{
+  "generatedAt": "2026-08-05T05:43:21.720Z",
+  "dryRun": false,
+  "resultados_real": {
+    "total": 5530,
+    "backfilled": 31,
+    "missing": 0,
+    "missingDetails": [],
+    "sampleUpdates": [
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.11_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio",
+        "slep": "SLEP-SC"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.12_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio",
+        "slep": "SLEP-SC"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.15_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio",
+        "slep": "SLEP-SC"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.16_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio",
+        "slep": "SLEP-SC"
+      },
+      {
+        "id": "esc_esc-profesor-ramon-del-rio_I.17_2026",
+        "establecimientoId": "esc-profesor-ramon-del-rio",
+        "slep": "SLEP-SC"
+      }
+    ]
+  },
+  "progresoTrimestral_real": {
+    "total": 0,
+    "backfilled": 0,
+    "missing": 0,
+    "missingDetails": [],
+    "sampleUpdates": []
+  }
+}

@@ -14,23 +14,16 @@ const MES = currentMonth();
 
 const geoById = new Map(GEO.features.map(f => [f.id, f]));
 
-function semaforoToColor(semaforo) {
+// Maps colorSemaforo() output ('gray' | 'red' | 'amber' | 'lime') directly to
+// hex values from --color-* tokens. Leaflet's SVG renderer doesn't resolve
+// CSS custom properties, so we translate at the boundary.
+function semaforoHex(semaforo) {
   switch (semaforo) {
-    case 'verde':    return 'var(--color-lime)';
-    case 'amarillo': return 'var(--color-yellow)';
-    case 'rojo':     return 'var(--color-red)';
-    default:         return 'var(--color-gray-ui)';
-  }
-}
-
-function cssVarToHex(cssVar) {
-  // Map design tokens to hex for Leaflet (which doesn't understand CSS vars)
-  switch (cssVar) {
-    case 'var(--color-lime)':     return '#65a30d';
-    case 'var(--color-yellow)':   return '#ffdc00';
-    case 'var(--color-red)':      return '#e53517';
-    case 'var(--color-gray-ui)':  return '#a0a5a9';
-    default:                      return '#a0a5a9';
+    case 'lime':  return '#65a30d';   // --color-lime  — logro ≥ 85%
+    case 'amber': return '#ffdc00';   // --color-yellow — logro 60–84%
+    case 'red':   return '#e51517';   // --color-red   — logro < 60%
+    case 'gray':
+    default:      return '#a0a5a9';   // --color-gray-ui — sin dato / sin meta
   }
 }
 
@@ -85,8 +78,7 @@ export default function VistaGeografia() {
         const vals = valoresPorEst.get(e.id) ?? new Map();
         const aplic = indicadoresAplicables(INDS, e, MES);
         const cumpl = cumplimientoIndicadores(aplic, vals);
-        const colorToken = semaforoToColor(colorSemaforo(cumpl));
-        const color = cssVarToHex(colorToken);
+        const color = semaforoHex(colorSemaforo(cumpl));
         return { e, geo, cumpl, color };
       })
       .filter(Boolean),
@@ -135,9 +127,9 @@ export default function VistaGeografia() {
       <div className="flex items-center gap-4 px-4 py-2 bg-bg/60 border-b border-border text-xs text-gray-ui">
         <span className="font-medium">Cumplimiento:</span>
         {[
-          { label: '≥ 80%', color: '#65a30d' },
-          { label: '50–79%', color: '#ffdc00' },
-          { label: '< 50%', color: '#e53517' },
+          { label: '≥ 85%', color: '#65a30d' },
+          { label: '60–84%', color: '#ffdc00' },
+          { label: '< 60%', color: '#e51517' },
           { label: 'Sin datos', color: '#a0a5a9' },
         ].map(({ label, color }) => (
           <span key={label} className="flex items-center gap-1.5">

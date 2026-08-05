@@ -148,9 +148,15 @@ export function useSlepDoc(slepId) {
 //   - escuela/jardin: establecimiento = single est doc, slep = SLEP doc, establecimientos = [establecimiento]
 //   - sostenedor: establecimiento = null, slep = SLEP doc, establecimientos = all ests in that SLEP
 //   - consultor/cap/superadmin: uses broad hooks (same as before)
+//
+// A real superadmin "viendo como" a limited profile takes the same query shape as
+// the limited profile — the broad rules already allow the read for superadmin, and
+// single-doc lookups tolerate a stale placeholder id by returning null (Layout
+// auto-selects a real id in that case).
 export function useEntidadDelPerfil(perfil, allEscuelas, allJardines, allSleps) {
   const perfilId = perfil?.id;
   const contextoId = perfil?.contexto?.id;
+  const esLimitado = perfilId === 'escuela' || perfilId === 'jardin' || perfilId === 'sostenedor';
 
   // Limited-profile single-est path
   const singleEstQ = useEstablecimiento(
@@ -164,9 +170,7 @@ export function useEntidadDelPerfil(perfil, allEscuelas, allJardines, allSleps) 
     : singleEst?.slep ?? null;
 
   const slepDocQ = useSlepDoc(
-    (perfilId === 'escuela' || perfilId === 'jardin' || perfilId === 'sostenedor')
-      ? derivedSlepId
-      : null
+    esLimitado ? derivedSlepId : null
   );
 
   const slepEstsQ = useEstablecimientosPorSlep(
@@ -212,6 +216,48 @@ export function useEntidadDelPerfil(perfil, allEscuelas, allJardines, allSleps) 
     _jardines: jardines,
     _sleps: sleps,
   };
+}
+
+// W1(peer): read the precomputed peer average for a given (programa × slep × tipo
+// × anio × indicadorId). Tries the primary aggregate first; if not present or not
+// publishable to the caller, falls back to the program-wide aggregate. Returns:
+//   { mean: number|null, source: 'slep-tipo'|'programa'|null, nReporters: number|null,
+//     isLoading, error }
+// mean === null means neither tier is available (rare — only if no reporter data
+// exists for that indicator × year at all).
+export function useTerritorioAggregate(programa, slep, tipo, anio, indicadorId) {
+  return useFirestore(async () => {
+    if (!programa || !tipo || !anio || !indicadorId) {
+      return { mean: null, source: null, nReporters: null };
+    }
+    const sanitize = (s) => String(s).replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const asMean = (data, source) => ({
+      mean: data.nReporters > 0 ? data.sumaValor / data.nReporters : null,
+      source,
+      nReporters: data.nReporters ?? 0,
+    });
+
+    if (slep) {
+      const primaryId = ['agg', programa, slep, tipo, anio, indicadorId].map(sanitize).join('_');
+      try {
+        const snap = await getDoc(doc(db, 'aggregatesTerritorio_real', primaryId));
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.publishable === true) return asMean(data, 'slep-tipo');
+        }
+      } catch {
+        // Fall through to fallback tier — rules may deny publishable=false to this profile.
+      }
+    }
+
+    const fallbackId = ['agg', programa, tipo, anio, indicadorId].map(sanitize).join('_');
+    try {
+      const snap = await getDoc(doc(db, 'aggregatesTerritorio_real', fallbackId));
+      if (snap.exists()) return asMean(snap.data(), 'programa');
+    } catch { /* no-op */ }
+
+    return { mean: null, source: null, nReporters: null };
+  }, [programa, slep, tipo, anio, indicadorId]);
 }
 
 // Scoped resultados query for sostenedor: only reads docs belonging to their SLEP.

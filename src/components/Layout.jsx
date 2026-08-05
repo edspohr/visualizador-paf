@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { LogOut, ChevronDown, School, Baby, Building2, ShieldCheck, Award, Repeat, Users, BarChart3, Map } from 'lucide-react';
 import { useApp, PERFILES, resolverEntidad } from '../lib/context.jsx';
@@ -34,10 +34,13 @@ export default function Layout({ children }) {
   // temporalmente si el superadmin está "viendo como" otro perfil desde el dropdown.
   const esUsuarioRealSuperadmin = usuarioDoc?.perfilDefault === 'superadmin';
 
-  // For consultor/cap/superadmin we load all establishments (broad queries are
-  // allowed by Firestore rules). For limited profiles (jardin/escuela/sostenedor)
-  // we use narrow queries that rules permit.
-  const esAccesoCompleto = perfil.id === 'consultor' || perfil.id === 'cap' || perfil.id === 'superadmin';
+  // For consultor/cap/superadmin (or a real superadmin viewing-as a limited
+  // profile) we load all establishments — broad Firestore rules already permit
+  // this because rules key off usuarios.perfilDefault, which stays 'superadmin'
+  // regardless of the assumed viewing-as perfil. For genuine limited profiles
+  // we use narrow queries that pass the corresponding rule.
+  const esAccesoCompletoBase = perfil.id === 'consultor' || perfil.id === 'cap' || perfil.id === 'superadmin';
+  const esAccesoCompleto = esAccesoCompletoBase || esUsuarioRealSuperadmin;
   const escuelasQ = useEscuelas();
   const jardinesQ = useJardines();
   const slepsQ = useSleps();
@@ -45,13 +48,20 @@ export default function Layout({ children }) {
   const jardines = esAccesoCompleto ? (jardinesQ.data ?? []) : [];
   const sleps = esAccesoCompleto ? (slepsQ.data ?? []) : [];
 
+  // Real superadmin viewing-as a limited profile: pass the perfil through so
+  // useEntidadDelPerfil resolves the current contexto.id against Firestore
+  // (single-doc / SLEP-doc paths — permitted for superadmin by broad rules).
+  // Genuine consultor/cap/superadmin (not viewing-as) skip the hook and use
+  // the pre-loaded broad arrays via resolverEntidad, as before.
+  const viendoComoLimitado = esUsuarioRealSuperadmin
+    && (perfil.id === 'escuela' || perfil.id === 'jardin' || perfil.id === 'sostenedor');
   const entidadQ = useEntidadDelPerfil(
-    esAccesoCompleto ? null : perfil,
+    esAccesoCompletoBase && !viendoComoLimitado ? null : perfil,
     escuelas, jardines, sleps
   );
 
   // Resolve current entity for the header label
-  const entidad = esAccesoCompleto
+  const entidad = esAccesoCompletoBase && !viendoComoLimitado
     ? resolverEntidad(perfil.contexto, [...escuelas, ...jardines], sleps)
     : entidadQ.establecimiento ?? entidadQ.slep;
 
@@ -59,15 +69,30 @@ export default function Layout({ children }) {
   const permiteProgramaSwitch = perfil.id === 'consultor' || perfil.id === 'cap' || perfil.id === 'superadmin';
 
   let opcionesEntidad = [];
-  if (esAccesoCompleto) {
-    if (perfil.id === 'superadmin' || perfil.id === 'consultor' || perfil.id === 'cap') {
-      // Consultor/cap/superadmin: entity dropdown not shown in layout (they use VistaConsultor)
-    }
+  if (viendoComoLimitado) {
+    // Superadmin viewing-as: expose every candidate entity of the matching kind.
+    if (perfil.id === 'escuela') opcionesEntidad = escuelas;
+    else if (perfil.id === 'jardin') opcionesEntidad = jardines;
+    else if (perfil.id === 'sostenedor') opcionesEntidad = sleps;
+  } else if (esAccesoCompletoBase) {
+    // Consultor/cap/superadmin: entity dropdown not shown in layout (they use VistaConsultor)
   } else if (perfil.id === 'escuela' || perfil.id === 'jardin') {
     opcionesEntidad = entidadQ.establecimiento ? [entidadQ.establecimiento] : [];
   } else if (perfil.id === 'sostenedor') {
     opcionesEntidad = entidadQ.slep ? [entidadQ.slep] : [];
   }
+
+  // When a real superadmin steps into a limited-profile perfil, contexto.id
+  // starts as a placeholder ('ESC-001'/'JAR-001'/'SLEP-LP') from PERFILES.
+  // Auto-select the first real entity so VistaEscuela/VistaSostenedor render.
+  const currentEntidadId = perfil.contexto?.id;
+  const currentEsReal = opcionesEntidad.some(e => e.id === currentEntidadId);
+  useEffect(() => {
+    if (!viendoComoLimitado) return;
+    if (!opcionesEntidad.length) return;
+    if (!currentEsReal) cambiarEntidad(opcionesEntidad[0].id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viendoComoLimitado, opcionesEntidad.length, currentEsReal]);
 
   // Base classes for pill controls on the white header
   const pillBase = 'flex items-center gap-2 border border-border hover:bg-bg px-3 py-2 rounded-xl text-sm font-light text-gray-dark transition';

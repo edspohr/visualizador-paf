@@ -116,6 +116,14 @@ Migraciones y utilidades:
 - **`scripts/backfillSlepIdOnUsuarios.mjs`** — backfill one-shot: escribe `slepId` en `usuarios` para perfiles jardin/escuela derivándolo del establecimiento asignado. Idempotente, `--dry-run`.
 - **`scripts/validateUserAssignments.mjs`** — pre-deploy gate. Verifica assignments de usuarios y presencia del campo `slep` en resultados. Exit 1 en errores. `npm run validate:users`.
 - **`scripts/repairTerritorial.mjs`** — repair one-shot: corrige `slep`, `comuna`, `sostenedor` en `establecimientos_real` con valores canónicos confirmados. `--dry-run`. Idempotente.
+- **`scripts/coverageDiff.mjs`** — compara dos manifiestos de cobertura Escolar (`--before=`, `--after=`). Reporta transiciones por estado y mejoras/regresiones. Escribe `reports/coverageDiff-YYYY-MM-DD.{md,json}`.
+- **`scripts/parseHomologacion.mjs`** — parsea `docs/homologacion-indicadores-escolar-2025-206.xlsx` → `src/data/homologacionEscolar.json`. 29 pares 2025↔2026, 21 descontinuados, 22 nuevos en 2026. `--dry-run`. `npm run parse:homologacion`.
+
+Datos generados:
+
+- **`src/data/homologacionEscolar.json`** — mapa de homologación de indicadores Escolar 2025↔2026 en notación canónica (`I.1`). Usado por el comparador para alinear IDs entre años. No editar a mano; regenerar con `parse:homologacion`.
+- **`src/data/escolarCoverageManifest.json`** — espejo de `docs/escolar-coverage-manifest.json` para import en runtime. Regenerar con `generateEscolarCoverageManifest.mjs` (dual-write automático).
+- **`src/data/coverage.js`** — `getCoberturaEscolar(estId, anio, indId)` → estado de cobertura del manifiesto. `getCoberturaParvulario()` devuelve null (Parvulario no necesita este lookup). Buildea el lookup a nivel de módulo.
 
 ### Firestore
 
@@ -312,6 +320,7 @@ Todas las migraciones nuevas deben soportar `--dry-run`, ser idempotentes y escr
 
 ## Historial breve
 
+- **2026-08-05** — Ciclo de cierre W1–W4. (1) Auth fix: perfiles jardin/escuela/sostenedor ahora tienen queries estrechas que pasan las reglas Firestore; campo `slep` denormalizado en `resultados_real`; `slepId` en `usuarios`. (2) Territorial: Ramón del Río reparado (slep/comuna/sostenedor); 15 jardines parvulario con comunas ALLCAPS/PAC corregidos. (3) W2: re-harvest de 68 planillas Los Parques (465/466 OK); 1 link roto permanente (Sendero del Saber KA). (4) W3: homologación Escolar 2025↔2026 (29 pares, `homologacionEscolar.json`); comparador alinea IDs 2025 a 2026 con banner explicativo. (5) W4: `getCoberturaEscolar` wired en `IndicatorPanel`; estados SIN_FUENTE_MAPEADA/FUENTE_NO_ACCESIBLE visibles en cada fila de indicador; chip "N sin fuente" en header de ámbito; `escolarCoverageManifest.json` dual-write para import en runtime. Deploy 2: `https://visualizador-paf.web.app`. Estado: docs/informe-cobertura-fuentes-2026-08-05.md.
 - **2026-07-30** — Addendum Escolar. Se agregó infraestructura para el track Escolar completa: inventario de las 466 planillas individuales (`escolarPlanillaIndex.json`), harvest resumible con checkpoint y redacción PII en vuelo (`harvestEscolar.mjs`), mapping declarativo por arquetipo (`escolarMapping.mjs`) con assert de completitud, manifiesto de cobertura con 5 estados (`generateEscolarCoverageManifest.mjs`), import del consolidado 2025 de Sebastián como capa de contraste (`importConsolidated2025.mjs`), reporte de discrepancias de metas 2025 vs 2026, aserción PII ejecutable (`piiAssertion.mjs`), tratamiento UI de los 5 estados de cobertura en `IndicatorProgress`. Harvest completo ejecutado: 396/466 OK, 69 permanentemente inaccesibles (68 planillas 2025 de Los Parques sin acceso + 1 link roto). 37.773 valores PII redactados al vuelo, 0 hits en Firestore o cache. Ciclo cerrado con tag `cycle-2026-07-30-escolar-addendum`. Estado detallado en `docs/informe-cobertura-fuentes-2026-07-30.md`.
 - **2026-07-29** — Ciclo de retroalimentación cliente: renumeración canónica de indicadores (Parvulario a 53, Escolar 2026 a 51), reasignación de ámbitos escolares, fix del comparador por año, jerarquía de títulos, ámbitos con nombres cortos, tratamiento explícito de "Sin datos", quita de "Focus" del pie de página. Reescritura de este archivo también. Plan en `/Users/espohr/.claude/plans/master-prompt-quirky-hanrahan.md` (fuera del repo, en el harness de plan-mode).
 - Versiones anteriores del archivo describían el proyecto como "mock" con datos sintéticos generados por PRNG. Esa fase terminó cuando se conectó Firestore y se cargaron los datos reales de ambas cohortes.

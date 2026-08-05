@@ -21,7 +21,8 @@
     "validate:users": "node scripts/validateUserAssignments.mjs",
     "backfill:slep-resultados": "node scripts/backfillSlepOnResultados.mjs",
     "backfill:slep-usuarios": "node scripts/backfillSlepIdOnUsuarios.mjs",
-    "diagnose:auth": "node scripts/diagnoseAuthResolution.mjs"
+    "diagnose:auth": "node scripts/diagnoseAuthResolution.mjs",
+    "parse:homologacion": "node scripts/parseHomologacion.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

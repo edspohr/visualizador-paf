@@ -1,0 +1,458 @@
+{
+  "generatedAt": "2026-08-05T06:32:39.302Z",
+  "sourceFile": "docs/homologacion-indicadores-escolar-2025-206.xlsx",
+  "description": "Cross-year indicator mapping for Escolar 2025 <-> 2026. IDs use canonical dot notation (I.1). Used by the comparator to align indicators across years.",
+  "mapping": [
+    {
+      "id2025": "I.7",
+      "id2026": "I.1",
+      "nombre2025": "Se conforma Equipo de Gestión",
+      "nombre2026": "Se conforma Equipo de Gestión",
+      "meta2025": "SI",
+      "meta2026": "SI"
+    },
+    {
+      "id2025": "I.8",
+      "id2026": "I.2",
+      "nombre2025": "Numero de reuniones anuales del Equipo de Gestión",
+      "nombre2026": "Nº de reuniones del Equipo de Gestión",
+      "meta2025": 10,
+      "meta2026": 10
+    },
+    {
+      "id2025": "I.5",
+      "id2026": "I.9",
+      "nombre2025": "Existe plan de acción familia escuela diseñado",
+      "nombre2026": "Existe plan de acción familia escuela diseñado",
+      "meta2025": "SI",
+      "meta2026": "SI"
+    },
+    {
+      "id2025": "I.14",
+      "id2026": "I.15",
+      "nombre2025": "Numero de instancias formativas anuales para docentes y asistentes de la educación",
+      "nombre2026": "Nº de formaciones territoriales anuales para equipos educativos",
+      "meta2025": 2,
+      "meta2026": 2
+    },
+    {
+      "id2025": "I.15",
+      "id2026": "I.16",
+      "nombre2025": "% promedio de asistencia de profesores jefes a instancias formativas",
+      "nombre2026": "% de participación de profesores jefe a formaciones territoriales",
+      "meta2025": 0.85,
+      "meta2026": 0.8
+    },
+    {
+      "id2025": "I.22",
+      "id2026": "I.19",
+      "nombre2025": "Porcentaje promedio de familias entrevistadas por profesor jefe al menos una vez en el año por sala",
+      "nombre2026": "% de apoderados entrevistados por sala al menos una vez al año",
+      "meta2025": 1,
+      "meta2026": 1
+    },
+    {
+      "id2025": "I.23",
+      "id2026": "I.20",
+      "nombre2025": "Porcentaje promedio de familias entrevistadas por profesor jefe al menos dos veces en el año por sala",
+      "nombre2026": "% de apoderados entrevistados por sala dos veces al año",
+      "meta2025": 0.5,
+      "meta2026": 0.5
+    },
+    {
+      "id2025": "I.25",
+      "id2026": "I.21",
+      "nombre2025": "Número de Taller para Apoderados realizadas en promedio por sala",
+      "nombre2026": "Nº de talleres formativos presenciales para apoderados desarrollados por sala",
+      "meta2025": 4,
+      "meta2026": 4
+    },
+    {
+      "id2025": "I.27",
+      "id2026": "I.22",
+      "nombre2025": "%  promedio por sala de asistencia anual de apoderados a Taller para Apoderados",
+      "nombre2026": "Promedio de asistencia a los talleres presenciales formativos para apoderados",
+      "meta2025": 0.6,
+      "meta2026": 0.6
+    },
+    {
+      "id2025": "I.26",
+      "id2026": "I.23",
+      "nombre2025": "Numero de Taller digitales para Apoderados enviadas en promedio por sala",
+      "nombre2026": "Nº de talleres digitales para apoderados enviados por sala",
+      "meta2025": 2,
+      "meta2026": 2
+    },
+    {
+      "id2025": "I.29",
+      "id2026": "I.25",
+      "nombre2025": "Numero de formaciones realizadas a apoderados monitores",
+      "nombre2026": "Nº de formaciones realizadas a apoderados monitores",
+      "meta2025": 4,
+      "meta2026": 4
+    },
+    {
+      "id2025": "I.30",
+      "id2026": "I.27",
+      "nombre2025": "Numero de apoderados monitores formados (que hayan asistido a al menos una instancia de formación) por sala",
+      "nombre2026": "% de salas cubiertas por apoderados monitores",
+      "meta2025": 61,
+      "meta2026": 1
+    },
+    {
+      "id2025": "I.34",
+      "id2026": "I.29",
+      "nombre2025": "Cantidad  promedio de libros de bibliotecas viajeras recibidos por estudiante por sala (PK, K y 1ro)",
+      "nombre2026": "Nº de libros de Bibliotecas Viajeras recibidos por estudiante por sala",
+      "meta2025": 10,
+      "meta2026": 10
+    },
+    {
+      "id2025": "I.36",
+      "id2026": "I.30",
+      "nombre2025": "Cantidad promedio de días en los que se envían lecturas viajeras (1ro a 8vo)",
+      "nombre2026": "Nº de Lecturas Viajeras enviadas por sala",
+      "meta2025": 15,
+      "meta2026": 15
+    },
+    {
+      "id2025": "I.42",
+      "id2026": "I.31",
+      "nombre2025": "% de salas que envían Mantel de Palabras",
+      "nombre2026": "% de salas que envían Mantel de Palabras",
+      "meta2025": 1,
+      "meta2026": 1
+    },
+    {
+      "id2025": "I.47",
+      "id2026": "I.32",
+      "nombre2025": "Numero de talleres para estudiantes realizados por sala (1ro a 8vo)",
+      "nombre2026": "Nº de talleres formativos para estudiantes desarrollados por sala",
+      "meta2025": 5,
+      "meta2026": 5
+    },
+    {
+      "id2025": "I.6",
+      "id2026": "I.34",
+      "nombre2025": "% de cumplimiento del plan de acción familia escuela",
+      "nombre2026": "% de acciones implementadas del plan de acción familia escuela",
+      "meta2025": 0.8,
+      "meta2026": 0.7
+    },
+    {
+      "id2025": "I.11",
+      "id2026": "I.35",
+      "nombre2025": "Plan de acción diseñado e incorporado en PME y PEI",
+      "nombre2026": "Plan de acción diseñado e incorporado en PME y PEI",
+      "meta2025": "SI",
+      "meta2026": "SI"
+    },
+    {
+      "id2025": "I.19",
+      "id2026": "I.36",
+      "nombre2025": "Nota promedio que ponen los asistentes a consejo de profesores (CD1 a CD4)",
+      "nombre2026": "Nota promedio que ponen los asistentes a los módulos formativos",
+      "meta2025": 6,
+      "meta2026": 6
+    },
+    {
+      "id2025": "I.16",
+      "id2026": "I.37",
+      "nombre2025": "Nota promedio que ponen los asistentes a la instancia formativa para profesores y asistentes de la educación",
+      "nombre2026": "Nota promedio que ponen los asistentes las formaciones territoriales",
+      "meta2025": 6,
+      "meta2026": 6
+    },
+    {
+      "id2025": "I.24",
+      "id2026": "I.38",
+      "nombre2025": "Existe en el establecimiento un sistema de planificación, pauta y monitoreo de entrevistas para apoderados que cumple con los estándares propuestos desde el PAF",
+      "nombre2026": "Existe en el establecimiento un sistema de planificación, pauta y monitoreo de entrevistas para apoderados que cumple con los estándares propuestos desde el PAF",
+      "meta2025": "SI",
+      "meta2026": "SI"
+    },
+    {
+      "id2025": "I.33",
+      "id2026": "I.39",
+      "nombre2025": "Porcentaje de talleres de apoderados liderados por la dupla monitor profesormpañada por monitor apoderado",
+      "nombre2026": "% de talleres para apoderados aplicados por la dupla monitor profesor",
+      "meta2025": 0.5,
+      "meta2026": 0.5
+    },
+    {
+      "id2025": "I.28",
+      "id2026": "I.42",
+      "nombre2025": "% de apoderados que declara haber descargado y visualizado los dos Talleres digitales",
+      "nombre2026": "% de apoderados que declaran haber visualizado los talleres digitales",
+      "meta2025": 0.7,
+      "meta2026": 0.7
+    },
+    {
+      "id2025": "I.35",
+      "id2026": "I.43",
+      "nombre2025": "Promedio de libros de biblioteca viajera utilizados por familias",
+      "nombre2026": "Nº de libros de Biblioteca Viajera que declaran utilizar las familias",
+      "meta2025": 7,
+      "meta2026": 7
+    },
+    {
+      "id2025": "I.37",
+      "id2026": "I.44",
+      "nombre2025": "Promedio de lecturas viajeras utilizadas por familias",
+      "nombre2026": "Nº de Lecturas Viajeras que declaran utilizar las familias",
+      "meta2025": 10,
+      "meta2026": 10
+    },
+    {
+      "id2025": "I.43",
+      "id2026": "I.45",
+      "nombre2025": "% de apoderados que declara utilizar o haber utilizado el mantel de palabras (de los que contestan la encuesta)",
+      "nombre2026": "% de apoderados que declaran haber utilizado el mantel de palabras",
+      "meta2025": 0.8,
+      "meta2026": 0.8
+    },
+    {
+      "id2025": "I.31",
+      "id2026": "I.47",
+      "nombre2025": "Nota promedio que ponen los asistentes a la instancia",
+      "nombre2026": "Nota que ponen los asistentes a las formaciones de monitores",
+      "meta2025": 6,
+      "meta2026": 6
+    },
+    {
+      "id2025": "I.38",
+      "id2026": "I.49",
+      "nombre2025": "Cantidad promedio de actividades de Lecturas Viajeras de aula realizadas  por sala",
+      "nombre2026": "Nº de actividades de aula de Lecturas Viajeras desarrolladas en salas",
+      "meta2025": 15,
+      "meta2026": 15
+    },
+    {
+      "id2025": "I.44",
+      "id2026": "I.50",
+      "nombre2025": "% de salas que realizan actividad de mediación del Mantel de Palabras",
+      "nombre2026": "% de salas que realizan actividad de aula del Mantel de Palabras",
+      "meta2025": 1,
+      "meta2026": 1
+    }
+  ],
+  "discontinued2025": [
+    {
+      "id": "I.1",
+      "nombre": "Se conforma el Equipo Familia Escuela",
+      "meta": "SI"
+    },
+    {
+      "id": "I.2",
+      "nombre": "Numero de módulos anuales impartidos en el Equipo Familia Escuela",
+      "meta": 5
+    },
+    {
+      "id": "I.3",
+      "nombre": "% promedio de asistencia anual de docentes a reuniones de Equipo Familia Escuela",
+      "meta": 0.8
+    },
+    {
+      "id": "I.4",
+      "nombre": "% promedio de asistencia de apoderados a reuniones de Equipo Familia Escuela",
+      "meta": 0.8
+    },
+    {
+      "id": "I.9",
+      "nombre": "Director asiste a formación de liderazgo",
+      "meta": "SI"
+    },
+    {
+      "id": "I.10",
+      "nombre": "Director cumple la meta propuesta para su liderazgo, desde revisión de Estándares",
+      "meta": "SI"
+    },
+    {
+      "id": "I.12",
+      "nombre": "Número de módulos formativos realizados anaualmente",
+      "meta": 5
+    },
+    {
+      "id": "I.13",
+      "nombre": "% de profesores y directivos que asisten a actividad de sensibilización",
+      "meta": 0.8
+    },
+    {
+      "id": "I.17",
+      "nombre": "Número de consejos de profesores realizados anualmente (modulos: CD3 y CD4)",
+      "meta": 2
+    },
+    {
+      "id": "I.18",
+      "nombre": "%  promedio de asistencia anual de profesores jefes (modulos: CD3 y CD4)",
+      "meta": 0.75
+    },
+    {
+      "id": "I.20",
+      "nombre": "Número de consejos de profesores jefes realizados anualmente (modulos: CD1 y CD2)",
+      "meta": 2
+    },
+    {
+      "id": "I.21",
+      "nombre": "%  promedio de asistencia anual de profesores jefes a modulo uso de herramientas (modulos: CD1 y CD2)",
+      "meta": 0.75
+    },
+    {
+      "id": "I.32",
+      "nombre": "Número de apoderados monitores activos (que hayan realizado al menos un taller) por cantidad de salas",
+      "meta": 6
+    },
+    {
+      "id": "I.39",
+      "nombre": "",
+      "meta": 3
+    },
+    {
+      "id": "I.40",
+      "nombre": "",
+      "meta": 3
+    },
+    {
+      "id": "I.41",
+      "nombre": "",
+      "meta": 3
+    },
+    {
+      "id": "I.45",
+      "nombre": "% de salas que realizan actividad de mediación del mantel de palabras post envía",
+      "meta": 1
+    },
+    {
+      "id": "I.46",
+      "nombre": "Cantidad promedio de instrumentos de fomento lector y desarrollo de lenguaje que declaran utilizar las familias que contestan la encuesta",
+      "meta": 5
+    },
+    {
+      "id": "I.48",
+      "nombre": "Número de comités comunales en los que participa la escuela",
+      "meta": 3
+    },
+    {
+      "id": "I.49",
+      "nombre": "Numero de personas de la comunidad educativa que participan en fiesta de la familia por cada 100 estudiantes",
+      "meta": 0.2
+    },
+    {
+      "id": "I.50",
+      "nombre": "% de familias de la comunidad educativa que participan en algún encuentro comunitario",
+      "meta": 0.05
+    }
+  ],
+  "newIn2026": [
+    {
+      "id": "I.3",
+      "nombre": "% de participación del director en reuniones del equipo de gestión",
+      "meta": 1
+    },
+    {
+      "id": "I.4",
+      "nombre": "% de participación del coordinador en las reuniones del equipo de gestión",
+      "meta": 1
+    },
+    {
+      "id": "I.5",
+      "nombre": "Nº de reuniones de coordinación",
+      "meta": 10
+    },
+    {
+      "id": "I.6",
+      "nombre": "Nº instancias de formación de liderazgo territorial a las que asiste el Director",
+      "meta": 2
+    },
+    {
+      "id": "I.7",
+      "nombre": "Nº instancias de formación de liderazgo territorial a las que asiste el Coordinador",
+      "meta": 2
+    },
+    {
+      "id": "I.8",
+      "nombre": "Director participa de la formación de liderazgo por escuela",
+      "meta": "SI"
+    },
+    {
+      "id": "I.10",
+      "nombre": "Existe plan de acción familia escuela actualizado",
+      "meta": "-"
+    },
+    {
+      "id": "I.11",
+      "nombre": "Nº de módulos formativos realizados en la escuela",
+      "meta": 5
+    },
+    {
+      "id": "I.12",
+      "nombre": "% de participación de profesores jefe a módulos formativos",
+      "meta": 0.8
+    },
+    {
+      "id": "I.13",
+      "nombre": "Nº instancias de módulos formativos a las que asiste el Director",
+      "meta": 5
+    },
+    {
+      "id": "I.14",
+      "nombre": "Nº instancias de módulos formativos a las que asiste el Coordinador",
+      "meta": 5
+    },
+    {
+      "id": "I.17",
+      "nombre": "Nº de instancias de formación territorial a las que asiste el Director",
+      "meta": 2
+    },
+    {
+      "id": "I.18",
+      "nombre": "Nº de instancias de formación territorial a las que asiste el Coordinador",
+      "meta": 2
+    },
+    {
+      "id": "I.24",
+      "nombre": "% de visualizaciones de los talleres digitales para apoderados",
+      "meta": 0.6
+    },
+    {
+      "id": "I.26",
+      "nombre": "Nº de apoderados monitores formados",
+      "meta": 153
+    },
+    {
+      "id": "I.28",
+      "nombre": "Nº de semanas de envío de Biblioteca Viajera por sala",
+      "meta": 20
+    },
+    {
+      "id": "I.33",
+      "nombre": "Director cumple la meta propuesta para su liderazgo a partir de la revisión de autoevaluación PAF",
+      "meta": "SI"
+    },
+    {
+      "id": "I.40",
+      "nombre": "% de apoderados que participan de al menos un taller para apoderados presencial",
+      "meta": 0.7
+    },
+    {
+      "id": "I.41",
+      "nombre": "% de apoderados que participan del 100% de los talleres para apoderados presencial",
+      "meta": 0.5
+    },
+    {
+      "id": "I.46",
+      "nombre": "Nº de apoderados monitores que implementaron taller de apoderados",
+      "meta": 153
+    },
+    {
+      "id": "I.48",
+      "nombre": "Nº de actividades de aula de Biblioteca Viajera desarrolladas por sala",
+      "meta": 3
+    },
+    {
+      "id": "I.51",
+      "nombre": "Nº de actividades de mediación del mantel post envío desarrollados en cada sala",
+      "meta": 2
+    }
+  ]
+}

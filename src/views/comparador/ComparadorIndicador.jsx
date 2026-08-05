@@ -6,6 +6,28 @@ import { isAplicable2026 } from '../../data/scope.js';
 import { formatValue } from '../../data/expectedValue.js';
 import { ambitoCodigo, ambitoNombre, indicadorCodigo } from '../../lib/labels.js';
 import { useValoresAnioNivel, useValoresAnioNiveles } from '../../lib/queries.js';
+import homologacion from '../../data/homologacionEscolar.json';
+
+// ─── Homologación Escolar 2025 ↔ 2026 ────────────────────────────────────────
+// Map from 2025 indicator ID → 2026 indicator ID (canonical dot-notation).
+const HOMOL_2025_TO_2026 = new Map(homologacion.mapping.map(m => [m.id2025, m.id2026]));
+const HOMOL_DISCONTINUED = new Set(homologacion.discontinued2025.map(m => m.id));
+const HOMOL_NEW_IN_2026 = new Set(homologacion.newIn2026.map(m => m.id));
+
+// Retranslate a per-establishment value map from 2025 indicator IDs → 2026 IDs.
+// Entries without a 2026 equivalent are dropped (discontinued indicators).
+function remapear2025(valoresMap2025) {
+  const out = new Map();
+  for (const [estId, indMap] of valoresMap2025) {
+    const remapped = new Map();
+    for (const [id2025, valor] of indMap) {
+      const id2026 = HOMOL_2025_TO_2026.get(id2025);
+      if (id2026) remapped.set(id2026, valor);
+    }
+    if (remapped.size > 0) out.set(estId, remapped);
+  }
+  return out;
+}
 
 // ─── Constantes de niveles operativos ────────────────────────────────────────
 // Se declaran a nivel de módulo para evitar recreación entre renders y para
@@ -428,8 +450,9 @@ export default function ComparadorIndicador({
   const nivelesAllB = nivelesAllBQ.data ?? [];
 
   const valoresMapByYear = useMemo(() => {
-    // Normaliza cada entrada por año: acepta `{ valor }` o valor plano
-    // (los distintos hooks upstream difieren en shape).
+    // Normalizes each entry by year: accepts `{ valor }` or plain value.
+    // For Escolar, remaps 2025 indicator IDs to their 2026 equivalents using
+    // the homologación map so both sides share the same ID namespace.
     const out = new Map();
     for (const [anio, porEst] of valoresPorEstByYear ?? new Map()) {
       const norm = new Map();
@@ -438,10 +461,11 @@ export default function ComparadorIndicador({
         for (const [indId, entry] of m) inner.set(indId, entry?.valor ?? entry);
         norm.set(estId, inner);
       }
-      out.set(anio, norm);
+      const mapped = (programa === 'escolar' && anio === 2025) ? remapear2025(norm) : norm;
+      out.set(anio, mapped);
     }
     return out;
-  }, [valoresPorEstByYear]);
+  }, [valoresPorEstByYear, programa]);
 
   function buildNivelMap(docs) {
     const buckets = new Map();
@@ -735,6 +759,12 @@ export default function ComparadorIndicador({
           {aniosSinDatos.length === 1
             ? `Sin datos cargados para ${aniosSinDatos[0]} en Firestore. Las barras de ese año aparecerán como "—".`
             : `Sin datos cargados para ${aniosSinDatos.join(' ni ')} en Firestore. Las barras correspondientes aparecerán como "—".`}
+        </div>
+      )}
+
+      {programa === 'escolar' && (filtersA.year === 2025 || filtersB.year === 2025) && (
+        <div className="mb-3 p-3 rounded-xl text-xs" style={{ background: 'rgb(235,245,255)', color: '#1a4a7a' }}>
+          <strong>Comparación entre años:</strong> los catálogos 2025 y 2026 son instrumentos distintos. Los valores 2025 se alinean con sus equivalentes 2026 usando la tabla de homologación ({homologacion.mapping.length} pares). <span style={{ color: 'var(--color-gray-ui)' }}>Los {HOMOL_NEW_IN_2026.size} indicadores nuevos en 2026 y los {HOMOL_DISCONTINUED.size} descontinuados de 2025 sin equivalente no aparecen en el gráfico.</span>
         </div>
       )}
 

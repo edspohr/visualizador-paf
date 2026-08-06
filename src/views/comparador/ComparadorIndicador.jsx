@@ -6,6 +6,8 @@ import { isAplicable2026 } from '../../data/scope.js';
 import { formatValue } from '../../data/expectedValue.js';
 import { ambitoCodigo, ambitoNombre, indicadorCodigo } from '../../lib/labels.js';
 import { useValoresAnioNivel, useValoresAnioNiveles } from '../../lib/queries.js';
+import { getCoberturaEscolar } from '../../data/coverage.js';
+import { getCoberturaLabel } from '../../data/establecimientos.js';
 import homologacion from '../../data/homologacionEscolar.json';
 
 // ─── Homologación Escolar 2025 ↔ 2026 ────────────────────────────────────────
@@ -172,7 +174,7 @@ export function computeSideData({
     if (nivelActivo && !soportaNivel) {
       return ests.map(e => ({
         key: e.id, nombre: e.nombre, valor: null, meta: ind.metaNum,
-        unidad: ind.unidad, ratio: null, ind, aplica: false,
+        unidad: ind.unidad, ratio: null, ind, aplica: false, cobertura: null,
       }));
     }
     const fuente = fuenteValores(ind);
@@ -180,6 +182,12 @@ export function computeSideData({
       const applies = isAplicable2026(ind, e, mesRef);
       const v = applies ? (fuente.get(e.id)?.get(ind.id) ?? null) : null;
       const r = calcularLogro(v, ind);
+      // For Escolar, surface the manifest state so a missing value renders as
+      // "sin fuente" vs "sin dato" vs "cero" instead of a bare "—".
+      // Parvulario has no manifest — cobertura stays null and row falls back to "—".
+      const cobertura = (v == null && applies)
+        ? getCoberturaEscolar(e.id, filters.year, ind.id)
+        : null;
       return {
         key: e.id,
         nombre: e.nombre,
@@ -189,6 +197,7 @@ export function computeSideData({
         ratio: r === null ? null : Math.min(1, r),
         ind,
         aplica: applies,
+        cobertura,
       };
     });
   }
@@ -360,6 +369,17 @@ function SegmentedDesglose({ value, onChange, disabledMap, hintMap }) {
 
 // ─── Tooltip con delta ──────────────────────────────────────────────────────
 
+// Motivo por el que un valor está ausente. Prioriza:
+//   - "no aplica"       → indicador aún no aplica al centro (semestre no alcanzado)
+//   - cobertura estado  → SIN_FUENTE / FUENTE_NO_ACCESIBLE / SIN_DATO / etc.
+//   - null              → nada especial que decir
+function razonAusencia(aplica, cobertura) {
+  if (aplica === false) return 'No aplica al centro aún';
+  if (!cobertura) return null;
+  const { label } = getCoberturaLabel(cobertura);
+  return label;
+}
+
 function ChartTooltip({ active, payload, valueFormat, labelA, labelB }) {
   if (!active || !payload || payload.length === 0) return null;
   const item = payload[0]?.payload;
@@ -370,16 +390,20 @@ function ChartTooltip({ active, payload, valueFormat, labelA, labelB }) {
   const deltaStr = delta === null
     ? null
     : (delta > 0 ? '+' : '') + valueFormat(delta);
+  const razonA = (a == null) ? razonAusencia(item?.aplicaA, item?.coberturaA) : null;
+  const razonB = (b == null) ? razonAusencia(item?.aplicaB, item?.coberturaB) : null;
   return (
     <div className="rounded-lg border border-border bg-white shadow-sm px-3 py-2 text-xs">
       <p className="text-gray-dark font-semibold mb-1 leading-tight">{item?.nombre}</p>
       <p className="text-gray-dark">
         <span className="inline-block w-2 h-2 rounded-sm mr-1.5 align-middle" style={{ background: 'var(--color-cyan)' }}/>
         {labelA}: <span className="font-medium">{valueFormat(a)}</span>
+        {razonA && <span className="text-gray-ui"> · {razonA}</span>}
       </p>
       <p className="text-gray-dark">
         <span className="inline-block w-2 h-2 rounded-sm mr-1.5 align-middle" style={{ background: 'var(--color-magenta)' }}/>
         {labelB}: <span className="font-medium">{valueFormat(b)}</span>
+        {razonB && <span className="text-gray-ui"> · {razonB}</span>}
       </p>
       {deltaStr && (
         <p className="text-gray-ui mt-1 pt-1 border-t border-border">
@@ -425,8 +449,10 @@ export default function ComparadorIndicador({
   const focalInd = indicadorFocal !== 'TODOS' ? indicadoresElegibles.find(i => i.id === indicadorFocal) : null;
   const focalDesagregaNivel = focalInd?.desagregaNivel === true;
 
-  // Gates para desglose
-  const enableDesgloseEst = !!focalInd && (filtersA.slep !== 'TODOS' || filtersB.slep !== 'TODOS');
+  // Gates para desglose. "Por establecimiento" solo requiere un indicador
+  // seleccionado — el filtro de sostenedor es opcional y estrecha la lista.
+  // Con la ley top-N (DEFAULT_TOP_N) las listas largas siguen siendo legibles.
+  const enableDesgloseEst = !!focalInd;
   const enableDesgloseNivel = !!focalInd && focalDesagregaNivel;
 
   // Si el desglose activo deja de ser válido tras un cambio, cae a 'agrupado'.
@@ -551,7 +577,11 @@ export default function ComparadorIndicador({
       }
       const rawA = chartMode === 'nativo' ? (a?.valor ?? null) : (a?.ratio ?? null);
       const rawB = chartMode === 'nativo' ? (b?.valor ?? null) : (b?.ratio ?? null);
-      return { key: k, nombre, ind: (a || b)?.ind, A: rawA, B: rawB };
+      return {
+        key: k, nombre, ind: (a || b)?.ind, A: rawA, B: rawB,
+        coberturaA: a?.cobertura ?? null, aplicaA: a?.aplica ?? true,
+        coberturaB: b?.cobertura ?? null, aplicaB: b?.aplica ?? true,
+      };
     });
   }, [dataA, dataB, desgloseEfectivo, chartMode]);
 
@@ -574,8 +604,12 @@ export default function ComparadorIndicador({
     return arr;
   }, [chartDataAll, orden]);
 
+  // Top-N gate: aplica en agrupado (todos los indicadores) y en desglose por
+  // establecimiento — ambos pueden exceder 15 filas y merecen la misma UX
+  // "Mostrar los N" que ya usaba el modo agrupado.
   const modoAgrupadoTodos = desgloseEfectivo === 'agrupado' && !focalInd;
-  const excedeTope = modoAgrupadoTodos && chartDataOrdenada.length > DEFAULT_TOP_N;
+  const modoDesgloseEst   = desgloseEfectivo === 'establecimiento';
+  const excedeTope = (modoAgrupadoTodos || modoDesgloseEst) && chartDataOrdenada.length > DEFAULT_TOP_N;
   const chartData = (excedeTope && !mostrarTodos)
     ? chartDataOrdenada.slice(0, DEFAULT_TOP_N)
     : chartDataOrdenada;
@@ -657,7 +691,7 @@ export default function ComparadorIndicador({
     nivel: !enableDesgloseNivel,
   };
   const hintMap = {
-    establecimiento: 'Elige un indicador y un sostenedor específico para desglosar por centro.',
+    establecimiento: 'Elige un indicador para desglosar por centro.',
     nivel: focalInd
       ? 'Este indicador no llega con desglose por sala.'
       : 'Elige un indicador que se reporte por sala para desglosar por nivel.',
@@ -833,7 +867,9 @@ export default function ComparadorIndicador({
                 onClick={() => setMostrarTodos(m => !m)}
                 className="text-xs text-gray-dark hover:underline"
               >
-                {mostrarTodos ? 'Mostrar menos' : `Mostrar los ${chartDataOrdenada.length} indicadores`}
+                {mostrarTodos
+                  ? 'Mostrar menos'
+                  : `Mostrar los ${chartDataOrdenada.length} ${modoDesgloseEst ? 'centros' : 'indicadores'}`}
               </button>
             </div>
           )}

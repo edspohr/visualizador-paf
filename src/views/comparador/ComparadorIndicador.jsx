@@ -804,12 +804,22 @@ export default function ComparadorIndicador({
 
       {chartMode === 'ratio' && !focalInd && (
         <div className="mb-3 p-2.5 rounded-xl text-[11px] text-gray-ui" style={{ background: 'var(--color-bg)' }}>
-          Comparación normalizada (% de cumplimiento vs meta). Selecciona un indicador para ver el valor en su unidad nativa.
+          Muestra el <strong>% de cumplimiento vs meta</strong> por indicador. Los centros sin dato reportado
+          cuentan como 0 en el promedio, según la fórmula de cumplimiento acordada. Selecciona un indicador
+          para ver el valor promedio en su unidad nativa (sin capear a la meta).
         </div>
       )}
 
-      {/* Leyenda compacta A/B con año explícito */}
-      <div className="flex flex-wrap gap-3 text-xs text-gray-ui mb-3">
+      {chartMode === 'nativo' && focalInd && (
+        <div className="mb-3 p-2.5 rounded-xl text-[11px] text-gray-ui" style={{ background: 'var(--color-bg)' }}>
+          Muestra la <strong>media reportada</strong> por los centros (unidad nativa, meta = {formatValue(focalInd, focalInd.metaNum)}).
+          Los centros sin dato no entran en el promedio. Este número es distinto del "% de cumplimiento":
+          el cumplimiento capea a la meta y cuenta los faltantes como 0.
+        </div>
+      )}
+
+      {/* Leyenda compacta A/B con año explícito + chip de qué muestra el eje */}
+      <div className="flex flex-wrap gap-3 items-center text-xs text-gray-ui mb-3">
         <span>
           <span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-cyan)' }}/>
           Grupo A · {filtersA.year}
@@ -817,6 +827,12 @@ export default function ComparadorIndicador({
         <span>
           <span className="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style={{ background: 'var(--color-magenta)' }}/>
           Grupo B · {filtersB.year}
+        </span>
+        <span className="ml-auto inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border">
+          <span>Eje:</span>
+          <strong className="text-gray-dark">
+            {chartMode === 'ratio' ? '% cumplimiento vs meta' : 'Media reportada (unidad nativa)'}
+          </strong>
         </span>
       </div>
 

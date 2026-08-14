@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-08-05T08:45:25.942Z",
+  "generatedAt": "2026-08-14T08:41:58.353Z",
   "dryRun": false,
   "totals": {
-    "resultados": 548,
-    "resultadosRecolectados": 548,
+    "resultados": 558,
+    "resultadosRecolectados": 558,
     "porEstado": {
-      "validado": 167,
-      "provisional": 381
+      "validado": 169,
+      "provisional": 389
     },
     "escuelasCubiertas": 18,
     "indicadoresCubiertos": 33,
     "reads": 90,
-    "headerMismatches": 142
+    "headerMismatches": 145
   },
   "indicadoresCubiertos": [
     "I.1",
@@ -51,12 +51,6 @@
   "headerMismatches": [
     {
       "schoolName": "Escuela Esperanza Joven",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
-    },
-    {
-      "schoolName": "Escuela Esperanza Joven",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
@@ -531,12 +525,6 @@
     },
     {
       "schoolName": "Escuela Ricardo Latcham",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
-    },
-    {
-      "schoolName": "Escuela Ricardo Latcham",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
@@ -639,9 +627,39 @@
     },
     {
       "schoolName": "Escuela República De Las Filipinas",
-      "indId": "I19",
-      "expected": "batchGet cursos: Quota exceeded for quota metric 'Read requests' and limit 'Read requests per minute per user' of service 'sheets.googleapis.com' for consumer 'project_number:719942512215'.",
-      "tab": "RC per-course"
+      "indId": "I42",
+      "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I43",
+      "expected": "Promedio libros BV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I44",
+      "expected": "Promedio LV declarados (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I45",
+      "expected": "% mantel de palabras declarado (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I29",
+      "expected": "Promedio libros BV (= I.43) (celda vacía)",
+      "tab": "Encuesta apoderados"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I31",
+      "expected": "% mantel (= I.45) (celda vacía)",
+      "tab": "Encuesta apoderados"
     },
     {
       "schoolName": "Escuela Platón",
@@ -950,8 +968,8 @@
       }
     },
     {
-      "valor": 0,
-      "raw": "FALSE|FALSE",
+      "valor": 1,
+      "raw": "TRUE|FALSE",
       "estado": "provisional",
       "establecimientoId": "esc-esperanza-joven",
       "establecimientoNombre": "Escuela Esperanza Joven",
@@ -964,7 +982,7 @@
       "meta": "2",
       "metaNum": 2,
       "unidad": "conteo",
-      "logro": 0,
+      "logro": 0.5,
       "fuente": {
         "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
         "workbookLabel": "Datos Consultor · Actividades",
@@ -973,8 +991,8 @@
       }
     },
     {
-      "valor": 1,
-      "raw": "TRUE|FALSE|FALSE|FALSE|FALSE",
+      "valor": 2,
+      "raw": "TRUE|TRUE|FALSE|FALSE|FALSE",
       "estado": "validado",
       "establecimientoId": "esc-esperanza-joven",
       "establecimientoNombre": "Escuela Esperanza Joven",
@@ -987,7 +1005,7 @@
       "meta": "4",
       "metaNum": 4,
       "unidad": "conteo",
-      "logro": 0.25,
+      "logro": 0.5,
       "fuente": {
         "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
         "workbookLabel": "Datos Consultor · Actividades",

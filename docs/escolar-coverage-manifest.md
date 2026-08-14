@@ -1,6 +1,6 @@
 # Manifiesto de cobertura Escolar
 
-Generado 2026-08-05 (con estado de Firestore).
+Generado 2026-08-14 (con estado de Firestore).
 
 Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 

@@ -28,6 +28,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
+// --dump=<path>: write the resultados_real docs this run would produce (keyed by doc id) to a JSON file.
+const DUMP_PATH = (args.find(a => a.startsWith('--dump=')) || '').split('=')[1] || null;
 const PURGE = args.includes('--purge');
 const SCHOOL_FILTER = (args.find(a => a.startsWith('--schools=')) || '').split('=')[1]?.split(',').filter(Boolean) || null;
 
@@ -775,6 +777,14 @@ for (const r of allResults) {
   delete r.wbId; delete r.wbLabel; delete r.tab; delete r.row;
 }
 
+const escDocId = (r) => `esc_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+if (DUMP_PATH) {
+  const dump = {};
+  for (const r of allResults.filter(r => r.indicadorId && r.fuente)) dump[escDocId(r)] = r;
+  await writeFile(DUMP_PATH, JSON.stringify(dump));
+  console.log(`\n   Dump: ${Object.keys(dump).length} docs → ${DUMP_PATH}`);
+}
+
 // ─── Purge + write ────────────────────────────────────────────────────────
 if (PURGE && !DRY_RUN) {
   console.log('\n4) Purgando resultados_real programa=escolar…');
@@ -818,7 +828,7 @@ if (!DRY_RUN) {
   n = 0;
   batch = db.batch(); count = 0;
   for (const r of writable) {
-    const docId = `esc_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const docId = escDocId(r);
     batch.set(db.collection('resultados_real').doc(docId), { ...r, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     count++; n++;
     if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }

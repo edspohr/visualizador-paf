@@ -46,6 +46,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
+// --dump=<path>: write the resultados_real docs this run would produce (keyed by doc id) to a JSON file.
+const DUMP_PATH = (args.find(a => a.startsWith('--dump=')) || '').split('=')[1] || null;
 const PURGE = args.includes('--purge');
 
 // ─── Init ─────────────────────────────────────────────────────────────────
@@ -563,32 +565,42 @@ if (!DRY_RUN) {
 }
 
 // 7) Escribir resultados_real (jardín + salas)
+// Deduplicar jardín docs por (estId, indId, periodo). Cuando el mismo indicador
+// aparece en VISUALIZADOR JARDÍN y también en SALAS agregado, el de JARDÍN gana
+// (dato reportado por la escuela vs promedio calculado de salas).
+const jardinByKey = new Map();
+for (const d of allJardinDocs) {
+  const k = `${d.establecimientoId}|${d.indicadorId}|${d.periodo}`;
+  if (!jardinByKey.has(k) || d.fuente.tab === 'VISUALIZADOR JARDÍN') {
+    jardinByKey.set(k, d);
+  }
+}
+const uniqueJardin = [...jardinByKey.values()];
+const jardinDocId = (r) => `parv_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+const salaDocId = (r) => `parv_${r.establecimientoId}_${r.indicadorId}_${r.periodo}_${r.docSlug || 'nc'}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+
+if (DUMP_PATH) {
+  const dump = {};
+  for (const r of uniqueJardin) dump[jardinDocId(r)] = r;
+  for (const r of allSalasDocs) { const { docSlug, ...clean } = r; dump[salaDocId(r)] = clean; }
+  await writeFile(DUMP_PATH, JSON.stringify(dump));
+  console.log(`\n   Dump: ${Object.keys(dump).length} docs → ${DUMP_PATH}`);
+}
+
 if (!DRY_RUN) {
   console.log('\n5) Escribiendo resultados_real…');
-  // Deduplicar jardín docs por (estId, indId, periodo). Cuando el mismo indicador
-  // aparece en VISUALIZADOR JARDÍN y también en SALAS agregado, el de JARDÍN gana
-  // (dato reportado por la escuela vs promedio calculado de salas).
-  const jardinByKey = new Map();
-  for (const d of allJardinDocs) {
-    const k = `${d.establecimientoId}|${d.indicadorId}|${d.periodo}`;
-    if (!jardinByKey.has(k) || d.fuente.tab === 'VISUALIZADOR JARDÍN') {
-      jardinByKey.set(k, d);
-    }
-  }
-  const uniqueJardin = [...jardinByKey.values()];
 
   let n = 0;
   let batch = db.batch(); let count = 0;
   for (const r of uniqueJardin) {
-    const docId = `parv_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const docId = jardinDocId(r);
     batch.set(db.collection('resultados_real').doc(docId), { ...r, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     count++; n++;
     if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }
   }
   for (const r of allSalasDocs) {
-    const suffix = r.docSlug || 'nc';
     const { docSlug, ...clean } = r;
-    const docId = `parv_${r.establecimientoId}_${r.indicadorId}_${r.periodo}_${suffix}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const docId = salaDocId(r);
     batch.set(db.collection('resultados_real').doc(docId), { ...clean, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
     count++; n++;
     if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }

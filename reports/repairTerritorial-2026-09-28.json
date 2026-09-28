@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-09-28T02:17:32.758Z",
+  "dryRun": false,
+  "repaired": [
+    {
+      "id": "jar-ciudad-de-barcelona",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-enrique-backausse",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-la-marina",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-ochagavia",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-pequeno-aymara",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    },
+    {
+      "id": "jar-poetas-de-chile",
+      "diff": {
+        "comuna": {
+          "from": "PAC",
+          "to": "Pedro Aguirre Cerda"
+        }
+      },
+      "reason": "\"PAC\" shorthand → full name"
+    }
+  ],
+  "errors": []
+}

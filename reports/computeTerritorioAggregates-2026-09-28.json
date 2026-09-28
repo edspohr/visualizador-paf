@@ -1,0 +1,77 @@
+{
+  "dryRun": false,
+  "computedAt": "2026-09-28T02:21:05.037Z",
+  "kMin": 4,
+  "summary": {
+    "total": 400,
+    "primary": 277,
+    "fallback": 123,
+    "publishable": 395,
+    "unpublishable_below_k_min": 3,
+    "unpublishable_yoy_leak": 2,
+    "by_programa": {
+      "parvulario": {
+        "total": 272,
+        "publishable": 270,
+        "below_k_min": 0,
+        "yoy_leak": 2
+      },
+      "escolar": {
+        "total": 128,
+        "publishable": 125,
+        "below_k_min": 3,
+        "yoy_leak": 0
+      }
+    },
+    "by_slep_tipo_anio": {
+      "escolar|SLEP-LP|Escuela|2026": {
+        "total": 32,
+        "publishable": 30,
+        "below_k_min": 2,
+        "yoy_leak": 0
+      },
+      "escolar|SLEP-SR|Escuela|2026": {
+        "total": 32,
+        "publishable": 32,
+        "below_k_min": 0,
+        "yoy_leak": 0
+      },
+      "escolar|SLEP-SC|Escuela|2026": {
+        "total": 32,
+        "publishable": 31,
+        "below_k_min": 1,
+        "yoy_leak": 0
+      },
+      "parvulario|SLEP-SR|Jardín|2025": {
+        "total": 43,
+        "publishable": 42,
+        "below_k_min": 0,
+        "yoy_leak": 1
+      },
+      "parvulario|SLEP-SR|Jardín|2026": {
+        "total": 48,
+        "publishable": 47,
+        "below_k_min": 0,
+        "yoy_leak": 1
+      },
+      "parvulario|SLEP-SC|Jardín|2026": {
+        "total": 45,
+        "publishable": 45,
+        "below_k_min": 0,
+        "yoy_leak": 0
+      },
+      "parvulario|SLEP-DP|Jardín|2026": {
+        "total": 45,
+        "publishable": 45,
+        "below_k_min": 0,
+        "yoy_leak": 0
+      }
+    }
+  },
+  "written": 400,
+  "orphansDeleted": 0,
+  "yoyLeakKeys": [
+    "parvulario|SLEP-SR|Jardín|2025|I.29",
+    "parvulario|SLEP-SR|Jardín|2026|I.29"
+  ]
+}

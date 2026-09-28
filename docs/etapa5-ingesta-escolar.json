@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-08-14T08:41:58.353Z",
+  "generatedAt": "2026-09-28T02:20:16.562Z",
   "dryRun": false,
   "totals": {
-    "resultados": 558,
-    "resultadosRecolectados": 558,
+    "resultados": 568,
+    "resultadosRecolectados": 568,
     "porEstado": {
-      "validado": 169,
-      "provisional": 389
+      "validado": 172,
+      "provisional": 396
     },
     "escuelasCubiertas": 18,
     "indicadoresCubiertos": 33,
     "reads": 90,
-    "headerMismatches": 145
+    "headerMismatches": 138
   },
   "indicadoresCubiertos": [
     "I.1",
@@ -273,21 +273,9 @@
     },
     {
       "schoolName": "Escuela Básica Sendero del Saber",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
-    },
-    {
-      "schoolName": "Escuela Básica Sendero del Saber",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
-    },
-    {
-      "schoolName": "Escuela Básica Sendero del Saber",
-      "indId": "I4",
-      "expected": "personas con Cargo=Coordinador",
-      "tab": "Reuniones equipo de Gestión"
     },
     {
       "schoolName": "Escuela Básica Sendero del Saber",
@@ -429,12 +417,6 @@
     },
     {
       "schoolName": "Escuela Lo Valledor",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
-    },
-    {
-      "schoolName": "Escuela Lo Valledor",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
       "tab": "Actividades"
@@ -474,12 +456,6 @@
       "indId": "I31",
       "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela La Victoria",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
     },
     {
       "schoolName": "Escuela La Victoria",
@@ -660,12 +636,6 @@
       "indId": "I31",
       "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Platón",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
     },
     {
       "schoolName": "Escuela Platón",
@@ -765,12 +735,6 @@
     },
     {
       "schoolName": "Escuela España",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
-    },
-    {
-      "schoolName": "Escuela España",
       "indId": "I47",
       "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
       "tab": "Actividades"
@@ -816,12 +780,6 @@
       "indId": "I31",
       "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Inglaterra",
-      "indId": "I37",
-      "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
-      "tab": "Actividades"
     },
     {
       "schoolName": "Escuela Inglaterra",
@@ -922,8 +880,8 @@
   ],
   "muestra": [
     {
-      "valor": 0,
-      "raw": "FALSE",
+      "valor": 1,
+      "raw": "TRUE",
       "estado": "validado",
       "establecimientoId": "esc-esperanza-joven",
       "establecimientoNombre": "Escuela Esperanza Joven",
@@ -936,7 +894,7 @@
       "meta": "Sí",
       "metaNum": 1,
       "unidad": "binario",
-      "logro": 0,
+      "logro": 1,
       "fuente": {
         "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
         "workbookLabel": "Datos Consultor · Actividades",
@@ -945,8 +903,8 @@
       }
     },
     {
-      "valor": 3,
-      "raw": "TRUE|TRUE|TRUE|FALSE|FALSE",
+      "valor": 4,
+      "raw": "TRUE|TRUE|TRUE|TRUE|FALSE",
       "estado": "provisional",
       "establecimientoId": "esc-esperanza-joven",
       "establecimientoNombre": "Escuela Esperanza Joven",
@@ -959,7 +917,7 @@
       "meta": "5",
       "metaNum": 5,
       "unidad": "conteo",
-      "logro": 0.6,
+      "logro": 0.8,
       "fuente": {
         "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
         "workbookLabel": "Datos Consultor · Actividades",

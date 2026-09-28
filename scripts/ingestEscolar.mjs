@@ -24,6 +24,7 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
 import { pruneStale } from './lib/pruneStale.mjs';
+import { cursosAplicables } from './lib/escolarMapping.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -62,9 +63,15 @@ const HEADER_MISMATCHES = [];
 // Sheets allows 60 reads per minute per user. On a quota error, wait with
 // increasing delays (15s, 30s, 60s, 60s) so a full run finishes instead of
 // silently dropping schools; any other error propagates.
+let lastCallAt = 0;
 async function sheetsGet(fn) {
   const delays = [15000, 30000, 60000, 60000];
   for (let attempt = 0; ; attempt++) {
+    // Pace calls at ~57/min so a full run (≈350 reads with the course
+    // planillas) stays under the quota instead of relying on retries.
+    const wait = lastCallAt + 1050 - Date.now();
+    if (wait > 0) await new Promise(r => setTimeout(r, wait));
+    lastCallAt = Date.now();
     try { return await fn(); } catch (e) {
       const msg = e.errors?.[0]?.message || e.message || '';
       if (!/quota/i.test(msg) || attempt >= delays.length) throw e;
@@ -98,38 +105,169 @@ async function readTab(id, tab, range = 'A1:AZ200') {
   return r.data.values || [];
 }
 
-// Salas activas de una escuela = pestañas de curso (PKA..8B) de Datos
-// Consultor con al menos un estudiante "Activo = SI". Se ubica la columna
-// "Activo" por su encabezado (D-10) y se lee solo esa columna: no se leen
-// nombres ni RUT. Es la meta por escuela de I.26/I.46 (D-08) y el
-// denominador de I.27.
-async function countSalasActivasDC(dcId) {
+// Pestañas de curso (PKA..8B) de Datos Consultor. Se leen solo las columnas
+// F..U (Activo, asistencias, monitores, talleres, Bibliotecas Viajeras): RBD,
+// RUT, nombre y curso (A..E) quedan fuera del rango, así que no se lee PII.
+//  - Sala activa = pestaña con al menos un estudiante "Activo = SI". Es la
+//    meta por escuela de I.26/I.46 (D-08) y el denominador de I.27.
+//  - `porSala` alimenta I.22 (asistencia a talleres presenciales) e I.29
+//    (libros de Biblioteca Viajera por estudiante).
+async function readCursosDC(dcId) {
   const meta = await sheetsGet(() => sheets.spreadsheets.get({ spreadsheetId: dcId, fields: 'sheets.properties.title' }));
   const titles = new Set((meta.data.sheets || []).map(x => x.properties.title));
   const tabs = COURSE_ORDER.filter(t => titles.has(t));
-  if (!tabs.length) return { nSalas: 0, salasActivas: [] };
+  if (!tabs.length) return { nSalas: 0, salasActivas: [], porSala: new Map() };
   READS.count++;
-  const head = await sheetsGet(() => sheets.spreadsheets.values.batchGet({ spreadsheetId: dcId, ranges: tabs.map(t => `'${t}'!A1:Z3`) }));
-  const colOf = new Map();
-  (head.data.valueRanges || []).forEach((vr, i) => {
-    for (const row of vr.values || []) {
-      const c = row.findIndex(h => normalize(h) === 'activo');
-      if (c >= 0) { colOf.set(tabs[i], c); break; }
+  const batch = await sheetsGet(() => sheets.spreadsheets.values.batchGet({ spreadsheetId: dcId, ranges: tabs.map(t => `'${t}'!F1:U200`) }));
+  const porSala = new Map();
+  (batch.data.valueRanges || []).forEach((vr, i) => {
+    const rows = vr.values || [];
+    const header = rows[1] || [];
+    const groups = rows[0] || [];
+    const activoCol = header.findIndex(h => normalize(h) === 'activo');
+    if (activoCol < 0) return;
+    const activos = rows.slice(2).filter(r => normalize(r?.[activoCol]) === 'si');
+    if (!activos.length) return;
+    // Columns located by group / header text (D-09, D-10), not by letter.
+    const span = groupSpan(groups, /talleres formativos/i);
+    const tallerCols = [];
+    if (span) for (let j = span[0]; j < span[1]; j++) {
+      if (/taller/.test(normalize(header[j])) && !/total/.test(normalize(header[j]))) tallerCols.push(j);
     }
+    const bvCol = groups.findIndex(h => /bibliotec/i.test(String(h || '')));
+    porSala.set(tabs[i], { activos, tallerCols, bvCol });
   });
-  const withCol = tabs.filter(t => colOf.has(t));
-  if (!withCol.length) return { nSalas: 0, salasActivas: [] };
-  const letter = (c) => String.fromCharCode(65 + c);
-  READS.count++;
-  const cols = await sheetsGet(() => sheets.spreadsheets.values.batchGet({
-    spreadsheetId: dcId,
-    ranges: withCol.map(t => `'${t}'!${letter(colOf.get(t))}2:${letter(colOf.get(t))}200`),
-  }));
-  const salasActivas = [];
-  (cols.data.valueRanges || []).forEach((vr, i) => {
-    if ((vr.values || []).some(r => normalize(r[0]) === 'si')) salasActivas.push(withCol[i]);
-  });
-  return { nSalas: salasActivas.length, salasActivas };
+  const salasActivas = [...porSala.keys()];
+  return { nSalas: salasActivas.length, salasActivas, porSala };
+}
+
+// I.22 — % promedio de asistencia de apoderados a talleres presenciales: por
+// sala, % de estudiantes activos cuyo apoderado asistió a cada taller
+// realizado (≥1 asistente); promedio de talleres y luego de salas.
+// I.29 — libros de Biblioteca Viajera por estudiante: promedio por sala de la
+// columna "Número de Bibliotecas Viajeras enviadas", salas de PK a 2º.
+function indicadoresCursosDC(porSala, wbId, wbLabel) {
+  const results = [];
+  const pctSala = [];
+  const librosSala = [];
+  const bvCursos = new Set(cursosAplicables('I.29', AÑO));
+  for (const [sala, { activos, tallerCols, bvCol }] of porSala) {
+    const realizados = tallerCols.filter(c => activos.some(r => parseBool(r[c]) === 1));
+    if (realizados.length) {
+      const pcts = realizados.map(c => activos.filter(r => parseBool(r[c]) === 1).length / activos.length);
+      pctSala.push(pcts.reduce((a, b) => a + b, 0) / pcts.length);
+    }
+    if (bvCol >= 0 && bvCursos.has(sala)) {
+      librosSala.push(activos.reduce((acc, r) => acc + (parseNum(r[bvCol]) ?? 0), 0) / activos.length);
+    }
+  }
+  if (pctSala.length) results.push({ indId: 'I22', valor: mean(pctSala), raw: `promedio de ${pctSala.length} salas con talleres realizados`, estado: 'provisional', tab: 'Datos Consultor · PKA..8B (Asistencia talleres formativos)', row: 0, wbId, wbLabel });
+  if (librosSala.length) results.push({ indId: 'I29', valor: mean(librosSala), raw: `promedio de ${librosSala.length} salas PK–2º`, estado: 'provisional', tab: 'Datos Consultor · PKA..2B (Bibliotecas Viajeras)', row: 0, wbId, wbLabel });
+  return results;
+}
+
+// ─── Planillas por curso (pestaña Actividades) ────────────────────────────
+// Una planilla por curso, listadas en src/data/escolarPlanillaIndex.json
+// (arquetipo 'curso'). Filas ubicadas por su texto, no por número: el layout
+// cambia entre PK/K, 1º–2º y 3º–8º, y algunas planillas de kínder están
+// corridas una fila (D-10, D-12).
+const ROW = {
+  talleresApoderados: /^taller(es)? (entre familias|formativos?) para apoderad/,
+  lidera: /quien lidera el taller/,
+  envioLV: /^envio lecturas viajeras/,
+  aulaLV: /^actividad lecturas viajeras en aula/,
+  entregaMantel: /^entrega de mantel/,
+  mediacionMantel: /^mediacion mantel/,
+  monitoreoMantel: /^monitoreo mantel/,
+  talleresEstudiantes: /^taller(es)? (entre familias )?para estudiantes/,
+  aulaBV: /^actividad de aula biblioteca viajera \d/,
+};
+const rowsWhere = (rows, re) => rows.map((r, i) => (re.test(normalize(r?.[0])) ? i : -1)).filter(i => i >= 0);
+const trues = (row) => (row || []).slice(1).filter(v => parseBool(v) === 1).length;
+
+function leerActividadesCurso(rows) {
+  const out = {};
+  const iTaller = rowsWhere(rows, ROW.talleresApoderados)[0];
+  if (iTaller !== undefined) {
+    // Column labels ("Taller presencial: …", "Taller digital: …") are on the
+    // closest row above the data row.
+    let iHdr = iTaller - 1;
+    while (iHdr >= 0 && !(rows[iHdr] || []).slice(1).some(v => /taller|talle /.test(normalize(v)))) iHdr--;
+    const hdr = rows[iHdr] || [];
+    const data = rows[iTaller] || [];
+    const lideres = rows[rowsWhere(rows, ROW.lidera)[0]] || [];
+    let presencial = 0, digital = 0, realizados = 0, dupla = 0, sinLider = 0;
+    for (let c = 1; c < Math.max(hdr.length, data.length); c++) {
+      if (parseBool(data[c]) !== 1) continue;
+      realizados++;
+      if (/digital/.test(normalize(hdr[c]))) digital++; else presencial++;
+      const l = normalize(lideres[c]);
+      if (!l) sinLider++;
+      else if (/monitor/.test(l) && /profesor/.test(l)) dupla++;
+    }
+    Object.assign(out, { presencial, digital, realizados, dupla, sinLider });
+  }
+  const one = (re) => { const i = rowsWhere(rows, re)[0]; return i === undefined ? null : trues(rows[i]); };
+  const many = (re) => { const is = rowsWhere(rows, re); return is.length ? is.reduce((a, i) => a + trues(rows[i]), 0) : null; };
+  out.envioLV = one(ROW.envioLV);
+  out.aulaLV = one(ROW.aulaLV);
+  out.entregaMantel = one(ROW.entregaMantel);
+  out.mediacionMantel = one(ROW.mediacionMantel);
+  out.monitoreoMantel = many(ROW.monitoreoMantel);
+  out.talleresEstudiantes = one(ROW.talleresEstudiantes);
+  out.aulaBV = many(ROW.aulaBV);
+  return out;
+}
+
+async function ingestPlanillasCurso(school, cursos) {
+  const results = [];
+  const porSala = new Map();
+  for (const { curso, spreadsheetId } of cursos) {
+    try {
+      const rows = await readTab(spreadsheetId, 'Actividades', 'A1:P30');
+      porSala.set(curso, leerActividadesCurso(rows));
+    } catch (e) {
+      logMismatch(school.name, 'I21', `planilla ${curso}: ${e.errors?.[0]?.message || e.message}`, 'Planillas por curso');
+    }
+  }
+  const wbLabel = 'Planillas por curso · Actividades';
+  const tab = (t) => `Planillas por curso · Actividades (${t})`;
+  const salasDe = (indId, campo) => {
+    const aplic = new Set(cursosAplicables(indId, AÑO));
+    return [...porSala.entries()].filter(([c, v]) => aplic.has(c) && v[campo] !== null && v[campo] !== undefined);
+  };
+  const promedio = (indId, campo, etiqueta) => {
+    const xs = salasDe(indId, campo);
+    if (xs.length) results.push({ indId: indId.replace('.', ''), valor: mean(xs.map(([, v]) => v[campo])), raw: `promedio de ${xs.length} salas`, estado: 'provisional', tab: tab(etiqueta), row: 0, wbId: null, wbLabel });
+  };
+  const pctSalas = (indId, campo, etiqueta) => {
+    const xs = salasDe(indId, campo);
+    if (xs.length) results.push({ indId: indId.replace('.', ''), valor: xs.filter(([, v]) => v[campo] > 0).length / xs.length, raw: `${xs.filter(([, v]) => v[campo] > 0).length}/${xs.length} salas`, estado: 'provisional', tab: tab(etiqueta), row: 0, wbId: null, wbLabel });
+  };
+  promedio('I.21', 'presencial', 'talleres presenciales para apoderados');
+  promedio('I.23', 'digital', 'talleres digitales para apoderados');
+  promedio('I.30', 'envioLV', 'envío Lecturas Viajeras');
+  pctSalas('I.31', 'entregaMantel', 'entrega Mantel de Palabras');
+  promedio('I.32', 'talleresEstudiantes', 'talleres para estudiantes');
+  promedio('I.48', 'aulaBV', 'actividades de aula Biblioteca Viajera');
+  promedio('I.49', 'aulaLV', 'Lecturas Viajeras en aula');
+  pctSalas('I.50', 'mediacionMantel', 'mediación Mantel de Palabras');
+  promedio('I.51', 'monitoreoMantel', 'monitoreo Mantel de Palabras');
+  // I.39 — % de talleres para apoderados realizados que lideró la dupla
+  // apoderado monitor + profesor/a jefe, sobre los talleres con líder
+  // registrado. Los realizados sin líder anotado quedan fuera del cálculo y se
+  // informan en raw (caso a validar con Sebastián).
+  const t = [...porSala.values()].filter(v => v.realizados);
+  const realizados = t.reduce((a, v) => a + v.realizados, 0);
+  const sinLider = t.reduce((a, v) => a + v.sinLider, 0);
+  const conLider = realizados - sinLider;
+  if (conLider > 0) {
+    const dupla = t.reduce((a, v) => a + v.dupla, 0);
+    results.push({ indId: 'I39', valor: dupla / conLider, raw: `${dupla}/${conLider} talleres con líder registrado · ${sinLider} de ${realizados} realizados sin líder`, estado: 'provisional', tab: tab('¿Quién lidera el taller?'), row: 0, wbId: null, wbLabel });
+  } else if (realizados) {
+    logMismatch(school.name, 'I39', `${realizados} talleres realizados sin líder registrado`, 'Planillas por curso');
+  }
+  return results;
 }
 
 function normalize(s) {
@@ -667,9 +805,8 @@ const ENCUESTA_SPECS = [
   { id: 'I43', row: 3, labelPattern: /biblioteca viajera.*declaran/i, estado: 'validado', hint: 'Promedio libros BV declarados' },
   { id: 'I44', row: 4, labelPattern: /lecturas viajeras.*declaran/i,   estado: 'validado', hint: 'Promedio LV declarados' },
   { id: 'I45', row: 5, labelPattern: /mantel de palabras/i,            estado: 'validado', hint: '% mantel de palabras declarado' },
-  // I.29 e I.31 apuntan a las mismas celdas (semántica igual a I.43 e I.45)
-  { id: 'I29', row: 3, labelPattern: /biblioteca viajera.*declaran/i, estado: 'provisional', hint: 'Promedio libros BV (= I.43)' },
-  { id: 'I31', row: 5, labelPattern: /mantel de palabras/i,            estado: 'provisional', hint: '% mantel (= I.45)' },
+  // I29 / I31 ya no salen de la encuesta: I29 desde las pestañas por curso de
+  // Datos Consultor, I31 desde las planillas por curso (Sebastián 2026-09-03).
 ];
 
 function ingestEncuestaApoderados(rows, schoolName, wbId, wbLabel) {
@@ -727,6 +864,19 @@ for (const s of schools) {
 }
 console.log(`   ${schools.filter(s => s.dcId && s.rcId).length}/${schools.length} escuelas con ambos workbooks`);
 
+// Planillas por curso 2026 desde el índice canónico (nunca inferir la lista).
+// Los nombres del índice no siempre coinciden con las carpetas ("Escuela Ramón
+// del Río" vs "Escuela Profesor Ramón del Río"): se comparan sin prefijos.
+const nombreClave = (n) => normalize(n).replace(/\b(escuela|basica|profesor)\b/g, '').replace(/\s+/g, ' ').trim();
+const PLANILLA_INDEX = JSON.parse(await readFile(pathResolve(ROOT, 'src/data/escolarPlanillaIndex.json'), 'utf8'));
+const CURSOS_2026_POR_ESCUELA = new Map();
+for (const s of schools) {
+  const k = nombreClave(s.name);
+  const entries = PLANILLA_INDEX.entries.filter(e => e.anio === AÑO && e.arquetipo === 'curso' && e.spreadsheetId && nombreClave(e.escuela) === k);
+  CURSOS_2026_POR_ESCUELA.set(s.slug, entries.map(e => ({ curso: e.cursoCanonical, spreadsheetId: e.spreadsheetId })));
+  if (!entries.length) console.warn(`   ⚠ ${s.name}: sin planillas por curso en el índice`);
+}
+
 // Ingesta
 console.log('\n3) Leyendo tabs por escuela…');
 const allResults = [];
@@ -759,12 +909,26 @@ for (const s of schools) {
   } catch (e) { console.warn(`      Datos docentes ERROR: ${e.errors?.[0]?.message || e.message}`); }
   // Registro Coordinación · per-course tabs
   try {
-    const { nSalas, salasActivas } = await countSalasActivasDC(s.dcId);
+    const { nSalas, salasActivas, porSala } = await readCursosDC(s.dcId);
     s.nSalas = nSalas; s.salasActivas = salasActivas;
     console.log(`      Salas activas (DC):          ${nSalas} → ${salasActivas.join(' ')}`);
+    const res = indicadoresCursosDC(porSala, s.dcId, 'Datos Consultor · PKA..8B');
+    for (const r of res) r.establecimientoId = s.slug, r.establecimientoNombre = s.name, r.cohorte = s.cohorte;
+    console.log(`      DC por curso (I22, I29):     ${res.length} valores`);
+    allResults.push(...res);
   } catch (e) {
     console.warn(`  ✗ ${s.name}: no se pudo contar salas activas — ${e.message}`);
   }
+
+  // Planillas por curso (índice), solo salas activas
+  try {
+    const cursos = CURSOS_2026_POR_ESCUELA.get(s.slug) ?? [];
+    const activos = cursos.filter(c => !s.salasActivas || s.salasActivas.includes(c.curso));
+    const res = await ingestPlanillasCurso(s, activos);
+    for (const r of res) r.establecimientoId = s.slug, r.establecimientoNombre = s.name, r.cohorte = s.cohorte;
+    console.log(`      Planillas por curso:         ${res.length} valores (${activos.length} planillas)`);
+    allResults.push(...res);
+  } catch (e) { console.warn(`      Planillas por curso ERROR: ${e.message}`); }
 
   if (s.rcId) {
     try {

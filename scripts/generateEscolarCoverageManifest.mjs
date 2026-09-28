@@ -77,8 +77,12 @@ function slugify(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
+// Same rule as ingestEscolar.schoolId (drops the "Escuela " prefix) plus the
+// one index name that differs from its Drive folder (X-02: the old
+// `esc-${slug(nombre)}` matched only 1 of 18 schools).
+const ALIAS_ESCUELA = { 'Escuela Ramón del Río': 'esc-profesor-ramon-del-rio' };
 function estIdParaEscuela(nombre) {
-  return `esc-${slugify(nombre)}`;
+  return ALIAS_ESCUELA[nombre] ?? `esc-${slugify(String(nombre).replace(/^Escuela\s+/i, ''))}`;
 }
 
 // ─── Cohorte → año de implementación (Escolar) ─────────────────────────────
@@ -203,7 +207,7 @@ const manifest = { escuelas: [] };
 const stats = { estados: {}, porIndicador: {}, porEscuela: {} };
 
 for (const esc of escuelas) {
-  const escManifest = { ...esc, indicadores: [] };
+  const escManifest = { ...esc, establecimientoId: estIdParaEscuela(esc.escuela), indicadores: [] };
 
   for (const anio of [2025, 2026]) {
     const cursosExist = cursosExistentesEnEscuelaAnio(esc.escuela, anio);

@@ -4,33 +4,27 @@ import MANIFEST from './escolarCoverageManifest.json';
 // Keyed by escuela slug (e.g. "esc-villa-san-miguel"), año (2025|2026), and
 // canonical indicador ID (e.g. "I.1").
 const _lookup = new Map();
+// State priority when several cursos report for the same indicator (worst →
+// best for display).
+const PRIORITY = {
+  FUENTE_NO_ACCESIBLE: 7,
+  SIN_FUENTE_MAPEADA: 6,
+  SIN_DATO_REPORTADO: 5,
+  NO_CORRESPONDE_AUN: 4,
+  NO_CORRESPONDE: 3,
+  CERO_REPORTADO: 2,
+  CON_DATO_REPORTADO: 1,
+};
+// `esc.indicadores` is an array of { anio, indicadorId, curso, estado }; the
+// previous Object.entries() loop never matched, so every state fell back to
+// "Sin datos" in the UI (X-01).
 for (const esc of (MANIFEST.escuelas ?? [])) {
-  for (const [key, ind] of Object.entries(esc.indicadores ?? {})) {
-    // key format is "estId|anio|indicadorId" or "estId|anio|indicadorId|curso"
-    // We store by the triple (estId, anio, indicadorId), ignoring curso —
-    // the cobertura state per-indicator is aggregated at panel level.
-    const parts = key.split('|');
-    const lookupKey = `${parts[0]}|${parts[1]}|${parts[2]}`;
-    // If multiple curso entries exist, prefer the worst state (most informative).
+  if (!esc.establecimientoId) continue;
+  for (const ind of (esc.indicadores ?? [])) {
+    const lookupKey = `${esc.establecimientoId}|${ind.anio}|${ind.indicadorId}`;
     const prev = _lookup.get(lookupKey);
-    if (!prev) {
+    if (!prev || (PRIORITY[ind.estado] ?? 0) > (PRIORITY[prev] ?? 0)) {
       _lookup.set(lookupKey, ind.estado);
-    } else {
-      // State priority (worst → best for display):
-      // FUENTE_NO_ACCESIBLE > SIN_FUENTE_MAPEADA > SIN_DATO_REPORTADO >
-      // NO_CORRESPONDE_AUN > NO_CORRESPONDE > CERO_REPORTADO > CON_DATO_REPORTADO
-      const priority = {
-        FUENTE_NO_ACCESIBLE: 7,
-        SIN_FUENTE_MAPEADA: 6,
-        SIN_DATO_REPORTADO: 5,
-        NO_CORRESPONDE_AUN: 4,
-        NO_CORRESPONDE: 3,
-        CERO_REPORTADO: 2,
-        CON_DATO_REPORTADO: 1,
-      };
-      if ((priority[ind.estado] ?? 0) > (priority[prev] ?? 0)) {
-        _lookup.set(lookupKey, ind.estado);
-      }
     }
   }
 }

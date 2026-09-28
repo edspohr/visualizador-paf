@@ -101,7 +101,9 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.33', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Director cumple meta de liderazgo planificada"', transformacion: 'first_bool_from_col1', estado: 'validado' },
   ]},
-  { id: 'I.34', mapeo: 'NO_MAPEADO', razon: 'La regex del ingest actual coincide con "porcentaje de cumplimiento del plan de acción" pero la celda llega vacía en todas las escuelas hoy. Estructurado pero sin datos.' },
+  { id: 'I.34', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Porcentaje de cumplimiento del plan de acción familia escuela"', transformacion: 'first_number_from_col1', estado: 'provisional', notas: 'Fila conectada; la celda llega vacía en todas las escuelas (dato pendiente de Focus, no de fuente).' },
+  ]},
   { id: 'I.35', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Plan de acción diseñado e incorporado en PME y PEI"', transformacion: 'first_bool_from_col1', estado: 'provisional' },
   ]},
@@ -148,9 +150,15 @@ export const ESCOLAR_MAPPING = [
   ]},
 
   // ─── A.3 · Formación Apoderados (I.21–I.27 estrategia, I.39–I.47 producto) ─
-  { id: 'I.21', mapeo: 'NO_MAPEADO', razon: 'Nº talleres presenciales por sala. Discovery 2026-08-05: viven en course-workbooks (arquetipo=curso) en tab Actividades, sección "Actividades con Apoderados/as", rows con "Taller presencial: ...". Requiere ingest per-curso agregando por escuela (promedio conteo por sala). Follow-up.' },
-  { id: 'I.22', mapeo: 'NO_MAPEADO', razon: 'Asistencia a taller presencial. No encontrado en Encuesta apoderados (discovery 2026-08-05) — Sebastián debe confirmar dónde se reporta.' },
-  { id: 'I.23', mapeo: 'NO_MAPEADO', razon: 'Nº talleres digitales enviados por sala. Sin fuente declarada. Confirmar con Sebastián.' },
+  { id: 'I.21', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Taller Entre Familias para Apoderados/as" × columnas "Taller presencial"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
+  { id: 'I.22', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'PKA..8B', columna: 'grupo "Asistencia de Apoderado/a Talleres formativos"', transformacion: 'pct_asistencia_talleres_realizados_mean_over_salas', estado: 'provisional', notas: 'D-09: columnas por encabezado.' },
+  ]},
+  { id: 'I.23', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Taller Entre Familias para Apoderados/as" × columnas "Taller digital"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
   { id: 'I.24', mapeo: 'NO_MAPEADO', razon: 'Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián.' },
   { id: 'I.25', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Instancia de formación para apoderados monitores"', transformacion: 'count_true_from_col1', estado: 'validado' },
@@ -161,7 +169,9 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.27', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'salas con monitor activo', transformacion: 'ratio_salas_cubiertas', estado: 'provisional' },
   ]},
-  { id: 'I.39', mapeo: 'NO_MAPEADO', razon: '% Talleres liderados por dupla monitor-profesor. Discovery 2026-08-05: course-workbooks tab Actividades tiene row "¿Quién lidera el taller?" (R18) — el layout es libre-texto, requiere parseo custom. Follow-up.' },
+  { id: 'I.39', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"¿Quién lidera el taller?" (Apoderado monitor y profesor/a jefe)', transformacion: 'dupla_sobre_talleres_realizados', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
   { id: 'I.40', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'Talleres TF1..4', transformacion: 'atLeast_over_total', estado: 'provisional' },
   ]},
@@ -192,17 +202,29 @@ export const ESCOLAR_MAPPING = [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Nº de semanas de envío de Biblioteca Viajera por sala"', transformacion: 'number_or_zero_from_col1', estado: 'provisional', notas: 'Fila 27 (año 1) / 28 (año 2); vacía cuenta 0. Sebastián 2026-09-03.' },
   ]},
   { id: 'I.29', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"Biblioteca Viajera declaran"', transformacion: 'first_number', estado: 'provisional', notas: 'Wired 2026-08-05: misma celda que I.43 (R3). Sebastián validará semántica.' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'PKA..8B', columna: 'grupo "Número de Bibliotecas Viajeras enviadas" (PK–2º)', transformacion: 'mean_per_student_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
   ]},
-  { id: 'I.30', mapeo: 'NO_MAPEADO', razon: 'Envío de Lecturas Viajeras. Discovery 2026-08-05: en course-workbooks (2A-4B) tab Actividades sección Biblioteca Viajera / Lecturas Viajeras. Follow-up per-curso.' },
+  { id: 'I.30', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Envío Lecturas Viajeras a estudiantes"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
   { id: 'I.31', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"mantel de palabras"', transformacion: 'first_number', estado: 'provisional', notas: 'Wired 2026-08-05: misma celda que I.45 (R5). Sebastián validará semántica.' },
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Entrega de Mantel de Palabras a estudiantes"', transformacion: 'pct_salas_true', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
   ]},
-  { id: 'I.32', mapeo: 'NO_MAPEADO', razon: 'Nº talleres para estudiantes. Discovery 2026-08-05: course-workbooks 1A-8B tab Actividades sección "Actividades con Estudiantes" (rows Mantel/Biblioteca por sala). Follow-up per-curso.' },
-  { id: 'I.48', mapeo: 'NO_MAPEADO', razon: 'Mediación BV. Discovery 2026-08-05: course-workbooks tab Actividades "Actividad de aula Biblioteca viajera" rows (bools per actividad). Follow-up per-curso.' },
-  { id: 'I.49', mapeo: 'NO_MAPEADO', razon: 'Mediación LV. Discovery 2026-08-05: course-workbooks tab Actividades sección Lecturas Viajeras. Follow-up per-curso.' },
-  { id: 'I.50', mapeo: 'NO_MAPEADO', razon: 'Mediación Mantel previo. Discovery 2026-08-05: course-workbooks tab Actividades "Mediación Mantel de Palabras" row. Follow-up per-curso.' },
-  { id: 'I.51', mapeo: 'NO_MAPEADO', razon: 'Mediación Mantel post-envío. Discovery 2026-08-05: course-workbooks tab Actividades "Monitoreo Mantel de Palabras" rows. Follow-up per-curso.' },
+  { id: 'I.32', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Taller Entre Familias para Estudiantes"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
+  { id: 'I.48', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Actividad de aula Biblioteca viajera 1..3"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Agregado en el ciclo retro 1 (mismas planillas).' },
+  ]},
+  { id: 'I.49', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Actividad Lecturas Viajeras en aula post envío"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
+  { id: 'I.50', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Mediación Mantel de Palabras en aula"', transformacion: 'pct_salas_true', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
+  { id: 'I.51', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Monitoreo Mantel de Palabras post envío" (2 filas)', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+  ]},
 ];
 
 // ─── Aserción: cada indicador canónico tiene entrada explícita ─────────────

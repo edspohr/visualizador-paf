@@ -24,6 +24,7 @@ const ARCHIVOS = [
   'scripts/piiAssertion.mjs',
   'scripts/snapshotCierre.mjs',
   'scripts/lib/runtime.mjs',
+  'scripts/lib/correoPipeline.mjs',
   'scripts/lib/pruneStale.mjs',
   'scripts/lib/escolarMapping.mjs',
   'scripts/lib/parvularioIds.mjs',

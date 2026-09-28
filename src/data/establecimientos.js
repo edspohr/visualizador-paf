@@ -50,6 +50,24 @@ export function resolverIndicador(ind, est, anio = 2026) {
   return out;
 }
 
+/**
+ * Indicator as seen for a group of establishments (network / program
+ * rankings): the meta each one has after resolverIndicador. Same meta for all
+ * → that meta; different metas (I.26/I.46 by salas, metas by year of
+ * implementation) → the group's average meta, flagged metaVariable. Returns
+ * null when no establishment of the group has a meta for it.
+ */
+export function indicadorParaGrupo(ind, ests, anio = 2026) {
+  const resueltos = ests.map(e => resolverIndicador(ind, e, anio))
+    .filter(r => r.tipoMeta !== 'sin_meta' && r.metaNum !== null && r.metaNum !== undefined);
+  if (!resueltos.length) return null;
+  const base = resueltos[0];
+  const campos = { meta: base.meta, metaNum: base.metaNum, tipoMeta: base.tipoMeta, unidad: base.unidad };
+  if (resueltos.every(r => r.metaNum === base.metaNum)) return { ...ind, ...campos };
+  const prom = resueltos.reduce((a, r) => a + r.metaNum, 0) / resueltos.length;
+  return { ...ind, ...campos, metaNum: prom, meta: String(Math.round(prom * 10) / 10), metaVariable: true };
+}
+
 export function calcularLogro(valor, indicadorBase, est) {
   const indicador = est ? resolverIndicador(indicadorBase, est) : indicadorBase;
   const tipoMeta = indicador.tipoMeta ?? tipoMetaFromUnidad(indicador.unidad);
@@ -137,9 +155,11 @@ export function getCoberturaLabel(coberturaEstado) {
  * `anioEnCurso` viene del caller (VistaConsultor/Sostenedor/Escuela) que sabe
  * qué año está mirando y si el año calendario aún no cierra.
  */
-export function logroVisible(valor, indicador, anioEnCurso = true) {
+// `est` (optional) resolves the establishment's meta; without it the indicator
+// must already be resolved (resolverIndicador).
+export function logroVisible(valor, indicador, anioEnCurso = true, est = null) {
   if (indicador.tipo === 'actividad' && anioEnCurso) return null;
-  return calcularLogro(valor, indicador);
+  return calcularLogro(valor, indicador, est ?? undefined);
 }
 
 // ─── Semáforo (conservado para componentes que aún lo usan) ───────────────

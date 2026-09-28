@@ -1100,6 +1100,10 @@ const report = {
   headerMismatches: HEADER_MISMATCHES,
   muestra: sample,
 };
-await writeFile(salida(ROOT, 'docs/etapa5-ingesta-escolar.json'), JSON.stringify(report, null, 2));
-console.log('\n   Reporte JSON: docs/etapa5-ingesta-escolar.json');
+// Same convention as ingestParvulario: reports/, with -dryrun suffix so a local
+// dry run does not overwrite the report of the last real load. (Until
+// 2026-09-28 this went to docs/etapa5-ingesta-escolar.json, kept as history.)
+const reportRel = `reports/ingestEscolar-${new Date().toISOString().slice(0, 10)}${DRY_RUN ? '-dryrun' : ''}.json`;
+await writeFile(salida(ROOT, reportRel), JSON.stringify(report, null, 2));
+console.log(`\n   Reporte JSON: ${reportRel}`);
 console.log(`\n${DRY_RUN ? 'DRY-RUN completo — no se escribió a Firestore.' : 'Ingesta completa.'}`);

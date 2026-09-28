@@ -3,7 +3,7 @@ import { comunaCanonica } from '../lib/comunas.js';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
 import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresSlepAnio } from '../lib/queries.js';
-import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { calcularLogro, indicadorParaGrupo, MES_ACTUAL } from '../data/establecimientos.js';
 import { matriculaVisible, formatearFechaCorte } from '../data/matricula.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import IndicatorPanel from '../components/IndicatorPanel.jsx';
@@ -132,10 +132,13 @@ export default function VistaSostenedor() {
   // centros a los que aplica, con faltantes contando 0.
   const rankingItems = useMemo(() => (
     INDS
-      .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+      .filter(ind => ind.unidad !== 'sin_meta')
       .map(ind => {
         const aplican = establecimientos.filter(e => isAplicable2026(ind, e, mesEfectivo));
         if (!aplican.length) return null;
+        // Meta shown for the group: per-school / per-year metas resolved.
+        const indGrupo = indicadorParaGrupo(ind, aplican);
+        if (!indGrupo) return null;
         let sumaVal = 0, nVal = 0, sumaLogro = 0;
         for (const e of aplican) {
           const v = valoresPorEst.get(e.id)?.get(ind.id)?.valor ?? null;
@@ -146,7 +149,7 @@ export default function VistaSostenedor() {
         // Excluir indicadores sin ningún dato reportado (no rankeamos "0%").
         if (nVal === 0) return null;
         return {
-          indicador: ind,
+          indicador: indGrupo,
           valor: sumaVal / nVal,
           ratio: sumaLogro / aplican.length,
         };

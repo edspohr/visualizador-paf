@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BarChart3, Users, Building2, GraduationCap, TrendingUp, TrendingDown, Minus, Loader2, AlertCircle } from 'lucide-react';
-import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
+import { calcularLogro, indicadorParaGrupo, MES_ACTUAL } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import { useEscuelas, useJardines, useIndicadores, useValoresAnio } from '../lib/queries.js';
 import { listarConsultores } from '../lib/firebase.js';
@@ -22,10 +22,13 @@ function calcularPromedioCumplimiento(establecimientos, indicadores, valoresPorE
 
 function calcularRankingItems(establecimientos, indicadores, valoresPorEst, mes) {
   return indicadores
-    .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+    .filter(ind => ind.unidad !== 'sin_meta')
     .map(ind => {
       const aplican = establecimientos.filter(e => isAplicable2026(ind, e, mes));
       if (!aplican.length) return null;
+      // Meta shown for the group: per-school / per-year metas resolved.
+      const indGrupo = indicadorParaGrupo(ind, aplican);
+      if (!indGrupo) return null;
       let sumaLogro = 0, sumaVal = 0, nVal = 0;
       for (const e of aplican) {
         const v = valoresPorEst.get(e.id)?.get(ind.id) ?? null;
@@ -34,7 +37,7 @@ function calcularRankingItems(establecimientos, indicadores, valoresPorEst, mes)
         if (v !== null && v !== undefined) { sumaVal += v; nVal += 1; }
       }
       return {
-        indicador: ind,
+        indicador: indGrupo,
         valor: nVal ? sumaVal / nVal : 0,
         ratio: sumaLogro / aplican.length,
       };

@@ -37,6 +37,22 @@ const RUT_PATTERN = /\b\d{1,2}\.?\d{3}\.?\d{3}[-\s]?[0-9kK]\b/;
 // mixtos ("Escuela Villa San Miguel") NO cuentan.
 const STUDENT_NAME_PATTERN = /\b(?:[A-ZÁÉÍÓÚÑ]{3,}\s+){3,}[A-ZÁÉÍÓÚÑ]{3,}\b/;
 
+// Establishment code (8 digits, JUNJI/RBD style) at the start of an
+// institutional name, e.g. "13105013 Sala Cuna y Jardín Infantil …" in
+// usuarios.nombre. It matches RUT_PATTERN (an unformatted RUT is also 8–9
+// digits) but is not personal data. Only this exact shape is exempted.
+const CODIGO_ESTABLECIMIENTO = /^\d{7,8}\s+(?=(sala cuna|jard[íi]n|escuela|colegio|liceo)\b)/i;
+const esRut = (s) => RUT_PATTERN.test(s.replace(CODIGO_ESTABLECIMIENTO, ''));
+
+// Self-check so the exemption cannot silently weaken detection.
+for (const [txt, esperado] of [
+  ['13105013 Sala Cuna y Jardín Infantil Paula Jaraquemada', false],
+  ['12.345.678-9', true], ['26672003-3', true], ['12345678 Juan Pérez', true],
+  ['Sala Cuna 13105013-5', true], ['Escuela Villa San Miguel', false],
+]) {
+  if (esRut(txt) !== esperado) throw new Error(`piiAssertion self-check falló para "${txt}"`);
+}
+
 // Prefijos institucionales que NO son PII aunque tengan varias palabras
 // capitalizadas.
 const INSTITUTIONAL_PREFIXES = /^(escuela|jard[íi]n|colegio|liceo|slep|centro|instituto|fundaci[óo]n|consultora)\b/i;
@@ -53,7 +69,7 @@ function findPII(obj, path = '') {
   const hits = [];
   if (obj === null || obj === undefined) return hits;
   if (typeof obj === 'string') {
-    if (RUT_PATTERN.test(obj)) hits.push({ kind: 'rut-pattern', path, value: obj.slice(0, 50) });
+    if (esRut(obj)) hits.push({ kind: 'rut-pattern', path, value: obj.slice(0, 50) });
     if (STUDENT_NAME_PATTERN.test(obj) && !INSTITUTIONAL_PREFIXES.test(obj)) {
       hits.push({ kind: 'student-name-pattern', path, value: obj.slice(0, 60) });
     }

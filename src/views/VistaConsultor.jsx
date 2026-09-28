@@ -3,7 +3,7 @@ import { canon, canonComuna, cumpleFiltros, opcionesCascada, sanearFiltros } fro
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio, useCierre } from '../lib/queries.js';
-import { calcularLogro, currentMonth, capClosedPeriod } from '../data/establecimientos.js';
+import { calcularLogro, indicadorParaGrupo, currentMonth, capClosedPeriod } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import { matriculaVisible, formatearFechaCorte } from '../data/matricula.js';
 import HeatmapEstablecimientosIndicadores from '../components/HeatmapEstablecimientosIndicadores.jsx';
@@ -180,10 +180,13 @@ export default function VistaConsultor() {
   // Ranking de indicadores del conjunto filtrado, faltantes cuentan 0.
   const rankingItems = useMemo(() => (
     INDS
-      .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+      .filter(ind => ind.unidad !== 'sin_meta')
       .map(ind => {
         const aplican = filtrados.filter(e => isAplicable2026(ind, e, effectiveMonth));
         if (!aplican.length) return null;
+        // Meta shown for the group: per-school / per-year metas resolved.
+        const indGrupo = indicadorParaGrupo(ind, aplican);
+        if (!indGrupo) return null;
         let sumaLogro = 0, sumaVal = 0, nVal = 0;
         for (const e of aplican) {
           const v = valoresPorEst.get(e.id)?.get(ind.id)?.valor ?? null;
@@ -194,7 +197,7 @@ export default function VistaConsultor() {
         // Excluir indicadores sin ningún dato reportado (no rankeamos "0%").
         if (nVal === 0) return null;
         return {
-          indicador: ind,
+          indicador: indGrupo,
           valor: sumaVal / nVal,
           ratio: sumaLogro / aplican.length,
         };

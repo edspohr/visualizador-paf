@@ -96,6 +96,23 @@ export default function Layout({ children }) {
   // Base classes for pill controls on the white header
   const pillBase = 'flex items-center gap-2 border border-border hover:bg-bg px-3 py-2 rounded-xl text-sm font-light text-gray-dark transition';
 
+  // Botones Escolar / Parvulario, compartidos por el encabezado (≥ md) y la
+  // barra móvil bajo el encabezado (< md).
+  const selectorPrograma = (
+    <>
+                  <button
+                    onClick={() => cambiarPrograma('escolar')}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'escolar' ? 'text-white' : 'text-gray-ui hover:bg-bg'}`}
+                    style={perfil.contexto.programa === 'escolar' ? { background: 'var(--color-cyan)' } : {}}
+                  >Escolar</button>
+                  <button
+                    onClick={() => cambiarPrograma('parvulario')}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'parvulario' ? 'text-white' : 'text-gray-ui hover:bg-bg'}`}
+                    style={perfil.contexto.programa === 'parvulario' ? { background: 'var(--color-cyan)' } : {}}
+                  >Parvulario</button>
+    </>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-bg">
       {/* Header — white / neutral */}
@@ -161,19 +178,11 @@ export default function Layout({ children }) {
               </nav>
             )}
 
-            {/* Selector de programa — consultor / superadmin */}
+            {/* Selector de programa — consultor / superadmin (en pantallas
+                angostas se muestra en la barra bajo el encabezado) */}
             {permiteProgramaSwitch && (
               <div className="hidden md:flex items-center gap-1 border border-border rounded-xl p-1 bg-white">
-                <button
-                  onClick={() => cambiarPrograma('escolar')}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'escolar' ? 'text-white' : 'text-gray-ui hover:bg-bg'}`}
-                  style={perfil.contexto.programa === 'escolar' ? { background: 'var(--color-cyan)' } : {}}
-                >Escolar</button>
-                <button
-                  onClick={() => cambiarPrograma('parvulario')}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition ${perfil.contexto.programa === 'parvulario' ? 'text-white' : 'text-gray-ui hover:bg-bg'}`}
-                  style={perfil.contexto.programa === 'parvulario' ? { background: 'var(--color-cyan)' } : {}}
-                >Parvulario</button>
+                {selectorPrograma}
               </div>
             )}
 
@@ -281,6 +290,14 @@ export default function Layout({ children }) {
           </div>
         </div>
       </header>
+      {permiteProgramaSwitch && (
+        <div className="md:hidden bg-white border-b border-border px-4 py-2 flex items-center justify-between gap-3">
+          <span className="text-xs text-gray-ui">Programa</span>
+          <div className="flex items-center gap-1 border border-border rounded-xl p-1 bg-white">
+            {selectorPrograma}
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 py-8 md:py-10">
         {children}

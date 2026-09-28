@@ -78,7 +78,7 @@ function resumir(nombre, r, resumen, detalles) {
     detalles.push(...rep.warnings.map(w => `Parvularia · ${w}`));
   }
   if (nombre === 'Carga Escolar') {
-    const rep = leerJson('docs/etapa5-ingesta-escolar.json');
+    const rep = leerJson(`reports/ingestEscolar-${hoy}.json`);
     const lineasError = r.salida.split('\n').filter(l => /ERROR|Requested entity|not found|permission|no se pudo/i.test(l));
     const nuevos = lineasError.filter(l => !ERRORES_CONOCIDOS.some(re => re.test(l)));
     if (rep) resumen.escolar = {

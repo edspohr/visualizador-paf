@@ -28,13 +28,18 @@ const read = (p) => JSON.parse(readFileSync(pathResolve(ROOT, p), 'utf8'));
 const beforeExport = read(arg('before-data'));
 const beforeCatalog = read(arg('before-catalog'));
 const afterCatalog = read(arg('after-catalog') || 'src/data/catalog.json');
-const afterDocs = Object.assign({}, ...(arg('after-data') || '').split(',').filter(Boolean).map(read));
+// --after-data accepts ingest dumps or a full Firestore export (then its
+// establecimientos_real, with nSalas, is used for the "after" side).
+const afterInputs = (arg('after-data') || '').split(',').filter(Boolean).map(read);
+const afterExport = afterInputs.find(x => x.resultados_real);
+const afterDocs = Object.assign({}, ...afterInputs.map(x => x.resultados_real ?? x));
 const afterEstReport = arg('after-est') ? read(arg('after-est')) : null;
 const MES = Number(arg('mes')) || (new Date().getMonth() + 1);
 const LABEL = arg('label') || 'cumplimiento';
 
 const ests = Object.values(beforeExport.establecimientos_real);
 const estsAfter = ests.map(e => {
+  if (afterExport?.establecimientos_real?.[e.id]) return { ...afterExport.establecimientos_real[e.id], id: e.id };
   const s = afterEstReport?.salasPorEscuela?.[e.id];
   return s?.nSalas ? { ...e, nSalas: s.nSalas } : e;
 });

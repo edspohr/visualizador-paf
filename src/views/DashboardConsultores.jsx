@@ -29,7 +29,7 @@ function calcularRankingItems(establecimientos, indicadores, valoresPorEst, mes)
       let sumaLogro = 0, sumaVal = 0, nVal = 0;
       for (const e of aplican) {
         const v = valoresPorEst.get(e.id)?.get(ind.id) ?? null;
-        const l = calcularLogro(v, ind);
+        const l = calcularLogro(v, ind, e);
         sumaLogro += l === null ? 0 : Math.min(1, l);
         if (v !== null && v !== undefined) { sumaVal += v; nVal += 1; }
       }

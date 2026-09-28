@@ -134,7 +134,7 @@ export default function VistaSostenedor() {
         let sumaVal = 0, nVal = 0, sumaLogro = 0;
         for (const e of aplican) {
           const v = valoresPorEst.get(e.id)?.get(ind.id)?.valor ?? null;
-          const l = calcularLogro(v, ind);
+          const l = calcularLogro(v, ind, e);
           sumaLogro += l === null ? 0 : Math.min(1, l);
           if (v !== null && v !== undefined) { sumaVal += v; nVal += 1; }
         }

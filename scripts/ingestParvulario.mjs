@@ -400,8 +400,14 @@ function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio })
     const nivelGen = nivelGenIdx >= 0 ? String(r[nivelGenIdx] || '').trim() : null;
     const nivelBucket = normalizarNivel(nivelEsp, nivelGen);
 
-    for (const { col, planillaId, catId, ind } of colToCatalog) {
-      const parsed = parseCell(r[col], ind.unidad);
+    // Sala sin actividad registrada: todas sus celdas de indicadores vacías o
+    // en 0 (p. ej. una sala que no está funcionando). Se conserva su doc por
+    // sala, pero no entra al promedio del jardín (L-10, D-07).
+    const parsedRow = colToCatalog.map(({ col, ind }) => parseCell(r[col], ind.unidad));
+    const salaSinActividad = parsedRow.every(p => p.valor === null || p.valor === 0);
+
+    for (const [k, { col, planillaId, catId, ind }] of colToCatalog.entries()) {
+      const parsed = parsedRow[k];
       if (parsed.valor === null) continue;
 
       // Doc por sala/nivel
@@ -425,11 +431,13 @@ function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio })
         unidad: ind.unidad,
         logro: computeLogro(ind, parsed.valor),
         estado: 'validado',
+        ...(salaSinActividad ? { salaSinActividad: true } : {}),
         docSlug: nvSlug,             // para docId
         fuente: { workbookId, workbookLabel, tab, col: header[col], row: i + 1, planillaId },
       });
 
-      // Acumular para el agregado por jardín (promedio)
+      // Acumular para el agregado por jardín (promedio de salas con actividad)
+      if (salaSinActividad) continue;
       const key = `${estId}|${catId}`;
       const b = bucketsAgg.get(key) || { valores: [], ind, estId, nombre, catId };
       b.valores.push(parsed.valor);
@@ -451,13 +459,13 @@ function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio })
       anio,
       periodo: String(anio),
       valor,
-      raw: `mean over ${b.valores.length} salas`,
+      raw: `promedio de ${b.valores.length} salas con actividad`,
       meta: b.ind.meta,
       metaNum: b.ind.metaNum,
       unidad: b.ind.unidad,
       logro: computeLogro(b.ind, valor),
       estado: 'validado',
-      fuente: { workbookId, workbookLabel, tab, agg: 'mean over salas', nSalas: b.valores.length },
+      fuente: { workbookId, workbookLabel, tab, agg: 'mean over active salas', nSalas: b.valores.length },
     });
   }
 

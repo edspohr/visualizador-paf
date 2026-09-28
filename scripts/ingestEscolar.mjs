@@ -56,15 +56,17 @@ const AÑO = 2026;
 const READS = { count: 0 };
 const HEADER_MISMATCHES = [];
 
+// Sheets allows 60 reads per minute per user. On a quota error, wait with
+// increasing delays (15s, 30s, 60s, 60s) so a full run finishes instead of
+// silently dropping schools; any other error propagates.
 async function sheetsGet(fn) {
-  // retry once on quota errors with a small pause
-  try { return await fn(); } catch (e) {
-    const msg = e.errors?.[0]?.message || e.message || '';
-    if (/quota/i.test(msg)) {
-      await new Promise(r => setTimeout(r, 5000));
-      return await fn();
+  const delays = [15000, 30000, 60000, 60000];
+  for (let attempt = 0; ; attempt++) {
+    try { return await fn(); } catch (e) {
+      const msg = e.errors?.[0]?.message || e.message || '';
+      if (!/quota/i.test(msg) || attempt >= delays.length) throw e;
+      await new Promise(r => setTimeout(r, delays[attempt]));
     }
-    throw e;
   }
 }
 
@@ -91,6 +93,40 @@ async function readTab(id, tab, range = 'A1:AZ200') {
     range: `'${tab}'!${range}`,
   }));
   return r.data.values || [];
+}
+
+// Salas activas de una escuela = pestañas de curso (PKA..8B) de Datos
+// Consultor con al menos un estudiante "Activo = SI". Se ubica la columna
+// "Activo" por su encabezado (D-10) y se lee solo esa columna: no se leen
+// nombres ni RUT. Es la meta por escuela de I.26/I.46 (D-08) y el
+// denominador de I.27.
+async function countSalasActivasDC(dcId) {
+  const meta = await sheetsGet(() => sheets.spreadsheets.get({ spreadsheetId: dcId, fields: 'sheets.properties.title' }));
+  const titles = new Set((meta.data.sheets || []).map(x => x.properties.title));
+  const tabs = COURSE_ORDER.filter(t => titles.has(t));
+  if (!tabs.length) return { nSalas: 0, salasActivas: [] };
+  READS.count++;
+  const head = await sheetsGet(() => sheets.spreadsheets.values.batchGet({ spreadsheetId: dcId, ranges: tabs.map(t => `'${t}'!A1:Z3`) }));
+  const colOf = new Map();
+  (head.data.valueRanges || []).forEach((vr, i) => {
+    for (const row of vr.values || []) {
+      const c = row.findIndex(h => normalize(h) === 'activo');
+      if (c >= 0) { colOf.set(tabs[i], c); break; }
+    }
+  });
+  const withCol = tabs.filter(t => colOf.has(t));
+  if (!withCol.length) return { nSalas: 0, salasActivas: [] };
+  const letter = (c) => String.fromCharCode(65 + c);
+  READS.count++;
+  const cols = await sheetsGet(() => sheets.spreadsheets.values.batchGet({
+    spreadsheetId: dcId,
+    ranges: withCol.map(t => `'${t}'!${letter(colOf.get(t))}2:${letter(colOf.get(t))}200`),
+  }));
+  const salasActivas = [];
+  (cols.data.valueRanges || []).forEach((vr, i) => {
+    if ((vr.values || []).some(r => normalize(r[0]) === 'si')) salasActivas.push(withCol[i]);
+  });
+  return { nSalas: salasActivas.length, salasActivas };
 }
 
 function normalize(s) {
@@ -174,14 +210,14 @@ const ACTIVIDADES = [
   // I25 — # formaciones apoderados monitores (row + 5 cols)
   { id: 'I25', label: /^instancia de formacion para apoderados monitores$/,  aggregate: 'count_true_from_col1', estado: 'validado',    headerHint: 'Instancia de formación para apoderados monitores' },
   // I36 — nota promedio módulos formativos (single number)
-  { id: 'I36', label: /nota promedio de la evaluacion de consejo de profesores/, aggregate: 'first_number_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de consejo de profesores' },
+  { id: 'I36', label: /nota promedio de la evaluacion de consejo de profesores/, aggregate: 'mean_nota_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de consejo de profesores' },
   // I37 — nota promedio formaciones territoriales (Sin esp → provisional)
-  { id: 'I37', label: /nota promedio de la evaluacion de la instancia de formacion docente/, aggregate: 'first_number_from_col1', estado: 'provisional', headerHint: 'Nota promedio de la evaluación de la instancia de formación docente' },
+  { id: 'I37', label: /nota promedio de la evaluacion de la instancia de formacion docente/, aggregate: 'mean_nota_from_col1', estado: 'provisional', headerHint: 'Nota promedio de la evaluación de la instancia de formación docente' },
   // I47 — nota promedio formaciones de monitores.
   // Canonical rename 2026-07-29: era 'I48' en la numeración pre-canónica; con
   // la eliminación de old I.46 (fomento lector) y el shift -1 en I.47–I.52,
   // este indicador pasa a canonical I.47.
-  { id: 'I47', label: /nota promedio de la evaluacion de formacion a apoderados monitores/, aggregate: 'first_number_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de formación a apoderados monitores' },
+  { id: 'I47', label: /nota promedio de la evaluacion de formacion a apoderados monitores/, aggregate: 'mean_nota_from_col1', estado: 'validado', headerHint: 'Nota promedio de la evaluación de formación a apoderados monitores' },
   // I9 — plan de acción diseñado
   { id: 'I9',  label: /^existe plan de accion familia escuela disenado$/,    aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe plan de acción familia escuela diseñado' },
   // I33 — director cumple meta liderazgo (Consultor, validado)
@@ -192,10 +228,12 @@ const ACTIVIDADES = [
   { id: 'I38', label: /^existe en el establecimiento un sistema de planificacion, pauta y monitoreo de entrevistas para apoderados que cumple con estandares paf$/, aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe en el establecimiento un sistema de planificación…' },
   // I34 — % cumplimiento plan de acción
   { id: 'I34', label: /^porcentaje de cumplimiento del plan de accion familia escuela$/, aggregate: 'first_number_from_col1', estado: 'provisional', headerHint: 'Porcentaje de cumplimiento del plan de acción familia escuela' },
-  // I10 — Plan de acción actualizado. Sebastián 2026-08-05: es la misma celda
-  // de I9 (plan diseñado) — el "actualizado" se marca cuando se revisa el mismo
-  // plan. Provisional hasta que Sebastián confirme el layout definitivo.
-  { id: 'I10', label: /^existe plan de accion familia escuela disenado$/, aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe plan de acción familia escuela (diseñado = actualizado por defecto)' },
+  // I10 — Plan de acción actualizado. Fila propia en Actividades (fila 27 en
+  // escuelas de año 2; Sebastián 2026-09-03). Antes leía por error la fila de I9.
+  { id: 'I10', label: /^existe plan de accion familia escuela actualizado$/, aggregate: 'first_bool_from_col1', estado: 'provisional', headerHint: 'Existe plan de acción familia escuela actualizado' },
+  // I28 — N° de semanas de envío de Biblioteca Viajera por sala (fila 27 en año
+  // 1, 28 en año 2). Fila nueva en la planilla: vacía cuenta 0 (S-02).
+  { id: 'I28', label: /semanas de envio de biblioteca viajera por sala/, aggregate: 'number_or_zero_from_col1', estado: 'provisional', headerHint: 'Nº de semanas de envío de Biblioteca Viajera por sala' },
 ];
 
 // For "Director asiste" / "Coordinador asiste" the value depends on sub-header columns.
@@ -243,6 +281,17 @@ function ingestActividades(rows, schoolName, wbId, wbLabel) {
       const b = cols.map(parseBool).find(v => v !== null);
       valor = b ?? null;
       raw = String(cols.find(v => v != null) ?? '');
+    } else if (spec.aggregate === 'number_or_zero_from_col1') {
+      const n = cols.map(parseNum).find(v => v !== null);
+      valor = n ?? 0;
+      raw = n === undefined ? 'fila sin registro (cuenta 0)' : String(cols.find(v => v != null && v !== '') ?? '');
+    } else if (spec.aggregate === 'mean_nota_from_col1') {
+      // Promedio de las notas de todos los módulos/instancias con nota (escala
+      // 1–7). Antes se tomaba solo la primera celda con número (S-12). Celdas
+      // fuera de escala (p. ej. fechas guardadas como serial) se descartan.
+      const notas = cols.map(parseNum).filter(v => v !== null && v >= 1 && v <= 7);
+      valor = notas.length ? notas.reduce((a, b) => a + b, 0) / notas.length : null;
+      raw = cols.filter(v => v != null && v !== '').join('|');
     } else if (spec.aggregate === 'first_number_from_col1') {
       const n = cols.map(parseNum).find(v => v !== null);
       valor = n ?? null;
@@ -323,24 +372,28 @@ function ingestReuniones(rows, schoolName, wbId, wbLabel) {
     results.push({ indId: 'I2', valor, raw: `${valor}/${sessionCols.length} sesiones con asistencia`, estado: 'validado', tab: 'Reuniones equipo de Gestión', row: subHdrIdx + 1, wbId, wbLabel });
   }
   // I3: % asistencia directores → filas cargo=directora, promedio de asistencia sobre sesiones celebradas
+  // Denominador: sesiones realizadas (con al menos un asistente), no las 13
+  // columnas de la planilla (S-18). Cargo exacto: "Coordinador PIE" no cuenta
+  // como coordinador del programa.
+  const heldIdx = sessionAnyTrue.map((v, i) => (v ? i : -1)).filter(i => i >= 0);
   const attendMean = (attendanceArr) => {
-    if (!attendanceArr.length) return null;
-    const flat = attendanceArr.flat();
+    if (!attendanceArr.length || !heldIdx.length) return null;
+    const flat = attendanceArr.flatMap(a => heldIdx.map(i => a[i]));
     return flat.length ? flat.reduce((a, b) => a + b, 0) / flat.length : null;
   };
-  const directores = [...perCargo.entries()].filter(([k]) => /director/i.test(k));
+  const directores = [...perCargo.entries()].filter(([k]) => /^director(a|\/a)?$/.test(k));
   if (directores.length) {
     const arr = directores.flatMap(([, e]) => e.attendance);
     const v = attendMean(arr);
-    if (v !== null) results.push({ indId: 'I3', valor: v, raw: `${directores.length} personas cargo Director/a`, estado: 'provisional', tab: 'Reuniones equipo de Gestión', row: subHdrIdx + 1, wbId, wbLabel });
+    if (v !== null) results.push({ indId: 'I3', valor: v, raw: `${directores.length} personas cargo Director/a · ${heldIdx.length} sesiones realizadas`, estado: 'provisional', tab: 'Reuniones equipo de Gestión', row: subHdrIdx + 1, wbId, wbLabel });
     else logMismatch(schoolName, 'I3', 'asistencia directores (sin datos)', 'Reuniones equipo de Gestión');
   } else logMismatch(schoolName, 'I3', 'personas con Cargo=Director/a', 'Reuniones equipo de Gestión');
 
-  const coordinadores = [...perCargo.entries()].filter(([k]) => /coordinador/i.test(k));
+  const coordinadores = [...perCargo.entries()].filter(([k]) => /^coordinador(a|\/a)?$/.test(k));
   if (coordinadores.length) {
     const arr = coordinadores.flatMap(([, e]) => e.attendance);
     const v = attendMean(arr);
-    if (v !== null) results.push({ indId: 'I4', valor: v, raw: `${coordinadores.length} personas cargo Coordinador`, estado: 'provisional', tab: 'Reuniones equipo de Gestión', row: subHdrIdx + 1, wbId, wbLabel });
+    if (v !== null) results.push({ indId: 'I4', valor: v, raw: `${coordinadores.length} personas cargo Coordinador · ${heldIdx.length} sesiones realizadas`, estado: 'provisional', tab: 'Reuniones equipo de Gestión', row: subHdrIdx + 1, wbId, wbLabel });
     else logMismatch(schoolName, 'I4', 'asistencia coordinadores (sin datos)', 'Reuniones equipo de Gestión');
   } else logMismatch(schoolName, 'I4', 'personas con Cargo=Coordinador', 'Reuniones equipo de Gestión');
 
@@ -390,23 +443,26 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
   }
   // Discard PII cols: don't touch Rut/Nombre.
 
-  // I12 — % docentes que asisten a módulos formativos (mean over docentes, CD1..CD4)
-  if (cdCols.length) {
-    const rowsData = rows.slice(hdrIdx + 1).filter(r => r && String(r[cargoCol] || '').trim());
-    const docenteRows = rowsData.filter(r => /docente|prof/i.test(String(r[cargoCol] || '')) && (activoCol < 0 || /si|sí|1|activo/i.test(String(r[activoCol] || ''))));
-    if (docenteRows.length) {
-      // avg over docentes of (sum of TRUE across CD1..CD4 / #cdCols)
-      const per = docenteRows.map(r => {
-        const bools = cdCols.map(c => parseBool(r[c])).filter(v => v !== null);
-        if (!bools.length) return null;
-        return bools.filter(v => v === 1).length / bools.length;
-      }).filter(v => v !== null);
-      if (per.length) {
-        const valor = per.reduce((a, b) => a + b, 0) / per.length;
-        results.push({ indId: 'I12', valor, raw: `mean over ${per.length} docentes activos`, estado: 'validado', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
-      } else logMismatch(schoolName, 'I12', 'columnas CD1..CD4 con datos', 'Datos docentes');
-    } else logMismatch(schoolName, 'I12', 'filas con Cargo=Docente/Prof.', 'Datos docentes');
-  } else logMismatch(schoolName, 'I12', 'columnas CD1..CD4', 'Datos docentes');
+  // Instancias formativas de I12/I13/I14 (Sebastián, 2026-09-03): actividad de
+  // sensibilización (col H) + módulos CD1..CD4 (cols K..N).
+  const sensCol = groupLabels.findIndex(h => /actividad de sensibilizaci[oó]n/i.test(String(h || '')));
+  const modCols = [...(sensCol >= 0 ? [sensCol] : []), ...cdCols];
+  const rowsConCargo = rows.slice(hdrIdx + 1).filter(r => r && String(r[cargoCol] || '').trim());
+  // Una instancia se considera realizada si alguien asistió o si la fila de
+  // encabezado la marca como realizada (TRUE bajo CD1..CD4).
+  const heldModCols = modCols.filter(c => parseBool(header[c]) === 1 || rowsConCargo.some(r => parseBool(r[c]) === 1));
+
+  // I12 — % de profesores jefe que asisten a módulos formativos: para cada
+  // instancia realizada, % de docentes activos que asistió; promedio de esas
+  // instancias (S-05). Antes se dividía por los 4 módulos planificados.
+  if (modCols.length) {
+    const docenteRows = rowsConCargo.filter(r => /docente|prof/i.test(String(r[cargoCol] || '')) && (activoCol < 0 || /si|sí|1|activo/i.test(String(r[activoCol] || ''))));
+    if (docenteRows.length && heldModCols.length) {
+      const pcts = heldModCols.map(c => docenteRows.filter(r => parseBool(r[c]) === 1).length / docenteRows.length);
+      const valor = pcts.reduce((a, b) => a + b, 0) / pcts.length;
+      results.push({ indId: 'I12', valor, raw: `${docenteRows.length} docentes activos · ${heldModCols.length} instancias realizadas`, estado: 'validado', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+    } else logMismatch(schoolName, 'I12', docenteRows.length ? 'ninguna instancia realizada' : 'filas con Cargo=Docente/Prof.', 'Datos docentes');
+  } else logMismatch(schoolName, 'I12', 'columnas sensibilización / CD1..CD4', 'Datos docentes');
 
   // I16 — % profesores jefe asisten formaciones territoriales (Sin esp → provisional)
   if (insCols.length) {
@@ -430,29 +486,18 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
     } else logMismatch(schoolName, 'I16', 'filas Prof. Jefe / Docente', 'Datos docentes');
   } else logMismatch(schoolName, 'I16', 'columnas Instancias de formación 1, 2', 'Datos docentes');
 
-  // I13 — Director asiste a módulos formativos (% asistencia sobre módulos totales)
-  // I14 — Coordinador asiste a módulos formativos (idem)
-  // Se lee el row cuyo cargo es Director/a (I13) o Coordinador/a (I14), y se computa
-  // ratio de trues sobre CD1..CD4 (módulos formativos). Discovery 2026-08-05.
-  if (cdCols.length) {
-    const rowsData = rows.slice(hdrIdx + 1).filter(r => r && String(r[cargoCol] || '').trim());
-    const directorRow = rowsData.find(r => /^director\/?a?$/i.test(String(r[cargoCol] || '').trim()));
-    const coordRow    = rowsData.find(r => /^coordinador\/?a?$/i.test(String(r[cargoCol] || '').trim()));
-    if (directorRow) {
-      const bools = cdCols.map(c => parseBool(directorRow[c])).filter(v => v !== null);
-      if (bools.length) {
-        const valor = bools.filter(v => v === 1).length / bools.length;
-        results.push({ indId: 'I13', valor, raw: `director: ${bools.filter(v=>v===1).length}/${bools.length} módulos`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
-      } else logMismatch(schoolName, 'I13', 'row Director sin datos en CD1..CD4', 'Datos docentes');
-    } else logMismatch(schoolName, 'I13', 'row con Cargo=Director/a', 'Datos docentes');
-    if (coordRow) {
-      const bools = cdCols.map(c => parseBool(coordRow[c])).filter(v => v !== null);
-      if (bools.length) {
-        const valor = bools.filter(v => v === 1).length / bools.length;
-        results.push({ indId: 'I14', valor, raw: `coordinador: ${bools.filter(v=>v===1).length}/${bools.length} módulos`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
-      } else logMismatch(schoolName, 'I14', 'row Coordinador sin datos en CD1..CD4', 'Datos docentes');
-    } else logMismatch(schoolName, 'I14', 'row con Cargo=Coordinador/a', 'Datos docentes');
-  } else logMismatch(schoolName, 'I13/I14', 'columnas CD1..CD4 no encontradas', 'Datos docentes');
+  // I13 / I14 — N° de instancias formativas (sensibilización + 4 módulos) a
+  // las que asiste el Director/a y el Coordinador/a. Valor 0..5, comparable
+  // con la meta de 5 (S-04). Antes era una proporción sobre CD1..CD4.
+  if (modCols.length) {
+    const directorRow = rowsConCargo.find(r => /^director(a|\/a)?$/i.test(String(r[cargoCol] || '').trim()));
+    const coordRow    = rowsConCargo.find(r => /^coordinador(a|\/a)?$/i.test(String(r[cargoCol] || '').trim()));
+    for (const [indId, row, quien] of [['I13', directorRow, 'director'], ['I14', coordRow, 'coordinador']]) {
+      if (!row) { logMismatch(schoolName, indId, `row con Cargo=${quien}`, 'Datos docentes'); continue; }
+      const n = modCols.filter(c => parseBool(row[c]) === 1).length;
+      results.push({ indId, valor: n, raw: `${quien}: ${n}/${modCols.length} instancias`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+    }
+  } else logMismatch(schoolName, 'I13/I14', 'columnas sensibilización / CD1..CD4 no encontradas', 'Datos docentes');
 
   return results;
 }
@@ -473,9 +518,23 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
 
 const COURSE_ORDER = ['PKA','PKB','KA','KB','1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B','7A','7B','8A','8B'];
 
-async function ingestCoursesRC(schoolName, rcId, wbLabel) {
+// Column span of a group header in row 0 (merged cells): from the column whose
+// label matches `re` up to (not including) the next non-empty group label.
+function groupSpan(groupRow, re) {
+  const start = groupRow.findIndex(h => re.test(String(h || '')));
+  if (start < 0) return null;
+  let end = start + 1;
+  while (end < Math.max(groupRow.length, start + 30) && !String(groupRow[end] || '').trim()) end++;
+  return [start, end];
+}
+const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+
+// `salasActivasDC`: courses with active students according to Datos Consultor.
+// Used as fallback when the RC "Activo" column is blank for a course (Esperanza
+// Joven, Sendero del Saber). `nSalas`: the school's number of salas, the
+// denominator of I27.
+async function ingestCoursesRC(schoolName, rcId, wbLabel, { salasActivasDC = [], nSalas = null } = {}) {
   const results = [];
-  // Read the 20 per-course tabs via batchGet where possible
   const ranges = COURSE_ORDER.map(t => `'${t}'!A1:AZ200`);
   READS.count++;
   let batch;
@@ -486,143 +545,108 @@ async function ingestCoursesRC(schoolName, rcId, wbLabel) {
     return results;
   }
 
-  // Aggregates per school
-  let totalStudents = 0;
-  let with1Entrev = 0, with2Entrev = 0;
-  let monitorFormado = 0;
-  const salasWithMonitorActivo = new Set();
-  const salasWithMonitorActivoCount = new Map();  // sala → # monitores activos
-  const monitoresActivosPerSala = new Map();
-  let bvSalas = [];   // for I28 mean
-  let tallerPerStudent = [];  // for I40, I41
-  const missing = new Set();  // tabs that failed
+  const pctEntrev1 = [], pctEntrev2 = [];       // I19 / I20: % per sala
+  const pctTaller1 = [], pctTaller4 = [];       // I40 / I41: % per sala
+  let monitorFormado = 0;                        // I26: students whose apoderado attended ≥1 formación
+  let monitoresActivos = 0;                      // I46
+  const salasConMonitorActivo = new Set();       // I27
+  const salasConEstudiantes = new Set();
+  const missing = new Set();
+  const activoDesdeDC = [];
 
   for (let idx = 0; idx < COURSE_ORDER.length; idx++) {
     const sala = COURSE_ORDER[idx];
-    const rangeResult = batch.data.valueRanges?.[idx];
-    const rows = rangeResult?.values;
+    const rows = batch.data.valueRanges?.[idx]?.values;
     if (!rows || !rows.length) { missing.add(sala); continue; }
 
-    // Header rows can be at row 0 or 1. Row 1 typically has "RBD", "Rut estudiante", "Nombre alumno"...
-    // Data starts after that.
-    let hdrIdx = 0;
+    let hdrIdx = -1;
     for (let i = 0; i < Math.min(rows.length, 3); i++) {
-      if ((rows[i] || []).some(h => /^activo$/i.test(String(h || '').trim()))) { hdrIdx = i; break; }
+      if ((rows[i] || []).some(h => normalize(h) === 'activo')) { hdrIdx = i; break; }
     }
+    if (hdrIdx < 0) { missing.add(sala); continue; }
     const header = rows[hdrIdx] || [];
-    const activoCol = header.findIndex(h => /^activo$/i.test(String(h || '').trim()));
-    const entrAnualCol = header.findIndex(h => /^anual$/i.test(String(h || '').trim()));
-    const monitorFormadoCol = -1;   // this label lives in the group-header row 0 (spans many cols); count TRUE in the exact col
-    const bvCol = header.findIndex(h => /(asistencia\s+total|asistencia total)/i.test(String(h || '').trim()));
-    // Group header row 0 has spans; we'll match values by group label + sub-header col name
     const gh = rows[0] || [];
-    // BV col: look for "Número de Bibliotecas Viajeras" in row 0 → then that col in header row hosts data
-    // Simpler: find in row 0 the col that contains "Biblioteca"
-    let bvCandidate = -1;
-    for (let j = 0; j < gh.length; j++) {
-      if (/bibliotec/i.test(String(gh[j] || ''))) { bvCandidate = j; break; }
-    }
-    // Monitores activos col: in row 0 has "Monitores activos"
-    let monActivosCol = -1;
-    for (let j = 0; j < gh.length; j++) {
-      if (/monitores activos/i.test(String(gh[j] || ''))) { monActivosCol = j; break; }
-    }
-    // Monitores formado col in row 0
-    let monFormadoCol = -1;
-    for (let j = 0; j < gh.length; j++) {
-      if (/monitores formado/i.test(String(gh[j] || ''))) { monFormadoCol = j; break; }
-    }
-    // TF cols: row hdrIdx has "Taller ..." labels or TF1..TF4; count TRUE per student
-    const tfCols = [];
-    for (let j = 0; j < header.length; j++) {
-      const h = normalize(header[j]);
-      if (/^tf[1-4]\b/.test(h) || /taller\s*(presencial|entre familias|entre-familias|entrefamilias)/i.test(h)) {
-        tfCols.push(j);
-      }
+    const find = (re, span) => header.findIndex((h, j) => re.test(normalize(h)) && (!span || (j >= span[0] && j < span[1])));
+
+    const activoCol = find(/^activo$/);
+    const rutCol = find(/^rut/);
+    const entrSpan = groupSpan(gh, /entrevistas/i);
+    const sem1Col = find(/^1(er|ro)? semestre/, entrSpan);
+    const sem2Col = find(/^2(do)? semestre/, entrSpan);
+    const monFormadoCol = groupSpan(gh, /monitores formado/i)?.[0] ?? -1;
+    const monActivosCol = groupSpan(gh, /monitores activos/i)?.[0] ?? -1;
+    // Attendance of apoderados to the workshops: only the columns of the
+    // "Asistencia de Apoderado/a Talleres formativos" group, not the monitors'
+    // own workshop columns, and without the "Asistencia total" column.
+    const tallerSpan = groupSpan(gh, /talleres formativos/i);
+    const tallerCols = [];
+    if (tallerSpan) for (let j = tallerSpan[0]; j < tallerSpan[1]; j++) {
+      if (/taller/.test(normalize(header[j])) && !/total/.test(normalize(header[j]))) tallerCols.push(j);
     }
 
-    if (activoCol < 0) { missing.add(sala); continue; }
-
-    // Iterate students; discard PII (never store Rut/Nombre).
-    let salaMonActivosCount = 0;
-    for (let i = hdrIdx + 1; i < rows.length; i++) {
-      const r = rows[i] || [];
-      const activo = String(r[activoCol] || '').trim();
-      if (!/^(si|sí|1|activo|s)$/i.test(activo)) continue;   // excluir retirados
-      totalStudents++;
-      // I19/I20 — entrevistas anual col: numeric count of entrevistas per estudiante
-      if (entrAnualCol >= 0) {
-        const n = parseNum(r[entrAnualCol]);
-        if (n !== null) {
-          if (n >= 1) with1Entrev++;
-          if (n >= 2) with2Entrev++;
-        }
-      }
-      // I26 — monitores formado
-      if (monFormadoCol >= 0) {
-        const v = parseBool(r[monFormadoCol]);
-        if (v === 1) monitorFormado++;
-      }
-      // I27 / I47 — monitor activo per sala
-      if (monActivosCol >= 0) {
-        const v = parseBool(r[monActivosCol]);
-        if (v === 1) { salaMonActivosCount++; salasWithMonitorActivo.add(sala); }
-      }
-      // I40/I41 — TF asistencia
-      if (tfCols.length) {
-        const tfBools = tfCols.map(c => parseBool(r[c])).filter(v => v !== null);
-        tallerPerStudent.push({ atLeastOne: tfBools.some(v => v === 1) ? 1 : 0, allFour: tfBools.length >= 4 && tfBools.every(v => v === 1) ? 1 : 0 });
-      }
+    // Active students. Fallback: RC "Activo" blank but DC says the course is
+    // active → every row with a RUT counts. Only presence is checked; no PII
+    // is stored.
+    const dataRows = rows.slice(hdrIdx + 1);
+    let activos = dataRows.filter(r => /^(si|sí|1|activo|s)$/i.test(String(r?.[activoCol] ?? '').trim()));
+    if (!activos.length && salasActivasDC.includes(sala) && rutCol >= 0) {
+      activos = dataRows.filter(r => String(r?.[rutCol] ?? '').trim());
+      if (activos.length) activoDesdeDC.push(sala);
     }
-    if (salaMonActivosCount) monitoresActivosPerSala.set(sala, salaMonActivosCount);
-    // I28 — número BV enviadas por sala: sum across students of that col
-    if (bvCandidate >= 0) {
-      let salaBV = 0;
-      for (let i = hdrIdx + 1; i < rows.length; i++) {
-        const n = parseNum(rows[i]?.[bvCandidate]);
-        if (n !== null) salaBV += n;
+    if (!activos.length) continue;
+    salasConEstudiantes.add(sala);
+
+    const truthy = (v) => parseBool(v) === 1 || (parseNum(v) ?? 0) >= 1;
+    if (sem1Col >= 0 || sem2Col >= 0) {
+      let n1 = 0, n2 = 0;
+      for (const r of activos) {
+        const a = sem1Col >= 0 && truthy(r[sem1Col]);
+        const b = sem2Col >= 0 && truthy(r[sem2Col]);
+        if (a || b) n1++;
+        if (a && b) n2++;
       }
-      bvSalas.push(salaBV);
+      pctEntrev1.push(n1 / activos.length);
+      pctEntrev2.push(n2 / activos.length);
+    }
+    if (tallerCols.length) {
+      let al1 = 0, all = 0;
+      for (const r of activos) {
+        const t = tallerCols.map(c => truthy(r[c]));
+        if (t.some(Boolean)) al1++;
+        if (t.every(Boolean)) all++;
+      }
+      pctTaller1.push(al1 / activos.length);
+      pctTaller4.push(all / activos.length);
+    }
+    for (const r of activos) {
+      if (monFormadoCol >= 0 && truthy(r[monFormadoCol])) monitorFormado++;
+      if (monActivosCol >= 0 && truthy(r[monActivosCol])) { monitoresActivos++; salasConMonitorActivo.add(sala); }
     }
   }
 
   if (missing.size) logMismatch(schoolName, 'I19', `${missing.size} salas sin header 'Activo' (${[...missing].slice(0,4).join(',')}...)`, 'RC per-course');
+  const tabE = 'Registro Coordinación · PKA..8B (entrevistas 1er/2do semestre)';
+  const fb = activoDesdeDC.length ? ` · activo desde DC en ${activoDesdeDC.join(',')}` : '';
 
-  // Emit I19, I20
-  if (totalStudents > 0) {
-    results.push({ indId: 'I19', valor: with1Entrev / totalStudents, raw: `${with1Entrev}/${totalStudents} estudiantes activos`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (entrevistas anual)', row: 0, wbId: rcId, wbLabel });
-    results.push({ indId: 'I20', valor: with2Entrev / totalStudents, raw: `${with2Entrev}/${totalStudents}`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (entrevistas anual)', row: 0, wbId: rcId, wbLabel });
+  if (pctEntrev1.length) {
+    results.push({ indId: 'I19', valor: mean(pctEntrev1), raw: `promedio de ${pctEntrev1.length} salas${fb}`, estado: 'provisional', tab: tabE, row: 0, wbId: rcId, wbLabel });
+    results.push({ indId: 'I20', valor: mean(pctEntrev2), raw: `promedio de ${pctEntrev2.length} salas${fb}`, estado: 'provisional', tab: tabE, row: 0, wbId: rcId, wbLabel });
   } else logMismatch(schoolName, 'I19', 'ningún estudiante activo detectado', 'RC per-course');
 
-  // I26 — # apoderados monitores formados (validado)
-  if (monitorFormado > 0) {
-    results.push({ indId: 'I26', valor: monitorFormado, raw: `${monitorFormado} estudiantes con monitor formado`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores formado)', row: 0, wbId: rcId, wbLabel });
+  results.push({ indId: 'I26', valor: monitorFormado, raw: `${monitorFormado} apoderados con al menos una formación`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores formado)', row: 0, wbId: rcId, wbLabel });
+
+  // I27 — % de salas cubiertas por apoderados monitores. Denominador: salas de
+  // la escuela (nSalas desde Datos Consultor); antes era fijo en 20.
+  const denomSalas = nSalas && nSalas > 0 ? nSalas : salasConEstudiantes.size;
+  if (denomSalas > 0) {
+    results.push({ indId: 'I27', valor: Math.min(1, salasConMonitorActivo.size / denomSalas), raw: `${salasConMonitorActivo.size}/${denomSalas} salas`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
   }
-  // I27 — % salas cubiertas por apoderados monitores (provisional).
-  // El catálogo declara este indicador como % con meta=100% (todas las salas
-  // cubiertas), así que emitimos la fracción salasCubiertas / totalSalas.
-  if (salasWithMonitorActivo.size > 0 && COURSE_ORDER.length > 0) {
-    const fraccion = salasWithMonitorActivo.size / COURSE_ORDER.length;
-    results.push({ indId: 'I27', valor: fraccion, raw: `${salasWithMonitorActivo.size}/${COURSE_ORDER.length} salas`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
-  }
-  // I46 — # apoderados monitores que implementaron taller (validado).
-  // Canonical rename 2026-07-29: era 'I47' pre-canónico; ver rationale arriba
-  // (old I.46 eliminado, shift -1 en I.47–I.52).
-  const totalMonActivos = [...monitoresActivosPerSala.values()].reduce((a, b) => a + b, 0);
-  if (totalMonActivos > 0) {
-    results.push({ indId: 'I46', valor: totalMonActivos, raw: `${totalMonActivos} monitores activos totales`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
-  }
-  // I28 — cantidad semanas envío BV por sala (mean)
-  if (bvSalas.length) {
-    const valor = bvSalas.reduce((a, b) => a + b, 0) / bvSalas.length;
-    results.push({ indId: 'I28', valor, raw: `mean over ${bvSalas.length} salas`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Bibliotecas Viajeras)', row: 0, wbId: rcId, wbLabel });
-  }
-  // I40, I41 — % apoderados con ≥1 y con 4/4 talleres
-  if (tallerPerStudent.length) {
-    const atLeast = tallerPerStudent.filter(t => t.atLeastOne).length;
-    const all4 = tallerPerStudent.filter(t => t.allFour).length;
-    results.push({ indId: 'I40', valor: atLeast / tallerPerStudent.length, raw: `${atLeast}/${tallerPerStudent.length}`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Talleres TF1..4)', row: 0, wbId: rcId, wbLabel });
-    results.push({ indId: 'I41', valor: all4 / tallerPerStudent.length, raw: `${all4}/${tallerPerStudent.length}`, estado: 'provisional', tab: 'Registro Coordinación · PKA..8B (Talleres TF1..4)', row: 0, wbId: rcId, wbLabel });
+  results.push({ indId: 'I46', valor: monitoresActivos, raw: `${monitoresActivos} monitores activos`, estado: 'validado', tab: 'Registro Coordinación · PKA..8B (Monitores activos)', row: 0, wbId: rcId, wbLabel });
+
+  if (pctTaller1.length) {
+    const tabT = 'Registro Coordinación · PKA..8B (Asistencia talleres formativos)';
+    results.push({ indId: 'I40', valor: mean(pctTaller1), raw: `promedio de ${pctTaller1.length} salas`, estado: 'provisional', tab: tabT, row: 0, wbId: rcId, wbLabel });
+    results.push({ indId: 'I41', valor: mean(pctTaller4), raw: `promedio de ${pctTaller4.length} salas`, estado: 'provisional', tab: tabT, row: 0, wbId: rcId, wbLabel });
   }
   return results;
 }
@@ -731,9 +755,17 @@ for (const s of schools) {
     allResults.push(...res);
   } catch (e) { console.warn(`      Datos docentes ERROR: ${e.errors?.[0]?.message || e.message}`); }
   // Registro Coordinación · per-course tabs
+  try {
+    const { nSalas, salasActivas } = await countSalasActivasDC(s.dcId);
+    s.nSalas = nSalas; s.salasActivas = salasActivas;
+    console.log(`      Salas activas (DC):          ${nSalas} → ${salasActivas.join(' ')}`);
+  } catch (e) {
+    console.warn(`  ✗ ${s.name}: no se pudo contar salas activas — ${e.message}`);
+  }
+
   if (s.rcId) {
     try {
-      const res = await ingestCoursesRC(s.name, s.rcId, 'Registro Coordinación · PKA..8B');
+      const res = await ingestCoursesRC(s.name, s.rcId, 'Registro Coordinación · PKA..8B', { salasActivasDC: s.salasActivas ?? [], nSalas: s.nSalas });
       for (const r of res) r.establecimientoId = s.slug, r.establecimientoNombre = s.name, r.cohorte = s.cohorte;
       console.log(`      RC per-course (agg):         ${res.length} valores`);
       allResults.push(...res);
@@ -808,6 +840,7 @@ if (!DRY_RUN) {
       cohorte: s.cohorte,
       tipo: 'Escuela',
       fuente: { folderId: s.folderId, dcId: s.dcId, rcId: s.rcId },
+      ...(Number.isFinite(s.nSalas) && s.nSalas > 0 ? { nSalas: s.nSalas, salasActivas: s.salasActivas } : {}),
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
     count++; n++;

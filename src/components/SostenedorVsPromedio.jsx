@@ -48,7 +48,7 @@ export default function SostenedorVsPromedio({
       for (const ind of aplicables) {
         const v = getValor(ind.id, est.id);
         if (v === null || v === undefined) continue;
-        const l = calcularLogro(v, ind);
+        const l = calcularLogro(v, ind, est);
         if (l === null) continue;
         suma += Math.min(1, l);
       }

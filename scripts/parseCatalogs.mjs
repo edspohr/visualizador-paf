@@ -242,6 +242,7 @@ function parseEscolar2026() {
     freq: H.indexOf('Temporalidad de reporte'),
     inicio: H.indexOf('Inicio'),
     fuente: H.indexOf('Fuente'),
+    vigencia: vigenciaCol(H),
   };
   const out = [];
   const seen = new Set();
@@ -276,9 +277,91 @@ function parseEscolar2026() {
       frecuencia: normFrecuencia(row[idx.freq]),
       inicio: row[idx.inicio] ?? null,
       clasificacion: tipo === 'producto' ? 'producto' : 'estrategia',
+      ...(idx.vigencia >= 0 && parseVigencia(row[idx.vigencia]) ? { vigencia: parseVigencia(row[idx.vigencia]) } : {}),
     });
   }
   return out;
+}
+
+// ─── Parse Escolar 2026 (año 2) ────────────────────────────────────────────
+// The "Indicadores año 2, 2026" sheet carries the metas that apply to schools
+// in their second year of implementation. IDs are in the same pre-canonical
+// numbering as the año 1 sheet ("I47" here is canonical I.46).
+function parseEscolar2026Anio2() {
+  const rows = readSheet(ESCOLAR_XLSX, 'Indicadores año 2, 2026');
+  const H = rows[0];
+  const idx = { id: H.indexOf('Indicador 2026'), meta: H.indexOf('Meta') };
+  const out = new Map();
+  for (let r = 1; r < rows.length; r++) {
+    const rawId = rows[r][idx.id];
+    if (!rawId || typeof rawId !== 'string' || !/^I\d+$/i.test(rawId.trim())) continue;
+    const id = normId(rawId);
+    if (!out.has(id)) out.set(id, classifyMeta(rows[r][idx.meta]));
+  }
+  return out;
+}
+
+const metaFields = (m) => ({ meta: m.metaTexto, metaNum: m.metaNum, tipoMeta: m.tipoMeta, unidad: unidadFromTipoMeta(m.tipoMeta) });
+
+// Attach year-specific metas (metasPorAnio) and the derived vigencia to the
+// raw año 1 entries. A year whose meta is "-" means the indicator is not part
+// of that year's framework (e.g. I.9 only in año 1, I.10 only in año 2).
+function attachAnio2(entries, anio2) {
+  for (const e of entries) {
+    const m2 = anio2.get(e.id);
+    if (!m2) continue;
+    const sameMeta = m2.tipoMeta === e.tipoMeta && m2.metaNum === e.metaNum;
+    if (sameMeta) continue;
+    const y1 = { meta: e.meta, metaNum: e.metaNum, tipoMeta: e.tipoMeta, unidad: e.unidad };
+    e.metasPorAnio = { 1: y1, 2: metaFields(m2) };
+    if (e.tipoMeta === 'sin_meta' && m2.tipoMeta !== 'sin_meta') e.vigencia = [2];
+    if (e.tipoMeta !== 'sin_meta' && m2.tipoMeta === 'sin_meta') e.vigencia = [1];
+  }
+}
+
+// Optional "Vigencia" column (Año 1 / Año 2 / Ambos) in any catalog sheet.
+// Focus agreed to add it to "Sistema de indicadores" (D-06, 2026-09-27).
+function parseVigencia(raw) {
+  if (raw === null || raw === undefined) return null;
+  const s = String(raw).toLowerCase();
+  if (!s.trim()) return null;
+  if (/ambos|todos|1\s*(y|,|-)\s*2/.test(s)) return [1, 2];
+  const years = [...s.matchAll(/(\d)/g)].map(m => Number(m[1])).filter(n => n >= 1 && n <= 3);
+  return years.length ? [...new Set(years)].sort() : null;
+}
+const vigenciaCol = (H) => H.findIndex(h => typeof h === 'string' && /vigencia/i.test(h));
+
+// Interim vigencia until the XLSX carries the column (canonical ids). Luis,
+// 2026-09-01: I.9/I.10/I.11 are año 1 metas and must not count in año 2.
+const VIGENCIA_PROVISIONAL = {
+  parvulario: { 'I.9': [1], 'I.10': [1], 'I.11': [1] },
+  escolar2026: {},
+};
+
+// Indicators whose meta is set per school instead of the territorial total
+// (Sebastián, 2026-09-03 + D-08): meta = number of salas of the school, read
+// from establecimientos_real.nSalas at runtime (canonical ids).
+const META_POR_ESTABLECIMIENTO = {
+  escolar2026: { 'I.26': 'nSalas', 'I.46': 'nSalas' },
+};
+
+// "N° de …" indicators with meta 1 are counts, not 100%. classifyMeta cannot
+// tell them apart from a 1.0 fraction, so fix them by name after parsing.
+function fixConteoConMetaUno(list) {
+  for (const ind of list) {
+    if (ind.tipoMeta === 'porcentaje' && ind.metaNum === 1 && /^N[°º]\s/.test(ind.nombre)) {
+      Object.assign(ind, { tipoMeta: 'numero', metaNum: 1, meta: '1', unidad: 'conteo' });
+    }
+  }
+}
+
+function applyVigenciaYMetas(list, programaKey) {
+  const prov = VIGENCIA_PROVISIONAL[programaKey] ?? {};
+  const porEst = META_POR_ESTABLECIMIENTO[programaKey] ?? {};
+  for (const ind of list) {
+    if (!ind.vigencia && prov[ind.id]) { ind.vigencia = prov[ind.id]; ind.vigenciaProvisional = true; }
+    if (porEst[ind.id]) ind.metaPorEstablecimiento = porEst[ind.id];
+  }
 }
 
 // ─── Parse Parvulario ─────────────────────────────────────────────────────
@@ -299,6 +382,7 @@ function parseParvulario() {
     freq: HE.indexOf('Frecuencia de reporte'),
     inicio: HE.indexOf('Inicio'),
     fuente: HE.indexOf('Fuente'),
+    vigencia: vigenciaCol(HE),
   };
   for (let r = 1; r < rowsE.length; r++) {
     const row = rowsE[r];
@@ -326,6 +410,8 @@ function parseParvulario() {
       clasificacion: 'estrategia',
     };
     if (PARVULARIO_DESAGREGA_NIVEL.has(nid)) entry.desagregaNivel = true;
+    const vigE = iE.vigencia >= 0 ? parseVigencia(row[iE.vigencia]) : null;
+    if (vigE) entry.vigencia = vigE;
     out.push(entry);
   }
 
@@ -341,6 +427,7 @@ function parseParvulario() {
     freq: HP.indexOf('Frecuencia de reporte'),
     inicio: HP.indexOf('Inicio'),
     fuente: HP.indexOf('Fuente'),
+    vigencia: vigenciaCol(HP),
   };
   for (let r = 1; r < rowsP.length; r++) {
     const row = rowsP[r];
@@ -368,6 +455,8 @@ function parseParvulario() {
       clasificacion: 'producto',
     };
     if (PARVULARIO_DESAGREGA_NIVEL.has(nid)) entry.desagregaNivel = true;
+    const vigP = iP.vigencia >= 0 ? parseVigencia(row[iP.vigencia]) : null;
+    if (vigP) entry.vigencia = vigP;
     out.push(entry);
   }
   return out;
@@ -425,6 +514,7 @@ const AMBITOS_PARVULARIO = [
 const escolar2025Raw = parseEscolar2025();
 const escolar2026Raw = parseEscolar2026();
 const parvularioRaw  = parseParvulario();
+attachAnio2(escolar2026Raw, parseEscolar2026Anio2());
 
 // Checksum del parseo bruto contra el XLSX fuente. Si el XLSX cambia y
 // los conteos brutos difieren, el mapa canónico también puede necesitar
@@ -457,6 +547,11 @@ if (rawFails.length) {
 const parvulario  = applyCanonical(parvularioRaw,  PARVULARIO_CANONICAL);
 const escolar2026 = applyCanonical(escolar2026Raw, ESCOLAR2026_CANONICAL);
 const escolar2025 = escolar2025Raw; // No canonicalizado por ahora — ver Q4 del plan.
+
+fixConteoConMetaUno(parvulario);
+fixConteoConMetaUno(escolar2026);
+applyVigenciaYMetas(parvulario, 'parvulario');
+applyVigenciaYMetas(escolar2026, 'escolar2026');
 
 console.log('\nPost-canonicalization:');
 console.table({

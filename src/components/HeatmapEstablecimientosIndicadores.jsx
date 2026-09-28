@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { calcularLogro, colorSemaforo } from '../data/establecimientos.js';
+import { calcularLogro, colorSemaforo, resolverIndicador } from '../data/establecimientos.js';
 import { formatValue } from '../data/expectedValue.js';
 import { isAplicable2026 } from '../data/scope.js';
 import { indicadorCodigo, ambitoCodigo } from '../lib/labels.js';
@@ -93,10 +93,10 @@ export default function HeatmapEstablecimientosIndicadores({
                 const applies = isAplicable2026(ind, est, mes);
                 const raw = valoresPorEst.get(est.id)?.get(ind.id);
                 const valor = applies ? (raw?.valor ?? raw ?? null) : null;
-                const logro = valor === null ? null : calcularLogro(valor, ind);
+                const logro = valor === null ? null : calcularLogro(valor, ind, est);
                 const cName = colorSemaforo(logro);
                 const bg = CELL_COLOR[cName] ?? CELL_COLOR.gray;
-                const tooltip = `${est.nombre}\n${ind.nombre}\n${valor === null ? 'Sin dato' : `${formatValue(ind, valor)} / meta ${formatValue(ind, ind.metaNum)}`}`;
+                const tooltip = `${est.nombre}\n${ind.nombre}\n${valor === null ? 'Sin dato' : `${formatValue(ind, valor)} / meta ${formatValue(ind, resolverIndicador(ind, est).metaNum)}`}`;
                 return (
                   <button
                     key={ind.id}

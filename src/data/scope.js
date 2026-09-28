@@ -9,7 +9,7 @@
 // La aplicabilidad se decide con `indicador.inicio` (Sem N o "Primer/Segundo año")
 // contra el semestre acumulado del centro en 2026 (derivado de su cohorte).
 
-import { anioImplementacion } from './establecimientos.js';
+import { anioImplementacion, resolverIndicador } from './establecimientos.js';
 
 // Semestre calendario 2026: mes ≤ 6 → 1, else → 2.
 export function semestreDeMes(mes) {
@@ -41,8 +41,16 @@ function semestreMinimoRequerido(inicio) {
  * ¿Este indicador aplica al centro en el mes dado dentro de la gestión 2026?
  * True si el semestre mínimo requerido ≤ semestre acumulado del centro.
  */
+// `indicador.vigencia` lists the years of implementation the indicator belongs
+// to (e.g. [1] for año 1 only). Missing → every year.
+function vigenteEnAnio(indicador, est) {
+  if (!Array.isArray(indicador.vigencia) || !indicador.vigencia.length) return true;
+  return indicador.vigencia.includes(anioImplementacion(est, 2026));
+}
+
 export function isAplicable2026(indicador, est, mes) {
   if (!est) return false;
+  if (!vigenteEnAnio(indicador, est)) return false;
   const min = semestreMinimoRequerido(indicador.inicio);
   return min <= semestreAcumulado2026(est, mes);
 }
@@ -52,12 +60,17 @@ export function isAplicable2026(indicador, est, mes) {
  * dentro de 2026. NO excluye `sin_meta`: eso lo decide el agregador.
  */
 export function indicadoresAplicables(indicadores, est, mes) {
-  return indicadores.filter(ind => isAplicable2026(ind, est, mes));
+  return indicadores
+    .filter(ind => isAplicable2026(ind, est, mes))
+    .map(ind => resolverIndicador(ind, est));
 }
 
 /**
  * Estado de aplicabilidad para propósitos de UI:
  *   'aplicable'          — el semestre mínimo requerido ya se alcanzó.
+ *   'no-corresponde-anio'— el indicador no forma parte del año de
+ *                          implementación del centro (`indicador.vigencia`),
+ *                          p. ej. metas de año 1 vistas por un centro en año 2.
  *   'no-aplicable-aun'   — el indicador existe en el catálogo pero su semestre
  *                          de inicio aún no fue alcanzado por este centro (por
  *                          ejemplo `inicio: 'Sem 3'` con cohorte 2026-2027 en
@@ -75,6 +88,9 @@ export function estadoAplicabilidad(indicador, est, mes) {
   }
   const minReq = semestreMinimoRequerido(indicador.inicio);
   const acumulado = semestreAcumulado2026(est, mes);
+  if (!vigenteEnAnio(indicador, est)) {
+    return { estado: 'no-corresponde-anio', minReq, acumulado };
+  }
   return {
     estado: minReq <= acumulado ? 'aplicable' : 'no-aplicable-aun',
     minReq,
@@ -86,7 +102,12 @@ export function estadoAplicabilidad(indicador, est, mes) {
  * Copy en es-CL para explicar por qué un indicador aún no aplica. Se apoya en
  * el `inicio` original para dar un mensaje cercano al lenguaje del catálogo.
  */
-export function descripcionNoAplicable(indicador) {
+export function descripcionNoAplicable(indicador, est) {
+  if (est && !vigenteEnAnio(indicador, est)) {
+    const anios = indicador.vigencia;
+    if (anios.length === 1) return `Corresponde solo al año ${anios[0]} de implementación del programa.`;
+    return 'No corresponde al año de implementación actual de este centro.';
+  }
   const inicio = indicador.inicio;
   if (typeof inicio === 'string') {
     const t = inicio.trim();

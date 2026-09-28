@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, Clock, ListChecks, Package } from 'lucide-react';
-import { calcularLogro, estadoValor } from '../data/establecimientos.js';
+import { calcularLogro, estadoValor, resolverIndicador } from '../data/establecimientos.js';
 import { estadoAplicabilidad, descripcionNoAplicable } from '../data/scope.js';
 import { getCoberturaEscolar } from '../data/coverage.js';
 import { IndicatorProgress } from './Shared.jsx';
@@ -50,7 +50,10 @@ export default function IndicatorPanel({
   // plan implementación 2026-07-29.
   const filasIndicadores = useMemo(() => {
     if (!establecimiento) return [];
-    return INDS.map(ind => {
+    return INDS.map(indBase => {
+      // Meta del año de implementación y meta por escuela (nSalas) resueltas
+      // para este centro; el resto del panel trabaja con el objeto resuelto.
+      const ind = resolverIndicador(indBase, establecimiento);
       const entry = valoresReales.get(ind.id);
       const valor = entry?.valor ?? null;
       const estado = entry?.estado ?? 'validado';
@@ -91,6 +94,7 @@ export default function IndicatorPanel({
             onDrilldown={onDrilldown}
             anioEnCurso={anioEnCurso}
             programa={programa}
+            establecimiento={establecimiento}
           />
         );
       })}
@@ -102,7 +106,7 @@ export default function IndicatorPanel({
 // "Indicadores de logro" seguido de los productos del mismo ámbito.
 // Header % = "% cumplimiento": AVG(min(1, logro)) sobre indicadores con meta
 // (estrategia + logro), contando 0 los faltantes.
-function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true, programa = 'escolar' }) {
+function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true, programa = 'escolar', establecimiento }) {
   // Partición: aplicables (entran en agregados y se muestran normalmente) vs
   // no-aplicables-aun (se muestran compactos con nota, no entran en agregados).
   const estrategiaAplic = filasEstrategia.filter(f => f.aplicabilidad === 'aplicable');
@@ -173,7 +177,7 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                 </div>
               )}
               {estrategiaAun.length > 0 && (
-                <NoAplicableAun filas={estrategiaAun} />
+                <NoAplicableAun filas={estrategiaAun} establecimiento={establecimiento} />
               )}
             </>
           )}
@@ -200,7 +204,7 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                 </div>
               )}
               {logroAun.length > 0 && (
-                <NoAplicableAun filas={logroAun} />
+                <NoAplicableAun filas={logroAun} establecimiento={establecimiento} />
               )}
             </>
           )}
@@ -246,15 +250,15 @@ function IndicadorRow({ fila, onDrilldown, anioEnCurso, programa = 'escolar' }) 
 // posterior al que el centro ha alcanzado). No entran en el % del ámbito ni en
 // ranking, pero se muestran para que el usuario sepa que existen y por qué
 // están silenciados. Distinto de "Sin datos" (aplicable pero sin valor).
-function NoAplicableAun({ filas }) {
+function NoAplicableAun({ filas, establecimiento }) {
   return (
     <div className="border-t border-border bg-bg/30 px-4 py-3">
       <p className="flex items-start gap-2 text-xs text-gray-ui leading-snug mb-2">
         <Clock size={12} className="shrink-0 mt-0.5" />
         <span>
           Estos indicadores están definidos para este ámbito, pero no aplican
-          todavía a este centro educativo según el año de implementación en
-          el que se encuentra. No entran en el porcentaje del ámbito.
+          a este centro educativo en el año de implementación en el que se
+          encuentra. No entran en el porcentaje del ámbito.
         </span>
       </p>
       <ul className="space-y-1">
@@ -262,7 +266,7 @@ function NoAplicableAun({ filas }) {
           <li key={ind.id} className="flex items-start gap-3 text-xs text-gray-ui">
             <span className="font-mono shrink-0 w-12">{indicadorCodigo(ind.id)}</span>
             <span className="flex-1">{ind.nombre}</span>
-            <span className="shrink-0 italic">{descripcionNoAplicable(ind)}</span>
+            <span className="shrink-0 italic">{descripcionNoAplicable(ind, establecimiento)}</span>
           </li>
         ))}
       </ul>

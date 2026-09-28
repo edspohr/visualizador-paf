@@ -32,7 +32,26 @@ function tipoMetaFromUnidad(unidad) {
  * aquí. Este helper devuelve `null` en ese caso para que quien lo consuma
  * distinga el caso "no reportó" del "sin meta".
  */
-export function calcularLogro(valor, indicador) {
+/**
+ * Returns the indicator as it applies to one establishment: the meta of the
+ * school's year of implementation (`metasPorAnio`, from the "año 2" catalog
+ * sheet) and, for indicators whose meta is per school
+ * (`metaPorEstablecimiento: 'nSalas'`), the school's own number of salas.
+ * Without `est`, or when nothing applies, returns the catalog object as is.
+ */
+export function resolverIndicador(ind, est, anio = 2026) {
+  if (!ind || !est) return ind;
+  let out = ind;
+  const porAnio = ind.metasPorAnio?.[anioImplementacion(est, anio)];
+  if (porAnio) out = { ...out, ...porAnio };
+  if (ind.metaPorEstablecimiento === 'nSalas' && Number.isFinite(est.nSalas) && est.nSalas > 0) {
+    out = { ...out, meta: String(est.nSalas), metaNum: est.nSalas, tipoMeta: 'numero', unidad: 'conteo', metaOrigen: 'nSalas' };
+  }
+  return out;
+}
+
+export function calcularLogro(valor, indicadorBase, est) {
+  const indicador = est ? resolverIndicador(indicadorBase, est) : indicadorBase;
   const tipoMeta = indicador.tipoMeta ?? tipoMetaFromUnidad(indicador.unidad);
   if (tipoMeta === 'sin_meta' || indicador.metaNum === null || indicador.metaNum === undefined) return null;
   if (valor === null || valor === undefined) return null;
@@ -62,7 +81,8 @@ export function calcularLogro(valor, indicador) {
  * derivan de `valor` — no forman parte de esta función. Ver
  * `getCoberturaLabel` abajo para el label y la clase visual.
  */
-export function estadoValor(valor, indicador) {
+export function estadoValor(valor, indicadorBase, est) {
+  const indicador = est ? resolverIndicador(indicadorBase, est) : indicadorBase;
   const tipoMeta = indicador.tipoMeta ?? tipoMetaFromUnidad(indicador.unidad);
   if (tipoMeta === 'sin_meta' || indicador.metaNum === null || indicador.metaNum === undefined) return 'sin_meta';
   if (valor === null || valor === undefined) return 'sin_dato';

@@ -44,7 +44,7 @@ export default function SostenedorAveragePicker({
       for (const ind of aplicables) {
         const v = getValor(ind.id, est.id);
         if (v === null || v === undefined) { /* falta → 0 */ continue; }
-        const l = calcularLogro(v, ind);
+        const l = calcularLogro(v, ind, est);
         if (l === null) continue;
         sum += Math.min(1, l);
       }

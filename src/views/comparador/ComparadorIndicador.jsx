@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, ArrowLeftRight, RotateCcw } from 'lucide-react';
-import { calcularLogro } from '../../data/establecimientos.js';
+import { calcularLogro, resolverIndicador } from '../../data/establecimientos.js';
 import { isAplicable2026 } from '../../data/scope.js';
 import { formatValue } from '../../data/expectedValue.js';
 import { ambitoCodigo, ambitoNombre, indicadorCodigo } from '../../lib/labels.js';
@@ -94,7 +94,7 @@ function ratioLogro(ind, ests, valores, mesRef) {
   let suma = 0;
   for (const e of aplican) {
     const v = valores.get(e.id)?.get(ind.id) ?? null;
-    const l = calcularLogro(v, ind);
+    const l = calcularLogro(v, ind, e);
     suma += l === null ? 0 : Math.min(1, l);
   }
   return suma / aplican.length;
@@ -181,7 +181,7 @@ export function computeSideData({
     return ests.map(e => {
       const applies = isAplicable2026(ind, e, mesRef);
       const v = applies ? (fuente.get(e.id)?.get(ind.id) ?? null) : null;
-      const r = calcularLogro(v, ind);
+      const r = calcularLogro(v, ind, e);
       // For Escolar, surface the manifest state so a missing value renders as
       // "sin fuente" vs "sin dato" vs "cero" instead of a bare "—".
       // Parvulario has no manifest — cobertura stays null and row falls back to "—".
@@ -192,7 +192,7 @@ export function computeSideData({
         key: e.id,
         nombre: e.nombre,
         valor: v,
-        meta: ind.metaNum,
+        meta: resolverIndicador(ind, e).metaNum,
         unidad: ind.unidad,
         ratio: r === null ? null : Math.min(1, r),
         ind,

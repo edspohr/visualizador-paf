@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-05T07:44:34.032Z",
+  "generatedAt": "2026-09-28T02:43:48.258Z",
   "source": {
     "escolar": "src/data/catalogs/Sistema indicadores PAF Escolar 2026.xlsx",
     "parvulario": "src/data/catalogs/Sistema indicadores PAF Parvulario.xlsx"
@@ -1175,7 +1175,24 @@
         "fuente": "Sin especificar",
         "frecuencia": "anual",
         "inicio": null,
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "metasPorAnio": {
+          "1": {
+            "meta": "Sí",
+            "metaNum": 1,
+            "tipoMeta": "booleano",
+            "unidad": "binario"
+          },
+          "2": {
+            "meta": "—",
+            "metaNum": null,
+            "tipoMeta": "sin_meta",
+            "unidad": "sin_meta"
+          }
+        },
+        "vigencia": [
+          1
+        ]
       },
       {
         "id": "I.10",
@@ -1194,7 +1211,24 @@
         "fuente": "Sin especificar",
         "frecuencia": "anual",
         "inicio": null,
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "metasPorAnio": {
+          "1": {
+            "meta": "—",
+            "metaNum": null,
+            "tipoMeta": "sin_meta",
+            "unidad": "sin_meta"
+          },
+          "2": {
+            "meta": "Sí",
+            "metaNum": 1,
+            "tipoMeta": "booleano",
+            "unidad": "binario"
+          }
+        },
+        "vigencia": [
+          2
+        ]
       },
       {
         "id": "I.11",
@@ -1498,7 +1532,22 @@
         "fuente": "Evaluación final actividad",
         "frecuencia": "anual",
         "inicio": "Primer año",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "metasPorAnio": {
+          "1": {
+            "meta": "153",
+            "metaNum": 153,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          },
+          "2": {
+            "meta": "60",
+            "metaNum": 60,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          }
+        },
+        "metaPorEstablecimiento": "nSalas"
       },
       {
         "id": "I.27",
@@ -1555,7 +1604,21 @@
         "fuente": "Encuesta apoderados",
         "frecuencia": "anual",
         "inicio": "Primer año",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "metasPorAnio": {
+          "1": {
+            "meta": "10",
+            "metaNum": 10,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          },
+          "2": {
+            "meta": "15",
+            "metaNum": 15,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          }
+        }
       },
       {
         "id": "I.30",
@@ -1821,7 +1884,21 @@
         "fuente": "Encuesta apoderados",
         "frecuencia": "anual",
         "inicio": "Primer año",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "metasPorAnio": {
+          "1": {
+            "meta": "7",
+            "metaNum": 7,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          },
+          "2": {
+            "meta": "10",
+            "metaNum": 10,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          }
+        }
       },
       {
         "id": "I.44",
@@ -1878,7 +1955,22 @@
         "fuente": "Registro establecimiento",
         "frecuencia": "anual",
         "inicio": "Primer año",
-        "clasificacion": "producto"
+        "clasificacion": "producto",
+        "metasPorAnio": {
+          "1": {
+            "meta": "153",
+            "metaNum": 153,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          },
+          "2": {
+            "meta": "60",
+            "metaNum": 60,
+            "tipoMeta": "numero",
+            "unidad": "conteo"
+          }
+        },
+        "metaPorEstablecimiento": "nSalas"
       },
       {
         "id": "I.47",
@@ -2100,10 +2192,10 @@
         "ambito": "A1",
         "actividadNombre": "1 reunión territorial con coordinadoras.",
         "nombre": "N° de reuniones territoriales con coordinadoras desarrolladas",
-        "meta": "100%",
+        "meta": "1",
         "metaNum": 1,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "tipoMeta": "numero",
+        "unidad": "conteo",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "semestral",
@@ -2138,15 +2230,19 @@
         "ambito": "A2",
         "actividadNombre": "1 instancia de sensibilización y presentación del Programa.",
         "nombre": "N° de instancias de sensibilización y presentación del Programa desarrolladas",
-        "meta": "100%",
+        "meta": "1",
         "metaNum": 1,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "tipoMeta": "numero",
+        "unidad": "conteo",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "anual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "vigencia": [
+          1
+        ],
+        "vigenciaProvisional": true
       },
       {
         "id": "I.10",
@@ -2165,7 +2261,11 @@
         "fuente": "Consultor",
         "frecuencia": "anual",
         "inicio": "Sem 1",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "vigencia": [
+          1
+        ],
+        "vigenciaProvisional": true
       },
       {
         "id": "I.11",
@@ -2184,7 +2284,11 @@
         "fuente": "Consultor",
         "frecuencia": "anual",
         "inicio": "Sem 2",
-        "clasificacion": "estrategia"
+        "clasificacion": "estrategia",
+        "vigencia": [
+          1
+        ],
+        "vigenciaProvisional": true
       },
       {
         "id": "I.12",
@@ -2512,10 +2616,10 @@
         "ambito": "A3",
         "actividadNombre": "1 Formación territorial de monitores (apoderados y agentes educativas).",
         "nombre": "N° formaciones territoriales de monitores desarrolladas",
-        "meta": "100%",
+        "meta": "1",
         "metaNum": 1,
-        "tipoMeta": "porcentaje",
-        "unidad": "%",
+        "tipoMeta": "numero",
+        "unidad": "conteo",
         "tipo": "actividad",
         "fuente": "Consultor",
         "frecuencia": "anual",

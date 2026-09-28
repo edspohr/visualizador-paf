@@ -38,6 +38,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
+import { credenciales, salida } from './lib/runtime.mjs';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
 import { extractPlanillaId, planillaToCanonical } from './lib/parvularioIds.mjs';
@@ -56,12 +57,12 @@ const PURGE = args.includes('--purge');
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 
-const sa = JSON.parse(await readFile(pathResolve(ROOT, 'scripts/service-account.json'), 'utf8'));
-initializeApp({ credential: cert(sa) });
+const CRED = credenciales(ROOT);
+initializeApp({ credential: CRED.firebaseCredential });
 const db = getFirestore();
 
 const auth = new google.auth.GoogleAuth({
-  credentials: sa,
+  ...CRED.googleAuthOptions,
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 const sheets = google.sheets({ version: 'v4', auth });
@@ -492,7 +493,7 @@ function ingestSalasTab({ workbookId, workbookLabel, tab, rows, cohorte, anio })
 // ─── Main ─────────────────────────────────────────────────────────────────
 
 console.log(`Ingesta Parvulario (VISUALIZADOR) — ${DRY_RUN ? 'DRY-RUN' : 'WRITE'}`);
-console.log(`SA: ${sa.client_email}\n`);
+console.log(`SA: ${CRED.clientEmail}\n`);
 
 // 1) Roster
 console.log('1) Leyendo Bases SCJI → roster de jardines…');
@@ -722,9 +723,7 @@ const fecha = new Date().toISOString().slice(0, 10);
 const reportName = DRY_RUN
   ? `ingestParvulario-${fecha}-dryrun.json`
   : `ingestParvulario-${fecha}.json`;
-const reportPath = pathResolve(ROOT, 'reports', reportName);
-const { mkdir } = await import('node:fs/promises');
-await mkdir(pathResolve(ROOT, 'reports'), { recursive: true });
+const reportPath = salida(ROOT, `reports/${reportName}`);
 await writeFile(reportPath, JSON.stringify(report, null, 2));
 console.log(`\n   Reporte: ${reportPath}`);
 

@@ -367,10 +367,13 @@ export function useValoresIndicador(establecimientoId, anio) {
 // Devuelve los agregados por jardín (docs SIN campo `nivel`). Los docs por
 // sala (con `nivel`) se excluyen para no contarlos dos veces al agregar.
 // `enabled: false` evita disparar la query (útil cuando otro hook ya trae ese año).
-export function useValoresAnio(anio, enabled = true) {
+// `cierre` (YYYY-MM): read the monthly closure snapshot
+// cierres_real/{cierre}/resultados instead of the live collection (CAP, D-14).
+export function useValoresAnio(anio, enabled = true, cierre = null) {
   return useFirestore(async () => {
     if (!anio || !enabled) return [];
-    const q = query(collection(db, 'resultados_real'), where('anio', '==', anio));
+    const origen = cierre ? collection(db, 'cierres_real', cierre, 'resultados') : collection(db, 'resultados_real');
+    const q = query(origen, where('anio', '==', anio));
     const snap = await getDocs(q);
     return snap.docs
       .map((d) => {
@@ -380,7 +383,17 @@ export function useValoresAnio(anio, enabled = true) {
       // Excluir docs con `nivel` para evitar doble conteo. El comparador
       // usa `useValoresAnioNivel` cuando necesita el desglose por sala.
       .filter((d) => !d.nivel);
-  }, [anio, enabled]);
+  }, [anio, enabled, cierre]);
+}
+
+// Monthly closure metadata (cierres_real/{YYYY-MM}), or null if that month has
+// not been closed yet.
+export function useCierre(periodo) {
+  return useFirestore(async () => {
+    if (!periodo) return null;
+    const snap = await getDoc(doc(db, 'cierres_real', periodo));
+    return snap.exists() ? snap.data() : null;
+  }, [periodo]);
 }
 
 // Devuelve los valores por sala filtrados por nivel bucket

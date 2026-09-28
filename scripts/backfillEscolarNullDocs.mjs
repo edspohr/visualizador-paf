@@ -17,6 +17,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
+import { credenciales, salida } from './lib/runtime.mjs';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -24,8 +25,7 @@ const ROOT = pathResolve(__dirname, '..');
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
 
-const sa = JSON.parse(await readFile(pathResolve(ROOT, 'scripts/service-account.json'), 'utf8'));
-initializeApp({ credential: cert(sa) });
+initializeApp({ credential: credenciales(ROOT).firebaseCredential });
 const db = getFirestore();
 
 const cat = JSON.parse(await readFile(pathResolve(ROOT, 'src/data/catalog.json'), 'utf8'));
@@ -110,8 +110,7 @@ if (DRY_RUN) {
 }
 
 const date = new Date().toISOString().slice(0, 10);
-await mkdir(pathResolve(ROOT, 'reports'), { recursive: true });
-const reportPath = pathResolve(ROOT, `reports/backfillEscolarNullDocs-${date}.json`);
+const reportPath = salida(ROOT, `reports/backfillEscolarNullDocs-${date}.json`);
 await writeFile(reportPath, JSON.stringify({
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,

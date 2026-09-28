@@ -21,6 +21,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
+import { credenciales, salida } from './lib/runtime.mjs';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
 import { pruneStale } from './lib/pruneStale.mjs';
@@ -39,12 +40,12 @@ const SCHOOL_FILTER = (args.find(a => a.startsWith('--schools=')) || '').split('
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 
-const sa = JSON.parse(await readFile(pathResolve(ROOT, 'scripts/service-account.json'), 'utf8'));
-initializeApp({ credential: cert(sa) });
+const CRED = credenciales(ROOT);
+initializeApp({ credential: CRED.firebaseCredential });
 const db = getFirestore();
 
 const auth = new google.auth.GoogleAuth({
-  credentials: sa,
+  ...CRED.googleAuthOptions,
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly', 'https://www.googleapis.com/auth/drive.readonly'],
 });
 const sheets = google.sheets({ version: 'v4', auth });
@@ -840,7 +841,7 @@ const SCHOOL_FOLDERS = [
 
 // Descubrir 18 escuelas por carpetas
 console.log(`Ingesta Escolar — Etapa 5 · ${DRY_RUN ? 'DRY-RUN' : 'WRITE'}`);
-console.log(`SA: ${sa.client_email}\n`);
+console.log(`SA: ${CRED.clientEmail}\n`);
 console.log('1) Descubriendo escuelas…');
 
 const schools = [];
@@ -1099,6 +1100,6 @@ const report = {
   headerMismatches: HEADER_MISMATCHES,
   muestra: sample,
 };
-await writeFile(pathResolve(ROOT, 'docs/etapa5-ingesta-escolar.json'), JSON.stringify(report, null, 2));
+await writeFile(salida(ROOT, 'docs/etapa5-ingesta-escolar.json'), JSON.stringify(report, null, 2));
 console.log('\n   Reporte JSON: docs/etapa5-ingesta-escolar.json');
 console.log(`\n${DRY_RUN ? 'DRY-RUN completo — no se escribió a Firestore.' : 'Ingesta completa.'}`);

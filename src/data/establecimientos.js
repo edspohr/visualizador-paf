@@ -172,16 +172,18 @@ export function lastClosedMonth() {
 /**
  * Mes cerrado publicado para la vista Fundación CAP.
  *
- * Regla operativa: el cierre del mes N se publica el día 15 del mes N+1.
+ * Regla operativa (D-14, 2026-09-27): el cierre del mes N se fotografía el
+ * último día del mes N (corrida del día 1 a las 02:00) y el perfil CAP lo ve
+ * desde el día 16 del mes N+1.
  * Ejemplos:
- *   - hoy = 8-jul → todavía se ve el cierre de mayo (junio se libera el 15-jul).
- *   - hoy = 15-jul → ya se ve el cierre de junio.
+ *   - hoy = 15-oct → todavía se ve el cierre de agosto.
+ *   - hoy = 16-oct → ya se ve el cierre de septiembre.
  *
  * Devuelve `{ mes, anio }` con wrap correcto para enero/febrero.
  */
 export function capClosedPeriod(now = new Date()) {
   const day = now.getDate();
-  const monthsBack = day >= 15 ? 1 : 2;
+  const monthsBack = day >= 16 ? 1 : 2;
   let mes = now.getMonth() + 1 - monthsBack;
   let anio = now.getFullYear();
   while (mes <= 0) { mes += 12; anio -= 1; }

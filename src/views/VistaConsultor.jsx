@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { canon, canonComuna, cumpleFiltros, opcionesCascada, sanearFiltros } from '../lib/filtros.js';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
-import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
+import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio, useCierre } from '../lib/queries.js';
 import { calcularLogro, currentMonth, capClosedPeriod } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables, isAplicable2026 } from '../data/scope.js';
 import { matriculaVisible, formatearFechaCorte } from '../data/matricula.js';
@@ -83,7 +83,14 @@ export default function VistaConsultor() {
   const indicadoresQ = useIndicadores(programa);
   const ambitosQ = useAmbitos(programa);
 
-  const valoresAnioQ = useValoresAnio(anioSeleccionado);
+  // CAP: in the current year it reads the closure snapshot of the closed
+  // month (cierres_real) when it exists; until then, the day's data with a
+  // notice (D-14).
+  const periodoCierre = isCAP ? `${capCierre.anio}-${String(capCierre.mes).padStart(2, '0')}` : null;
+  const cierreQ = useCierre(periodoCierre);
+  const cierreDisponible = !!cierreQ.data;
+  const cierreActual = isCAP && cierreDisponible ? periodoCierre : null;
+  const valoresAnioQ = useValoresAnio(anioSeleccionado, true, anioEnCurso ? cierreActual : null);
   // Map<estId, Map<indicadorId, { valor, estado }>>
   const valoresPorEst = useMemo(() => {
     const m = new Map();
@@ -100,7 +107,7 @@ export default function VistaConsultor() {
   // dos años lo trae `valoresAnioQ` (el del selector global); el otro va aquí.
   // Cuando el selector global coincide con el año, no disparamos la lectura.
   const valores2025Q = useValoresAnio(2025, anioSeleccionado !== 2025);
-  const valores2026Q = useValoresAnio(2026, anioSeleccionado !== 2026);
+  const valores2026Q = useValoresAnio(2026, anioSeleccionado !== 2026, ANIO_ACTUAL === 2026 ? cierreActual : null);
 
   // Map<anio, Map<estId, Map<indicadorId, valor>>>. Consumido por el comparador.
   // La clave YY es el año real de los datos, no una literal fija — esto evita
@@ -268,7 +275,9 @@ export default function VistaConsultor() {
             <p className="text-xs text-white/60 tracking-wider font-medium mb-1">FUNDACIÓN CAP · INFORME DE CIERRE</p>
             <h2 className="text-3xl md:text-4xl font-medium text-white leading-tight">Vista de cierre · Fundación CAP</h2>
             <p className="text-white/80 mt-2 text-sm">
-              Datos <span className="text-lime-300 font-semibold">validados</span> al {labelMesCerrado(capCierre)} · Próxima actualización el 15 del mes siguiente
+              {cierreDisponible || !anioEnCurso
+                ? <>Datos de cierre al {labelMesCerrado(capCierre)} · El cierre de cada mes se publica el día 16 del mes siguiente</>
+                : <>Cierre de {NOMBRES_MES[capCierre.mes - 1].toLowerCase()} en preparación · Se muestran los datos del día (<FechaActualizacion programa={programa} />)</>}
             </p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">

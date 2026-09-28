@@ -159,6 +159,19 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // ─── /cierres_real/{periodo} — cierre mensual para el perfil CAP ────
+    // Copia de resultados_real al cierre de cada mes (scripts/snapshotCierre.mjs,
+    // pipeline nocturno del día 1). Solo lectura para perfiles con acceso
+    // completo (consultor, cap, superadmin); lo escribe el pipeline (Admin SDK).
+    match /cierres_real/{periodo} {
+      allow read: if esUsuarioValido() && esAccesoCompleto();
+      allow write: if false;
+      match /resultados/{docId} {
+        allow read: if esUsuarioValido() && esAccesoCompleto();
+        allow write: if false;
+      }
+    }
+
     // ─── /progresoTrimestral_real/{docId} ──────────────────────────────
     match /progresoTrimestral_real/{docId} {
       allow read: if esUsuarioValido() && (

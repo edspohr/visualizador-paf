@@ -78,8 +78,8 @@ function findPII(obj, path = '') {
 console.log('[pii-assert] Iniciando chequeo de PII...');
 const { initializeApp, cert } = await import('firebase-admin/app');
 const { getFirestore } = await import('firebase-admin/firestore');
-const sa = JSON.parse(await readFile(pathResolve(ROOT, 'scripts/service-account.json'), 'utf8'));
-initializeApp({ credential: cert(sa) });
+const { credenciales } = await import('./lib/runtime.mjs');
+initializeApp({ credential: credenciales(ROOT).firebaseCredential });
 const db = getFirestore();
 
 let totalHits = 0;

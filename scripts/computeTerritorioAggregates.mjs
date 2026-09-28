@@ -30,6 +30,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
+import { credenciales, salida } from './lib/runtime.mjs';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -57,8 +58,7 @@ function normalizarIndicadorId(id) {
 import { calcularLogro, resolverIndicador, anioImplementacion } from '../src/data/establecimientos.js';
 
 // ─── Init Firebase Admin ─────────────────────────────────────────────────────
-const sa = JSON.parse(readFileSync(pathResolve(ROOT, 'scripts/service-account.json'), 'utf8'));
-initializeApp({ credential: cert(sa) });
+initializeApp({ credential: credenciales(ROOT).firebaseCredential });
 const db = getFirestore();
 
 if (DRY_RUN) console.log('DRY RUN — no writes will be made.\n');
@@ -329,9 +329,7 @@ if (!DRY_RUN) {
 
 // ─── Report ──────────────────────────────────────────────────────────────────
 const stamp = new Date().toISOString().slice(0, 10);
-const reportsDir = pathResolve(ROOT, 'reports');
-await mkdir(reportsDir, { recursive: true });
-const reportPath = pathResolve(reportsDir, `computeTerritorioAggregates-${stamp}.json`);
+const reportPath = salida(ROOT, `reports/computeTerritorioAggregates-${stamp}.json`);
 await writeFile(reportPath, JSON.stringify({
   dryRun: DRY_RUN,
   computedAt: now,

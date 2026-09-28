@@ -34,6 +34,28 @@ export function expectedToDate(indicador, mes) {
   }
 }
 
+/**
+ * "Avance esperado a la fecha" (L-02, D-03): automatic, proportional to the
+ * school year (March–December). With the current month counted as elapsed,
+ * September → 7/10 of the annual meta.
+ *
+ * Only for cumulative counts (unidad 'conteo': N° de…, instancias/talleres por
+ * sala). Percentages (attendance, coverage) and Sí/No indicators have no
+ * proportional progress, so they return null. Also null outside the school
+ * year's span or when the meta is missing.
+ */
+export const MES_INICIO_ANIO_ESCOLAR = 3;
+export const MES_FIN_ANIO_ESCOLAR = 12;
+export function esperadoALaFecha(indicador, mes) {
+  if (!indicador || indicador.unidad !== 'conteo') return null;
+  const { metaNum } = indicador;
+  if (metaNum === null || metaNum === undefined || !(metaNum > 0)) return null;
+  const total = MES_FIN_ANIO_ESCOLAR - MES_INICIO_ANIO_ESCOLAR + 1;
+  const transcurridos = Math.max(0, Math.min(total, mes - MES_INICIO_ANIO_ESCOLAR + 1));
+  if (transcurridos === 0 || transcurridos === total) return null;
+  return metaNum * (transcurridos / total);
+}
+
 /** Format a raw value for display given the indicator's unit.
  *
  * Binario:

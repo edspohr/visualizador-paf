@@ -13,6 +13,7 @@ import SostenedorVsPromedio from '../components/SostenedorVsPromedio.jsx';
 import { Building2, GraduationCap, Users, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
+import FechaActualizacion from '../components/FechaActualizacion.jsx';
 
 const ANIO_ACTUAL = 2026;
 const ANIOS_DISPONIBLES = [2025, 2026];
@@ -196,6 +197,7 @@ export default function VistaSostenedor() {
           <div className="flex items-center gap-2 text-white/70 mt-1 text-sm">
             <MapPin size={14} /> {slep.comuna}
           </div>
+          <FechaActualizacion programa={programaTipo} className="block text-white/70 mt-1 text-xs" />
         </div>
         <div className="flex items-center gap-2 text-sm flex-wrap">
           <div className="bg-white/10 px-3 py-2 rounded-xl">

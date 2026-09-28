@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { comunaCanonica } from '../lib/comunas.js';
+import { useState, useMemo, useEffect } from 'react';
+import { canon, canonComuna, cumpleFiltros, opcionesCascada, sanearFiltros } from '../lib/filtros.js';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
 import { useEscuelas, useJardines, useSleps, useIndicadores, useAmbitos, useValoresAnio } from '../lib/queries.js';
@@ -15,16 +15,14 @@ import SostenedorAveragePicker from '../components/SostenedorAveragePicker.jsx';
 import { Filter, Building2, Users, GraduationCap, MapPin, ChevronDown, ChevronUp, GitCompareArrows, Grid3x3 } from 'lucide-react';
 import Glosario from '../components/Glosario.jsx';
 import PipelineStatusBanner from '../components/PipelineStatusBanner.jsx';
+import FechaActualizacion from '../components/FechaActualizacion.jsx';
 import ComparadorIndicador from './comparador/ComparadorIndicador.jsx';
 
 const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 // Trims whitespace from a field value before string comparison, so that a stray
 // space or encoding difference in Firestore doesn't silently break filters.
-const canon = (v) => (v == null ? '' : String(v).trim());
-// Comunas pass through the shared normalizer so 'PAC' and 'Pedro Aguirre
-// Cerda' count as one (S-08).
-const canonComuna = (v) => comunaCanonica(v) ?? '';
+
 
 // Sublabel del TotalCard "Niñas y niños" — refleja si el número corresponde a
 // un snapshot congelado (perfil CAP) o al dato vivo.
@@ -150,15 +148,21 @@ export default function VistaConsultor() {
   const [heatmapOpen, setHeatmapOpen] = useState(false);
   const heatmapVisible = FEATURES.heatmap && perfil.id === 'superadmin';
 
-  const filtrados = useMemo(() => todos.filter(e =>
-    (filtroSlep === 'TODOS' || canon(e.slep) === filtroSlep) &&
-    (filtroCohorte === 'TODAS' || canon(e.cohorte) === filtroCohorte) &&
-    (filtroComuna === 'TODAS' || canonComuna(e.comuna) === filtroComuna)
-  ), [todos, filtroSlep, filtroCohorte, filtroComuna]);
+  // Cascading filters (L-08, S-09): each list only offers values that exist
+  // under the other active filters, including the selected year.
+  const filtrosPagina = useMemo(() => ({ anio: anioSeleccionado, slep: filtroSlep, cohorte: filtroCohorte, comuna: filtroComuna }), [anioSeleccionado, filtroSlep, filtroCohorte, filtroComuna]);
+  const opciones = useMemo(() => opcionesCascada(todos, filtrosPagina), [todos, filtrosPagina]);
+  useEffect(() => {
+    const saneado = sanearFiltros(filtrosPagina, opciones);
+    if (saneado === filtrosPagina) return;
+    setFiltroSlep(saneado.slep); setFiltroCohorte(saneado.cohorte); setFiltroComuna(saneado.comuna);
+  }, [filtrosPagina, opciones]);
 
-  const slepsDisponibles = [...new Set(todos.map(e => canon(e.slep)).filter(Boolean))].map(id => SLEPS_DATA.find(s => s.id === id)).filter(Boolean);
-  const cohortesDisponibles = [...new Set(todos.map(e => canon(e.cohorte)).filter(Boolean))];
-  const comunasDisponibles = [...new Set(todos.map(e => canonComuna(e.comuna)).filter(Boolean))].sort();
+  const filtrados = useMemo(() => todos.filter(e => cumpleFiltros(e, filtrosPagina)), [todos, filtrosPagina]);
+
+  const slepsDisponibles = opciones.sleps.map(id => SLEPS_DATA.find(s => s.id === id)).filter(Boolean);
+  const cohortesDisponibles = opciones.cohortes;
+  const comunasDisponibles = opciones.comunas;
 
   const conCumplimiento = useMemo(() => filtrados.map(e => {
     const aplicables = indicadoresAplicables(INDS, e, effectiveMonth);
@@ -277,7 +281,12 @@ export default function VistaConsultor() {
           <div>
             <p className="text-xs text-white/60 tracking-wider font-medium mb-1">VISTA COMPLETA · CONSULTORÍA</p>
             <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">Programa {programa === 'escolar' ? 'Aprender en Familia · Educación Básica' : 'Aprender en Familia · Educación Parvularia'}</h2>
-            <p className="text-white/70 mt-1 text-sm">Datos actualizados al {fechaFormateada(effectiveMonth, anioSeleccionado)} · Vista agregada con acceso a todos los cruces.</p>
+            <p className="text-white/70 mt-1 text-sm">
+              {anioEnCurso
+                ? <FechaActualizacion programa={programa} />
+                : `Datos al ${fechaFormateada(12, anioSeleccionado)}`}
+              {' · Vista agregada con acceso a todos los cruces.'}
+            </p>
           </div>
           <div className="bg-white/10 px-3 py-2 rounded-xl text-sm">
             <p className="text-xs text-white/60 leading-none">CENTROS EDUCATIVOS</p>
@@ -356,6 +365,7 @@ export default function VistaConsultor() {
             slepsDisponibles={slepsDisponibles}
             cohortesDisponibles={cohortesDisponibles}
             comunasDisponibles={comunasDisponibles}
+            filtrosPagina={filtrosPagina}
             defaultMes={effectiveMonth}
             sostenedores={SLEPS_DATA}
             valoresPorEstByYear={valoresPorEstByYear}

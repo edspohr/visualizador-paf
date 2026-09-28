@@ -1049,6 +1049,16 @@ if (PRUNE) {
   console.log(`\n   ${DRY_RUN ? 'Se marcarían' : 'Marcados'} como sin dato: ${pruned.length} docs`);
 }
 
+// Fecha visible de "Datos actualizados al …" (L-04): se registra solo en una
+// carga real completada.
+if (!DRY_RUN) {
+  await db.doc('config/pipelineMetadata').set({
+    ultimoSyncAt: FieldValue.serverTimestamp(),
+    ultimoSyncExitoso: true,
+    escolar: { ultimaCargaAt: FieldValue.serverTimestamp(), docsEscritos: allResults.filter(r => r.indicadorId && r.fuente).length, marcadosSinDato: pruned.length },
+  }, { merge: true });
+}
+
 // ─── Verification report ──────────────────────────────────────────────────
 console.log('\n7) Reporte de verificación');
 // Base el reporte en los que sí fueron enriquecidos con éxito (indicadorId + fuente).

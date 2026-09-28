@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, ArrowLeftRight, RotateCcw } from 'lucide-react';
 import { calcularLogro, resolverIndicador } from '../../data/establecimientos.js';
@@ -9,6 +9,7 @@ import { useValoresAnioNivel, useValoresAnioNiveles } from '../../lib/queries.js
 import { getCoberturaEscolar } from '../../data/coverage.js';
 import { getCoberturaLabel } from '../../data/establecimientos.js';
 import homologacion from '../../data/homologacionEscolar.json';
+import { cumpleFiltros, opcionesCascada, sanearFiltros } from '../../lib/filtros.js';
 
 // ─── Homologación Escolar 2025 ↔ 2026 ────────────────────────────────────────
 // Map from 2025 indicator ID → 2026 indicator ID (canonical dot-notation).
@@ -48,12 +49,27 @@ const NIVELES_OPERATIVOS = NIVELES_OPTS.filter(n => n.v !== 'TODOS').map(n => n.
 
 // ─── Helpers puros de agregación ─────────────────────────────────────────────
 
-function filtrarEstablecimientos(todos, { slep, cohorte, comuna }) {
-  return todos.filter(e =>
-    (slep === 'TODOS' || e.slep === slep) &&
-    (cohorte === 'TODAS' || e.cohorte === cohorte) &&
-    (comuna === 'TODAS' || e.comuna === comuna)
+// Same rules as the page filters (comuna normalized, cohort started by `year`).
+function filtrarEstablecimientos(todos, { year, slep, cohorte, comuna }) {
+  return todos.filter(e => cumpleFiltros(e, { anio: year, slep, cohorte, comuna }));
+}
+
+// Per-side cascading options (L-08): only values that exist under that side's
+// other filters.
+function useOpcionesLado(todos, filters, setFilters, sostenedores) {
+  const opciones = useMemo(
+    () => opcionesCascada(todos, { anio: filters.year, slep: filters.slep, cohorte: filters.cohorte, comuna: filters.comuna }),
+    [todos, filters.year, filters.slep, filters.cohorte, filters.comuna],
   );
+  useEffect(() => {
+    const saneado = sanearFiltros(filters, opciones);
+    if (saneado !== filters) setFilters(saneado);
+  }, [filters, opciones, setFilters]);
+  return {
+    sleps: opciones.sleps.map(id => sostenedores.find(s => s.id === id)).filter(Boolean),
+    cohortes: opciones.cohortes,
+    comunas: opciones.comunas,
+  };
 }
 
 function buildLabel({ slep, cohorte, comuna, nivel, year }, sostenedores = []) {
@@ -425,6 +441,7 @@ export default function ComparadorIndicador({
   slepsDisponibles,
   cohortesDisponibles,
   comunasDisponibles,
+  filtrosPagina = null,
   defaultMes,
   sostenedores = [],
   valoresPorEstByYear,
@@ -433,17 +450,32 @@ export default function ComparadorIndicador({
   // valoresPorEstByYear: Map<anio, Map<estId, Map<indicadorId, valor>>>
   // Se recibe pre-normalizado por año real (no por posición A/B), para que la
   // clave del map siempre refleje el año verdadero de los datos.
-  const initA = { year: 2026, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS' };
+  // Group A starts from, and follows, the page's top filters (L-05). Group B
+  // stays free for the comparison.
+  const initA = {
+    year: filtrosPagina?.anio ?? 2026,
+    slep: filtrosPagina?.slep ?? 'TODOS',
+    cohorte: filtrosPagina?.cohorte ?? 'TODAS',
+    comuna: filtrosPagina?.comuna ?? 'TODAS',
+    nivel: 'TODOS',
+  };
   const initB = { year: 2025, slep: 'TODOS', cohorte: 'TODAS', comuna: 'TODAS', nivel: 'TODOS' };
   const [filtersA, setFiltersA] = useState(initA);
   const [filtersB, setFiltersB] = useState(initB);
+  useEffect(() => {
+    if (!filtrosPagina) return;
+    setFiltersA(prev => ({ ...prev, year: filtrosPagina.anio, slep: filtrosPagina.slep, cohorte: filtrosPagina.cohorte, comuna: filtrosPagina.comuna }));
+  }, [filtrosPagina]);
+  const opcionesA = useOpcionesLado(todos, filtersA, setFiltersA, sostenedores);
+  const opcionesB = useOpcionesLado(todos, filtersB, setFiltersB, sostenedores);
   const [indicadorFocal, setIndicadorFocal] = useState('TODOS');
   const [desglose, setDesglose] = useState('agrupado');
   const [ambitoScope, setAmbitoScope] = useState('TODOS');
   const [orden, setOrden] = useState('diferencia');
   const [mostrarTodos, setMostrarTodos] = useState(false);
 
-  const showNivelFilter = todos.some(e => e.tipo === 'jardin');
+  // Ingest writes tipo 'Jardín'; the old strict 'jardin' check never matched.
+  const showNivelFilter = programa === 'parvulario' || todos.some(e => /jard/i.test(String(e.tipo ?? '')));
 
   const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
   const focalInd = indicadorFocal !== 'TODOS' ? indicadoresElegibles.find(i => i.id === indicadorFocal) : null;
@@ -767,9 +799,9 @@ export default function ComparadorIndicador({
           color="var(--color-cyan)"
           filters={filtersA}
           onChange={setFiltersA}
-          slepsDisponibles={slepsDisponibles}
-          cohortesDisponibles={cohortesDisponibles}
-          comunasDisponibles={comunasDisponibles}
+          slepsDisponibles={opcionesA.sleps}
+          cohortesDisponibles={opcionesA.cohortes}
+          comunasDisponibles={opcionesA.comunas}
           summary={summaryA}
           centros={estsA}
           showNivel={showNivelFilter}
@@ -779,9 +811,9 @@ export default function ComparadorIndicador({
           color="var(--color-magenta)"
           filters={filtersB}
           onChange={setFiltersB}
-          slepsDisponibles={slepsDisponibles}
-          cohortesDisponibles={cohortesDisponibles}
-          comunasDisponibles={comunasDisponibles}
+          slepsDisponibles={opcionesB.sleps}
+          cohortesDisponibles={opcionesB.cohortes}
+          comunasDisponibles={opcionesB.comunas}
           summary={summaryB}
           centros={estsB}
           showNivel={showNivelFilter}

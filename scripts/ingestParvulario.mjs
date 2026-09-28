@@ -646,6 +646,16 @@ if (PRUNE) {
   console.log(`\n   ${DRY_RUN ? 'Se marcarían' : 'Marcados'} como sin dato: ${pruned.length} docs (${pruned.filter(p => !p.nivel).length} por jardín)`);
 }
 
+// Fecha visible de "Datos actualizados al …" (L-04): se registra solo en una
+// carga real completada.
+if (!DRY_RUN) {
+  await db.doc('config/pipelineMetadata').set({
+    ultimoSyncAt: FieldValue.serverTimestamp(),
+    ultimoSyncExitoso: true,
+    parvulario: { ultimaCargaAt: FieldValue.serverTimestamp(), docsEscritos: uniqueJardin.length + allSalasDocs.length, marcadosSinDato: pruned.length },
+  }, { merge: true });
+}
+
 // 8) Reporte
 console.log('\n6) Reporte');
 const byPeriodo = allJardinDocs.reduce((acc, r) => (acc[r.periodo] = (acc[r.periodo] || 0) + 1, acc), {});

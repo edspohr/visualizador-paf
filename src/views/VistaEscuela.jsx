@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useApp } from '../lib/context.jsx';
+import { ocultosParaPerfil } from '../data/visibilidad.js';
+import FechaActualizacion from '../components/FechaActualizacion.jsx';
 import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresIndicador, useTerritorioAggregate } from '../lib/queries.js';
 import { calcularLogro, MES_ACTUAL } from '../data/establecimientos.js';
 import { cumplimientoIndicadores, indicadoresAplicables } from '../data/scope.js';
@@ -33,6 +35,8 @@ export default function VistaEscuela() {
   };
   const esJardin = perfil.id === 'jardin';
   const programa = esJardin ? 'parvulario' : 'escolar';
+  // Indicators not shown to this profile (still counted in the %): D-02.
+  const ocultos = useMemo(() => ocultosParaPerfil(perfil.id, programa), [perfil.id, programa]);
 
   const entidadQ = useEntidadDelPerfil(perfil);
   const indicadoresQ = useIndicadores(programa);
@@ -86,7 +90,7 @@ export default function VistaEscuela() {
   const rankingItems = useMemo(() => {
     if (!entidad) return [];
     return indicadoresAplicables(INDS, entidad, mesEfectivo)
-      .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null)
+      .filter(ind => ind.unidad !== 'sin_meta' && ind.metaNum !== null && !ocultos.has(ind.id))
       .map(ind => {
         const entry = valoresReales.get(ind.id);
         const valor = entry?.valor ?? null;
@@ -100,7 +104,7 @@ export default function VistaEscuela() {
         };
       })
       .filter(Boolean);
-  }, [entidad, INDS, valoresReales, mesEfectivo]);
+  }, [entidad, INDS, valoresReales, mesEfectivo, ocultos]);
 
   if (cargando) {
     return (
@@ -141,6 +145,7 @@ export default function VistaEscuela() {
           </p>
           <h2 className="text-2xl md:text-3xl font-medium text-white leading-tight">{entidad.nombre}</h2>
           <p className="text-white/80 mt-1 text-sm">{slep?.nombre.replace(/^SLEP\s+/, '')} · Programa Aprender en Familia</p>
+          {anioEnCurso && <FechaActualizacion programa={programa} className="block text-white/70 mt-1 text-xs" />}
         </div>
         <div className="flex items-center gap-2 text-sm flex-wrap">
           <div className="bg-white/15 backdrop-blur px-3 py-2 rounded-xl">
@@ -197,6 +202,7 @@ export default function VistaEscuela() {
           programa={programa}
           anioEnCurso={anioEnCurso}
           anio={anioSeleccionado}
+          ocultos={ocultos}
         />
       </div>
 

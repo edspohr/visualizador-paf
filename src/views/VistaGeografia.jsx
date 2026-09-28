@@ -73,8 +73,12 @@ export default function VistaGeografia() {
   const markers = useMemo(() =>
     filtrados
       .map(e => {
-        const geo = geoById.get(e.id);
-        if (!geo) return null;
+        // Real coordinates loaded on the establishment (scripts/loadCoordenadas.mjs)
+        // take precedence; otherwise the approximate comuna position (L-03).
+        const real = Number.isFinite(e.lat) && Number.isFinite(e.lng);
+        const aprox = geoById.get(e.id);
+        if (!real && !aprox) return null;
+        const geo = real ? { lat: e.lat, lng: e.lng, aproximada: false } : { lat: aprox.lat, lng: aprox.lng, aproximada: true };
         const vals = valoresPorEst.get(e.id) ?? new Map();
         const aplic = indicadoresAplicables(INDS, e, MES);
         const cumpl = cumplimientoIndicadores(aplic, vals);
@@ -183,9 +187,11 @@ export default function VistaGeografia() {
                       Matrícula aprox.: {e.nNinos} niños
                     </p>
                   )}
-                  <p style={{ fontSize: 11, color: '#a0a5a9', marginTop: 4 }}>
-                    Posición: centroide de {e.comuna}
-                  </p>
+                  {geo.aproximada && (
+                    <p style={{ fontSize: 11, color: '#a0a5a9', marginTop: 4 }}>
+                      Ubicación aproximada (centro de {e.comuna})
+                    </p>
+                  )}
                 </div>
               </Popup>
             </CircleMarker>

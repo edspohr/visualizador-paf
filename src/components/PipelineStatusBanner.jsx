@@ -19,7 +19,6 @@ export default function PipelineStatusBanner() {
 
   const fecha = formatearFecha(data.ultimoSyncAt);
   const exitoso = data.ultimoSyncExitoso !== false;
-  const docs = data.docsEscritos ?? 0;
 
   return (
     <div className="mt-6 rounded-2xl border border-border bg-white px-4 py-3 flex items-center gap-3 text-xs">
@@ -33,12 +32,12 @@ export default function PipelineStatusBanner() {
           Sincronización con Planillas Centrales
         </p>
         <p className="text-gray-ui font-light">
-          {fecha ? `Último sync: ${fecha} · ${docs} progresos actualizados` : 'Pendiente de primera sincronización'}
+          {fecha ? `Última carga: ${fecha}` : 'Pendiente de primera carga'}
         </p>
       </div>
       <div className="flex items-center gap-1 text-gray-ui">
         <Clock size={11}/>
-        <span>Automático nocturno (planificado)</span>
+        <span>Actualización automática diaria, 2:00 h</span>
       </div>
     </div>
   );

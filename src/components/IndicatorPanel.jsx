@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Clock, ListChecks, Package } from 'lucide-react
 import { calcularLogro, estadoValor, resolverIndicador } from '../data/establecimientos.js';
 import { estadoAplicabilidad, descripcionNoAplicable } from '../data/scope.js';
 import { getCoberturaEscolar } from '../data/coverage.js';
+import { esTerritorial } from '../data/visibilidad.js';
 import { IndicatorProgress } from './Shared.jsx';
 import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
 
@@ -29,6 +30,10 @@ import { indicadorCodigo, ambitoCodigo, ambitoNombre } from '../lib/labels.js';
  *   onDrilldown           — callback(ind) when a row is clicked
  *   programa              — 'escolar' | 'parvulario'
  *   anio                  — selected year (2025 | 2026), used for coverage lookup
+ *   ocultos               — Set of indicator ids not rendered for the current
+ *                           profile; they still count in the ámbito % (D-02)
+ *
+ * Territorial indicators (D-01) are left out of the per-establishment grid.
  */
 export default function IndicatorPanel({
   INDS,
@@ -40,6 +45,7 @@ export default function IndicatorPanel({
   programa = 'escolar',
   anioEnCurso = true,
   anio = 2026,
+  ocultos = null,
 }) {
   const [openAmbitos, setOpenAmbitos] = useState({});
   const toggle = (key) => setOpenAmbitos(prev => ({ ...prev, [key]: !prev[key] }));
@@ -50,7 +56,7 @@ export default function IndicatorPanel({
   // plan implementación 2026-07-29.
   const filasIndicadores = useMemo(() => {
     if (!establecimiento) return [];
-    return INDS.map(indBase => {
+    return INDS.filter(ind => !esTerritorial(ind)).map(indBase => {
       // Meta del año de implementación y meta por escuela (nSalas) resueltas
       // para este centro; el resto del panel trabaja con el objeto resuelto.
       const ind = resolverIndicador(indBase, establecimiento);
@@ -95,6 +101,8 @@ export default function IndicatorPanel({
             anioEnCurso={anioEnCurso}
             programa={programa}
             establecimiento={establecimiento}
+            mes={mes}
+            ocultos={ocultos}
           />
         );
       })}
@@ -106,7 +114,7 @@ export default function IndicatorPanel({
 // "Indicadores de logro" seguido de los productos del mismo ámbito.
 // Header % = "% cumplimiento": AVG(min(1, logro)) sobre indicadores con meta
 // (estrategia + logro), contando 0 los faltantes.
-function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true, programa = 'escolar', establecimiento }) {
+function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onToggle, onDrilldown, anioEnCurso = true, programa = 'escolar', establecimiento, mes, ocultos }) {
   // Partición: aplicables (entran en agregados y se muestran normalmente) vs
   // no-aplicables-aun (se muestran compactos con nota, no entran en agregados).
   const estrategiaAplic = filasEstrategia.filter(f => f.aplicabilidad === 'aplicable');
@@ -127,6 +135,13 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
     ? conMeta.filter(f => f.coberturaEstado === 'SIN_FUENTE_MAPEADA' || f.coberturaEstado === 'FUENTE_NO_ACCESIBLE').length
     : 0;
   const sinDato = conMeta.length - conDato - sinFuente;
+
+  // Rows hidden for this profile still count above; they are only not drawn.
+  const visible = (f) => !ocultos?.has(f.ind.id);
+  const estrategiaVis = estrategiaAplic.filter(visible);
+  const logroVis = logroAplic.filter(visible);
+  const estrategiaAunVis = estrategiaAun.filter(visible);
+  const logroAunVis = logroAun.filter(visible);
 
   return (
     <div className="border border-border rounded-xl overflow-hidden">
@@ -154,7 +169,7 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
       </button>
       {isOpen && (
         <div className="border-t border-border">
-          {filasEstrategia.length > 0 && (
+          {(estrategiaVis.length > 0 || estrategiaAunVis.length > 0) && (
             <>
               <div className="flex items-center gap-3 px-4 pt-4 pb-2 bg-bg/50">
                 <ListChecks size={13} style={{ color: 'var(--color-cyan)' }} className="shrink-0"/>
@@ -163,25 +178,26 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                 </p>
                 <div className="flex-1 h-px bg-border"/>
               </div>
-              {estrategiaAplic.length > 0 && (
+              {estrategiaVis.length > 0 && (
                 <div className="divide-y divide-border">
-                  {estrategiaAplic.map(fila => (
+                  {estrategiaVis.map(fila => (
                     <IndicadorRow
                       key={fila.ind.id}
                       fila={fila}
                       onDrilldown={onDrilldown}
                       anioEnCurso={anioEnCurso}
                       programa={programa}
+                      mes={mes}
                     />
                   ))}
                 </div>
               )}
-              {estrategiaAun.length > 0 && (
-                <NoAplicableAun filas={estrategiaAun} establecimiento={establecimiento} />
+              {estrategiaAunVis.length > 0 && (
+                <NoAplicableAun filas={estrategiaAunVis} establecimiento={establecimiento} />
               )}
             </>
           )}
-          {filasLogro.length > 0 && (
+          {(logroVis.length > 0 || logroAunVis.length > 0) && (
             <>
               <div className="flex items-center gap-3 px-4 pt-4 pb-2 bg-bg/50 border-t border-border">
                 <Package size={13} style={{ color: 'var(--color-magenta)' }} className="shrink-0"/>
@@ -190,21 +206,22 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
                 </p>
                 <div className="flex-1 h-px bg-border"/>
               </div>
-              {logroAplic.length > 0 && (
+              {logroVis.length > 0 && (
                 <div className="divide-y divide-border">
-                  {logroAplic.map(fila => (
+                  {logroVis.map(fila => (
                     <IndicadorRow
                       key={fila.ind.id}
                       fila={fila}
                       onDrilldown={onDrilldown}
                       anioEnCurso={anioEnCurso}
                       programa={programa}
+                      mes={mes}
                     />
                   ))}
                 </div>
               )}
-              {logroAun.length > 0 && (
-                <NoAplicableAun filas={logroAun} establecimiento={establecimiento} />
+              {logroAunVis.length > 0 && (
+                <NoAplicableAun filas={logroAunVis} establecimiento={establecimiento} />
               )}
             </>
           )}
@@ -214,7 +231,7 @@ function AmbitoGroup({ label, codigo, filasEstrategia, filasLogro, isOpen, onTog
   );
 }
 
-function IndicadorRow({ fila, onDrilldown, anioEnCurso, programa = 'escolar' }) {
+function IndicadorRow({ fila, onDrilldown, anioEnCurso, programa = 'escolar', mes }) {
   const { ind, valor, estado, coberturaEstado } = fila;
   const coberturaEfectiva = programa === 'escolar' ? coberturaEstado : null;
   return (
@@ -240,6 +257,7 @@ function IndicadorRow({ fila, onDrilldown, anioEnCurso, programa = 'escolar' }) 
           estado={estado}
           anioEnCurso={anioEnCurso}
           coberturaEstado={coberturaEfectiva}
+          mes={mes}
         />
       </div>
     </div>

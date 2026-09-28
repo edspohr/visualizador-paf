@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, Minus, Target, AlertCircle } from 'lucide-react';
-import { colorSemaforo, labelSemaforo, estadoValor, getCoberturaLabel } from '../data/establecimientos.js';
-import { formatValue } from '../data/expectedValue.js';
+import { colorSemaforo, labelSemaforo, estadoValor, getCoberturaLabel, currentMonth } from '../data/establecimientos.js';
+import { formatValue, esperadoALaFecha } from '../data/expectedValue.js';
 import { ambitoCodigo } from '../lib/labels.js';
 
 // CAP brand semaforo mapping
@@ -170,11 +170,13 @@ export function PageHeader({ eyebrow, title, subtitle, action }) {
 }
 
 // Two-bar comparison: este establecimiento vs promedio del territorio.
-// No semáforo colors, no judgment labels, no "Esperado" tick.
+// No semáforo colors, no judgment labels. The track extends past the meta
+// when a value exceeds it, with a solid tick at the annual meta (L-01) and a
+// dashed tick at the expected progress to date for cumulative counts (L-02).
 // `estado`: 'validado' | 'provisional' — when provisional, own-value is muted
 // (rendered in gray-ui) and gets a tooltip. Peer value is territory average
 // (mixed estados) so it stays validado-styled.
-export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado', anioEnCurso = true, coberturaEstado = null, raw = null }) {
+export function IndicatorProgress({ indicador, valor, promedioTerritorio = null, large = false, estado = 'validado', anioEnCurso = true, coberturaEstado = null, raw = null, mes = currentMonth() }) {
   const { metaNum, unidad } = indicador;
   // Actividades en año en curso muestran "N de M" hacia meta anual, no % de logro.
   // El % es engañoso mientras el año no cierra (ver plan Sección D).
@@ -261,8 +263,6 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
   }
 
   const isBinary = unidad === 'binario';
-  // Scale: for binary 0→1; for others use metaNum (cap at 120% so overachievement is visible)
-  const scale = isBinary ? 1 : metaNum;
   // For binary: single-centro views arrive as 0/1 (Sí/No). Aggregate views (sostenedor,
   // consultor) arrive as a fractional mean, which is the % de "Sí" across the peer set.
   // Preserve fractional binary values instead of rounding, so the bar renders as %.
@@ -295,7 +295,35 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
   const barH = large ? 'h-3.5' : 'h-2.5';
   const trackCls = `w-full ${barH} rounded-full overflow-hidden`;
 
-  const pct = (v) => `${Math.min(100, scale > 0 ? (v / scale) * 100 : 0)}%`;
+  // Scale: binary 0→1; % up to at least 100%; counts up to at least the meta.
+  // Values above the meta extend the scale so the bar keeps growing and the
+  // meta tick moves left instead of the bar saturating at the meta.
+  const esperado = anioEnCurso && !isBinary ? esperadoALaFecha(indicador, mes) : null;
+  const scale = isBinary
+    ? 1
+    : Math.max(unidad === '%' ? 1 : (metaNum ?? 0), rawValue ?? 0, peerValue ?? 0);
+  const pos = (v) => (scale > 0 ? Math.min(100, (v / scale) * 100) : 0);
+  const pct = (v) => `${pos(v)}%`;
+  const metaPos = !isBinary && metaNum > 0 ? pos(metaNum) : null;
+  const esperadoPos = esperado !== null ? pos(esperado) : null;
+  const Marcas = () => (
+    <>
+      {esperadoPos !== null && (
+        <div
+          className="absolute -top-1 -bottom-1 border-l-2 border-dashed"
+          style={{ left: `calc(${esperadoPos}% - 1px)`, borderColor: 'var(--color-purple-2)' }}
+          title={`Esperado a la fecha: ${formatValue(indicador, esperado)}`}
+        />
+      )}
+      {metaPos !== null && (
+        <div
+          className="absolute -top-1 -bottom-1 w-0.5"
+          style={{ left: `calc(${metaPos}% - 1px)`, background: 'var(--color-gray-dark)' }}
+          title={`Meta anual: ${formatValue(indicador, metaNum)}`}
+        />
+      )}
+    </>
+  );
 
   // Territorio label — singular/plural handled by tipo stored on est, but here we use
   // a generic phrase; callers that know tipo can override via a labelTerritorio prop
@@ -311,8 +339,11 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
             {fmtValue(rawValue)}
           </span>
         </div>
-        <div className={`${trackCls} bg-bg`}>
-          <div className={barH + ' rounded-full'} style={{ width: pct(rawValue), background: 'var(--color-cyan)' }}/>
+        <div className="relative">
+          <div className={`${trackCls} bg-bg`}>
+            <div className={barH + ' rounded-full'} style={{ width: pct(rawValue), background: 'var(--color-cyan)' }}/>
+          </div>
+          <Marcas />
         </div>
       </div>
 
@@ -323,18 +354,29 @@ export function IndicatorProgress({ indicador, valor, promedioTerritorio = null,
             <span className="text-gray-ui">{peerLabel}</span>
             <span className="font-medium text-gray-dark">{fmtPeer(peerValue)}</span>
           </div>
-          <div className={`${trackCls} bg-bg`}>
-            <div className={barH + ' rounded-full'} style={{ width: pct(peerValue), background: 'var(--color-gray-light)' }}/>
+          <div className="relative">
+            <div className={`${trackCls} bg-bg`}>
+              <div className={barH + ' rounded-full'} style={{ width: pct(peerValue), background: 'var(--color-gray-light)' }}/>
+            </div>
+            <Marcas />
           </div>
         </div>
       )}
 
       {/* Footer: meta + frequency, no judgment */}
-      <div className="flex items-center gap-4 text-xs text-gray-ui pt-0.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-ui pt-0.5">
         <span className="flex items-center gap-1">
-          <Target size={10} className="shrink-0"/>
+          {metaPos !== null
+            ? <span className="inline-block w-0.5 h-3 shrink-0" style={{ background: 'var(--color-gray-dark)' }} />
+            : <Target size={10} className="shrink-0"/>}
           Meta anual: <span className="font-medium text-gray-ui ml-0.5">{formatValue(indicador, metaNum)}</span>
         </span>
+        {esperado !== null && (
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-3 border-l-2 border-dashed shrink-0" style={{ borderColor: 'var(--color-purple-2)' }} />
+            Esperado a la fecha: <span className="font-medium text-gray-ui ml-0.5">{formatValue(indicador, esperado)}</span>
+          </span>
+        )}
         <span>Actualización: <span className="font-medium text-gray-dark">{indicador.frecuencia}</span></span>
       </div>
     </div>

@@ -10,6 +10,7 @@
 // contra el semestre acumulado del centro en 2026 (derivado de su cohorte).
 
 import { anioImplementacion, resolverIndicador } from './establecimientos.js';
+import { esTerritorial } from './visibilidad.js';
 
 // Semestre calendario 2026: mes ≤ 6 → 1, else → 2.
 export function semestreDeMes(mes) {
@@ -59,9 +60,12 @@ export function isAplicable2026(indicador, est, mes) {
  * Filtra la lista de indicadores a los aplicables para el centro en el mes dado
  * dentro de 2026. NO excluye `sin_meta`: eso lo decide el agregador.
  */
+// Indicators that count for one establishment's %: applicable in its
+// semester and year of implementation, excluding territorial indicators
+// (D-01), resolved to the establishment's own meta.
 export function indicadoresAplicables(indicadores, est, mes) {
   return indicadores
-    .filter(ind => isAplicable2026(ind, est, mes))
+    .filter(ind => !esTerritorial(ind) && isAplicable2026(ind, est, mes))
     .map(ind => resolverIndicador(ind, est));
 }
 

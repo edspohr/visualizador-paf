@@ -37,11 +37,17 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
   - `indicadores.escolar2026` — indicadores vigentes escolares.
   - `indicadores.parvulario` — indicadores vigentes parvulario.
   - Campos por indicador: `id`, `programa`, `version`, `estrategiaId`, `estrategiaNombre`, `ambito`, `actividadNombre`, `nombre`, `meta`, `metaNum`, `tipoMeta`, `unidad`, `tipo`, `fuente`, `frecuencia`, `inicio`, `clasificacion` (`'estrategia'` = indicador de ámbito, `'producto'` = indicador de logro), `desagregaNivel` (parvulario, opcional).
+  - Campos opcionales (retro 1, 2026-09-28): `metasPorAnio` (`{1: {meta, metaNum, tipoMeta, unidad}, 2: …}`, desde la hoja "Indicadores año 2, 2026"), `vigencia` (años de implementación en que aplica, p. ej. `[1]`; columna "Vigencia" del XLSX o tabla provisional `VIGENCIA_PROVISIONAL` en `parseCatalogs.mjs`), `metaPorEstablecimiento: 'nSalas'` (Escolar I.26/I.46: meta = salas de la escuela).
+  - **Nunca leer `metaNum` crudo para un establecimiento**: usar `resolverIndicador(ind, est)` / `calcularLogro(valor, ind, est)` / `indicadoresAplicables(...)`, que aplican meta del año de implementación y meta por escuela.
 - **`src/data/catalogs/`** — planillas fuente del catálogo (`Sistema indicadores PAF Escolar 2026.xlsx`, `Sistema indicadores PAF Parvulario.xlsx`).
 - **`src/data/establecimientos.js`** — helpers puros de dominio: `calcularLogro`, `estadoValor` (`'sin_meta' | 'sin_dato' | 'con_dato'`), `colorSemaforo`, `labelSemaforo`, `currentMonth`, `lastClosedMonth`, `capClosedPeriod`.
+- **`src/data/establecimientos.js → resolverIndicador(ind, est)`** — indicador resuelto para un establecimiento (meta por año de implementación, meta = `est.nSalas` cuando `metaPorEstablecimiento`).
+- **`src/data/visibilidad.js`** — `esTerritorial(ind)` (Parvulario I.5–I.8: fuera del % y de la grilla por jardín en todos los perfiles, D-01) y `ocultosParaPerfil(perfil, programa)` (Escolar: 9 indicadores ocultos en el perfil escuela pero contados en su %, D-02).
+- **`src/lib/filtros.js`** — filtros en cascada (año, sostenedor, cohorte, comuna) de la vista nacional y de cada lado del comparador. **`src/lib/comunas.js`** — `comunaCanonica()` compartida por ingesta y vistas (PAC → Pedro Aguirre Cerda).
 - **`src/data/scope.js`** — reglas de universo:
   - Año base = **2026**.
-  - `isAplicable2026(indicador, est, mes)`: el indicador aplica cuando el semestre acumulado del establecimiento en 2026 (según cohorte) alcanza el semestre mínimo requerido por `indicador.inicio`.
+  - `isAplicable2026(indicador, est, mes)`: el indicador aplica cuando el semestre acumulado del establecimiento en 2026 (según cohorte) alcanza el semestre mínimo requerido por `indicador.inicio` **y** el año de implementación está en `indicador.vigencia` (si existe). Fuera de vigencia → estado `'no-corresponde-anio'` ("Corresponde solo al año N").
+  - `indicadoresAplicables` excluye indicadores territoriales y devuelve los indicadores ya resueltos para el establecimiento.
   - `cumplimientoIndicadores`: promedio de `min(1, calcularLogro)` sobre los indicadores aplicables **con meta**. Un indicador aplicable **sin valor** cuenta como **0**.
 - **`src/data/expectedValue.js`** — `formatValue(indicador, valor)` para display por unidad.
 - **`src/data/matricula.js`** — reglas de visibilidad de matrícula por perfil.
@@ -89,8 +95,9 @@ Ingesta y catálogo:
 - **`scripts/lib/canonicalIds.mjs`** — mapa canónico (adiciones, renombres, eliminaciones, overrides de ámbito/clasificación). Fuente única para el catálogo Y para migraciones Firestore.
 - **`scripts/lib/parvularioIds.mjs`** — traducción entre numeración de planilla y numeración canónica (`extractPlanillaId`, `planillaToCanonical`). Tolera typos como `"I.,20"`.
 - **`scripts/lib/escolarMapping.mjs`** — mapeo declarativo (año × arquetipo × indicador canónico × niveles aplicables) para Escolar. `assertMappingCompleto()` corre en `parseCatalogs.mjs` y falla si algún indicador canónico no tiene entrada (mapeada o explícitamente `NO_MAPEADO`).
-- **`scripts/ingestParvulario.mjs`** — ingesta desde 3 Planillas Centrales → `establecimientos_real` + `resultados_real`. Escribe agregado por jardín y variantes por sala.
-- **`scripts/ingestEscolar.mjs`** — ingesta escolar desde 18 workbooks de Google Drive. Marca `estado: 'validado' | 'provisional'`.
+- **`scripts/ingestParvulario.mjs`** — ingesta desde 3 Planillas Centrales → `establecimientos_real` + `resultados_real`. Escribe agregado por jardín y variantes por sala. El agregado por jardín de la pestaña SALAS es el promedio de las salas **con actividad** (una sala con todas sus celdas vacías o en 0 no entra). `%` entre 100 y 150 % se muestra 100 %; sobre 150 % no se carga (advertencia). Comuna pasa por `comunaCanonica()`.
+- **`scripts/ingestEscolar.mjs`** — ingesta escolar. Lee en vivo: Datos Consultor (Actividades, Reuniones, Datos docentes, Encuesta apoderados, pestañas por curso **solo columnas F:U, sin PII**), Registro Coordinación por curso, y las planillas por curso del índice (pestaña Actividades). Filas y columnas se ubican **por texto**, no por posición. Persiste `nSalas`/`salasActivas` en `establecimientos_real`. Marca `estado: 'validado' | 'provisional'`. Llamadas a Sheets a ~57/min con reintentos.
+- Ambas ingestas aceptan `--dry-run`, `--dump=<json>` (docs que escribiría) y `--prune` (marca como `sin_dato_reportado` los docs que la carga ya no produce, guardando `valorAnterior`; no borra). En carga real registran la hora en `config/pipelineMetadata`.
 - **`scripts/ingestRosterEscolar.mjs`** — actualiza `nNinos`, `nAgentes`, `rbd` en `establecimientos_real`.
 - **`scripts/ingestExtended.mjs`** — cierra huecos con `ZERO_FALLBACK` (emite `valor: 0` con `raw: "sin actividad reportada"`). **No confundir "reported zero" con "sin datos".**
 - **`scripts/mapeoParvulario.mjs`** — reporte de cobertura → `docs/mapeo-parvulario-YYYY-MM-DD.md`.
@@ -123,11 +130,31 @@ Migraciones y utilidades:
 - **`scripts/backfillEscolarNullDocs.mjs`** — backfill: para (escuela × indicador conectado × 2026) sin doc en Firestore, escribe doc con `valor=null estado='sin_dato_reportado'`. Idempotente. `--dry-run`. `npm run backfill:escolar-null`. Requerimiento Sebastián 2026-08-05.
 - **`scripts/computeTerritorioAggregates.mjs`** — regenera `aggregatesTerritorio_real` (W1(peer)). Lee toda `resultados_real` (excluye docs con `nivel`) y produce dos tiers de agregados por indicador. Enforcea `K_MIN=4` en primary + gate YoY composition-delta. Idempotente. `--dry-run`. Correr después de cada ingesta. Reporte en `reports/computeTerritorioAggregates-YYYY-MM-DD.json`.
 
+Pipeline y reportes (retro 1, 2026-09-28):
+
+- **`scripts/runPipeline.mjs`** — orquestador de la carga nocturna (ver "Pipeline nocturno").
+- **`scripts/snapshotCierre.mjs`** — cierre mensual: copia `resultados_real` a `cierres_real/{YYYY-MM}/resultados`. `--periodo=YYYY-MM` o `--auto` (mes anterior, hora Chile). `--dry-run`.
+- **`scripts/bundlePipeline.mjs`** — empaqueta scripts + datos en `functions/pipeline/` (predeploy de functions; gitignored; nunca copia la clave).
+- **`scripts/lib/runtime.mjs`** — `credenciales(root)` (clave local o ADC en Cloud Functions) y `salida(root, rel)` (reportes a `PAF_OUTPUT_DIR` si está definido).
+- **`scripts/lib/pruneStale.mjs`** — implementación de `--prune`.
+- **`scripts/diffBaseline.mjs`** — compara un export de Firestore contra `--dump` de las ingestas (same/changed/new/stale).
+- **`scripts/compareCumplimiento.mjs`** — % de cumplimiento por establecimiento antes/después con los helpers de la UI.
+- **`scripts/loadCoordenadas.mjs`** — `--plantilla` genera `docs/plantilla-coordenadas.csv`; `--file=<csv>` carga `lat`/`lng` en `establecimientos_real` (valida Región Metropolitana). El mapa usa coordenadas reales cuando existen.
+
 Datos generados:
 
 - **`src/data/homologacionEscolar.json`** — mapa de homologación de indicadores Escolar 2025↔2026 en notación canónica (`I.1`). Usado por el comparador para alinear IDs entre años. No editar a mano; regenerar con `parse:homologacion`.
 - **`src/data/escolarCoverageManifest.json`** — espejo de `docs/escolar-coverage-manifest.json` para import en runtime. Regenerar con `generateEscolarCoverageManifest.mjs` (dual-write automático).
 - **`src/data/coverage.js`** — `getCoberturaEscolar(estId, anio, indId)` → estado de cobertura del manifiesto. `getCoberturaParvulario()` devuelve null (Parvulario no necesita este lookup). Buildea el lookup a nivel de módulo.
+
+## Pipeline nocturno y cierre mensual
+
+- **Cloud Function `pipelineNocturno`** (`functions/src/index.mjs`): `onSchedule('0 2 * * *', America/Santiago)`, 30 min, 1 GiB, corre como `firebase-adminsdk-fbsvc@visualizador-paf.iam.gserviceaccount.com` (tiene lectura en las planillas; requiere `roles/run.invoker` sobre el servicio `pipelinenocturno`, otorgado 2026-09-28). Ejecuta `runPipeline.mjs`: ingestParvulario `--prune` → ingestEscolar `--prune` → backfillEscolarNullDocs → computeTerritorioAggregates → piiAssertion → (día 1) snapshotCierre `--auto`. Se detiene en el primer error.
+- Resultado en `config/pipelineMetadata` (`ultimoSyncAt`, `ultimoSyncExitoso`, `ultimaEjecucion.{inicio,fin,pasos,error,cierre}`, y por programa `ultimaCargaAt`). La UI muestra "Datos actualizados al …" desde ahí.
+- Alerta: política de Cloud Monitoring "Pipeline nocturno PAF falló" (logs con `PIPELINE_FALLIDO`) → email edmundo@spohr.cl.
+- Correr a mano: `node scripts/runPipeline.mjs [--sin-cierre] [--forzar-cierre]` o `gcloud scheduler jobs run firebase-schedule-pipelineNocturno-us-central1 --location us-central1 --project visualizador-paf`.
+- El manifiesto de cobertura Escolar **no** se regenera en el pipeline (vive en el bundle del frontend): regenerarlo y redeployar hosting cuando cambie `escolarMapping.mjs`.
+- **Cierre CAP (D-14):** la foto se toma en la corrida del día 1 (datos hasta el último día del mes) y el perfil CAP la ve desde el día 16 (`capClosedPeriod`). Sin foto para el período, CAP ve los datos del día con aviso "Cierre de … en preparación".
 
 ### Firestore
 
@@ -142,7 +169,9 @@ Colecciones:
 - **`progresoTrimestral_real/{doc_id}`** — campo `slep` denormalizado igual que `resultados_real`.
 - **`usuarios/{uid}`** — `email`, `nombre`, `perfilDefault` (`escuela | jardin | sostenedor | consultor | cap | superadmin | pendiente`), `establecimientoId` (jardin/escuela), `slepId` (jardin/escuela/sostenedor), `proveedor`.
   - `slepId` es obligatorio para jardin/escuela/sostenedor: lo usan las reglas Firestore y el hook `useEntidadDelPerfil` para peer-averages.
-- **`config/dataSource`**, **`config/mesCerrado`**, **`config/pipelineMetadata`**.
+- **`config/dataSource`**, **`config/mesCerrado`**, **`config/pipelineMetadata`** (lo escriben las ingestas y el pipeline).
+- **`cierres_real/{YYYY-MM}`** + subcolección **`resultados/{docId}`** — cierre mensual para CAP. Lectura solo perfiles con acceso completo.
+- `establecimientos_real` Escolar tiene `nSalas`/`salasActivas`; cualquier establecimiento puede tener `lat`/`lng` (coordenadas reales).
 - **`aggregatesTerritorio_real/{docId}`** — derivada, precomputada por `scripts/computeTerritorioAggregates.mjs`. Peer averages para el drilldown de perfiles Jardín/Escuela (W1(peer), shipped 2026-08-05).
   - Dos tiers: `aggregateKind='slep-tipo'` (primary, uno por `programa × slep × tipo × anio × indicadorId`) y `aggregateKind='programa'` (fallback, sin slep).
   - Doc ID: `agg_${programa}_${slep}_${tipo}_${anio}_${indId}` (primary) / `agg_${programa}_${tipo}_${anio}_${indId}` (fallback), pasado por `sanitizeDocId(/[^a-zA-Z0-9_.-]/g → _)`. La "í" de "Jardín" queda como `_`.
@@ -331,6 +360,8 @@ Todas las migraciones nuevas deben soportar `--dry-run`, ser idempotentes y escr
 ---
 
 ## Historial breve
+
+- **2026-09-28** — Retro 1 (Luis 01-09 Parvulario, Sebastián 03-09 Escolar). Plan y decisiones D-01..D-14: https://claude.ai/artifact/CKFgFQzxFjLBXBEF26xm9e. Fase 0: recarga de datos (congelados al 14-08) + `diffBaseline`. Fase 1: metas año 2, vigencia, meta por escuela (nSalas), conteos con meta 1, fórmulas I.3/I.4/I.12–I.14/I.19/I.20/I.26/I.27/I.36/I.37/I.40/I.41/I.47, salas sin actividad fuera del promedio, `--prune`, comunas canónicas. Fase 2: lector de planillas por curso y pestañas por curso de DC → Escolar de 33 a 45 indicadores; fix `coverage.js` y ids del manifiesto. Fase 3: marcas de meta y "esperado a la fecha", indicadores territoriales/ocultos por perfil, filtros en cascada, comparador sincronizado, fecha real de actualización, mapa listo para coordenadas. Fase 4: `pipelineNocturno` (reemplaza syncPlanillasCentrales/syncManual), cierre mensual CAP, alerta por email. Tag `deploy-retro1-fases-0-3`.
 
 - **2026-08-05 (noche)** — Post-cierre fixes. (1) Superadmin "viendo como" perfiles limitados ya carga la grilla completa de establecimientos en el dropdown del header y VistaEscuela/VistaSostenedor resuelve el centro seleccionado (bug: `PERFILES` sembraba ids placeholder `ESC-001`/`JAR-001`/`SLEP-LP` que no existen en Firestore). Fix client-side sin tocar reglas. (2) W1(peer) — la feature "Promedio del territorio" en el drilldown del perfil Jardín/Escuela — implementada como estaba diseñada en el plan pero nunca cableada. Nueva colección `aggregatesTerritorio_real` con 393 docs (270 primary + 123 fallback), `K_MIN=4`, gate YoY composition-delta, hook `useTerritorioAggregate` y caption dinámico "Promedio del territorio" / "Promedio del programa". Deploy 6.
 - **2026-08-05 (tarde)** — Cierre PAF Escolar para producción. Discovery en cache del harvest ubicó 13 indicadores previamente NO_MAPEADO. Cableados 9: I.10 (misma celda que I.9 en Actividades), I.13/I.14 (Datos docentes rows Director/Coordinador × cols CD1..CD4), I.29/I.31/I.42/I.43/I.44/I.45 (tab Encuesta apoderados). Ingesta produce 556 docs (vs 502) cubriendo 33/51 indicadores. Backfill `backfillEscolarNullDocs.mjs` agrega 38 slots con valor=null para completar la grilla en indicadores conectados. Firestore ahora tiene 594 docs Escolar = 18 escuelas × 33 indicadores. I.43/I.44/I.45 movidos de A.3 a A.4 (fomento lector). Fix VistaSostenedor: comuna count no cuenta null. Deploy 5: `https://visualizador-paf.web.app`. Pendiente: 18 indicadores sin fuente cableada (los 8 no encontrados por Explore + los 3 per-curso complejos + I.30 + los 6 de mediación). Reporte: `reports/reporteConexionEscolar-2026-08-05.md`.

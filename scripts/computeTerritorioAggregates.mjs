@@ -51,16 +51,10 @@ function normalizarIndicadorId(id) {
   return m ? `I.${m[1]}` : id;
 }
 
-// Mirror of src/data/establecimientos.js → calcularLogro. Kept in sync manually;
-// if that helper changes, update this too.
-function calcularLogro(valor, indicador) {
-  const tipoMeta = indicador.tipoMeta;
-  if (tipoMeta === 'sin_meta' || indicador.metaNum === null || indicador.metaNum === undefined) return null;
-  if (valor === null || valor === undefined) return null;
-  if (tipoMeta === 'booleano') return valor;
-  if (indicador.metaNum === 0) return 0;
-  return Math.min(1.2, valor / indicador.metaNum);
-}
+// Same helpers the UI uses (pure module): the logro of each school is computed
+// against its own meta — the one of its year of implementation and, for
+// I.26/I.46 Escolar, its number of salas (S-07).
+import { calcularLogro, resolverIndicador, anioImplementacion } from '../src/data/establecimientos.js';
 
 // ─── Init Firebase Admin ─────────────────────────────────────────────────────
 const sa = JSON.parse(readFileSync(pathResolve(ROOT, 'scripts/service-account.json'), 'utf8'));
@@ -116,8 +110,12 @@ for (const r of allRes) {
 
   const inds = indicadoresByProg[programa];
   if (!inds) continue;
-  const ind = inds.find(i => i.id === r.indicadorId);
-  if (!ind) continue;
+  const indBase = inds.find(i => i.id === r.indicadorId);
+  if (!indBase) continue;
+  // Indicators outside the school's year of implementation (vigencia) do not
+  // take part in the average.
+  if (Array.isArray(indBase.vigencia) && !indBase.vigencia.includes(anioImplementacion(est, r.anio))) continue;
+  const ind = resolverIndicador(indBase, est, r.anio);
   // Skip indicators without meta — no peer average is meaningful there.
   if (ind.tipoMeta === 'sin_meta' || ind.metaNum === null || ind.metaNum === undefined) continue;
 
@@ -174,9 +172,9 @@ function buildAgg({ kind, programa, slep, tipo, anio, indId, values }) {
   const nReporters = values.size;
   let sumaValor = 0;
   let sumaLogroCapped = 0;
-  for (const v of values.values()) {
+  for (const [estId, v] of values) {
     sumaValor += v;
-    const l = calcularLogro(v, ind);
+    const l = calcularLogro(v, ind, estById.get(estId));
     sumaLogroCapped += l === null ? 0 : Math.min(1, l);
   }
 

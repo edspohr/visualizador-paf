@@ -23,6 +23,7 @@ import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
+import { pruneStale } from './lib/pruneStale.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -30,6 +31,8 @@ const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
 // --dump=<path>: write the resultados_real docs this run would produce (keyed by doc id) to a JSON file.
 const DUMP_PATH = (args.find(a => a.startsWith('--dump=')) || '').split('=')[1] || null;
+// --prune: mark 2026 docs of the processed schools that this run no longer produces as 'sin dato' (X-04).
+const PRUNE = args.includes('--prune');
 const PURGE = args.includes('--purge');
 const SCHOOL_FILTER = (args.find(a => a.startsWith('--schools=')) || '').split('=')[1]?.split(',').filter(Boolean) || null;
 
@@ -870,6 +873,18 @@ if (!DRY_RUN) {
   console.log(`   ${n} resultados upserted`);
 }
 
+// ─── Marcar como sin dato lo que ya no viene en las planillas ─────────────
+let pruned = [];
+if (PRUNE) {
+  const keepIds = new Set(allResults.filter(r => r.indicadorId && r.fuente).map(escDocId));
+  const slugs = new Set(schools.map(s => s.slug));
+  pruned = await pruneStale(db, {
+    programa: 'escolar', keepIds, dryRun: DRY_RUN,
+    inScope: (d) => (!d.establecimientoId || slugs.has(d.establecimientoId)) && (d.periodo == null || String(d.periodo) === String(AÑO)),
+  });
+  console.log(`\n   ${DRY_RUN ? 'Se marcarían' : 'Marcados'} como sin dato: ${pruned.length} docs`);
+}
+
 // ─── Verification report ──────────────────────────────────────────────────
 console.log('\n7) Reporte de verificación');
 // Base el reporte en los que sí fueron enriquecidos con éxito (indicadorId + fuente).
@@ -895,6 +910,8 @@ for (const s of sample) {
 const report = {
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,
+  pruned,
+  salasPorEscuela: Object.fromEntries(schools.map(s => [s.slug, { nSalas: s.nSalas ?? null, salasActivas: s.salasActivas ?? [] }])),
   totals: {
     resultados: enriquecidos.length,
     resultadosRecolectados: allResults.length,

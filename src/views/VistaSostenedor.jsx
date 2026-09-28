@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { comunaCanonica } from '../lib/comunas.js';
 import { Loader2 } from 'lucide-react';
 import { useApp } from '../lib/context.jsx';
 import { useEntidadDelPerfil, useIndicadores, useAmbitos, useValoresSlepAnio } from '../lib/queries.js';
@@ -18,6 +19,9 @@ const ANIOS_DISPONIBLES = [2025, 2026];
 const LS_KEY_ANIO = 'paf_anio_gestion';
 
 const canon = (v) => (v == null ? '' : String(v).trim());
+// Comunas pass through the shared normalizer so 'PAC' and 'Pedro Aguirre
+// Cerda' count as one (S-08).
+const canonComuna = (v) => comunaCanonica(v) ?? '';
 
 function anioInicial() {
   if (typeof window === 'undefined') return ANIO_ACTUAL;
@@ -114,7 +118,7 @@ export default function VistaSostenedor() {
             : 'matrícula vigente')
         : 'matrícula estimada',
       agentes: todosSlep.reduce((s, e) => s + (e.nAgentes ?? 0), 0),
-      comunas: new Set(todosSlep.map(e => canon(e.comuna)).filter(Boolean)).size,
+      comunas: new Set(todosSlep.map(e => canonComuna(e.comuna)).filter(Boolean)).size,
     };
   }, [todosSlep, perfil.id, mesEfectivo, anioSeleccionado]);
 

@@ -55,7 +55,8 @@ for (const e of escuelas) {
     if (!wired.has(ind.id)) continue;
     const key = `${e.id}|${ind.id}|2026`;
     if (has.has(key)) continue;
-    const docId = `esc_${e.id}_${ind.id.replace(/\./g, '_')}_2026`;
+    // Same id format as ingestEscolar (dots kept), so the slot and a later real value share one doc.
+    const docId = `esc_${e.id}_${ind.id}_2026`.replace(/[^a-zA-Z0-9_.-]/g, '_');
     toWrite.push({
       docId,
       establecimientoId: e.id,

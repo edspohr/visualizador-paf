@@ -41,6 +41,8 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
 import { extractPlanillaId, planillaToCanonical } from './lib/parvularioIds.mjs';
+import { comunaCanonica } from '../src/lib/comunas.js';
+import { pruneStale } from './lib/pruneStale.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -48,6 +50,8 @@ const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
 // --dump=<path>: write the resultados_real docs this run would produce (keyed by doc id) to a JSON file.
 const DUMP_PATH = (args.find(a => a.startsWith('--dump=')) || '').split('=')[1] || null;
+// --prune: mark docs of the processed periods that this run no longer produces as 'sin dato' (X-04).
+const PRUNE = args.includes('--prune');
 const PURGE = args.includes('--purge');
 
 // ─── Init ─────────────────────────────────────────────────────────────────
@@ -115,17 +119,28 @@ function parseCell(raw, unidad) {
   const numMatch = s.match(/^-?\d+([.,]\d+)?$/);
   if (pctMatch) {
     const n = Number(s.replace('%', '').replace(',', '.'));
-    if (Number.isFinite(n)) return { valor: n / 100, raw: s };
+    if (Number.isFinite(n)) return unidad === '%' ? capPct({ valor: n / 100, raw: s }) : { valor: n / 100, raw: s };
     return { valor: null, raw: s };
   }
   if (numMatch) {
     const n = Number(s.replace(',', '.'));
     if (Number.isFinite(n)) {
-      if (unidad === '%') return { valor: n > 1.5 ? n / 100 : n, raw: s };
+      if (unidad === '%') return capPct({ valor: n > 1.5 ? n / 100 : n, raw: s });
       return { valor: n, raw: s };
     }
   }
   return { valor: null, raw: s };
+}
+
+// A share of a population cannot exceed 100%. Slightly above it (≤150%) is a
+// data slip in the planilla (e.g. participantes > total): shown as 100%.
+// Far above it the cell is not a percentage at all (the 2025 Central stores
+// I.12 as a count formatted as %: "1400,00%"): not loaded. Both cases are
+// reported as warnings so Focus can fix the source row (L-09).
+function capPct(parsed) {
+  if (parsed.valor === null || parsed.valor <= 1) return parsed;
+  if (parsed.valor <= 1.5) return { ...parsed, valor: 1, recortado: true };
+  return { ...parsed, valor: null, fueraDeRango: true };
 }
 
 function computeLogro(ind, valor) {
@@ -286,7 +301,7 @@ async function readRoster() {
         nombre,
         cohorte: base.cohorte,
         sostenedor: (idxSost >= 0 ? String(r[idxSost] || '').trim() : '') || cohorteSostFallback,
-        comuna: idxCom >= 0 ? String(r[idxCom] || '').trim() || null : null,
+        comuna: idxCom >= 0 ? comunaCanonica(r[idxCom]) : null,
         consultorNombre: idxCons >= 0 ? String(r[idxCons] || '').trim() || null : null,
         nNinos: idxMatTotal >= 0 ? Number(String(r[idxMatTotal] || '').replace(',', '.')) || null : null,
         nAgentes: idxEquipo >= 0 ? Number(String(r[idxEquipo] || '').replace(',', '.')) || null : null,
@@ -337,6 +352,8 @@ function ingestJardinTab({ workbookId, workbookLabel, tab, rows, cohorte, anio }
 
     for (const { col, planillaId, catId, ind } of colToCatalog) {
       const parsed = parseCell(r[col], ind.unidad);
+      if (parsed.recortado) warnings.push(`${tab}: ${nombre} · ${catId} = ${parsed.raw} (>100%, se muestra 100%)`);
+      if (parsed.fueraDeRango) warnings.push(`${tab}: ${nombre} · ${catId} = ${parsed.raw} (no es un porcentaje válido, no se carga)`);
       if (parsed.valor === null) continue;
       docs.push({
         programa: 'parvulario',
@@ -617,6 +634,18 @@ if (!DRY_RUN) {
   console.log(`   ${uniqueJardin.length} agregados por jardín + ${allSalasDocs.length} por sala = ${n} docs totales`);
 }
 
+// 7b) Marcar como sin dato lo que ya no viene en las planillas
+let pruned = [];
+if (PRUNE) {
+  const keepIds = new Set([...uniqueJardin.map(jardinDocId), ...allSalasDocs.map(salaDocId)]);
+  const periodos = new Set(CENTRALES.map(c => String(c.anio)));
+  pruned = await pruneStale(db, {
+    programa: 'parvulario', keepIds, dryRun: DRY_RUN,
+    inScope: (d) => d.periodo == null || periodos.has(String(d.periodo)),
+  });
+  console.log(`\n   ${DRY_RUN ? 'Se marcarían' : 'Marcados'} como sin dato: ${pruned.length} docs (${pruned.filter(p => !p.nivel).length} por jardín)`);
+}
+
 // 8) Reporte
 console.log('\n6) Reporte');
 const byPeriodo = allJardinDocs.reduce((acc, r) => (acc[r.periodo] = (acc[r.periodo] || 0) + 1, acc), {});
@@ -659,6 +688,7 @@ for (const s of perPlanillaSummary) {
 const report = {
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,
+  pruned,
   totals: {
     jardinDocs: allJardinDocs.length,
     salasDocs: allSalasDocs.length,

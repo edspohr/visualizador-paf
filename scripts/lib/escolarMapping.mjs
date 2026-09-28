@@ -32,17 +32,18 @@ export const CURSOS_2026 = CURSOS_2025.slice(0, -1); // sin 8C
 // abajo para BV, LV, mantel de palabras y talleres para estudiantes.
 export function cursosAplicables(indicadorId, anio) {
   const CURSOS = anio === 2025 ? CURSOS_2025 : CURSOS_2026;
-  // Biblioteca Viajera → sólo PK/K/1º (comprensión lectora inicial)
-  if (['I.28','I.43','I.48'].includes(indicadorId)) {
-    return CURSOS.filter(c => /^(PK|K|1)[A-C]$/.test(c));
+  // Cursos según Sebastián (2026-09-03, X-05):
+  // Biblioteca Viajera → pre kínder a 2º básico
+  if (['I.28','I.29','I.43','I.48'].includes(indicadorId)) {
+    return CURSOS.filter(c => /^(PK|K|1|2)[A-C]$/.test(c));
   }
-  // Lecturas Viajeras → sólo 2º–4º (según convención informada por consultor)
+  // Lecturas Viajeras → 3º a 8º básico
   if (['I.30','I.44','I.49'].includes(indicadorId)) {
-    return CURSOS.filter(c => /^[234][A-C]$/.test(c));
+    return CURSOS.filter(c => /^[3-8][A-C]$/.test(c));
   }
-  // Mantel de Palabras → 5º–8º
+  // Mantel de Palabras → todos los cursos (PK–2º y 3º–8º tienen su fila)
   if (['I.31','I.45','I.50','I.51'].includes(indicadorId)) {
-    return CURSOS.filter(c => /^[5678][A-C]$/.test(c));
+    return CURSOS;
   }
   // Talleres para estudiantes 1ro–8vo
   if (indicadorId === 'I.32') {
@@ -95,7 +96,7 @@ export const ESCOLAR_MAPPING = [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Existe plan de acción familia escuela diseñado"', transformacion: 'first_bool_from_col1', estado: 'provisional' },
   ]},
   { id: 'I.10', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Existe plan de acción familia escuela diseñado"', transformacion: 'first_bool_from_col1', estado: 'provisional', notas: 'Misma celda que I.9 — "actualizado" y "diseñado" comparten fila (confirmado 2026-08-05 vía discovery de cache).' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Existe plan de acción familia escuela actualizado"', transformacion: 'first_bool_from_col1', estado: 'provisional', notas: 'Fila propia (fila 27 en escuelas de año 2). Sebastián 2026-09-03.' },
   ]},
   { id: 'I.33', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Director cumple meta de liderazgo planificada"', transformacion: 'first_bool_from_col1', estado: 'validado' },
@@ -188,7 +189,7 @@ export const ESCOLAR_MAPPING = [
 
   // ─── A.4 · Formación Estudiantes (I.28–I.32 estrategia, I.48–I.51 producto) ─
   { id: 'I.28', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'Bibliotecas Viajeras', transformacion: 'mean_over_salas', estado: 'provisional' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Nº de semanas de envío de Biblioteca Viajera por sala"', transformacion: 'number_or_zero_from_col1', estado: 'provisional', notas: 'Fila 27 (año 1) / 28 (año 2); vacía cuenta 0. Sebastián 2026-09-03.' },
   ]},
   { id: 'I.29', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Encuesta apoderados', columna: '"Biblioteca Viajera declaran"', transformacion: 'first_number', estado: 'provisional', notas: 'Wired 2026-08-05: misma celda que I.43 (R3). Sebastián validará semántica.' },

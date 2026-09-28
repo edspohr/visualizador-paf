@@ -1,17 +1,469 @@
 {
-  "generatedAt": "2026-09-28T02:20:16.562Z",
+  "generatedAt": "2026-09-28T04:25:29.149Z",
   "dryRun": false,
+  "pruned": [
+    {
+      "id": "esc_esc-basica-sendero-del-saber_I.10_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-basica-sendero-del-saber_I.28_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "indicadorId": "I.28",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    },
+    {
+      "id": "esc_esc-basica-sendero-del-saber_I.4_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "indicadorId": "I.4",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.15384615384615385
+    },
+    {
+      "id": "esc_esc-ciudad-de-barcelona_I.10_2026",
+      "establecimientoId": "esc-ciudad-de-barcelona",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    },
+    {
+      "id": "esc_esc-esperanza-joven_I.10_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    },
+    {
+      "id": "esc_esc-la-victoria_I.10_2026",
+      "establecimientoId": "esc-la-victoria",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-la-victoria_I.4_2026",
+      "establecimientoId": "esc-la-victoria",
+      "indicadorId": "I.4",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.38461538461538464
+    },
+    {
+      "id": "esc_esc-lo-valledor_I.10_2026",
+      "establecimientoId": "esc-lo-valledor",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-lo-valledor_I.4_2026",
+      "establecimientoId": "esc-lo-valledor",
+      "indicadorId": "I.4",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.46153846153846156
+    },
+    {
+      "id": "esc_esc-pedro-aguirre-cerda_I.10_2026",
+      "establecimientoId": "esc-pedro-aguirre-cerda",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    },
+    {
+      "id": "esc_esc-profesor-ramon-del-rio_I.10_2026",
+      "establecimientoId": "esc-profesor-ramon-del-rio",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-ramon-freire_I.10_2026",
+      "establecimientoId": "esc-ramon-freire",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-republica-de-austria_I.10_2026",
+      "establecimientoId": "esc-republica-de-austria",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-republica-de-las-filipinas_I.10_2026",
+      "establecimientoId": "esc-republica-de-las-filipinas",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 1
+    },
+    {
+      "id": "esc_esc-republica-de-las-filipinas_I.4_2026",
+      "establecimientoId": "esc-republica-de-las-filipinas",
+      "indicadorId": "I.4",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.38461538461538464
+    },
+    {
+      "id": "esc_esc-ricardo-latcham_I.10_2026",
+      "establecimientoId": "esc-ricardo-latcham",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    },
+    {
+      "id": "esc_esc-territorio-antartico_I.10_2026",
+      "establecimientoId": "esc-territorio-antartico",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    },
+    {
+      "id": "esc_esc-villa-san-miguel_I.10_2026",
+      "establecimientoId": "esc-villa-san-miguel",
+      "indicadorId": "I.10",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0
+    }
+  ],
+  "salasPorEscuela": {
+    "esc-esperanza-joven": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-profesor-ramon-del-rio": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-ramon-freire": {
+      "nSalas": 18,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B",
+        "7A",
+        "7B",
+        "8A",
+        "8B"
+      ]
+    },
+    "esc-republica-de-austria": {
+      "nSalas": 19,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "KB",
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B",
+        "7A",
+        "7B",
+        "8A",
+        "8B"
+      ]
+    },
+    "esc-pedro-aguirre-cerda": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-basica-sendero-del-saber": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-villa-san-miguel": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-territorio-antartico": {
+      "nSalas": 17,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B",
+        "7A",
+        "8A",
+        "8B"
+      ]
+    },
+    "esc-lo-valledor": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-la-victoria": {
+      "nSalas": 9,
+      "salasActivas": [
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "7B",
+        "8A"
+      ]
+    },
+    "esc-ricardo-latcham": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-ciudad-de-barcelona": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-republica-de-las-filipinas": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-platon": {
+      "nSalas": 11,
+      "salasActivas": [
+        "PKA",
+        "PKB",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-abate-molina": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-espana": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    },
+    "esc-inglaterra": {
+      "nSalas": 20,
+      "salasActivas": [
+        "PKA",
+        "PKB",
+        "KA",
+        "KB",
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3A",
+        "3B",
+        "4A",
+        "4B",
+        "5A",
+        "5B",
+        "6A",
+        "6B",
+        "7A",
+        "7B",
+        "8A",
+        "8B"
+      ]
+    },
+    "esc-gil-de-castro": {
+      "nSalas": 10,
+      "salasActivas": [
+        "PKA",
+        "KA",
+        "1A",
+        "2A",
+        "3A",
+        "4A",
+        "5A",
+        "6A",
+        "7A",
+        "8A"
+      ]
+    }
+  },
   "totals": {
-    "resultados": 568,
-    "resultadosRecolectados": 568,
+    "resultados": 781,
+    "resultadosRecolectados": 781,
     "porEstado": {
-      "validado": 172,
-      "provisional": 396
+      "validado": 177,
+      "provisional": 604
     },
     "escuelasCubiertas": 18,
-    "indicadoresCubiertos": 33,
-    "reads": 90,
-    "headerMismatches": 138
+    "indicadoresCubiertos": 45,
+    "reads": 322,
+    "headerMismatches": 119
   },
   "indicadoresCubiertos": [
     "I.1",
@@ -27,22 +479,34 @@
     "I.19",
     "I.2",
     "I.20",
+    "I.21",
+    "I.22",
+    "I.23",
     "I.25",
     "I.26",
     "I.27",
     "I.28",
+    "I.29",
     "I.3",
+    "I.30",
+    "I.31",
+    "I.32",
     "I.33",
     "I.35",
     "I.36",
     "I.37",
     "I.38",
+    "I.39",
     "I.4",
     "I.40",
     "I.41",
     "I.46",
     "I.47",
+    "I.48",
+    "I.49",
     "I.5",
+    "I.50",
+    "I.51",
     "I.6",
     "I.7",
     "I.8",
@@ -57,9 +521,9 @@
     },
     {
       "schoolName": "Escuela Esperanza Joven",
-      "indId": "I19",
-      "expected": "ningún estudiante activo detectado",
-      "tab": "RC per-course"
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
     },
     {
       "schoolName": "Escuela Esperanza Joven",
@@ -86,21 +550,15 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela Esperanza Joven",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Esperanza Joven",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Profesor Ramón del Río",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Profesor Ramón del Río",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
       "tab": "Actividades"
     },
     {
@@ -128,21 +586,15 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela Profesor Ramón del Río",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Profesor Ramón del Río",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Ramón Freire",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ramón Freire",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
       "tab": "Actividades"
     },
     {
@@ -176,21 +628,15 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela Ramón Freire",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Ramón Freire",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "República de Austria",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "República de Austria",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
       "tab": "Actividades"
     },
     {
@@ -218,21 +664,15 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "República de Austria",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "República de Austria",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Pedro Aguirre Cerda",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Pedro Aguirre Cerda",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
       "tab": "Actividades"
     },
     {
@@ -260,18 +700,6 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela Pedro Aguirre Cerda",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Pedro Aguirre Cerda",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Básica Sendero del Saber",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
@@ -279,9 +707,27 @@
     },
     {
       "schoolName": "Escuela Básica Sendero del Saber",
-      "indId": "I19",
-      "expected": "ningún estudiante activo detectado",
-      "tab": "RC per-course"
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I28",
+      "expected": "Nº de semanas de envío de Biblioteca Viajera por sala",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I4",
+      "expected": "personas con Cargo=Coordinador",
+      "tab": "Reuniones equipo de Gestión"
+    },
+    {
+      "schoolName": "Escuela Básica Sendero del Saber",
+      "indId": "I21",
+      "expected": "planilla KA: Requested entity was not found.",
+      "tab": "Planillas por curso"
     },
     {
       "schoolName": "Escuela Básica Sendero del Saber",
@@ -305,18 +751,6 @@
       "schoolName": "Escuela Básica Sendero del Saber",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Básica Sendero del Saber",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Básica Sendero del Saber",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -333,6 +767,12 @@
     },
     {
       "schoolName": "Escuela Villa San Miguel",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Villa San Miguel",
       "indId": "I42",
       "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
       "tab": "Encuesta apoderados"
@@ -353,18 +793,6 @@
       "schoolName": "Escuela Villa San Miguel",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Villa San Miguel",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Villa San Miguel",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -381,6 +809,12 @@
     },
     {
       "schoolName": "Escuela Territorio Antártico",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Territorio Antártico",
       "indId": "I42",
       "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
       "tab": "Encuesta apoderados"
@@ -401,18 +835,6 @@
       "schoolName": "Escuela Territorio Antártico",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Territorio Antártico",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Territorio Antártico",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -423,6 +845,18 @@
     },
     {
       "schoolName": "Escuela Lo Valledor",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
+      "indId": "I4",
+      "expected": "personas con Cargo=Coordinador",
+      "tab": "Reuniones equipo de Gestión"
+    },
+    {
+      "schoolName": "Escuela Lo Valledor",
       "indId": "I42",
       "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
       "tab": "Encuesta apoderados"
@@ -443,18 +877,6 @@
       "schoolName": "Escuela Lo Valledor",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Lo Valledor",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Lo Valledor",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -465,6 +887,18 @@
     },
     {
       "schoolName": "Escuela La Victoria",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
+      "indId": "I4",
+      "expected": "personas con Cargo=Coordinador",
+      "tab": "Reuniones equipo de Gestión"
+    },
+    {
+      "schoolName": "Escuela La Victoria",
       "indId": "I42",
       "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
       "tab": "Encuesta apoderados"
@@ -488,21 +922,15 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela La Victoria",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela La Victoria",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Ricardo Latcham",
       "indId": "I34",
       "expected": "Porcentaje de cumplimiento del plan de acción familia escuela (celda vacía)",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ricardo Latcham",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
       "tab": "Actividades"
     },
     {
@@ -527,18 +955,6 @@
       "schoolName": "Escuela Ricardo Latcham",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Ricardo Latcham",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Ricardo Latcham",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -555,6 +971,12 @@
     },
     {
       "schoolName": "Escuela Ciudad de Barcelona",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela Ciudad de Barcelona",
       "indId": "I42",
       "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
       "tab": "Encuesta apoderados"
@@ -575,18 +997,6 @@
       "schoolName": "Escuela Ciudad de Barcelona",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Ciudad de Barcelona",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Ciudad de Barcelona",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -603,6 +1013,18 @@
     },
     {
       "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I10",
+      "expected": "Existe plan de acción familia escuela actualizado",
+      "tab": "Actividades"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
+      "indId": "I4",
+      "expected": "personas con Cargo=Coordinador",
+      "tab": "Reuniones equipo de Gestión"
+    },
+    {
+      "schoolName": "Escuela República De Las Filipinas",
       "indId": "I42",
       "expected": "% apoderados con talleres descargados/visualizados (celda vacía)",
       "tab": "Encuesta apoderados"
@@ -623,18 +1045,6 @@
       "schoolName": "Escuela República De Las Filipinas",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela República De Las Filipinas",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela República De Las Filipinas",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -674,18 +1084,6 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela Platón",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Platón",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Abate Molina",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -719,18 +1117,6 @@
       "schoolName": "Escuela Abate Molina",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Abate Molina",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Abate Molina",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     },
     {
@@ -770,18 +1156,6 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela España",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela España",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Inglaterra",
       "indId": "I47",
       "expected": "Nota promedio de la evaluación de formación a apoderados monitores (celda vacía)",
@@ -818,18 +1192,6 @@
       "tab": "Encuesta apoderados"
     },
     {
-      "schoolName": "Escuela Inglaterra",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Inglaterra",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
       "schoolName": "Escuela Gil de Castro",
       "indId": "I37",
       "expected": "Nota promedio de la evaluación de la instancia de formación docente (celda vacía)",
@@ -863,18 +1225,6 @@
       "schoolName": "Escuela Gil de Castro",
       "indId": "I45",
       "expected": "% mantel de palabras declarado (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Gil de Castro",
-      "indId": "I29",
-      "expected": "Promedio libros BV (= I.43) (celda vacía)",
-      "tab": "Encuesta apoderados"
-    },
-    {
-      "schoolName": "Escuela Gil de Castro",
-      "indId": "I31",
-      "expected": "% mantel (= I.45) (celda vacía)",
       "tab": "Encuesta apoderados"
     }
   ],
@@ -972,8 +1322,8 @@
       }
     },
     {
-      "valor": 6.8,
-      "raw": "6.8",
+      "valor": 6.675,
+      "raw": "6.8|6.7|6.7|6.5",
       "estado": "validado",
       "establecimientoId": "esc-esperanza-joven",
       "establecimientoNombre": "Escuela Esperanza Joven",
@@ -986,7 +1336,7 @@
       "meta": "6",
       "metaNum": 6,
       "unidad": "conteo",
-      "logro": 1.1333333333333333,
+      "logro": 1.1125,
       "fuente": {
         "workbookId": "1J7wy5aeW4rRZodYjtz590LK0Wo-W9t6HzOhEdJWlHyM",
         "workbookLabel": "Datos Consultor · Actividades",

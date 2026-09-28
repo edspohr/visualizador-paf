@@ -1,0 +1,15 @@
+{
+  "generatedAt": "2026-09-28T04:25:47.769Z",
+  "dryRun": false,
+  "totalWritten": 1,
+  "slots": [
+    {
+      "docId": "esc_esc-espana_I.22_2026",
+      "establecimientoId": "esc-espana",
+      "establecimientoNombre": "Escuela España",
+      "indicadorId": "I.22",
+      "indicadorNombre": "%  promedio de asistencia anual de apoderados a taller para apoderados presenciales",
+      "slep": "SLEP-LP"
+    }
+  ]
+}

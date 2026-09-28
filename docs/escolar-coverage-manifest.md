@@ -1,6 +1,6 @@
 # Manifiesto de cobertura Escolar
 
-Generado 2026-09-28 (sin consulta a Firestore).
+Generado 2026-09-28 (con estado de Firestore).
 
 Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 
@@ -12,10 +12,10 @@ Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 | NO_CORRESPONDE | 0 | 0.0% | Nadie (estructura) |
 | SIN_FUENTE_MAPEADA | 268 | 14.6% | **Nosotros** |
 | FUENTE_NO_ACCESIBLE | 0 | 0.0% | **Nosotros** |
-| SIN_DATO_REPORTADO | 0 | 0.0% | Focus |
-| CON_DATO_REPORTADO | 0 | 0.0% | — |
+| SIN_DATO_REPORTADO | 144 | 7.8% | Focus |
+| CON_DATO_REPORTADO | 743 | 40.5% | — |
 | CERO_REPORTADO | 0 | 0.0% | — |
-| MAPEADO_NO_VERIFICADO | 887 | 48.3% | Correr con `--with-firestore` |
+| MAPEADO_NO_VERIFICADO | 0 | 0.0% | Correr con `--with-firestore` |
 
 ## Indicadores con estado SIN_FUENTE_MAPEADA
 

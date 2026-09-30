@@ -19,6 +19,7 @@ import { dirname, resolve as pathResolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
 import { credenciales, salida } from './lib/runtime.mjs';
 import { getFirestore } from 'firebase-admin/firestore';
+import { esperaFuente } from './lib/establecimientosRegistro.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -37,7 +38,8 @@ const [resSnap, estSnap] = await Promise.all([
   db.collection('establecimientos_real').where('programa', '==', 'escolar').get(),
 ]);
 
-const escuelas = estSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+// A school created in the platform and not yet found in Drive has no source to be empty.
+const escuelas = estSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(e => !esperaFuente(e));
 
 // Which indicators are wired (have at least one doc anywhere)?
 const wired = new Set();
@@ -63,7 +65,7 @@ for (const e of escuelas) {
       establecimientoNombre: e.nombre,
       indicadorId: ind.id,
       indicadorNombre: ind.nombre,
-      slep: e.slep,
+      slep: e.slep ?? null,
     });
   }
 }
@@ -99,7 +101,7 @@ if (DRY_RUN) {
       metaNum: ind.metaNum,
       unidad: ind.unidad,
       logro: null,
-      slep: t.slep,
+      ...(t.slep ? { slep: t.slep } : {}),
       fuente: { workbookId: null, workbookLabel: 'backfill-null-2026-08-05', tab: null, row: null },
       generatedAt: new Date().toISOString(),
       backfilled: true,

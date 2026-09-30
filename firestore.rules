@@ -52,15 +52,51 @@ service cloud.firestore {
     }
 
     // ─── /usuarios/{uid} ────────────────────────────────────────────────
+    // The profile and the assignment decide what a user can read, so a user
+    // can never write them on their own doc (ADR-0004). They are changed by a
+    // superadmin, from the panel or through the adminPlataforma function.
+    function camposPrivilegiados() {
+      return ['perfilDefault', 'establecimientoId', 'slepId', 'establecimientoIds', 'email'];
+    }
+
+    // Same list as SUPERADMIN_WHITELIST in src/lib/firebase.js. Only counts
+    // when the provider verified the email (Google sign-in).
+    function esWhitelist() {
+      return request.auth.token.email_verified == true &&
+        request.auth.token.email.lower() in ['espohr@gmail.com', 'lagurto@focus.cl', 'speters@focus.cl'];
+    }
+
+    function sinAsignacion(d) {
+      return d.get('establecimientoId', null) == null &&
+        d.get('slepId', null) == null &&
+        !('establecimientoIds' in d);
+    }
+
     match /usuarios/{uid} {
       // Cada usuario lee su propio doc; superadmin lee todos
       allow read: if esAuth() && (request.auth.uid == uid || esSuperadmin());
-      // Registro inicial: cada usuario crea su propio doc
-      allow create: if esAuth() && request.auth.uid == uid;
-      // Update: el propio usuario (para cambios cosméticos) o superadmin
-      allow update: if esAuth() && (request.auth.uid == uid || esSuperadmin());
+      // Registro inicial: cada usuario crea su propio doc, solo como 'pendiente'
+      // y sin asignación (o como superadmin si su correo está en la whitelist).
+      allow create: if esAuth() && request.auth.uid == uid && (
+        (request.resource.data.perfilDefault == 'pendiente' && sinAsignacion(request.resource.data)) ||
+        (request.resource.data.perfilDefault == 'superadmin' && esWhitelist())
+      );
+      // Update: superadmin, o el propio usuario para cambios cosméticos.
+      allow update: if esSuperadmin() || (esAuth() && request.auth.uid == uid && (
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(camposPrivilegiados()) ||
+        (esWhitelist() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['perfilDefault']) &&
+          request.resource.data.perfilDefault == 'superadmin')
+      ));
       // Delete: solo superadmin
       allow delete: if esSuperadmin();
+    }
+
+    // ─── /sostenedores_real/{slepId} — catálogo de sostenedores (ADR-0002) ─
+    // Lo escribe la función adminPlataforma (Admin SDK).
+    match /sostenedores_real/{slepId} {
+      allow read: if esUsuarioValido();
+      allow write: if false;
     }
 
     // ─── /sostenedores/{slepId} ─────────────────────────────────────────
@@ -143,7 +179,7 @@ service cloud.firestore {
         (esSostenedor() && resource.data.slep == getUsuario().slepId) ||
         esAccesoCompleto()
       );
-      allow write: if false;   // sólo el pipeline (Admin SDK) escribe
+      allow write: if false;   // sólo el pipeline y adminPlataforma (Admin SDK) escriben
     }
 
     // ─── /resultados_real/{docId} — Etapa 3/5 ingesta real ─────────────

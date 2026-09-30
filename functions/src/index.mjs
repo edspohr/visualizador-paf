@@ -60,3 +60,4 @@ export const pipelineNocturno = onSchedule(
     logger.info('Pipeline nocturno completado');
   },
 );
+export { adminPlataforma } from './admin.mjs';

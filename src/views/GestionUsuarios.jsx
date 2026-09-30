@@ -5,7 +5,7 @@ import { useEscuelas, useJardines, useSleps } from '../lib/queries.js';
 import {
   listarUsuarios,
   crearUsuarioComoAdmin,
-  actualizarUsuarioDoc,
+  actualizarUsuarioComoAdmin,
   eliminarUsuarioDoc,
 } from '../lib/firebase.js';
 
@@ -49,48 +49,37 @@ export default function GestionUsuarios() {
     );
   }, [usuarios, q]);
 
-  const cambiarPerfil = async (uid, perfilDefault) => {
+  // Perfil y asignación se guardan en el servidor (adminPlataforma), que
+  // deriva el SLEP del establecimiento y limpia la asignación anterior cuando
+  // cambia el perfil. `patch` trae los campos tal como quedaron guardados.
+  const guardarUsuario = async (uid, datos) => {
+    setError('');
     try {
-      await actualizarUsuarioDoc(uid, { perfilDefault });
-      setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, perfilDefault } : u));
+      const { uid: _uid, ...patch } = await actualizarUsuarioComoAdmin(uid, datos);
+      setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, ...patch } : u));
+      return true;
     } catch (err) {
       setError(err?.message ?? 'No se pudo actualizar.');
+      return false;
     }
   };
 
-  const cambiarEstablecimiento = async (uid, value, perfilId) => {
-    try {
-      if (perfilId === 'sostenedor') {
-        // value is a slepId — store in slepId, clear establecimientoId
-        await actualizarUsuarioDoc(uid, { slepId: value || null, establecimientoId: null });
-        setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, slepId: value || null, establecimientoId: null } : u));
-      } else {
-        // jardin/escuela: store establecimientoId AND derive slepId from the est doc
-        const est = [...catalogo.escuelas, ...catalogo.jardines].find(e => e.id === value);
-        const slepId = est?.slep ?? null;
-        await actualizarUsuarioDoc(uid, { establecimientoId: value || null, slepId });
-        setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, establecimientoId: value || null, slepId } : u));
-      }
-    } catch (err) {
-      setError(err?.message ?? 'No se pudo actualizar.');
-    }
-  };
+  const cambiarPerfil = (uid, perfilDefault) => guardarUsuario(uid, { perfilDefault });
+
+  const cambiarEstablecimiento = (uid, value, perfilId) => guardarUsuario(
+    uid,
+    perfilId === 'sostenedor' ? { slepId: value || null } : { establecimientoId: value || null },
+  );
 
   const [asignacionUid, setAsignacionUid] = useState(null);
   const asignacionUsuario = usuarios.find(u => u.uid === asignacionUid) ?? null;
 
   const guardarAsignacionConsultor = async (uid, establecimientoIds) => {
-    try {
-      await actualizarUsuarioDoc(uid, { establecimientoIds });
-      setUsuarios(prev => prev.map(u => u.uid === uid ? { ...u, establecimientoIds } : u));
-      setAsignacionUid(null);
-    } catch (err) {
-      setError(err?.message ?? 'No se pudo actualizar.');
-    }
+    if (await guardarUsuario(uid, { establecimientoIds })) setAsignacionUid(null);
   };
 
   const eliminar = async (uid) => {
-    if (!confirm('¿Eliminar este usuario? Se quita del registro de la plataforma; la cuenta de Firebase Auth queda huérfana y solo puede ser eliminada desde la consola de Firebase.')) return;
+    if (!confirm('¿Eliminar este usuario? Se quita del registro de la plataforma y su cuenta de acceso deja de existir.')) return;
     try {
       await eliminarUsuarioDoc(uid);
       setUsuarios(prev => prev.filter(u => u.uid !== uid));
@@ -165,7 +154,7 @@ export default function GestionUsuarios() {
               <tr className="border-b-2 border-border text-left text-xs text-gray-ui uppercase tracking-wider">
                 <th className="py-3 pr-3 font-medium">Usuario</th>
                 <th className="py-3 px-3 font-medium">Perfil asignado</th>
-                <th className="py-3 px-3 font-medium">Establecimiento</th>
+                <th className="py-3 px-3 font-medium">Establecimiento / Sostenedor</th>
                 <th className="py-3 px-3 font-medium">Proveedor</th>
                 <th className="py-3 pl-3 font-medium text-right">Acciones</th>
               </tr>
@@ -242,7 +231,7 @@ function FilaUsuario({ u, onCambiarPerfil, onCambiarEstablecimiento, onEliminar,
           </button>
         ) : opcionesEstablecimiento.length > 0 ? (
           <select
-            value={u.establecimientoId ?? ''}
+            value={(u.perfilDefault === 'sostenedor' ? u.slepId : u.establecimientoId) ?? ''}
             onChange={(e) => onCambiarEstablecimiento(e.target.value)}
             className="px-2 py-1.5 border border-border rounded-lg text-xs bg-white text-gray-dark focus:ring-2 focus:ring-cyan-100 outline-none max-w-[240px]"
           >
@@ -303,28 +292,16 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
     setError('');
     setLoading(true);
     try {
-      let assignmentFields;
-      if (perfil === 'sostenedor') {
-        assignmentFields = { slepId: establecimientoId || null, establecimientoId: null };
-      } else if (perfil === 'escuela' || perfil === 'jardin') {
-        const est = [...catalogo.escuelas, ...catalogo.jardines].find(e => e.id === establecimientoId);
-        assignmentFields = { establecimientoId: establecimientoId || null, slepId: est?.slep ?? null };
-      } else {
-        assignmentFields = { establecimientoId: null };
-      }
       await crearUsuarioComoAdmin({
         email: email.trim(),
         password,
         nombre: nombre.trim(),
         perfilDefault: perfil,
-        ...assignmentFields,
+        ...(perfil === 'sostenedor' ? { slepId: establecimientoId || null } : { establecimientoId: establecimientoId || null }),
       });
       onCreado();
     } catch (err) {
-      const code = err?.code ?? '';
-      if (code === 'auth/email-already-in-use') setError('Ya existe una cuenta con ese correo.');
-      else if (code === 'auth/invalid-email') setError('El correo no es válido.');
-      else setError(err?.message ?? 'No se pudo crear.');
+      setError(err?.message ?? 'No se pudo crear.');
     } finally {
       setLoading(false);
     }
@@ -363,7 +340,7 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
 
           {opciones.length > 0 && (
             <div>
-              <label className="block text-xs text-gray-ui font-medium mb-1.5 uppercase tracking-wider">Establecimiento / Sostenedor</label>
+              <label className="block text-xs text-gray-ui font-medium mb-1.5 uppercase tracking-wider">{perfil === 'sostenedor' ? 'Sostenedor' : 'Establecimiento'}</label>
               <div className="relative">
                 <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-ui pointer-events-none"/>
                 <select
@@ -371,7 +348,7 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
                   onChange={(e) => setEstablecimientoId(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 border border-border rounded-xl text-sm bg-white text-gray-dark focus:ring-2 focus:ring-cyan-100 focus:border-cyan outline-none"
                 >
-                  <option value="">— sin asignar (elegirá al ingresar) —</option>
+                  <option value="">— sin asignar —</option>
                   {opciones.map(op => <option key={op.id} value={op.id}>{op.nombre}</option>)}
                 </select>
               </div>
@@ -399,11 +376,6 @@ function ModalCrearUsuario({ onClose, onCreado, catalogo }) {
               Crear usuario
             </button>
           </div>
-
-          <p className="text-[10px] text-gray-ui font-light mt-2 pt-2 border-t border-border">
-            Nota: al crear el usuario se cierra tu sesión actual y se inicia la del recién creado.
-            Esta es una limitación de la API cliente de Firebase Auth. Cierra sesión y vuelve a entrar como superadmin.
-          </p>
         </form>
       </div>
     </div>

@@ -1,0 +1,149 @@
+{
+  "generatedAt": "2026-09-30T15:37:05.421Z",
+  "dryRun": true,
+  "pruned": [],
+  "establecimientos": {
+    "total": 24,
+    "nuevos": [],
+    "sinFuente": [],
+    "desaparecidos": [],
+    "pendientes": [],
+    "discrepancias": [],
+    "sostenedoresDesconocidos": [
+      "SLEP Santa Rosa",
+      "SLEP Del Pino",
+      "SLEP Santa Corina"
+    ]
+  },
+  "totals": {
+    "jardinDocs": 1750,
+    "salasDocs": 3322,
+    "porPeriodo": {
+      "2025": 634,
+      "2026": 1116
+    },
+    "jardines": 24,
+    "indicadoresCubiertos": 48,
+    "nivelesDetectados": [
+      "sala_cuna_menor",
+      "sala_cuna_mayor",
+      "nivel_medio_menor",
+      "nivel_medio_mayor",
+      "transicion_1"
+    ],
+    "rosterTotal": 24,
+    "warnings": 3
+  },
+  "indicadoresCubiertos": [
+    "I.1",
+    "I.10",
+    "I.11",
+    "I.12",
+    "I.13",
+    "I.14",
+    "I.15",
+    "I.16",
+    "I.17",
+    "I.18",
+    "I.19",
+    "I.2",
+    "I.20",
+    "I.21",
+    "I.22",
+    "I.23",
+    "I.24",
+    "I.25",
+    "I.26",
+    "I.27",
+    "I.28",
+    "I.29",
+    "I.3",
+    "I.30",
+    "I.31",
+    "I.32",
+    "I.33",
+    "I.34",
+    "I.38",
+    "I.39",
+    "I.4",
+    "I.40",
+    "I.41",
+    "I.42",
+    "I.43",
+    "I.44",
+    "I.45",
+    "I.46",
+    "I.47",
+    "I.48",
+    "I.49",
+    "I.5",
+    "I.50",
+    "I.51",
+    "I.6",
+    "I.7",
+    "I.8",
+    "I.9"
+  ],
+  "indicadoresNoCubiertos": [
+    "I.35",
+    "I.36",
+    "I.37",
+    "I.52",
+    "I.53"
+  ],
+  "indicadoresConNivel": [
+    "I.15",
+    "I.16",
+    "I.17",
+    "I.18",
+    "I.19",
+    "I.20",
+    "I.21",
+    "I.22",
+    "I.23",
+    "I.24",
+    "I.25",
+    "I.26",
+    "I.27",
+    "I.39",
+    "I.40",
+    "I.41",
+    "I.42",
+    "I.44",
+    "I.45",
+    "I.46",
+    "I.47",
+    "I.48",
+    "I.49",
+    "I.50",
+    "I.51"
+  ],
+  "warnings": [
+    "VISUALIZADOR SALAS: planilla I.44 sin equivalente en catálogo",
+    "VISUALIZADOR SALAS: planilla I.44 sin equivalente en catálogo",
+    "VISUALIZADOR SALAS: planilla I.44 sin equivalente en catálogo"
+  ],
+  "perPlanilla": [
+    {
+      "label": "Central 2025-2026 · 2025",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "jardin": 319,
+      "salas": 1173
+    },
+    {
+      "label": "Central 2025-2026 · 2026",
+      "cohorte": "2025-2026",
+      "anio": 2026,
+      "jardin": 342,
+      "salas": 1386
+    },
+    {
+      "label": "Central 2026-2027 · 2026",
+      "cohorte": "2026-2027",
+      "anio": 2026,
+      "jardin": 204,
+      "salas": 763
+    }
+  ]
+}

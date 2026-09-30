@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-09-30T15:14:57.861Z",
+  "errors": [],
+  "warnings": [
+    "[csoto@focus.cl] consultor: no establecimientoIds array",
+    "[msanchez@focus.cl] consultor: no establecimientoIds array",
+    "177/500 sampled resultados_real docs missing 'slep' field — run backfillSlepOnResultados.mjs"
+  ],
+  "userCount": 100,
+  "estCount": 42
+}

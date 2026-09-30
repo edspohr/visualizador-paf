@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { iniciarConGoogle } from '../lib/firebase.js';
+import { iniciarConGoogle, EMULADORES, entrarEmulador } from '../lib/firebase.js';
 
 // Traduce el error de Firebase Auth a un mensaje corto.
 function mensajeError(err) {
@@ -73,6 +73,24 @@ export default function Login() {
               {loading ? <Loader2 size={18} className="animate-spin"/> : <GoogleIcon size={18}/>}
               Continuar con Google
             </button>
+
+            {/* Solo con emuladores locales (npm run dev:emuladores): usuarios de prueba por perfil. */}
+            {EMULADORES && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs text-gray-ui mb-2">Emuladores locales · entrar como</p>
+                <div className="flex flex-wrap gap-2">
+                  {['superadmin', 'consultor', 'cap', 'sostenedor', 'escuela', 'jardin', 'pendiente'].map(p => (
+                    <button
+                      key={p}
+                      onClick={() => entrarEmulador(p).catch(err => setError(mensajeError(err)))}
+                      className="px-2.5 py-1.5 rounded-lg text-xs font-medium border border-border text-gray-dark hover:bg-bg transition"
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {error && (
               <div className="mt-4 flex items-start gap-2 p-3 rounded-xl text-sm" style={{ background: 'rgb(252,235,231)', color: 'var(--color-red)' }}>

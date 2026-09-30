@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:emuladores": "vite --mode emuladores",
+    "emuladores": "node scripts/bundlePipeline.mjs && firebase emulators:start --project demo-paf --only auth,firestore,functions",
+    "emuladores:seed": "node scripts/dev/seedEmulador.mjs",
     "check-tokens": "node scripts/checkColorTokens.mjs",
     "build": "node scripts/checkColorTokens.mjs && vite build",
     "preview": "vite preview",
@@ -25,7 +28,10 @@
     "parse:homologacion": "node scripts/parseHomologacion.mjs",
     "reporte:conexion-escolar": "node scripts/reporteConexionEscolar.mjs",
     "backfill:escolar-null": "node scripts/backfillEscolarNullDocs.mjs",
-    "aggregate:territorio": "node scripts/computeTerritorioAggregates.mjs"
+    "aggregate:territorio": "node scripts/computeTerritorioAggregates.mjs",
+    "seed:sostenedores": "node scripts/seedSostenedores.mjs",
+    "sync:slep": "node scripts/syncSlepDenormalizado.mjs",
+    "test:reglas": "node scripts/dev/testReglas.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",

@@ -25,6 +25,7 @@ Este archivo describe la arquitectura y las convenciones activas. **Reescribir c
 - **Datos:** Firestore (colección `resultados_real`, `progresoTrimestral_real`, `establecimientos_real`, `sostenedores_real`, `usuarios`, `config/*`).
 - **Ingesta:** scripts Node ESM en `scripts/` que leen planillas Google Sheets y XLSX en `scripts/datos/`.
 - **Deploy:** Firebase Hosting (`npm run deploy`) y reglas/índices Firestore (`npm run deploy:rules`).
+- **Cloud Functions:** Node 22 (2nd gen), `firebase-functions` 7. Mantener `firebase-admin` y `googleapis` en la misma versión en `package.json` y `functions/package.json`: los scripts del pipeline se prueban en local con las del proyecto raíz y corren de noche con las de `functions/`.
 
 No hay backend propio para lectura: el navegador consulta Firestore directamente con reglas RLS por perfil. Las escrituras administrativas (usuarios, sostenedores, establecimientos) pasan por la Cloud Function `adminPlataforma` (ADR-0004).
 

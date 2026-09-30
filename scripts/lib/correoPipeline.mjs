@@ -5,7 +5,8 @@
 //   🟢 OK         — all steps ran, numbers in line with the previous run.
 //   🟡 ATENCIÓN   — all steps ran, but something looks off (fewer
 //                   establishments/indicators/docs than the previous run,
-//                   planillas that could not be read, >100% values).
+//                   planillas that could not be read, >100% values, a new or
+//                   missing establishment — ADR-0003).
 //   🔴 FALLÓ      — a step failed; the site keeps the previous data.
 //
 // Sending: Gmail SMTP with an app password (SMTP_USER / SMTP_PASSWORD, the
@@ -13,6 +14,7 @@
 // PIPELINE_CORREO = 'diario' (default: every run) | 'solo-problemas'.
 
 const SITIO = 'https://visualizador-paf.web.app';
+const ADMIN = `${SITIO}/establecimientos`;
 const LOGS = 'https://console.cloud.google.com/run/detail/us-central1/pipelinenocturno/logs?project=visualizador-paf';
 const FIRESTORE = 'https://console.firebase.google.com/project/visualizador-paf/firestore/databases/-default-/data/~2Fconfig~2FpipelineMetadata';
 
@@ -30,7 +32,7 @@ export function detectarAdvertencias(resumen, anterior) {
   const a = [];
   const p = resumen.parvulario, e = resumen.escolar;
   if (p) {
-    if (p.jardines < 24) a.push(`Parvularia: se cargaron ${p.jardines} jardines (se esperan 24).`);
+    if (anterior?.parvulario && p.jardines < anterior.parvulario.jardines) a.push(`Parvularia: se cargaron ${p.jardines} jardines (en la carga anterior fueron ${anterior.parvulario.jardines}).`);
     if (anterior?.parvulario && p.docsJardin < anterior.parvulario.docsJardin * 0.9) a.push(`Parvularia: ${p.docsJardin} valores por jardín, bajó más de 10 % respecto de la carga anterior (${anterior.parvulario.docsJardin}).`);
     if (anterior?.parvulario && p.indicadores < anterior.parvulario.indicadores) a.push(`Parvularia: ${p.indicadores} indicadores con datos (antes ${anterior.parvulario.indicadores}).`);
     if (p.marcadosSinDato > 20) a.push(`Parvularia: ${p.marcadosSinDato} valores quedaron sin dato porque ya no vienen en las planillas.`);
@@ -38,13 +40,63 @@ export function detectarAdvertencias(resumen, anterior) {
     if (p.fueraDeRango > (anterior?.parvulario?.fueraDeRango ?? 0)) a.push(`Parvularia: ${p.fueraDeRango} celdas con porcentajes sobre 100 % en las planillas centrales (antes ${anterior?.parvulario?.fueraDeRango ?? 0}; ver detalle).`);
   }
   if (e) {
-    if (e.escuelas < 18) a.push(`Educación Básica: se cargaron ${e.escuelas} escuelas (se esperan 18).`);
+    if (anterior?.escolar && e.escuelas < anterior.escolar.escuelas) a.push(`Educación Básica: se cargaron ${e.escuelas} escuelas (en la carga anterior fueron ${anterior.escolar.escuelas}).`);
     if (anterior?.escolar && e.docs < anterior.escolar.docs * 0.9) a.push(`Educación Básica: ${e.docs} valores, bajó más de 10 % respecto de la carga anterior (${anterior.escolar.docs}).`);
     if (anterior?.escolar && e.indicadores < anterior.escolar.indicadores) a.push(`Educación Básica: ${e.indicadores} indicadores con datos (antes ${anterior.escolar.indicadores}).`);
     if (e.marcadosSinDato > 20) a.push(`Educación Básica: ${e.marcadosSinDato} valores quedaron sin dato porque ya no vienen en las planillas.`);
     if (e.erroresLectura > (anterior?.escolar?.erroresLectura ?? 0)) a.push(`Educación Básica: ${e.erroresLectura} planillas o pestañas no se pudieron leer (antes ${anterior?.escolar?.erroresLectura ?? 0}): permisos, enlace roto o pestaña renombrada. Ver detalle.`);
   }
+  // Registry of establishments (ADR-0003). A new establishment always warns;
+  // the rest only on the night the situation first shows up, so an open item
+  // does not turn every email yellow (it stays listed in its own section).
+  for (const [prog, et] of Object.entries(PROGRAMA_ETIQUETA)) {
+    const r = resumen.establecimientos?.[prog];
+    if (!r) continue;
+    const ant = anterior?.establecimientos?.[prog];
+    const recientes = (lista, previa, clave = x => x.id) => (lista ?? []).filter(x => !(previa ?? []).some(y => clave(y) === clave(x)));
+    for (const n of r.nuevos ?? []) {
+      a.push(`${et}: establecimiento nuevo «${n.nombre}»${n.cohorte ? ` (cohorte ${n.cohorte})` : ''}. Ya está publicado.${n.faltan?.length ? ` Falta completar en la plataforma: ${n.faltan.join(', ')}.` : ''}`);
+    }
+    for (const d of recientes(r.desaparecidos, ant?.desaparecidos)) {
+      a.push(`${et}: «${d.nombre}» dejó de aparecer en la fuente (carpeta o fila eliminada o renombrada). Sus datos anteriores se mantienen.`);
+    }
+    for (const d of recientes(r.sinFuente, ant?.sinFuente)) {
+      a.push(`${et}: «${d.nombre}» fue creado en la plataforma y todavía no se encuentra en las planillas. Se mostrará cuando aparezca con ese nombre.`);
+    }
+    for (const n of recientes(r.sostenedoresDesconocidos, ant?.sostenedoresDesconocidos, x => x)) {
+      a.push(`${et}: el sostenedor «${n}» viene en las planillas pero no existe en la plataforma. Crearlo en "Establecimientos y sostenedores".`);
+    }
+    // `slep` always comes with `sostenedor`, which is the readable one.
+    const distintos = (l) => (l ?? []).filter(x => x.campo !== 'slep');
+    for (const d of recientes(distintos(r.discrepancias), distintos(ant?.discrepancias), x => `${x.id}|${x.campo}|${x.fuente}`)) {
+      a.push(`${et}: «${d.nombre}» tiene ${CAMPO_ETIQUETA[d.campo] ?? d.campo} = ${d.plataforma ?? 'vacío'} en la plataforma y ${d.fuente} en la planilla. Se mantiene el dato de la plataforma.`);
+    }
+  }
+  if (anterior?.slep && resumen.slep?.corregidos > 0) a.push(`Se corrigió el sostenedor en ${resumen.slep.corregidos} valores que no lo traían o lo traían desactualizado.`);
+  if (resumen.slep?.huerfanos > (anterior?.slep?.huerfanos ?? 0)) a.push(`Hay valores de ${resumen.slep.huerfanos} establecimientos que no están registrados (ver detalle en los logs).`);
   return a;
+}
+
+const PROGRAMA_ETIQUETA = { parvulario: 'Parvularia', escolar: 'Educación Básica' };
+const CAMPO_ETIQUETA = { nNinos: 'matrícula', rbd: 'RBD' };
+
+// Open items of the registry, listed every day until someone closes them.
+function bloqueRegistro(establecimientos) {
+  const filas = [];
+  for (const [prog, et] of Object.entries(PROGRAMA_ETIQUETA)) {
+    const r = establecimientos?.[prog];
+    if (!r) continue;
+    for (const x of r.pendientes ?? []) filas.push(`<li style="margin:3px 0">${esc(et)} · <b>${esc(x.nombre)}</b>: falta ${esc(x.faltan.join(', '))}</li>`);
+    for (const x of r.sinFuente ?? []) filas.push(`<li style="margin:3px 0">${esc(et)} · <b>${esc(x.nombre)}</b>: creado en la plataforma, aún no aparece en las planillas</li>`);
+    for (const x of r.desaparecidos ?? []) filas.push(`<li style="margin:3px 0">${esc(et)} · <b>${esc(x.nombre)}</b>: ya no aparece en las planillas</li>`);
+  }
+  if (!filas.length) return '';
+  return `
+    <div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;margin:12px 0">
+      <p style="margin:0 0 6px;font-weight:700;font-size:14px">Establecimientos con pendientes (${filas.length})</p>
+      <ul style="margin:0;padding-left:18px;font-size:13px">${filas.join('')}</ul>
+      <p style="margin:8px 0 0;font-size:13px">Se completan en <a href="${ADMIN}">Establecimientos y sostenedores</a>.</p>
+    </div>`;
 }
 
 export function construirCorreo({ exitoso, fallo, pasos, inicio, fin, resumen, advertencias, detalles = [] }) {
@@ -111,6 +163,7 @@ export function construirCorreo({ exitoso, fallo, pasos, inicio, fin, resumen, a
       <p style="margin:0 0 4px;color:#6b7280;font-size:13px">Inicio ${esc(fechaChile(inicio))} · término ${esc(fechaChile(fin))} · duración ${dur(Math.round((fin - inicio) / 1000))}</p>
       ${bloqueFalla}${bloqueAdv}
       ${cifras ? `<ul style="padding-left:18px;margin:12px 0">${cifras}</ul>` : ''}
+      ${bloqueRegistro(resumen.establecimientos)}
       <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">${filasPasos}</table>
       ${bloqueDetalle}
       <p style="margin:16px 0 0;font-size:13px"><a href="${SITIO}">Abrir el visualizador</a> · <a href="${LOGS}">Logs</a> · <a href="${FIRESTORE}">Estado en Firestore</a></p>
@@ -133,7 +186,8 @@ export async function enviarCorreo(correo) {
   const modo = process.env.PIPELINE_CORREO || 'diario';
   if (modo === 'solo-problemas' && correo.estado === 'ok') return { enviado: false, motivo: 'solo-problemas' };
   const user = process.env.SMTP_USER, pass = process.env.SMTP_PASSWORD;
-  const to = process.env.PIPELINE_EMAIL_TO || user;
+  // One or more recipients, comma-separated.
+  const to = (process.env.PIPELINE_EMAIL_TO || user || '').split(',').map(x => x.trim()).filter(Boolean).join(', ');
   if (!user || !pass || !to) {
     console.log(`[correo] Sin credenciales SMTP: no se envía. Asunto: ${correo.subject}`);
     return { enviado: false, motivo: 'sin credenciales' };

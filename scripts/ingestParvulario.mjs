@@ -44,6 +44,7 @@ import { google } from 'googleapis';
 import { extractPlanillaId, planillaToCanonical } from './lib/parvularioIds.mjs';
 import { comunaCanonica } from '../src/lib/comunas.js';
 import { pruneStale } from './lib/pruneStale.mjs';
+import { cleanName, jarId, cargarRegistro, slepDeSostenedor, respetarPlataforma, detectarCambios, datosFaltantes } from './lib/establecimientosRegistro.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -65,6 +66,9 @@ const auth = new google.auth.GoogleAuth({
   ...CRED.googleAuthOptions,
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
+// A request that never answers must fail, not hang the nightly run until the
+// Cloud Function is killed without sending its status email.
+google.options({ timeout: 60_000 });
 const sheets = google.sheets({ version: 'v4', auth });
 
 // ─── Catálogo ─────────────────────────────────────────────────────────────
@@ -86,22 +90,6 @@ async function readTab(id, tab, range = 'A1:BZ500') {
     range: `'${tab}'!${range}`,
   });
   return r.data.values || [];
-}
-
-function slug(s) {
-  return String(s || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function cleanName(s) {
-  return String(s || '').replace(/\s*\(.*?\)\s*/g, '').replace(/[.,;]+$/, '').trim();
-}
-
-function jarId(name) {
-  return `jar-${slug(cleanName(name))}`;
 }
 
 function parseCell(raw, unidad) {
@@ -552,6 +540,53 @@ if (rosterMissing.length) {
   console.log(`\n   ⚠ ${rosterMissing.length} jardines en Centrales sin match exacto en Base SCJI: ${rosterMissing.slice(0, 5).join(', ')}${rosterMissing.length > 5 ? '…' : ''}`);
 }
 
+// 3b) Registro de establecimientos (ADR-0002 / ADR-0003): a row that only
+// exists in a Central still becomes an establishment (it used to leave
+// orphan values), platform-edited fields are not overwritten, and the SLEP
+// id comes from the sostenedores catalog.
+const registro = await cargarRegistro(db, 'parvulario');
+const enCentral = new Map();
+for (const d of [...allJardinDocs, ...allSalasDocs]) {
+  if (!enCentral.has(d.establecimientoId)) enCentral.set(d.establecimientoId, { nombre: d.establecimientoNombre, cohorte: d.cohorte });
+}
+for (const id of rosterMissing) {
+  const c = enCentral.get(id);
+  roster.set(id, { id, programa: 'parvulario', nombre: cleanName(c?.nombre) || id, cohorte: c?.cohorte ?? null, tipo: 'Jardín', fuente: { soloCentral: true } });
+}
+const cambiosEst = detectarCambios([...roster.values()], registro.establecimientos);
+const sostenedoresDesconocidos = new Set();
+const discrepanciasEst = [];
+const estWrites = [];
+const estFinales = new Map();
+for (const est of roster.values()) {
+  const previo = registro.establecimientos.get(est.id);
+  const slepFuente = slepDeSostenedor(est.sostenedor, registro.sostenedores);
+  if (est.sostenedor && !slepFuente) sostenedoresDesconocidos.add(est.sostenedor);
+  // A blank cell in the source does not erase what is already registered.
+  const conValor = Object.fromEntries(Object.entries({ ...est, ...(slepFuente ? { slep: slepFuente } : {}) }).filter(([, v]) => v != null && v !== ''));
+  const { patch, discrepancias } = respetarPlataforma(previo, conValor);
+  discrepanciasEst.push(...discrepancias.map(x => ({ id: est.id, nombre: previo?.nombre ?? est.nombre, ...x })));
+  estWrites.push({ id: est.id, patch, nuevo: !previo });
+  estFinales.set(est.id, { ...previo, ...patch });
+}
+const conFaltantes = (e) => ({ ...e, faltan: datosFaltantes(estFinales.get(e.id) ?? registro.establecimientos.get(e.id) ?? {}) });
+const reporteEst = {
+  total: roster.size,
+  nuevos: cambiosEst.nuevos.map(conFaltantes),
+  sinFuente: cambiosEst.sinFuente,
+  desaparecidos: cambiosEst.desaparecidos,
+  pendientes: [...estFinales.entries()].map(([id, e]) => ({ id, nombre: e.nombre, faltan: datosFaltantes(e) })).filter(e => e.faltan.length),
+  discrepancias: discrepanciasEst,
+  sostenedoresDesconocidos: [...sostenedoresDesconocidos],
+};
+console.log(`   Registro: ${reporteEst.nuevos.length} nuevos, ${reporteEst.desaparecidos.length} dejaron de aparecer, ${reporteEst.sinFuente.length} creados en plataforma sin fuente, ${reporteEst.pendientes.length} con datos por completar`);
+for (const n of reporteEst.nuevos) console.log(`     + NUEVO ${n.nombre} (${n.cohorte ?? 's/cohorte'}) — falta: ${n.faltan.join(', ') || 'nada'}`);
+// Denormalized `slep` on every value: the sostenedor rules and queries filter by it.
+for (const d of [...allJardinDocs, ...allSalasDocs]) {
+  const slep = estFinales.get(d.establecimientoId)?.slep;
+  if (slep) d.slep = slep;
+}
+
 // 4) Purge
 if (PURGE && !DRY_RUN) {
   console.log('\n3) Purgando resultados_real programa=parvulario…');
@@ -581,8 +616,13 @@ if (!DRY_RUN) {
   console.log('\n4) Escribiendo establecimientos_real…');
   let n = 0;
   let batch = db.batch(); let count = 0;
-  for (const est of roster.values()) {
-    batch.set(db.collection('establecimientos_real').doc(est.id), { ...est, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+  for (const w of estWrites) {
+    batch.set(db.collection('establecimientos_real').doc(w.id), {
+      ...w.patch,
+      ...(w.nuevo ? { origen: 'carga', detectadoAt: FieldValue.serverTimestamp() } : {}),
+      fuenteVistaAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
     count++; n++;
     if (count >= 400) { await batch.commit(); batch = db.batch(); count = 0; }
   }
@@ -700,6 +740,7 @@ const report = {
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,
   pruned,
+  establecimientos: reporteEst,
   totals: {
     jardinDocs: allJardinDocs.length,
     salasDocs: allSalasDocs.length,

@@ -5,9 +5,10 @@
 //   1. ingestParvulario --prune
 //   2. ingestEscolar --prune
 //   3. backfillEscolarNullDocs
-//   4. computeTerritorioAggregates
-//   5. piiAssertion (resultados_real)
-//   6. snapshotCierre --auto   — only on day 1 (Chile time): closure of the
+//   4. syncSlepDenormalizado      — SLEP on every value (ADR-0001)
+//   5. computeTerritorioAggregates
+//   6. piiAssertion (resultados_real)
+//   7. snapshotCierre --auto   — only on day 1 (Chile time): closure of the
 //                                 previous month for the CAP profile
 //
 // Result in config/pipelineMetadata.ultimaEjecucion. A failure is logged with
@@ -38,20 +39,36 @@ const PASOS = [
   ['Carga Parvulario', 'ingestParvulario.mjs', ['--prune']],
   ['Carga Escolar', 'ingestEscolar.mjs', ['--prune']],
   ['Espacios sin dato Escolar', 'backfillEscolarNullDocs.mjs', []],
+  ['Sostenedor en cada valor', 'syncSlepDenormalizado.mjs', []],
   ['Promedios del territorio', 'computeTerritorioAggregates.mjs', []],
   ['Control de datos personales', 'piiAssertion.mjs', []],
   ...(conCierre ? [['Cierre mensual', 'snapshotCierre.mjs', ['--auto']]] : []),
 ];
+
+// The Cloud Function is killed at 30 min, and a killed run sends no email and
+// logs no PIPELINE_FALLIDO. Stop the running step before that, so the run
+// fails the normal way: recorded in Firestore and reported by email.
+const LIMITE_MIN = Number(process.env.PIPELINE_LIMITE_MIN || 27);
+const deadline = Date.now() + LIMITE_MIN * 60_000;
 
 function correr(script, scriptArgs) {
   return new Promise((resolve) => {
     const t0 = Date.now();
     const p = spawn(process.execPath, [pathResolve(__dirname, script), ...scriptArgs], { cwd: ROOT, env: process.env });
     let salidaCompleta = '';
+    let excedido = false;
     const guardar = (chunk) => { process.stdout.write(chunk); salidaCompleta += chunk; };
+    const reloj = setTimeout(() => {
+      excedido = true;
+      guardar(`\nTIEMPO EXCEDIDO: el pipeline superó ${LIMITE_MIN} min; se detiene este paso.\n`);
+      p.kill('SIGKILL');
+    }, Math.max(0, deadline - Date.now()));
     p.stdout.on('data', guardar);
     p.stderr.on('data', guardar);
-    p.on('close', (code) => resolve({ code, segundos: Math.round((Date.now() - t0) / 1000), cola: salidaCompleta.slice(-2000), salida: salidaCompleta }));
+    p.on('close', (code) => {
+      clearTimeout(reloj);
+      resolve({ code: excedido ? 'tiempo excedido' : code, segundos: Math.round((Date.now() - t0) / 1000), cola: salidaCompleta.slice(-2000), salida: salidaCompleta });
+    });
   });
 }
 
@@ -75,6 +92,7 @@ function resumir(nombre, r, resumen, detalles) {
       jardines: rep.totals.jardines, docsJardin: rep.totals.jardinDocs, docsSala: rep.totals.salasDocs,
       indicadores: rep.totals.indicadoresCubiertos, marcadosSinDato: rep.pruned?.length ?? 0, fueraDeRango: fuera.length,
     };
+    if (rep.establecimientos) (resumen.establecimientos ??= {}).parvulario = rep.establecimientos;
     detalles.push(...rep.warnings.map(w => `Parvularia · ${w}`));
   }
   if (nombre === 'Carga Escolar') {
@@ -85,7 +103,12 @@ function resumir(nombre, r, resumen, detalles) {
       escuelas: rep.totals.escuelasCubiertas, docs: rep.totals.resultados, indicadores: rep.totals.indicadoresCubiertos,
       marcadosSinDato: rep.pruned?.length ?? 0, erroresLectura: nuevos.length,
     };
+    if (rep?.establecimientos) (resumen.establecimientos ??= {}).escolar = rep.establecimientos;
     detalles.push(...lineasError.map(l => `Educación Básica · ${l.trim()}`));
+  }
+  if (nombre === 'Sostenedor en cada valor') {
+    const rep = leerJson(`reports/syncSlepDenormalizado-${hoy}.json`);
+    if (rep) resumen.slep = { corregidos: rep.corregidos, sinSostenedor: rep.establecimientosSinSlep.length, huerfanos: Object.values(rep.huerfanos).flat().length };
   }
   if (nombre === 'Promedios del territorio') {
     const rep = leerJson(`reports/computeTerritorioAggregates-${hoy}.json`);

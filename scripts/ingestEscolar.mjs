@@ -26,6 +26,7 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { google } from 'googleapis';
 import { pruneStale } from './lib/pruneStale.mjs';
 import { cursosAplicables } from './lib/escolarMapping.mjs';
+import { schoolId, cargarRegistro, respetarPlataforma, detectarCambios, datosFaltantes } from './lib/establecimientosRegistro.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = pathResolve(__dirname, '..');
@@ -48,6 +49,9 @@ const auth = new google.auth.GoogleAuth({
   ...CRED.googleAuthOptions,
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly', 'https://www.googleapis.com/auth/drive.readonly'],
 });
+// A request that never answers must fail, not hang the nightly run until the
+// Cloud Function is killed without sending its status email.
+google.options({ timeout: 60_000 });
 const sheets = google.sheets({ version: 'v4', auth });
 const drive = google.drive({ version: 'v3', auth });
 
@@ -61,9 +65,9 @@ const AÑO = 2026;
 const READS = { count: 0 };
 const HEADER_MISMATCHES = [];
 
-// Sheets allows 60 reads per minute per user. On a quota error, wait with
-// increasing delays (15s, 30s, 60s, 60s) so a full run finishes instead of
-// silently dropping schools; any other error propagates.
+// Sheets allows 60 reads per minute per user. On a quota error or a network
+// timeout, wait with increasing delays (15s, 30s, 60s, 60s) so a full run
+// finishes instead of silently dropping schools; any other error propagates.
 let lastCallAt = 0;
 async function sheetsGet(fn) {
   const delays = [15000, 30000, 60000, 60000];
@@ -75,7 +79,9 @@ async function sheetsGet(fn) {
     lastCallAt = Date.now();
     try { return await fn(); } catch (e) {
       const msg = e.errors?.[0]?.message || e.message || '';
-      if (!/quota/i.test(msg) || attempt >= delays.length) throw e;
+      const reintentable = /quota|timeout|ETIMEDOUT|ECONNRESET|socket hang up/i.test(`${msg} ${e.code ?? ''}`);
+      if (!reintentable || attempt >= delays.length) throw e;
+      console.warn(`      ↻ reintento en ${delays[attempt] / 1000} s: ${msg || e.code}`);
       await new Promise(r => setTimeout(r, delays[attempt]));
     }
   }
@@ -278,15 +284,6 @@ function normalize(s) {
     .replace(/\s+/g, ' ')
     .trim();
 }
-
-function slug(s) {
-  return String(s || '')
-    .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-function schoolId(name) { return `esc-${slug(name.replace(/^Escuela\s+/i, ''))}`; }
 
 function parseBool(v) {
   if (v == null) return null;
@@ -875,8 +872,16 @@ for (const s of schools) {
   const k = nombreClave(s.name);
   const entries = PLANILLA_INDEX.entries.filter(e => e.anio === AÑO && e.arquetipo === 'curso' && e.spreadsheetId && nombreClave(e.escuela) === k);
   CURSOS_2026_POR_ESCUELA.set(s.slug, entries.map(e => ({ curso: e.cursoCanonical, spreadsheetId: e.spreadsheetId })));
+  s.sinPlanillasCurso = !entries.length;
   if (!entries.length) console.warn(`   ⚠ ${s.name}: sin planillas por curso en el índice`);
 }
+
+// Registro de establecimientos (ADR-0002 / ADR-0003): what is new, what is
+// gone, and which fields the platform owns. A --schools run only sees part of
+// the universe, so it does not report missing schools.
+const registro = await cargarRegistro(db, 'escolar');
+const cambiosEst = detectarCambios(schools.map(s => ({ id: s.slug, nombre: s.name, cohorte: s.cohorte })), registro.establecimientos);
+if (SCHOOL_FILTER) { cambiosEst.desaparecidos = []; cambiosEst.sinFuente = []; }
 
 // Ingesta
 console.log('\n3) Leyendo tabs por escuela…');
@@ -977,6 +982,43 @@ for (const r of allResults) {
   delete r.wbId; delete r.wbLabel; delete r.tab; delete r.row;
 }
 
+// Denormalized `slep` on every value: the sostenedor rules and queries filter by it.
+for (const r of allResults) {
+  const slep = registro.establecimientos.get(r.establecimientoId)?.slep;
+  if (slep) r.slep = slep;
+}
+
+// Establishment docs this run writes, leaving platform-edited fields alone.
+const discrepanciasEst = [];
+const estFinales = new Map();
+const estWrites = schools.map((s) => {
+  const previo = registro.establecimientos.get(s.slug);
+  const { patch, discrepancias } = respetarPlataforma(previo, {
+    programa: 'escolar',
+    id: s.slug,
+    nombre: s.name,
+    cohorte: s.cohorte,
+    tipo: 'Escuela',
+    fuente: { folderId: s.folderId, dcId: s.dcId ?? null, rcId: s.rcId ?? null },
+    sinPlanillasCurso: s.sinPlanillasCurso,
+    ...(Number.isFinite(s.nSalas) && s.nSalas > 0 ? { nSalas: s.nSalas, salasActivas: s.salasActivas } : {}),
+  });
+  discrepanciasEst.push(...discrepancias.map(x => ({ id: s.slug, nombre: previo?.nombre ?? s.name, ...x })));
+  estFinales.set(s.slug, { ...previo, ...patch });
+  return { id: s.slug, patch, nuevo: !previo };
+});
+const reporteEst = {
+  total: schools.length,
+  nuevos: cambiosEst.nuevos.map(e => ({ ...e, faltan: datosFaltantes(estFinales.get(e.id) ?? {}) })),
+  sinFuente: cambiosEst.sinFuente,
+  desaparecidos: cambiosEst.desaparecidos,
+  pendientes: [...estFinales.entries()].map(([id, e]) => ({ id, nombre: e.nombre, faltan: datosFaltantes(e) })).filter(e => e.faltan.length),
+  discrepancias: discrepanciasEst,
+  sostenedoresDesconocidos: [],
+};
+console.log(`\n   Registro: ${reporteEst.nuevos.length} nuevas, ${reporteEst.desaparecidos.length} dejaron de aparecer, ${reporteEst.sinFuente.length} creadas en plataforma sin fuente, ${reporteEst.pendientes.length} con datos por completar`);
+for (const n of reporteEst.nuevos) console.log(`     + NUEVA ${n.nombre} (${n.cohorte}) — falta: ${n.faltan.join(', ') || 'nada'}`);
+
 const escDocId = (r) => `esc_${r.establecimientoId}_${r.indicadorId}_${r.periodo}`.replace(/[^a-zA-Z0-9_.-]/g, '_');
 if (DUMP_PATH) {
   const dump = {};
@@ -1000,15 +1042,11 @@ if (!DRY_RUN) {
   console.log('\n5) Upsert establecimientos_real (Escolar roster mínimo)…');
   let n = 0;
   let batch = db.batch(); let count = 0;
-  for (const s of schools) {
-    batch.set(db.collection('establecimientos_real').doc(s.slug), {
-      programa: 'escolar',
-      id: s.slug,
-      nombre: s.name,
-      cohorte: s.cohorte,
-      tipo: 'Escuela',
-      fuente: { folderId: s.folderId, dcId: s.dcId, rcId: s.rcId },
-      ...(Number.isFinite(s.nSalas) && s.nSalas > 0 ? { nSalas: s.nSalas, salasActivas: s.salasActivas } : {}),
+  for (const w of estWrites) {
+    batch.set(db.collection('establecimientos_real').doc(w.id), {
+      ...w.patch,
+      ...(w.nuevo ? { origen: 'carga', detectadoAt: FieldValue.serverTimestamp() } : {}),
+      fuenteVistaAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     }, { merge: true });
     count++; n++;
@@ -1086,6 +1124,7 @@ const report = {
   generatedAt: new Date().toISOString(),
   dryRun: DRY_RUN,
   pruned,
+  establecimientos: reporteEst,
   salasPorEscuela: Object.fromEntries(schools.map(s => [s.slug, { nSalas: s.nSalas ?? null, salasActivas: s.salasActivas ?? [] }])),
   totals: {
     resultados: enriquecidos.length,

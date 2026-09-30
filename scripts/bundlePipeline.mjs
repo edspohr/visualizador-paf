@@ -20,12 +20,14 @@ const ARCHIVOS = [
   'scripts/ingestParvulario.mjs',
   'scripts/ingestEscolar.mjs',
   'scripts/backfillEscolarNullDocs.mjs',
+  'scripts/syncSlepDenormalizado.mjs',
   'scripts/computeTerritorioAggregates.mjs',
   'scripts/piiAssertion.mjs',
   'scripts/snapshotCierre.mjs',
   'scripts/lib/runtime.mjs',
   'scripts/lib/correoPipeline.mjs',
   'scripts/lib/pruneStale.mjs',
+  'scripts/lib/establecimientosRegistro.mjs',
   'scripts/lib/escolarMapping.mjs',
   'scripts/lib/parvularioIds.mjs',
   'src/data/catalog.json',
@@ -34,6 +36,7 @@ const ARCHIVOS = [
   'src/data/scope.js',
   'src/data/visibilidad.js',
   'src/lib/comunas.js',
+  'src/lib/registro.js',
 ];
 
 rmSync(DEST, { recursive: true, force: true });

@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-09-30T18:50:30.540Z",
+  "dryRun": false,
+  "corregidos": 3790,
+  "porColeccion": {
+    "resultados_real": 3790
+  },
+  "establecimientosSinSlep": [],
+  "huerfanos": {
+    "resultados_real": [],
+    "progresoTrimestral_real": []
+  }
+}

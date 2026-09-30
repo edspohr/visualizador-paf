@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-09-30T18:48:58.134Z",
+  "dryRun": false,
+  "creados": [
+    {
+      "id": "SLEP-LP",
+      "nombre": "SLEP Los Parques"
+    },
+    {
+      "id": "SLEP-SR",
+      "nombre": "SLEP Santa Rosa"
+    },
+    {
+      "id": "SLEP-SC",
+      "nombre": "SLEP Santa Corina"
+    },
+    {
+      "id": "SLEP-DP",
+      "nombre": "SLEP Del Pino"
+    }
+  ],
+  "conflictos": []
+}

@@ -8,6 +8,7 @@ export {
   useEscuelas,
   useJardines,
   useEstablecimientos,
+  useRegistro,
   useEstablecimiento,
   useEstablecimientosPorSlep,
   useSlepDoc,

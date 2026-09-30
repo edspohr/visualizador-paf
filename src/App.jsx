@@ -8,6 +8,7 @@ import VistaEscuela from './views/VistaEscuela.jsx';
 import VistaSostenedor from './views/VistaSostenedor.jsx';
 import VistaConsultor from './views/VistaConsultor.jsx';
 import GestionUsuarios from './views/GestionUsuarios.jsx';
+import GestionEstablecimientos from './views/GestionEstablecimientos.jsx';
 import DashboardConsultores from './views/DashboardConsultores.jsx';
 import { lazy, Suspense } from 'react';
 const VistaGeografia = lazy(() => import('./views/VistaGeografia.jsx'));
@@ -65,6 +66,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<VistaPorPerfil />} />
         {esSuperadmin && <Route path="/usuarios" element={<GestionUsuarios />} />}
+        {esSuperadmin && <Route path="/establecimientos" element={<GestionEstablecimientos />} />}
         {esSuperadmin && <Route path="/consultores" element={<DashboardConsultores />} />}
         {esSuperadmin && (
           <Route path="/geografia" element={

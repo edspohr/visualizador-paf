@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase.js';
 import catalog from './catalog.json';
+import { esperaFuente } from '../lib/registro.js';
 
 // ─── Generic hook wrapper ────────────────────────────────────────────────
 
@@ -42,17 +43,17 @@ function normalizarIndicadorId(id) {
 
 // ─── Establecimientos ─────────────────────────────────────────────────────
 
+// An establishment created in the platform that no load has found yet has no
+// data to show: it stays out of every view except the admin screen (ADR-0002).
+const visibles = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((e) => !esperaFuente(e));
+
 async function fetchEstablecimientosByPrograma(programa) {
   const q = query(collection(db, 'establecimientos_real'), where('programa', '==', programa));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  return visibles(await getDocs(q));
 }
 
 export function useEstablecimientos() {
-  return useFirestore(async () => {
-    const snap = await getDocs(collection(db, 'establecimientos_real'));
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  }, []);
+  return useFirestore(async () => visibles(await getDocs(collection(db, 'establecimientos_real'))), []);
 }
 
 export function useEscuelas() {
@@ -61,6 +62,23 @@ export function useEscuelas() {
 
 export function useJardines() {
   return useFirestore(() => fetchEstablecimientosByPrograma('parvulario'), []);
+}
+
+// Admin screen: every establishment (including those waiting for a source)
+// and the sostenedores catalog. `recargar` re-reads after a change.
+export function useRegistro() {
+  const [version, setVersion] = useState(0);
+  const q = useFirestore(async () => {
+    const [ests, sos] = await Promise.all([
+      getDocs(collection(db, 'establecimientos_real')),
+      getDocs(collection(db, 'sostenedores_real')),
+    ]);
+    return {
+      establecimientos: ests.docs.map((d) => ({ id: d.id, ...d.data() })),
+      sostenedores: sos.docs.map((d) => ({ id: d.id, ...d.data() })),
+    };
+  }, [version]);
+  return { ...q, recargar: () => setVersion((v) => v + 1) };
 }
 
 export function useEstablecimiento(estId) {
@@ -75,42 +93,33 @@ export function useEstablecimientosPorSlep(slepId) {
   return useFirestore(async () => {
     if (!slepId) return [];
     const q = query(collection(db, 'establecimientos_real'), where('slep', '==', slepId));
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return visibles(await getDocs(q));
   }, [slepId]);
 }
 
-// ─── Sostenedores (derivados de establecimientos) ─────────────────────────
-// Firestore no tiene una colección de sostenedores. Los agregamos leyendo
-// `establecimientos_real` una vez y agrupando por `slep`. Cada sostenedor
-// expone { id, nombre, comuna } al igual que el resto de la app espera.
+// ─── Sostenedores ─────────────────────────────────────────────────────────
+// The catalog lives in `sostenedores_real` (ADR-0002), so a sostenedor can
+// exist before it has establishments. Comunas still come from grouping
+// `establecimientos_real` by `slep`. Each one exposes { id, nombre, comuna }.
 
 export function useSleps() {
   return useFirestore(async () => {
-    const snap = await getDocs(collection(db, 'establecimientos_real'));
-    const bySlep = new Map();
+    const [snap, catalogo] = await Promise.all([
+      getDocs(collection(db, 'establecimientos_real')),
+      getDocs(collection(db, 'sostenedores_real')),
+    ]);
+    const bySlep = new Map(catalogo.docs.map((d) => [d.id, { id: d.id, nombre: d.data().nombre || d.id, comunas: new Set() }]));
     for (const d of snap.docs) {
       const est = d.data();
       const id = est.slep;
       if (!id) continue;
-      if (!bySlep.has(id)) {
-        bySlep.set(id, {
-          id,
-          // sostenedor viene como "SLEP Los Parques" o similar; conservamos
-          // el string original como `nombre` para que el helper de labels
-          // (que ya recorta el prefijo "SLEP ") funcione consistentemente.
-          nombre: est.sostenedor || id,
-          comunas: new Set(),
-        });
-      }
+      // A SLEP missing from the catalog still shows, named as its establishments name it.
+      if (!bySlep.has(id)) bySlep.set(id, { id, nombre: est.sostenedor || id, comunas: new Set() });
       if (est.comuna) bySlep.get(id).comunas.add(est.comuna);
     }
-    // Convertir Set → string legible por UI (comunas separadas por " / ")
-    return [...bySlep.values()].map(s => ({
-      id: s.id,
-      nombre: s.nombre,
-      comuna: [...s.comunas].sort().join(' / '),
-    }));
+    return [...bySlep.values()]
+      .map(s => ({ id: s.id, nombre: s.nombre, comuna: [...s.comunas].sort().join(' / ') }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
   }, []);
 }
 
@@ -130,7 +139,11 @@ export function useSlepDoc(slepId) {
     if (!slepId) return null;
     const q = query(collection(db, 'establecimientos_real'), where('slep', '==', slepId));
     const snap = await getDocs(q);
-    if (snap.empty) return null;
+    if (snap.empty) {
+      // A sostenedor created before its establishments: only the catalog knows it.
+      const cat = await getDoc(doc(db, 'sostenedores_real', slepId));
+      return cat.exists() ? { id: slepId, nombre: cat.data().nombre || slepId, comuna: '' } : null;
+    }
     // Derive SLEP metadata from the first matching establishment
     const est = snap.docs[0].data();
     const comunas = new Set(snap.docs.map(d => d.data().comuna).filter(Boolean));

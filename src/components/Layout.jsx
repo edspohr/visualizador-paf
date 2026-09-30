@@ -158,6 +158,15 @@ export default function Layout({ children }) {
                   <Users size={14} /> Usuarios
                 </NavLink>
                 <NavLink
+                  to="/establecimientos"
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition ${isActive ? 'text-white' : 'text-gray-dark hover:bg-bg'}`
+                  }
+                  style={({ isActive }) => (isActive ? { background: 'var(--color-teal)' } : {})}
+                >
+                  <Building2 size={14} /> Establecimientos
+                </NavLink>
+                <NavLink
                   to="/consultores"
                   className={({ isActive }) =>
                     `flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition ${isActive ? 'text-white' : 'text-gray-dark hover:bg-bg'}`

@@ -13,6 +13,8 @@ Los datos son reales: provienen de planillas de trabajo mantenidas por Focus y s
 
 Este archivo describe la arquitectura y las convenciones activas. **Reescribir cuando cambien.** Fue reescrito el 2026-07-29 tras la retroalimentación del cliente sobre el modelo canónico de indicadores.
 
+**Decisiones de arquitectura:** `docs/adr/` (una por archivo, índice en `docs/adr/README.md`). **Deuda técnica:** `docs/tech-debt.md`. Todo cambio que tome una decisión estructural agrega un ADR; todo atajo o fragilidad conocida que quede abierta se anota en el registro de deuda, y se mueve a "Closed" cuando se resuelve.
+
 ---
 
 ## Stack
@@ -20,11 +22,11 @@ Este archivo describe la arquitectura y las convenciones activas. **Reescribir c
 - **Frontend:** React 18 + Vite + Tailwind CSS + Recharts.
 - **Estado remoto:** `@tanstack/react-query` sobre Firestore.
 - **Auth:** Firebase Auth (Google OAuth + email/password).
-- **Datos:** Firestore (colección `resultados_real`, `progresoTrimestral_real`, `establecimientos_real`, `usuarios`, `config/*`).
+- **Datos:** Firestore (colección `resultados_real`, `progresoTrimestral_real`, `establecimientos_real`, `sostenedores_real`, `usuarios`, `config/*`).
 - **Ingesta:** scripts Node ESM en `scripts/` que leen planillas Google Sheets y XLSX en `scripts/datos/`.
 - **Deploy:** Firebase Hosting (`npm run deploy`) y reglas/índices Firestore (`npm run deploy:rules`).
 
-No hay backend propio: el navegador consulta Firestore directamente con reglas RLS por perfil.
+No hay backend propio para lectura: el navegador consulta Firestore directamente con reglas RLS por perfil. Las escrituras administrativas (usuarios, sostenedores, establecimientos) pasan por la Cloud Function `adminPlataforma` (ADR-0004).
 
 ---
 
@@ -44,6 +46,7 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
 - **`src/data/establecimientos.js → resolverIndicador(ind, est)`** — indicador resuelto para un establecimiento (meta por año de implementación, meta = `est.nSalas` cuando `metaPorEstablecimiento`).
 - **`src/data/visibilidad.js`** — `esTerritorial(ind)` (Parvulario I.5–I.8: fuera del % y de la grilla por jardín en todos los perfiles, D-01) y `ocultosParaPerfil(perfil, programa)` (Escolar: 9 indicadores ocultos en el perfil escuela pero contados en su %, D-02).
 - **`src/lib/filtros.js`** — filtros en cascada (año, sostenedor, cohorte, comuna) de la vista nacional y de cada lado del comparador. **`src/lib/comunas.js`** — `comunaCanonica()` compartida por ingesta y vistas (PAC → Pedro Aguirre Cerda).
+- **`src/lib/registro.js`** — reglas puras del registro de establecimientos y sostenedores, compartidas por ingestas, función de administración y pantalla de administración (ADR-0002/0003): ids por nombre (`jarId`, `schoolId`), `COHORTES`, `respetarPlataforma` (campos editados en la plataforma que las ingestas no pisan: `camposPlataforma`), `slepDeSostenedor`, `detectarCambios`, `datosFaltantes`, `esperaFuente` (creado en la plataforma y aún no visto por ninguna carga: oculto en todas las vistas salvo la de administración).
 - **`src/data/scope.js`** — reglas de universo:
   - Año base = **2026**.
   - `isAplicable2026(indicador, est, mes)`: el indicador aplica cuando el semestre acumulado del establecimiento en 2026 (según cohorte) alcanza el semestre mínimo requerido por `indicador.inicio` **y** el año de implementación está en `indicador.vigencia` (si existe). Fuera de vigencia → estado `'no-corresponde-anio'` ("Corresponde solo al año N").
@@ -55,7 +58,7 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
 ### Consultas y hooks
 
 - **`src/lib/queries.js` / `src/data/realQueries.js`** — todos los hooks de datos. Los más usados:
-  - `useEstablecimientos`, `useEscuelas`, `useJardines`, `useSleps`.
+  - `useEstablecimientos`, `useEscuelas`, `useJardines` (excluyen los `esperaFuente`), `useSleps` (catálogo `sostenedores_real` + agrupación de establecimientos), `useRegistro` (todo, para la pantalla de administración).
   - `useIndicadores(programa)`, `useAmbitos(programa)` — leen `catalog.json`.
   - `useValoresAnio(anio)` — todos los `resultados_real` de un año (excluye docs con campo `nivel` para no doblecontar).
   - `useValoresAnioNivel(anio, nivel)`.
@@ -71,7 +74,7 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
   - `VistaSostenedor.jsx` — vista de un SLEP con toggle escolar/parvulario cuando hay ambos.
   - `VistaConsultor.jsx` — vista nacional para consultor y CAP. Filtros por sostenedor / cohorte / año de implementación / comuna. Contiene el comparador.
   - `VistaGeografia.jsx` — mapa Leaflet de los 42 establecimientos (superadmin, feature-flagged `VITE_FEATURE_GEOGRAFIA`). CircleMarkers coloreados por cumplimiento, tamaño por matrícula.
-  - `GestionUsuarios.jsx`, `DashboardConsultores.jsx` — solo `superadmin`.
+  - `GestionUsuarios.jsx`, `GestionEstablecimientos.jsx`, `DashboardConsultores.jsx` — solo `superadmin`. `GestionEstablecimientos` (`/establecimientos`): crear/renombrar sostenedores, crear establecimientos por adelantado, editar sostenedor/comuna/RBD/matrícula/cohorte, unir un establecimiento creado aquí con el que registró la carga. Escribe vía `adminPlataforma`.
 - **`src/views/comparador/ComparadorIndicador.jsx`** — comparador A/B por indicador. Soporta desgloses "agrupado", "por establecimiento" y "por nivel" (parvulario).
 - **`src/components/`**
   - `IndicatorPanel.jsx` — grilla de indicadores agrupados por ámbito, colapsables. Separa estrategia (indicadores del ámbito) de producto (indicadores de logro).
@@ -83,7 +86,7 @@ No hay backend propio: el navegador consulta Firestore directamente con reglas R
   - `Layout.jsx` — header + switcher de perfil + footer.
 - **`src/lib/`**
   - `context.jsx` — `AppProvider`, `useApp`, definición de perfiles, listener de Firebase Auth y sincronización de `usuarios`.
-  - `firebase.js` — cliente Firebase.
+  - `firebase.js` — cliente Firebase. Helpers de administración (`crearUsuarioComoAdmin`, `actualizarUsuarioComoAdmin`, `guardarEstablecimiento`, `guardarSostenedor`, …) que llaman a la función `adminPlataforma`. Con `VITE_USE_EMULATORS=1` se conecta a los emuladores locales.
   - `labels.js` — `indicadorCodigo`, `ambitoCodigo`, `ambitoNombre`. Contiene `AMBITO_NAME_OVERRIDES` (mapa `${programa}:${ambitoId}` → nombre display) para renombrar ámbitos en UI sin tocar los datos almacenados.
   - `features.js` — feature flags: `FEATURES.heatmap` (`VITE_FEATURE_HEATMAP`), `FEATURES.geografia` (`VITE_FEATURE_GEOGRAFIA`). Ambos off por defecto en producción.
 
@@ -98,7 +101,9 @@ Ingesta y catálogo:
 - **`scripts/ingestParvulario.mjs`** — ingesta desde 3 Planillas Centrales → `establecimientos_real` + `resultados_real`. Escribe agregado por jardín y variantes por sala. El agregado por jardín de la pestaña SALAS es el promedio de las salas **con actividad** (una sala con todas sus celdas vacías o en 0 no entra). `%` entre 100 y 150 % se muestra 100 %; sobre 150 % no se carga (advertencia). Comuna pasa por `comunaCanonica()`.
 - **`scripts/ingestEscolar.mjs`** — ingesta escolar. Lee en vivo: Datos Consultor (Actividades, Reuniones, Datos docentes, Encuesta apoderados, pestañas por curso **solo columnas F:U, sin PII**), Registro Coordinación por curso, y las planillas por curso del índice (pestaña Actividades). Filas y columnas se ubican **por texto**, no por posición. Persiste `nSalas`/`salasActivas` en `establecimientos_real`. Marca `estado: 'validado' | 'provisional'`. Llamadas a Sheets a ~57/min con reintentos.
 - Ambas ingestas aceptan `--dry-run`, `--dump=<json>` (docs que escribiría) y `--prune` (marca como `sin_dato_reportado` los docs que la carga ya no produce, guardando `valorAnterior`; no borra). En carga real registran la hora en `config/pipelineMetadata`.
-- **`scripts/ingestRosterEscolar.mjs`** — actualiza `nNinos`, `nAgentes`, `rbd` en `establecimientos_real`.
+- Ambas ingestas comparan lo descubierto con `establecimientos_real` (nuevos / desaparecidos / sin fuente / pendientes / discrepancias, en `establecimientos` del reporte JSON), respetan `camposPlataforma`, escriben `slep` en cada valor y marcan `fuenteVistaAt` (y `origen: 'carga'`, `detectadoAt` en los nuevos). Una celda vacía en la fuente ya no borra un dato registrado.
+- **`scripts/lib/establecimientosRegistro.mjs`** — reexporta `src/lib/registro.js` y agrega `cargarRegistro(db, programa)`.
+- **`scripts/ingestRosterEscolar.mjs`** — actualiza `nNinos`, `nAgentes`, `rbd` en `establecimientos_real`. Manual; **no respeta `camposPlataforma`** (TD-19).
 - **`scripts/ingestExtended.mjs`** — cierra huecos con `ZERO_FALLBACK` (emite `valor: 0` con `raw: "sin actividad reportada"`). **No confundir "reported zero" con "sin datos".**
 - **`scripts/mapeoParvulario.mjs`** — reporte de cobertura → `docs/mapeo-parvulario-YYYY-MM-DD.md`.
 
@@ -120,7 +125,9 @@ Migraciones y utilidades:
 - **`scripts/migrateCanonicalIndicadorIds.mjs`** — **DEPRECADO** tras el incidente del 2026-07-29 (dos bugs: throttling sequential + non-injective rename map). Ver header del archivo. Para futuras renumeraciones canónicas: prefiere re-ingestar desde la fuente en vez de migrar Firestore in-place.
 - **`scripts/checkColorTokens.mjs`** — guardián de tokens de color; corre antes de `vite build`.
 - **`scripts/auditFill.mjs`** — auditoría de llenado (etapa 6).
-- **`scripts/backfillSlepOnResultados.mjs`** — backfill one-shot: escribe campo `slep` en `resultados_real` y `progresoTrimestral_real` derivándolo de `establecimientos_real[establecimientoId].slep`. Requerido para la regla Firestore W1(d). Idempotente, `--dry-run`.
+- **`scripts/syncSlepDenormalizado.mjs`** — paso nocturno (ADR-0001): iguala `slep` en `resultados_real`/`progresoTrimestral_real` y `slepId` en usuarios jardin/escuela al `slep` de su establecimiento. Idempotente, `--dry-run`, reporte. `npm run sync:slep`. Reemplaza a los dos backfills siguientes.
+- **`scripts/seedSostenedores.mjs`** — siembra `sostenedores_real` desde los sostenedores presentes en `establecimientos_real`. Idempotente, `--dry-run`. `npm run seed:sostenedores`. Correr una vez antes del primer deploy de este ciclo.
+- **`scripts/backfillSlepOnResultados.mjs`** — (superado) backfill one-shot: escribe campo `slep` en `resultados_real` y `progresoTrimestral_real` derivándolo de `establecimientos_real[establecimientoId].slep`. Requerido para la regla Firestore W1(d). Idempotente, `--dry-run`.
 - **`scripts/backfillSlepIdOnUsuarios.mjs`** — backfill one-shot: escribe `slepId` en `usuarios` para perfiles jardin/escuela derivándolo del establecimiento asignado. Idempotente, `--dry-run`.
 - **`scripts/validateUserAssignments.mjs`** — pre-deploy gate. Verifica assignments de usuarios y presencia del campo `slep` en resultados. Exit 1 en errores. `npm run validate:users`.
 - **`scripts/repairTerritorial.mjs`** — repair one-shot: corrige `slep`, `comuna`, `sostenedor` en `establecimientos_real` con valores canónicos confirmados. `--dry-run`. Idempotente.
@@ -149,8 +156,9 @@ Datos generados:
 
 ## Pipeline nocturno y cierre mensual
 
-- **Cloud Function `pipelineNocturno`** (`functions/src/index.mjs`): `onSchedule('0 2 * * *', America/Santiago)`, 30 min, 1 GiB, corre como `firebase-adminsdk-fbsvc@visualizador-paf.iam.gserviceaccount.com` (tiene lectura en las planillas; requiere `roles/run.invoker` sobre el servicio `pipelinenocturno`, otorgado 2026-09-28). Ejecuta `runPipeline.mjs`: ingestParvulario `--prune` → ingestEscolar `--prune` → backfillEscolarNullDocs → computeTerritorioAggregates → piiAssertion → (día 1) snapshotCierre `--auto`. Se detiene en el primer error.
+- **Cloud Function `pipelineNocturno`** (`functions/src/index.mjs`): `onSchedule('0 2 * * *', America/Santiago)`, 30 min, 1 GiB, corre como `firebase-adminsdk-fbsvc@visualizador-paf.iam.gserviceaccount.com` (tiene lectura en las planillas; requiere `roles/run.invoker` sobre el servicio `pipelinenocturno`, otorgado 2026-09-28). Ejecuta `runPipeline.mjs`: ingestParvulario `--prune` → ingestEscolar `--prune` → backfillEscolarNullDocs → syncSlepDenormalizado → computeTerritorioAggregates → piiAssertion → (día 1) snapshotCierre `--auto`. Se detiene en el primer error. Límite propio de 27 min (`PIPELINE_LIMITE_MIN`): detiene el paso en curso antes de que la función muera a los 30 min, para que la falla quede registrada y salga el correo. Las llamadas a Google tienen timeout de 60 s con reintentos.
 - Resultado en `config/pipelineMetadata` (`ultimoSyncAt`, `ultimoSyncExitoso`, `ultimaEjecucion.{inicio,fin,pasos,error,cierre}`, y por programa `ultimaCargaAt`). La UI muestra "Datos actualizados al …" desde ahí.
+- Correo diario de estado (`scripts/lib/correoPipeline.mjs`): destinatarios en `PIPELINE_EMAIL_TO` de `functions/.env`, separados por coma (hoy edmundo@spohr.cl y lagurto@focus.cl). 🟡 cuando aparece un establecimiento nuevo, y la primera noche en que uno deja de aparecer, un sostenedor de la planilla no existe en la plataforma o la planilla contradice un dato editado en la plataforma. Los pendientes abiertos se listan todos los días sin cambiar el estado (ADR-0003).
 - Alerta: política de Cloud Monitoring "Pipeline nocturno PAF falló" (logs con `PIPELINE_FALLIDO`) → email edmundo@spohr.cl.
 - Correr a mano: `node scripts/runPipeline.mjs [--sin-cierre] [--forzar-cierre]` o `gcloud scheduler jobs run firebase-schedule-pipelineNocturno-us-central1 --location us-central1 --project visualizador-paf`.
 - El manifiesto de cobertura Escolar **no** se regenera en el pipeline (vive en el bundle del frontend): regenerarlo y redeployar hosting cuando cambie `escolarMapping.mjs`.
@@ -167,8 +175,11 @@ Colecciones:
   - Todos los IDs pasan por `sanitizeDocId(/[^a-zA-Z0-9_.-]/g → _)`.
   - Campo `slep` denormalizado (backfill 2026-08-04): requerido para la regla Firestore de sostenedor. Todo nuevo doc de ingesta debe incluir `slep`.
 - **`progresoTrimestral_real/{doc_id}`** — campo `slep` denormalizado igual que `resultados_real`.
+- **`sostenedores_real/{slepId}`** — catálogo de sostenedores (ADR-0002): `nombre`, `alias[]` (nombres anteriores o variantes que las planillas siguen usando), `origen`. Lo escribe solo `adminPlataforma`. Un sostenedor puede existir sin establecimientos.
+- `establecimientos_real` — campos del registro: `origen` (`'carga' | 'plataforma'`), `detectadoAt`, `fuenteVistaAt` (última carga que lo vio), `camposPlataforma[]` (campos que la plataforma gobierna), `sinPlanillasCurso` (Escolar).
 - **`usuarios/{uid}`** — `email`, `nombre`, `perfilDefault` (`escuela | jardin | sostenedor | consultor | cap | superadmin | pendiente`), `establecimientoId` (jardin/escuela), `slepId` (jardin/escuela/sostenedor), `proveedor`.
-  - `slepId` es obligatorio para jardin/escuela/sostenedor: lo usan las reglas Firestore y el hook `useEntidadDelPerfil` para peer-averages.
+  - `slepId` es obligatorio para jardin/escuela/sostenedor: lo usan las reglas Firestore y el hook `useEntidadDelPerfil` para peer-averages. Un sostenedor tiene exactamente un SLEP (ADR-0005).
+  - Un usuario no puede escribir `perfilDefault`, `establecimientoId`, `slepId`, `establecimientoIds` ni `email` en su propio doc (reglas, ADR-0004); solo un superadmin.
 - **`config/dataSource`**, **`config/mesCerrado`**, **`config/pipelineMetadata`** (lo escriben las ingestas y el pipeline).
 - **`cierres_real/{YYYY-MM}`** + subcolección **`resultados/{docId}`** — cierre mensual para CAP. Lectura solo perfiles con acceso completo.
 - `establecimientos_real` Escolar tiene `nSalas`/`salasActivas`; cualquier establecimiento puede tener `lat`/`lng` (coordenadas reales).
@@ -323,12 +334,27 @@ npm run dev          # http://localhost:5173
 npm run build        # incluye check de tokens
 ```
 
+## Cómo probar en local con emuladores (ADR-0006)
+
+```bash
+npm run emuladores                        # Auth + Firestore + Functions, proyecto demo-paf (requiere Java)
+npm run emuladores:seed -- --exportar     # copia de solo lectura de producción a .cache/
+npm run emuladores:seed                   # la carga en los emuladores + un usuario de prueba por perfil
+npm run dev:emuladores                    # la app contra los emuladores; el login ofrece los usuarios de prueba
+npm run test:reglas                       # reglas de Firestore + acciones de adminPlataforma
+```
+
+Cualquier script corre contra el emulador con `FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 GOOGLE_CLOUD_PROJECT=demo-paf` (por ejemplo `node scripts/runPipeline.mjs --sin-cierre` para ensayar la carga completa).
+
 ## Cómo deployar
 
 ```bash
 npm run deploy:rules # reglas + índices Firestore (si cambiaron)
+firebase deploy --only functions   # pipelineNocturno + adminPlataforma (empaqueta functions/pipeline/)
 npm run deploy       # build + firebase deploy --only hosting
 ```
+
+Orden cuando cambian los tres: reglas → functions → hosting. Correr `npm run test:reglas` antes de deployar reglas.
 
 ## Cómo ingestar / mapear
 
@@ -348,7 +374,9 @@ Todas las migraciones nuevas deben soportar `--dry-run`, ser idempotentes y escr
 - **Commits:** convencionales y atómicos (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`).
 - **Tokens de color:** solo via CSS custom properties. Prohibido hex.
 - **Data migrations:** siempre `--dry-run` primero, siempre idempotentes, siempre con reporte.
-- **Cambios de UI:** verificar en `npm run dev` en los 6 perfiles y en **ambas cohortes** (2025-2026 y 2026-2027 en parvulario; 2025-2027 y 2026-2028 en escolar) porque el scope-gating difiere.
+- **ADR y deuda técnica:** una decisión estructural = un ADR nuevo en `docs/adr/`; una fragilidad que queda abierta = una fila en `docs/tech-debt.md`.
+- **Reglas y funciones:** `npm run test:reglas` contra emuladores antes de deployar.
+- **Cambios de UI:** verificar en `npm run dev` (o `npm run dev:emuladores`, que trae un usuario por perfil) en los 6 perfiles y en **ambas cohortes** (2025-2026 y 2026-2027 en parvulario; 2025-2027 y 2026-2028 en escolar) porque el scope-gating difiere.
 
 ## Cosas que no tocar sin pensar
 
@@ -356,10 +384,14 @@ Todas las migraciones nuevas deben soportar `--dry-run`, ser idempotentes y escr
 - La distinción `estrategia` / `producto` (indicador de ámbito vs indicador de logro): viene del catálogo canónico.
 - La numeración canónica (ver arriba): cualquier renumeración exige migrar Firestore.
 - La jerarquía Cohorte / Año implementación / SLEP / Establecimiento / Sala.
+- `camposPlataforma` en `establecimientos_real`: cualquier script que escriba establecimientos debe pasar por `respetarPlataforma`, o pisa lo que se editó en la plataforma.
+- Las funciones de id por nombre en `src/lib/registro.js`: cambiar el slug desancla todos los establecimientos de sus valores.
 
 ---
 
 ## Historial breve
+
+- **2026-09-30** — Revisión de consistencia y registro en plataforma (ADR-0001..0006, `docs/tech-debt.md`). (1) `slep` en todos los valores + paso nocturno `syncSlepDenormalizado` (los sostenedores veían datos incompletos: 297 de 856 valores Escolar 2026 sin `slep`). (2) Reglas de `usuarios` cerradas a la autoescalada de perfil; función `adminPlataforma` para usuarios, sostenedores y establecimientos. (3) Asignación de sostenedor arreglada en Gestión de usuarios; catálogo `sostenedores_real`. (4) Pantalla "Establecimientos y sostenedores"; lo editado en la plataforma prevalece sobre las planillas. (5) La carga nocturna detecta establecimientos nuevos, desaparecidos y con datos pendientes y lo informa en el correo; correo también a Luis. (6) Emuladores locales con un usuario de prueba por perfil y `npm run test:reglas`. Pendiente acordado: planillas por curso desde la plataforma (TD-01) y cohortes 2027 (TD-02).
 
 - **2026-09-28** — Retro 1 (Luis 01-09 Parvulario, Sebastián 03-09 Escolar). Plan y decisiones D-01..D-14: https://claude.ai/artifact/CKFgFQzxFjLBXBEF26xm9e. Fase 0: recarga de datos (congelados al 14-08) + `diffBaseline`. Fase 1: metas año 2, vigencia, meta por escuela (nSalas), conteos con meta 1, fórmulas I.3/I.4/I.12–I.14/I.19/I.20/I.26/I.27/I.36/I.37/I.40/I.41/I.47, salas sin actividad fuera del promedio, `--prune`, comunas canónicas. Fase 2: lector de planillas por curso y pestañas por curso de DC → Escolar de 33 a 45 indicadores; fix `coverage.js` y ids del manifiesto. Fase 3: marcas de meta y "esperado a la fecha", indicadores territoriales/ocultos por perfil, filtros en cascada, comparador sincronizado, fecha real de actualización, mapa listo para coordenadas. Fase 4: `pipelineNocturno` (reemplaza syncPlanillasCentrales/syncManual), cierre mensual CAP, alerta por email. Tag `deploy-retro1-fases-0-3`.
 

@@ -8,6 +8,11 @@ Referencia rápida en el `README.md` de la raíz.
 
 ## Vigentes · leer estos primero
 
+### Decisiones y deuda
+
+- **`adr/`** — Architecture Decision Records (índice en `adr/README.md`). Una decisión estructural por archivo.
+- **`tech-debt.md`** — registro de deuda técnica: abiertas con prioridad y salida propuesta, cerradas con la referencia que las resolvió.
+
 ### Estado de la plataforma
 
 - **`informe-cobertura-fuentes-2026-07-30.md`** — informe único con secciones separadas Parvulario y Escolar. Describe qué datos están efectivamente llegando desde las fuentes, con las definiciones que faltan de parte de Focus al final de cada sección. **Es el documento operativo actual para cuadrar información con el cliente.**

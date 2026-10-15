@@ -13,48 +13,25 @@
 // los `resultados_real` de Firestore a la misma numeración.
 
 // ─── Parvulario ────────────────────────────────────────────────────────────
-// - Add:    I.1 "N° de visitas al jardín infantil" (ámbito A1, estrategia)
-// - Shift  +1: catálogo I.1–I.21 → canónico I.2–I.22
-// - Delete: catálogo I.22, I.23 (sin fuente en planillas; confirmado en
-//           reports/ingestParvulario-2026-07-21.json → indicadoresNoCubiertos)
-// - Shift  −1: catálogo I.24–I.54 → canónico I.23–I.53
+// Since 2026-10-09 the client's Excel ("Sistema indicadores TDC PAF
+// Parvulario.xlsx", shared by Luis) is already in canonical numbering: I.1 with
+// its meta, I.34–I.53 in the Productos sheet, no gaps, a VIGENCIA column. The
+// parser therefore applies no renames, deletions or additions.
+//
+// The map below is the translation that was needed for the PREVIOUS Excel
+// (2026-07-29): +1 for I.1–I.21, delete I.22/I.23, −1 for I.24–I.54. It is kept
+// only for scripts written against that old numbering
+// (`preCanonicalParvularioToCanonical`, used by scripts/ingestExtended.mjs).
 
-const parvularioRenames = {};
-for (let n = 1; n <= 21; n++) parvularioRenames[`I.${n}`] = `I.${n + 1}`;
-for (let n = 24; n <= 54; n++) parvularioRenames[`I.${n}`] = `I.${n - 1}`;
+export const PARVULARIO_LEGACY_RENAMES = {};
+for (let n = 1; n <= 21; n++) PARVULARIO_LEGACY_RENAMES[`I.${n}`] = `I.${n + 1}`;
+for (let n = 24; n <= 54; n++) PARVULARIO_LEGACY_RENAMES[`I.${n}`] = `I.${n - 1}`;
+export const PARVULARIO_LEGACY_DELETIONS = ['I.22', 'I.23'];
 
 export const PARVULARIO_CANONICAL = {
-  additions: [
-    {
-      // Ver Q1 en docs/plan-implementacion-2026-07-29.md: la metadata concreta
-      // (metaNum, tipoMeta, unidad, frecuencia, fuente, inicio) debe venir de
-      // la planilla `Indicadores PAF Parvulario` del cliente. Mientras tanto,
-      // se persiste con `sin_meta` para que quede fuera de todos los agregados
-      // pero visible en el catálogo. Ver `applyCanonical`: `fillDefaults`
-      // completa los campos ausentes.
-      id: 'I.1',
-      programa: 'parvulario',
-      version: '2026',
-      estrategiaId: 'E1',
-      estrategiaNombre: null,
-      ambito: 'A1',
-      actividadNombre: null,
-      nombre: 'N° de visitas al jardín infantil',
-      meta: '—',
-      metaNum: null,
-      tipoMeta: 'sin_meta',
-      unidad: 'sin_meta',
-      tipo: 'actividad',
-      fuente: 'Planilla central',
-      frecuencia: 'mensual',
-      inicio: null,
-      clasificacion: 'estrategia',
-      // TODO(Focus): completar cuando llegue la metadata canónica desde
-      // `Indicadores PAF Parvulario`. Ver Q1 en el plan.
-    },
-  ],
-  renames: parvularioRenames,
-  deletions: ['I.22', 'I.23'],
+  additions: [],
+  renames: {},
+  deletions: [],
   overrides: {},
   expectations: {
     total: 53,
@@ -138,7 +115,8 @@ export function preCanonicalToCanonical(preId, canonical) {
 
 // Atajos por programa para uso directo en los ingest scripts.
 export function preCanonicalParvularioToCanonical(preId) {
-  return preCanonicalToCanonical(preId, PARVULARIO_CANONICAL);
+  // Numbering of the 2026-07 Excel, not of the current catalog (see above).
+  return preCanonicalToCanonical(preId, { renames: PARVULARIO_LEGACY_RENAMES, deletions: PARVULARIO_LEGACY_DELETIONS });
 }
 
 export function preCanonicalEscolar2026ToCanonical(preId) {

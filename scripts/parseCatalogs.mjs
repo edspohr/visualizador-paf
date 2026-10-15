@@ -8,7 +8,7 @@
 //     indicadores: {
 //       escolar2025: [...],   // 2025 framework (~50)
 //       escolar2026: [...],   // 2026 framework (52)
-//       parvulario:  [...],   // single framework (54)
+//       parvulario:  [...],   // single framework (53, canonical numbering)
 //     }
 //   }
 
@@ -37,17 +37,35 @@ const OUT_JSON        = pathResolve(ROOT, 'src/data/catalog.json');
 // filtro Nivel del comparador en la UI. Se persiste aquí (código) para que
 // sobreviva a regeneraciones de catalog.json.
 //
-// IMPORTANTE: los IDs están en NUMERACIÓN PRE-CANÓNICA (la del XLSX fuente),
-// no en la canónica. Se aplica sobre el resultado del parseo antes de
-// `applyCanonical`, para que el flag "viaje" con el indicador cuando se lo
-// renombra. Los IDs canónicos correspondientes se validan en el assert final.
+// IDs en numeración CANÓNICA (la del Excel desde 2026-10-09): los indicadores
+// de la pestaña VISUALIZADOR SALAS de las planillas centrales.
 const PARVULARIO_DESAGREGA_NIVEL = new Set([
-  'I.14', 'I.15', 'I.16', 'I.17', 'I.18', 'I.19',
-  'I.20', 'I.21',
-  'I.24', 'I.25', 'I.26', 'I.27', 'I.28',
-  'I.40', 'I.41', 'I.42', 'I.43',
-  'I.45', 'I.46', 'I.47', 'I.48', 'I.49', 'I.50', 'I.51', 'I.52', 'I.53', 'I.54',
+  'I.15', 'I.16', 'I.17', 'I.18', 'I.19', 'I.20', 'I.21', 'I.22',
+  'I.23', 'I.24', 'I.25', 'I.26', 'I.27',
+  'I.39', 'I.40', 'I.41', 'I.42',
+  'I.44', 'I.45', 'I.46', 'I.47', 'I.48', 'I.49', 'I.50', 'I.51', 'I.52', 'I.53',
 ]);
+
+// Column lookup tolerant to the header renames of the 2026-10 Excel
+// (ID_estrategia → ID_Ámbito, Nom_Estrategia → NOM_ÁMBITO, ID_Producto → ID_Logro,
+// Nom_Productos → Id_Logro, Nom_indicador / Nom_Indicador).
+function colIndex(header, names) {
+  const norm = (h) => String(h ?? '').trim().toLowerCase();
+  for (const n of names) {
+    const i = header.findIndex(h => norm(h) === n.toLowerCase());
+    if (i >= 0) return i;
+  }
+  return -1;
+}
+
+// "Sem1" → "Sem 1" so scope.js can parse it.
+function normInicio(raw) {
+  if (raw === null || raw === undefined) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  const m = s.match(/^Sem\s*([1-4])$/i);
+  return m ? `Sem ${m[1]}` : s;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -331,11 +349,20 @@ function parseVigencia(raw) {
 }
 const vigenciaCol = (H) => H.findIndex(h => typeof h === 'string' && /vigencia/i.test(h));
 
-// Interim vigencia until the XLSX carries the column (canonical ids). Luis,
-// 2026-09-01: I.9/I.10/I.11 are año 1 metas and must not count in año 2.
+// Interim vigencia until the XLSX carries the column (canonical ids). The
+// Parvulario Excel has it since 2026-10-09 (I.9/I.10 año 1; I.11 "Ambos" per
+// Luis's file, which supersedes the 2026-09-01 note). Escolar still has none.
 const VIGENCIA_PROVISIONAL = {
-  parvulario: { 'I.9': [1], 'I.10': [1], 'I.11': [1] },
+  parvulario: {},
   escolar2026: {},
+};
+
+// Interim "Inicio" corrections until the Escolar Excel is updated (canonical
+// ids). Sebastián, 2026-10-09: I.20 (familias entrevistadas dos veces) applies
+// from año 1 like I.19; the Excel still says "Segundo año".
+const INICIO_OVERRIDE = {
+  parvulario: {},
+  escolar2026: { 'I.20': 'Primer año' },
 };
 
 // Indicators whose meta is set per school instead of the territorial total
@@ -358,9 +385,11 @@ function fixConteoConMetaUno(list) {
 function applyVigenciaYMetas(list, programaKey) {
   const prov = VIGENCIA_PROVISIONAL[programaKey] ?? {};
   const porEst = META_POR_ESTABLECIMIENTO[programaKey] ?? {};
+  const inicioOv = INICIO_OVERRIDE[programaKey] ?? {};
   for (const ind of list) {
     if (!ind.vigencia && prov[ind.id]) { ind.vigencia = prov[ind.id]; ind.vigenciaProvisional = true; }
     if (porEst[ind.id]) ind.metaPorEstablecimiento = porEst[ind.id];
+    if (inicioOv[ind.id]) { ind.inicioExcel = ind.inicio; ind.inicio = inicioOv[ind.id]; }
   }
 }
 
@@ -368,16 +397,16 @@ function applyVigenciaYMetas(list, programaKey) {
 
 function parseParvulario() {
   const out = [];
-  // Sheet 1: Estrategias y Actividades (I.1–I.34)
+  // Sheet 1: Estrategias y Actividades (I.1–I.33)
   const rowsE = readSheet(PARVULARIO_XLSX, 'Ind_ Estrategias y Actividades');
   const HE = rowsE[0];
   const iE = {
-    estrId: HE.indexOf('ID_estrategia'),
-    estrNombre: HE.indexOf('Nom_Estrategia'),
+    estrId: colIndex(HE, ['ID_Ámbito', 'ID_Ambito', 'ID_estrategia']),
+    estrNombre: colIndex(HE, ['NOM_ÁMBITO', 'NOM_AMBITO', 'Nom_Estrategia']),
     actId: HE.indexOf('ID_actividad'),
     actNombre: HE.indexOf('Nom_Actividad'),
     id: HE.indexOf('ID_Indicador'),
-    nombre: HE.indexOf('Nom_indicador'),
+    nombre: colIndex(HE, ['Nom_indicador', 'Nom_Indicador']),
     meta: HE.indexOf('Meta'),
     freq: HE.indexOf('Frecuencia de reporte'),
     inicio: HE.indexOf('Inicio'),
@@ -406,7 +435,7 @@ function parseParvulario() {
       tipo: 'actividad',
       fuente: normFuente(row[iE.fuente]),
       frecuencia: normFrecuencia(row[iE.freq]),
-      inicio: row[iE.inicio] ?? null,
+      inicio: normInicio(row[iE.inicio]),
       clasificacion: 'estrategia',
     };
     if (PARVULARIO_DESAGREGA_NIVEL.has(nid)) entry.desagregaNivel = true;
@@ -415,14 +444,16 @@ function parseParvulario() {
     out.push(entry);
   }
 
-  // Sheet 2: Productos (I.35–I.54)
+  // Sheet 2: Productos / Logros (I.34–I.53)
   const rowsP = readSheet(PARVULARIO_XLSX, 'Ind_ Productos');
   const HP = rowsP[0];
   const iP = {
-    prodId: HP.indexOf('ID_Producto'),
-    prodNombre: HP.indexOf('Nom_Productos'),
+    prodId: colIndex(HP, ['ID_Logro', 'ID_Producto']),
+    // "Id_Logro" (capital I, lower d) carries the logro NAME in the 2026-10 Excel;
+    // "ID_Logro" is its number. Case-sensitive lookup on purpose.
+    prodNombre: HP.indexOf('Nom_Logro') >= 0 ? HP.indexOf('Nom_Logro') : HP.indexOf('Id_Logro') >= 0 ? HP.indexOf('Id_Logro') : HP.indexOf('Nom_Productos'),
     id: HP.indexOf('ID_Indicador'),
-    nombre: HP.indexOf('Nom_Indicador'),
+    nombre: colIndex(HP, ['Nom_Indicador', 'Nom_indicador']),
     meta: HP.indexOf('Meta'),
     freq: HP.indexOf('Frecuencia de reporte'),
     inicio: HP.indexOf('Inicio'),
@@ -451,7 +482,7 @@ function parseParvulario() {
       tipo: 'producto',
       fuente: normFuente(row[iP.fuente]),
       frecuencia: normFrecuencia(row[iP.freq]),
-      inicio: row[iP.inicio] ?? null,
+      inicio: normInicio(row[iP.inicio]),
       clasificacion: 'producto',
     };
     if (PARVULARIO_DESAGREGA_NIVEL.has(nid)) entry.desagregaNivel = true;
@@ -471,12 +502,12 @@ function mapParvularioEstrategiaToAmbito(estrId) {
   return 'A3';
 }
 
+// "ID_Logro" is 1/2/3 in the 2026-10 Excel (P1..P4 before).
 function mapParvularioProductoToAmbito(prodId) {
-  if (!prodId) return null;
-  const s = String(prodId).trim().toUpperCase();
-  if (s === 'P1') return 'A1';
-  if (s === 'P2') return 'A2';
-  if (s === 'P3' || s === 'P4') return 'A3';
+  if (prodId === null || prodId === undefined || prodId === '') return null;
+  const s = String(prodId).trim().toUpperCase().replace(/^P/, '');
+  if (s === '1') return 'A1';
+  if (s === '2') return 'A2';
   return 'A3';
 }
 
@@ -522,7 +553,7 @@ attachAnio2(escolar2026Raw, parseEscolar2026Anio2());
 const RAW_CHECKSUMS = {
   escolar2025_expected: 50,
   escolar2026_expected: 52,
-  parvulario_expected:  54,
+  parvulario_expected:  53,
   escolar2025_actual:   escolar2025Raw.length,
   escolar2026_actual:   escolar2026Raw.length,
   parvulario_actual:    parvularioRaw.length,
@@ -534,7 +565,7 @@ console.table(RAW_CHECKSUMS);
 const rawFails = [];
 if (escolar2025Raw.length !== 50) rawFails.push(`escolar2025 raw count mismatch: got ${escolar2025Raw.length}, expected 50`);
 if (escolar2026Raw.length !== 52) rawFails.push(`escolar2026 raw count mismatch: got ${escolar2026Raw.length}, expected 52`);
-if (parvularioRaw.length  !== 54) rawFails.push(`parvulario  raw count mismatch: got ${parvularioRaw.length}, expected 54`);
+if (parvularioRaw.length  !== 53) rawFails.push(`parvulario  raw count mismatch: got ${parvularioRaw.length}, expected 53`);
 if (rawFails.length) {
   console.error('\n❌ Raw parse checksum failures — el XLSX fuente cambió; revisar scripts/lib/canonicalIds.mjs:');
   rawFails.forEach(f => console.error('  -', f));

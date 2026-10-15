@@ -110,7 +110,7 @@ export const ESCOLAR_MAPPING = [
 
   // ─── A.2 · Formación Equipo educativo (I.11–I.20 estrategia, I.36–I.38 producto) ─
   { id: 'I.11', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Módulos formativos"', transformacion: 'count_true_from_col1', estado: 'provisional' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', columna: 'sensibilización + CD1..CD4', transformacion: 'count_cols_with_attendance', estado: 'provisional', notas: 'Sebastián 2026-10-09: módulo realizado = columna con asistencia registrada. Antes fila "Módulos formativos" de Actividades.' },
   ]},
   { id: 'I.12', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', rango: 'por profesor jefe', transformacion: 'mean_over_docentes', estado: 'validado' },
@@ -125,7 +125,7 @@ export const ESCOLAR_MAPPING = [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Instancias de formación territorial para docentes"', transformacion: 'count_true_from_col1', estado: 'provisional' },
   ]},
   { id: 'I.16', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', rango: 'sobre docentes activos', transformacion: 'ratio_provisional', estado: 'provisional', notas: 'no se distingue Prof. Jefe explícitamente en Cargo' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', rango: 'sobre docentes activos × formaciones realizadas (cols 1/2 con asistencia)', transformacion: 'mean_attendance_over_held', estado: 'provisional', notas: 'no se distingue Prof. Jefe explícitamente en Cargo; 2026-10-09 solo formaciones realizadas' },
   ]},
   { id: 'I.17', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Director asiste × Encuentro territorial I+II"', transformacion: 'count_true', estado: 'provisional' },
@@ -170,7 +170,7 @@ export const ESCOLAR_MAPPING = [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'salas con monitor activo', transformacion: 'ratio_salas_cubiertas', estado: 'provisional' },
   ]},
   { id: 'I.39', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"¿Quién lidera el taller?" (Apoderado monitor y profesor/a jefe)', transformacion: 'dupla_sobre_talleres_realizados', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
+    { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"¿Quién lidera el taller?" × talleres presenciales para apoderados (2 en PK/K, 3 en 1º–8º)', transformacion: 'dupla_sobre_aplicaciones_fijas_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-10-01: máximo de aplicaciones por curso; fila y columnas ubicadas por texto.' },
   ]},
   { id: 'I.40', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'Talleres TF1..4', transformacion: 'atLeast_over_total', estado: 'provisional' },

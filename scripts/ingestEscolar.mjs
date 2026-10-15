@@ -203,16 +203,28 @@ function leerActividadesCurso(rows) {
     const hdr = rows[iHdr] || [];
     const data = rows[iTaller] || [];
     const lideres = rows[rowsWhere(rows, ROW.lidera)[0]] || [];
-    let presencial = 0, digital = 0, realizados = 0, dupla = 0, sinLider = 0;
+    const esDupla = (l) => /monitor/.test(l) && /profesor/.test(l);
+    // "Aplicaciones" de la dupla (Sebastián, 2026-10-01): los talleres
+    // presenciales para apoderados sin estudiantes ("Taller presencial: …" en
+    // año 1, "TFn: …" en año 2; nunca los digitales/cápsulas ni los
+    // "(apoderado y estudiante)"). Son 2 en PK/K y 3 en 1º–8º, en ambos años.
+    const esAplicacion = (h) => {
+      const n = normalize(h);
+      return !!n && (/^tf\s*\d/.test(n) || /talle?r presencial/.test(n))
+        && !/apoderad[oa]s? y estudiante|apoderado-estudiante/.test(n)
+        && !/digital|capsula/.test(n);
+    };
+    let presencial = 0, digital = 0, realizados = 0, dupla = 0, sinLider = 0, aplicaciones = 0, duplaApl = 0;
     for (let c = 1; c < Math.max(hdr.length, data.length); c++) {
+      const l = normalize(lideres[c]);
+      if (esAplicacion(hdr[c])) { aplicaciones++; if (esDupla(l)) duplaApl++; }
       if (parseBool(data[c]) !== 1) continue;
       realizados++;
       if (/digital/.test(normalize(hdr[c]))) digital++; else presencial++;
-      const l = normalize(lideres[c]);
       if (!l) sinLider++;
-      else if (/monitor/.test(l) && /profesor/.test(l)) dupla++;
+      else if (esDupla(l)) dupla++;
     }
-    Object.assign(out, { presencial, digital, realizados, dupla, sinLider });
+    Object.assign(out, { presencial, digital, realizados, dupla, sinLider, aplicaciones, duplaApl });
   }
   const one = (re) => { const i = rowsWhere(rows, re)[0]; return i === undefined ? null : trues(rows[i]); };
   const many = (re) => { const is = rowsWhere(rows, re); return is.length ? is.reduce((a, i) => a + trues(rows[i]), 0) : null; };
@@ -260,19 +272,22 @@ async function ingestPlanillasCurso(school, cursos) {
   promedio('I.49', 'aulaLV', 'Lecturas Viajeras en aula');
   pctSalas('I.50', 'mediacionMantel', 'mediación Mantel de Palabras');
   promedio('I.51', 'monitoreoMantel', 'monitoreo Mantel de Palabras');
-  // I.39 — % de talleres para apoderados realizados que lideró la dupla
-  // apoderado monitor + profesor/a jefe, sobre los talleres con líder
-  // registrado. Los realizados sin líder anotado quedan fuera del cálculo y se
-  // informan en raw (caso a validar con Sebastián).
-  const t = [...porSala.values()].filter(v => v.realizados);
-  const realizados = t.reduce((a, v) => a + v.realizados, 0);
-  const sinLider = t.reduce((a, v) => a + v.sinLider, 0);
-  const conLider = realizados - sinLider;
-  if (conLider > 0) {
-    const dupla = t.reduce((a, v) => a + v.dupla, 0);
-    results.push({ indId: 'I39', valor: dupla / conLider, raw: `${dupla}/${conLider} talleres con líder registrado · ${sinLider} de ${realizados} realizados sin líder`, estado: 'provisional', tab: tab('¿Quién lidera el taller?'), row: 0, wbId: null, wbLabel });
-  } else if (realizados) {
-    logMismatch(school.name, 'I39', `${realizados} talleres realizados sin líder registrado`, 'Planillas por curso');
+  // I.39 — % de talleres para apoderados liderados por la dupla apoderado
+  // monitor + profesor/a jefe (Sebastián, 2026-10-01, Pendientes Focus #5):
+  // por curso, aplicaciones lideradas por la dupla sobre el máximo de
+  // aplicaciones del curso (2 en PK/K, 3 en 1º–8º; ver `esAplicacion`), y
+  // luego promedio de los cursos. Un taller aún no realizado o sin líder
+  // registrado cuenta como no liderado. Reemplaza al cálculo sobre talleres
+  // con líder registrado (2026-09).
+  const conApl = [...porSala.values()].filter(v => v.aplicaciones > 0);
+  if (conApl.length) {
+    const valor = mean(conApl.map(v => v.duplaApl / v.aplicaciones));
+    const dupla = conApl.reduce((a, v) => a + v.duplaApl, 0);
+    const apl = conApl.reduce((a, v) => a + v.aplicaciones, 0);
+    const sinLider = conApl.reduce((a, v) => a + v.sinLider, 0);
+    results.push({ indId: 'I39', valor, raw: `promedio de ${conApl.length} salas · ${dupla}/${apl} aplicaciones lideradas por la dupla · ${sinLider} talleres realizados sin líder registrado`, estado: 'provisional', tab: tab('¿Quién lidera el taller?'), row: 0, wbId: null, wbLabel });
+  } else if ([...porSala.values()].some(v => v.realizados)) {
+    logMismatch(school.name, 'I39', 'ninguna columna de taller presencial para apoderados reconocida', 'Planillas por curso');
   }
   return results;
 }
@@ -342,8 +357,8 @@ function findColByPatterns(header, patterns) {
 const ACTIVIDADES = [
   // I1 — Se conforma Equipo de Gestión (Registro establecimiento, validado)
   { id: 'I1',  label: /^se conforma equipo de gestion$/, aggregate: 'first_bool', estado: 'validado', headerHint: 'Se conforma Equipo de Gestión' },
-  // I11 — # módulos formativos (Sin esp → provisional; row + 5 cols Módulo I..V)
-  { id: 'I11', label: /^modulos formativos$/,           aggregate: 'count_true_from_col1',           estado: 'provisional', headerHint: 'Módulos formativos' },
+  // I11 — # módulos formativos: desde 2026-10 se cuenta en Datos docentes
+  // (instancias con asistencia registrada), ver ingestDatosDocentes.
   // I15 — # formaciones territoriales para docentes (row + 2 cols "1", "2")
   { id: 'I15', label: /^instancias de formacion territorial para docentes$/, aggregate: 'count_true_from_col1', estado: 'provisional', headerHint: 'Instancias de formación territorial para docentes' },
   // I25 — # formaciones apoderados monitores (row + 5 cols)
@@ -587,9 +602,19 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
   const sensCol = groupLabels.findIndex(h => /actividad de sensibilizaci[oó]n/i.test(String(h || '')));
   const modCols = [...(sensCol >= 0 ? [sensCol] : []), ...cdCols];
   const rowsConCargo = rows.slice(hdrIdx + 1).filter(r => r && String(r[cargoCol] || '').trim());
-  // Una instancia se considera realizada si alguien asistió o si la fila de
-  // encabezado la marca como realizada (TRUE bajo CD1..CD4).
-  const heldModCols = modCols.filter(c => parseBool(header[c]) === 1 || rowsConCargo.some(r => parseBool(r[c]) === 1));
+  // "Realizado" (Sebastián, 2026-10-09): una instancia se considera realizada
+  // cuando su columna tiene asistencia registrada (algún TRUE en las filas de
+  // funcionarios). La fila de encabezado no se usa: en año 1 trae TRUE en
+  // módulos que aún no ocurren.
+  const realizada = (c) => rowsConCargo.some(r => parseBool(r[c]) === 1);
+  const heldModCols = modCols.filter(realizada);
+
+  // I11 — N° de módulos formativos realizados = instancias (sensibilización +
+  // CD1..CD4) con asistencia registrada. Antes se leía la fila "Módulos
+  // formativos" de Actividades, que no incluía la sensibilización.
+  if (modCols.length) {
+    results.push({ indId: 'I11', valor: heldModCols.length, raw: `${heldModCols.length}/${modCols.length} instancias con asistencia registrada (sensibilización + CD1..CD4)`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+  } else logMismatch(schoolName, 'I11', 'columnas sensibilización / CD1..CD4', 'Datos docentes');
 
   // I12 — % de profesores jefe que asisten a módulos formativos: para cada
   // instancia realizada, % de docentes activos que asistió; promedio de esas
@@ -609,20 +634,19 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
     const profJefeRows = rowsData.filter(r => /prof.*jefe|profesor.*jefe/i.test(String(r[cargoCol] || '')));
     // Si no hay explícitamente "Prof. Jefe" en Cargo, la Central no lo distingue → provisional sobre docentes
     const target = profJefeRows.length ? profJefeRows : rowsData.filter(r => /docente|prof/i.test(String(r[cargoCol] || '')));
-    if (target.length) {
-      const per = target.map(r => {
-        const bools = insCols.map(c => parseBool(r[c])).filter(v => v !== null);
-        if (!bools.length) return null;
-        return bools.filter(v => v === 1).length / bools.length;
-      }).filter(v => v !== null);
-      if (per.length) {
-        const valor = per.reduce((a, b) => a + b, 0) / per.length;
-        results.push({
-          indId: 'I16', valor, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel,
-          raw: `mean over ${per.length} ${profJefeRows.length ? 'prof. jefe' : 'docentes (fallback)'}`,
-        });
-      } else logMismatch(schoolName, 'I16', 'columnas Instancias de formación 1/2 con datos', 'Datos docentes');
-    } else logMismatch(schoolName, 'I16', 'filas Prof. Jefe / Docente', 'Datos docentes');
+    // Solo las formaciones realizadas (columnas 1/2 con asistencia registrada,
+    // Sebastián 2026-10-09); una celda vacía o FALSE en una realizada cuenta
+    // como inasistencia.
+    const heldInsCols = insCols.filter(c => rowsData.some(r => parseBool(r[c]) === 1));
+    if (target.length && heldInsCols.length) {
+      const per = target.map(r => heldInsCols.filter(c => parseBool(r[c]) === 1).length / heldInsCols.length);
+      const valor = per.reduce((a, b) => a + b, 0) / per.length;
+      results.push({
+        indId: 'I16', valor, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel,
+        raw: `promedio de ${per.length} ${profJefeRows.length ? 'prof. jefe' : 'docentes (fallback)'} · ${heldInsCols.length}/${insCols.length} formaciones realizadas`,
+      });
+    } else if (!target.length) logMismatch(schoolName, 'I16', 'filas Prof. Jefe / Docente', 'Datos docentes');
+    else logMismatch(schoolName, 'I16', 'ninguna formación territorial realizada aún', 'Datos docentes');
   } else logMismatch(schoolName, 'I16', 'columnas Instancias de formación 1, 2', 'Datos docentes');
 
   // I13 / I14 — N° de instancias formativas (sensibilización + 4 módulos) a
@@ -634,7 +658,7 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
     for (const [indId, row, quien] of [['I13', directorRow, 'director'], ['I14', coordRow, 'coordinador']]) {
       if (!row) { logMismatch(schoolName, indId, `row con Cargo=${quien}`, 'Datos docentes'); continue; }
       const n = modCols.filter(c => parseBool(row[c]) === 1).length;
-      results.push({ indId, valor: n, raw: `${quien}: ${n}/${modCols.length} instancias`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+      results.push({ indId, valor: n, raw: `${quien}: ${n} de ${heldModCols.length} instancias realizadas (${modCols.length} planificadas)`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
     }
   } else logMismatch(schoolName, 'I13/I14', 'columnas sensibilización / CD1..CD4 no encontradas', 'Datos docentes');
 

@@ -1,6 +1,6 @@
 # Manifiesto de cobertura Escolar
 
-Generado 2026-09-28 (con estado de Firestore).
+Generado 2026-10-15 (sin consulta a Firestore).
 
 Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 
@@ -8,14 +8,14 @@ Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 
 | Estado | Cantidad | Porcentaje | Dueño |
 |---|---:|---:|---|
-| NO_CORRESPONDE_AUN | 681 | 37.1% | Nadie (diseño del programa) |
+| NO_CORRESPONDE_AUN | 663 | 36.1% | Nadie (diseño del programa) |
 | NO_CORRESPONDE | 0 | 0.0% | Nadie (estructura) |
-| SIN_FUENTE_MAPEADA | 268 | 14.6% | **Nosotros** |
+| SIN_FUENTE_MAPEADA | 273 | 14.9% | **Nosotros** |
 | FUENTE_NO_ACCESIBLE | 0 | 0.0% | **Nosotros** |
-| SIN_DATO_REPORTADO | 144 | 7.8% | Focus |
-| CON_DATO_REPORTADO | 743 | 40.5% | — |
+| SIN_DATO_REPORTADO | 0 | 0.0% | Focus |
+| CON_DATO_REPORTADO | 0 | 0.0% | — |
 | CERO_REPORTADO | 0 | 0.0% | — |
-| MAPEADO_NO_VERIFICADO | 0 | 0.0% | Correr con `--with-firestore` |
+| MAPEADO_NO_VERIFICADO | 900 | 49.0% | Correr con `--with-firestore` |
 
 ## Indicadores con estado SIN_FUENTE_MAPEADA
 
@@ -38,6 +38,7 @@ Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 - **I.17 · Director asiste a formaciones territoriales**: 5 tuplas — 
 - **I.18 · Coordinador asiste a formaciones territoriales**: 5 tuplas — 
 - **I.19 · Porcentaje promedio de familias entrevistadas por profesor jefe al men**: 5 tuplas — 
+- **I.20 · Porcentaje promedio de familias entrevistadas por profesor jefe al men**: 5 tuplas — 
 - **I.21 · Número de talleres para apoderados presenciales realizados en promedio**: 5 tuplas — 
 - **I.22 · %  promedio de asistencia anual de apoderados a taller para apoderados**: 5 tuplas — 
 - **I.23 · Número de Taller digitales para Apoderados enviados en promedio por sa**: 5 tuplas — 

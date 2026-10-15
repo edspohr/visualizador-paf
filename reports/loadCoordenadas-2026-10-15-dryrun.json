@@ -1,0 +1,302 @@
+{
+  "generatedAt": "2026-10-15T16:54:06.469Z",
+  "dryRun": true,
+  "file": "docs/coordenadas-focus-2026-09-28.csv",
+  "cargados": [
+    {
+      "id": "jar-paula-jaraquemada",
+      "nombre": "Paula Jaraquemada",
+      "lat": -33.547066,
+      "lng": -70.688658,
+      "cambia": true
+    },
+    {
+      "id": "jar-cedin",
+      "nombre": "Cedin (Centro Educacional para el desarrollo infantil).",
+      "lat": -33.594127,
+      "lng": -70.618481,
+      "cambia": true
+    },
+    {
+      "id": "jar-eluney",
+      "nombre": "Eluney",
+      "lat": -33.5846,
+      "lng": -70.6692,
+      "cambia": true
+    },
+    {
+      "id": "jar-sueno-de-colores",
+      "nombre": "Sueño De Colores",
+      "lat": -33.624955,
+      "lng": -70.707138,
+      "cambia": true
+    },
+    {
+      "id": "jar-tierra-de-angeles",
+      "nombre": "Tierra De Angeles",
+      "lat": -33.59343,
+      "lng": -70.67569,
+      "cambia": true
+    },
+    {
+      "id": "jar-angel-fantuzzi",
+      "nombre": "Angel Fantuzzi",
+      "lat": -33.514022,
+      "lng": -70.702094,
+      "cambia": true
+    },
+    {
+      "id": "jar-salomon-sack",
+      "nombre": "Salomón Sack",
+      "lat": -33.492694,
+      "lng": -70.719,
+      "cambia": true
+    },
+    {
+      "id": "jar-estacion-alegria",
+      "nombre": "Estación Alegría",
+      "lat": -33.476763,
+      "lng": -70.69758,
+      "cambia": true
+    },
+    {
+      "id": "jar-el-tranque",
+      "nombre": "El Tranque",
+      "lat": -33.549302,
+      "lng": -70.794105,
+      "cambia": true
+    },
+    {
+      "id": "jar-pequeno-aymara",
+      "nombre": "Pequeño Aymara",
+      "lat": -33.488174,
+      "lng": -70.67971,
+      "cambia": true
+    },
+    {
+      "id": "jar-enrique-backausse",
+      "nombre": "Enrique Backausse",
+      "lat": -33.482193,
+      "lng": -70.67481,
+      "cambia": true
+    },
+    {
+      "id": "jar-poetas-de-chile",
+      "nombre": "Poetas de Chile",
+      "lat": -33.480909,
+      "lng": -70.66035,
+      "cambia": true
+    },
+    {
+      "id": "jar-ciudad-de-barcelona",
+      "nombre": "Ciudad de Barcelona",
+      "lat": -33.497579,
+      "lng": -70.691281,
+      "cambia": true
+    },
+    {
+      "id": "jar-ochagavia",
+      "nombre": "Ochagavía",
+      "lat": -33.507194,
+      "lng": -70.670567,
+      "cambia": true
+    },
+    {
+      "id": "jar-la-marina",
+      "nombre": "La Marina",
+      "lat": -33.492704,
+      "lng": -70.670363,
+      "cambia": true
+    },
+    {
+      "id": "jar-llano-subercaseaux",
+      "nombre": "Llano Subercaseaux",
+      "lat": -33.485614,
+      "lng": -70.655676,
+      "cambia": true
+    },
+    {
+      "id": "jar-villa-san-miguel",
+      "nombre": "Villa San Miguel",
+      "lat": -33.498589,
+      "lng": -70.662801,
+      "cambia": true
+    },
+    {
+      "id": "jar-andres-bello",
+      "nombre": "Andres Bello",
+      "lat": -33.48686,
+      "lng": -70.652127,
+      "cambia": true
+    },
+    {
+      "id": "jar-santa-fe",
+      "nombre": "Santa Fe",
+      "lat": -33.514492,
+      "lng": -70.637428,
+      "cambia": true
+    },
+    {
+      "id": "jar-akun-pichiwentxu",
+      "nombre": "Akun Pichiwentxu",
+      "lat": -33.549898,
+      "lng": -70.6459,
+      "cambia": true
+    },
+    {
+      "id": "jar-la-hormiguita",
+      "nombre": "La Hormiguita",
+      "lat": -33.54847,
+      "lng": -70.640851,
+      "cambia": true
+    },
+    {
+      "id": "jar-caballito-feliz",
+      "nombre": "Caballito feliz",
+      "lat": -33.547801,
+      "lng": -70.636522,
+      "cambia": true
+    },
+    {
+      "id": "jar-principes-del-reino",
+      "nombre": "Príncipes del Reino",
+      "lat": -33.535352,
+      "lng": -70.637654,
+      "cambia": true
+    },
+    {
+      "id": "jar-modelo",
+      "nombre": "Modelo",
+      "lat": -33.51875,
+      "lng": -70.643613,
+      "cambia": true
+    },
+    {
+      "id": "esc-esperanza-joven",
+      "nombre": "Escuela Esperanza Joven",
+      "lat": -33.518325,
+      "lng": -70.668039,
+      "cambia": true
+    },
+    {
+      "id": "esc-republica-de-las-filipinas",
+      "nombre": "Escuela República De Las Filipinas",
+      "lat": -33.523008,
+      "lng": -70.688536,
+      "cambia": true
+    },
+    {
+      "id": "esc-ciudad-de-barcelona",
+      "nombre": "Escuela Ciudad de Barcelona",
+      "lat": -33.497319,
+      "lng": -70.690151,
+      "cambia": true
+    },
+    {
+      "id": "esc-ricardo-latcham",
+      "nombre": "Escuela Ricardo Latcham",
+      "lat": -33.490694,
+      "lng": -70.682407,
+      "cambia": true
+    },
+    {
+      "id": "esc-la-victoria",
+      "nombre": "Escuela La Victoria",
+      "lat": -33.487767,
+      "lng": -70.679739,
+      "cambia": true
+    },
+    {
+      "id": "esc-lo-valledor",
+      "nombre": "Escuela Lo Valledor",
+      "lat": -33.504876,
+      "lng": -70.6857,
+      "cambia": true
+    },
+    {
+      "id": "esc-territorio-antartico",
+      "nombre": "Escuela Territorio Antártico",
+      "lat": -33.507288,
+      "lng": -70.662532,
+      "cambia": true
+    },
+    {
+      "id": "esc-villa-san-miguel",
+      "nombre": "Escuela Villa San Miguel",
+      "lat": -33.497839,
+      "lng": -70.662991,
+      "cambia": true
+    },
+    {
+      "id": "esc-basica-sendero-del-saber",
+      "nombre": "Escuela Básica Sendero del Saber",
+      "lat": -33.526183,
+      "lng": -70.638486,
+      "cambia": true
+    },
+    {
+      "id": "esc-pedro-aguirre-cerda",
+      "nombre": "Escuela Pedro Aguirre Cerda",
+      "lat": -33.481784,
+      "lng": -70.693022,
+      "cambia": true
+    },
+    {
+      "id": "esc-republica-de-austria",
+      "nombre": "República de Austria",
+      "lat": -33.475284,
+      "lng": -70.695102,
+      "cambia": true
+    },
+    {
+      "id": "esc-profesor-ramon-del-rio",
+      "nombre": "Escuela Profesor Ramón del Río",
+      "lat": -33.46602,
+      "lng": -70.703116,
+      "cambia": true
+    },
+    {
+      "id": "esc-ramon-freire",
+      "nombre": "Escuela Ramón Freire",
+      "lat": -33.49843,
+      "lng": -70.771184,
+      "cambia": true
+    },
+    {
+      "id": "esc-gil-de-castro",
+      "nombre": "Escuela Gil de Castro",
+      "lat": -33.411932,
+      "lng": -70.718143,
+      "cambia": true
+    },
+    {
+      "id": "esc-abate-molina",
+      "nombre": "Escuela Abate Molina",
+      "lat": -33.431647,
+      "lng": -70.709382,
+      "cambia": true
+    },
+    {
+      "id": "esc-inglaterra",
+      "nombre": "Escuela Inglaterra",
+      "lat": -33.441041,
+      "lng": -70.70374,
+      "cambia": true
+    },
+    {
+      "id": "esc-espana",
+      "nombre": "Escuela España",
+      "lat": -33.410117,
+      "lng": -70.711136,
+      "cambia": true
+    },
+    {
+      "id": "esc-platon",
+      "nombre": "Escuela Platón",
+      "lat": -33.411176,
+      "lng": -70.704359,
+      "cambia": true
+    }
+  ],
+  "problemas": []
+}

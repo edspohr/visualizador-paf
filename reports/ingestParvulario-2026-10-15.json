@@ -1,0 +1,1047 @@
+{
+  "generatedAt": "2026-10-15T16:58:37.266Z",
+  "dryRun": false,
+  "pruned": [
+    {
+      "id": "parv_jar-akun-pichiwentxu_I.48_2025",
+      "establecimientoId": "jar-akun-pichiwentxu",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.798175
+    },
+    {
+      "id": "parv_jar-akun-pichiwentxu_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-akun-pichiwentxu",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.8077
+    },
+    {
+      "id": "parv_jar-akun-pichiwentxu_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-akun-pichiwentxu",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.9615
+    },
+    {
+      "id": "parv_jar-akun-pichiwentxu_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-akun-pichiwentxu",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.8234999999999999
+    },
+    {
+      "id": "parv_jar-akun-pichiwentxu_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-akun-pichiwentxu",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.6
+    },
+    {
+      "id": "parv_jar-andres-bello_I.48_2025",
+      "establecimientoId": "jar-andres-bello",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.930725
+    },
+    {
+      "id": "parv_jar-andres-bello_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-andres-bello",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-andres-bello_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-andres-bello",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.9615
+    },
+    {
+      "id": "parv_jar-andres-bello_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-andres-bello",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.8946999999999999
+    },
+    {
+      "id": "parv_jar-andres-bello_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-andres-bello",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.8667
+    },
+    {
+      "id": "parv_jar-angel-fantuzzi_I.48_2026",
+      "establecimientoId": "jar-angel-fantuzzi",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.412025
+    },
+    {
+      "id": "parv_jar-angel-fantuzzi_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-angel-fantuzzi",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.3333
+    },
+    {
+      "id": "parv_jar-angel-fantuzzi_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-angel-fantuzzi",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.8148000000000001
+    },
+    {
+      "id": "parv_jar-angel-fantuzzi_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-angel-fantuzzi",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.3333
+    },
+    {
+      "id": "parv_jar-caballito-feliz_I.48_2025",
+      "establecimientoId": "jar-caballito-feliz",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.765175
+    },
+    {
+      "id": "parv_jar-caballito-feliz_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-caballito-feliz",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-caballito-feliz_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-caballito-feliz",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.7273000000000001
+    },
+    {
+      "id": "parv_jar-caballito-feliz_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-caballito-feliz",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.7778
+    },
+    {
+      "id": "parv_jar-caballito-feliz_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-caballito-feliz",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.5556
+    },
+    {
+      "id": "parv_jar-cedin_I.48_2026",
+      "establecimientoId": "jar-cedin",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.9173666666666667
+    },
+    {
+      "id": "parv_jar-cedin_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-cedin",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-cedin_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-cedin",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.8234999999999999
+    },
+    {
+      "id": "parv_jar-cedin_I.48_2026_transicion-1",
+      "establecimientoId": "jar-cedin",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "transicion_1",
+      "valorAnterior": 0.9286
+    },
+    {
+      "id": "parv_jar-ciudad-de-barcelona_I.48_2025",
+      "establecimientoId": "jar-ciudad-de-barcelona",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.865725
+    },
+    {
+      "id": "parv_jar-ciudad-de-barcelona_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-ciudad-de-barcelona",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-ciudad-de-barcelona_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-ciudad-de-barcelona",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.6296
+    },
+    {
+      "id": "parv_jar-ciudad-de-barcelona_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-ciudad-de-barcelona",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.8332999999999999
+    },
+    {
+      "id": "parv_jar-ciudad-de-barcelona_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-ciudad-de-barcelona",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-el-tranque_I.48_2026",
+      "establecimientoId": "jar-el-tranque",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.49633333333333335
+    },
+    {
+      "id": "parv_jar-el-tranque_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-el-tranque",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.2667
+    },
+    {
+      "id": "parv_jar-el-tranque_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-el-tranque",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.5556
+    },
+    {
+      "id": "parv_jar-el-tranque_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-el-tranque",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.6667000000000001
+    },
+    {
+      "id": "parv_jar-eluney_I.48_2026",
+      "establecimientoId": "jar-eluney",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.617425
+    },
+    {
+      "id": "parv_jar-eluney_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-eluney",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.6364
+    },
+    {
+      "id": "parv_jar-eluney_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-eluney",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.625
+    },
+    {
+      "id": "parv_jar-eluney_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-eluney",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.5832999999999999
+    },
+    {
+      "id": "parv_jar-eluney_I.48_2026_sala-cuna-menor",
+      "establecimientoId": "jar-eluney",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.625
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.46_2025_nivel-medio-menor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.46",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.46_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.46",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.46_2025_sala-cuna-menor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.46",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.48_2025",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.80865
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.7742
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.9048
+    },
+    {
+      "id": "parv_jar-enrique-backausse_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-enrique-backausse",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.5556
+    },
+    {
+      "id": "parv_jar-estacion-alegria_I.48_2026",
+      "establecimientoId": "jar-estacion-alegria",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.46909999999999996
+    },
+    {
+      "id": "parv_jar-estacion-alegria_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-estacion-alegria",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.5172
+    },
+    {
+      "id": "parv_jar-estacion-alegria_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-estacion-alegria",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.7188
+    },
+    {
+      "id": "parv_jar-estacion-alegria_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-estacion-alegria",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.47369999999999995
+    },
+    {
+      "id": "parv_jar-estacion-alegria_I.48_2026_sala-cuna-menor",
+      "establecimientoId": "jar-estacion-alegria",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.16670000000000001
+    },
+    {
+      "id": "parv_jar-la-hormiguita_I.48_2025",
+      "establecimientoId": "jar-la-hormiguita",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.66755
+    },
+    {
+      "id": "parv_jar-la-hormiguita_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-la-hormiguita",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.4211
+    },
+    {
+      "id": "parv_jar-la-hormiguita_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-la-hormiguita",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.8421
+    },
+    {
+      "id": "parv_jar-la-hormiguita_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-la-hormiguita",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.47369999999999995
+    },
+    {
+      "id": "parv_jar-la-hormiguita_I.48_2025_transicion-1",
+      "establecimientoId": "jar-la-hormiguita",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "transicion_1",
+      "valorAnterior": 0.9333
+    },
+    {
+      "id": "parv_jar-la-marina_I.48_2025",
+      "establecimientoId": "jar-la-marina",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.6623749999999999
+    },
+    {
+      "id": "parv_jar-la-marina_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-la-marina",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.8889
+    },
+    {
+      "id": "parv_jar-la-marina_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-la-marina",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.6452
+    },
+    {
+      "id": "parv_jar-la-marina_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-la-marina",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.5
+    },
+    {
+      "id": "parv_jar-la-marina_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-la-marina",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.6154
+    },
+    {
+      "id": "parv_jar-llano-subercaseaux_I.48_2025",
+      "establecimientoId": "jar-llano-subercaseaux",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.852675
+    },
+    {
+      "id": "parv_jar-llano-subercaseaux_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-llano-subercaseaux",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.875
+    },
+    {
+      "id": "parv_jar-llano-subercaseaux_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-llano-subercaseaux",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.8929
+    },
+    {
+      "id": "parv_jar-llano-subercaseaux_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-llano-subercaseaux",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.8571
+    },
+    {
+      "id": "parv_jar-llano-subercaseaux_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-llano-subercaseaux",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.7857
+    },
+    {
+      "id": "parv_jar-modelo_I.48_2025",
+      "establecimientoId": "jar-modelo",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.825
+    },
+    {
+      "id": "parv_jar-modelo_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-modelo",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.75
+    },
+    {
+      "id": "parv_jar-modelo_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-modelo",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.9
+    },
+    {
+      "id": "parv_jar-ochagavia_I.48_2025",
+      "establecimientoId": "jar-ochagavia",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.449875
+    },
+    {
+      "id": "parv_jar-ochagavia_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-ochagavia",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-ochagavia_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-ochagavia",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.40740000000000004
+    },
+    {
+      "id": "parv_jar-ochagavia_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-ochagavia",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.3333
+    },
+    {
+      "id": "parv_jar-ochagavia_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-ochagavia",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.0588
+    },
+    {
+      "id": "parv_jar-paula-jaraquemada_I.48_2026",
+      "establecimientoId": "jar-paula-jaraquemada",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.1324666666666667
+    },
+    {
+      "id": "parv_jar-paula-jaraquemada_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-paula-jaraquemada",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.15380000000000002
+    },
+    {
+      "id": "parv_jar-paula-jaraquemada_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-paula-jaraquemada",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.16670000000000001
+    },
+    {
+      "id": "parv_jar-pequeno-aymara_I.48_2025",
+      "establecimientoId": "jar-pequeno-aymara",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.98215
+    },
+    {
+      "id": "parv_jar-pequeno-aymara_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-pequeno-aymara",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.9286
+    },
+    {
+      "id": "parv_jar-pequeno-aymara_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-pequeno-aymara",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-pequeno-aymara_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-pequeno-aymara",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-pequeno-aymara_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-pequeno-aymara",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-poetas-de-chile_I.48_2025",
+      "establecimientoId": "jar-poetas-de-chile",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.758525
+    },
+    {
+      "id": "parv_jar-poetas-de-chile_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-poetas-de-chile",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.8966
+    },
+    {
+      "id": "parv_jar-poetas-de-chile_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-poetas-de-chile",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.6207
+    },
+    {
+      "id": "parv_jar-poetas-de-chile_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-poetas-de-chile",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.9286
+    },
+    {
+      "id": "parv_jar-poetas-de-chile_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-poetas-de-chile",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.5882000000000001
+    },
+    {
+      "id": "parv_jar-principes-del-reino_I.48_2025",
+      "establecimientoId": "jar-principes-del-reino",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.69165
+    },
+    {
+      "id": "parv_jar-principes-del-reino_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-principes-del-reino",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.8
+    },
+    {
+      "id": "parv_jar-principes-del-reino_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-principes-del-reino",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.5832999999999999
+    },
+    {
+      "id": "parv_jar-salomon-sack_I.48_2026",
+      "establecimientoId": "jar-salomon-sack",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.934225
+    },
+    {
+      "id": "parv_jar-salomon-sack_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-salomon-sack",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.9333
+    },
+    {
+      "id": "parv_jar-salomon-sack_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-salomon-sack",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.875
+    },
+    {
+      "id": "parv_jar-salomon-sack_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-salomon-sack",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-salomon-sack_I.48_2026_sala-cuna-menor",
+      "establecimientoId": "jar-salomon-sack",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.9286
+    },
+    {
+      "id": "parv_jar-santa-fe_I.48_2025",
+      "establecimientoId": "jar-santa-fe",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.865625
+    },
+    {
+      "id": "parv_jar-santa-fe_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-santa-fe",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.8125
+    },
+    {
+      "id": "parv_jar-santa-fe_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-santa-fe",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-santa-fe_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-santa-fe",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 1
+    },
+    {
+      "id": "parv_jar-santa-fe_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-santa-fe",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.65
+    },
+    {
+      "id": "parv_jar-sueno-de-colores_I.48_2026",
+      "establecimientoId": "jar-sueno-de-colores",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.34107499999999996
+    },
+    {
+      "id": "parv_jar-sueno-de-colores_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-sueno-de-colores",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.3636
+    },
+    {
+      "id": "parv_jar-sueno-de-colores_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-sueno-de-colores",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.5333
+    },
+    {
+      "id": "parv_jar-sueno-de-colores_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-sueno-de-colores",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.4118
+    },
+    {
+      "id": "parv_jar-tierra-de-angeles_I.48_2026",
+      "establecimientoId": "jar-tierra-de-angeles",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": null,
+      "valorAnterior": 0.6536857142857143
+    },
+    {
+      "id": "parv_jar-tierra-de-angeles_I.48_2026_nivel-medio-mayor",
+      "establecimientoId": "jar-tierra-de-angeles",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.9129999999999999
+    },
+    {
+      "id": "parv_jar-tierra-de-angeles_I.48_2026_nivel-medio-menor",
+      "establecimientoId": "jar-tierra-de-angeles",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.8095
+    },
+    {
+      "id": "parv_jar-tierra-de-angeles_I.48_2026_sala-cuna-mayor",
+      "establecimientoId": "jar-tierra-de-angeles",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.22219999999999998
+    },
+    {
+      "id": "parv_jar-tierra-de-angeles_I.48_2026_sala-cuna-menor",
+      "establecimientoId": "jar-tierra-de-angeles",
+      "indicadorId": "I.48",
+      "periodo": "2026",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.4286
+    },
+    {
+      "id": "parv_jar-villa-san-miguel_I.48_2025",
+      "establecimientoId": "jar-villa-san-miguel",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": null,
+      "valorAnterior": 0.5015
+    },
+    {
+      "id": "parv_jar-villa-san-miguel_I.48_2025_nivel-medio-mayor",
+      "establecimientoId": "jar-villa-san-miguel",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_mayor",
+      "valorAnterior": 0.5517
+    },
+    {
+      "id": "parv_jar-villa-san-miguel_I.48_2025_nivel-medio-menor",
+      "establecimientoId": "jar-villa-san-miguel",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "nivel_medio_menor",
+      "valorAnterior": 0.35710000000000003
+    },
+    {
+      "id": "parv_jar-villa-san-miguel_I.48_2025_sala-cuna-mayor",
+      "establecimientoId": "jar-villa-san-miguel",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_mayor",
+      "valorAnterior": 0.7222
+    },
+    {
+      "id": "parv_jar-villa-san-miguel_I.48_2025_sala-cuna-menor",
+      "establecimientoId": "jar-villa-san-miguel",
+      "indicadorId": "I.48",
+      "periodo": "2025",
+      "nivel": "sala_cuna_menor",
+      "valorAnterior": 0.375
+    }
+  ],
+  "establecimientos": {
+    "total": 24,
+    "nuevos": [],
+    "sinFuente": [],
+    "desaparecidos": [],
+    "pendientes": [],
+    "discrepancias": [],
+    "sostenedoresDesconocidos": []
+  },
+  "totals": {
+    "jardinDocs": 1792,
+    "salasDocs": 3482,
+    "porPeriodo": {
+      "2025": 649,
+      "2026": 1143
+    },
+    "jardines": 24,
+    "indicadoresCubiertos": 49,
+    "nivelesDetectados": [
+      "sala_cuna_menor",
+      "sala_cuna_mayor",
+      "nivel_medio_menor",
+      "nivel_medio_mayor",
+      "transicion_1"
+    ],
+    "rosterTotal": 24,
+    "warnings": 0
+  },
+  "indicadoresCubiertos": [
+    "I.1",
+    "I.10",
+    "I.11",
+    "I.12",
+    "I.13",
+    "I.14",
+    "I.15",
+    "I.16",
+    "I.17",
+    "I.18",
+    "I.19",
+    "I.2",
+    "I.20",
+    "I.21",
+    "I.22",
+    "I.23",
+    "I.24",
+    "I.25",
+    "I.26",
+    "I.27",
+    "I.28",
+    "I.29",
+    "I.3",
+    "I.30",
+    "I.31",
+    "I.32",
+    "I.33",
+    "I.34",
+    "I.38",
+    "I.39",
+    "I.4",
+    "I.40",
+    "I.41",
+    "I.42",
+    "I.43",
+    "I.44",
+    "I.45",
+    "I.46",
+    "I.47",
+    "I.48",
+    "I.49",
+    "I.5",
+    "I.50",
+    "I.51",
+    "I.52",
+    "I.6",
+    "I.7",
+    "I.8",
+    "I.9"
+  ],
+  "indicadoresNoCubiertos": [
+    "I.35",
+    "I.36",
+    "I.37",
+    "I.53"
+  ],
+  "indicadoresConNivel": [
+    "I.15",
+    "I.16",
+    "I.17",
+    "I.18",
+    "I.19",
+    "I.20",
+    "I.21",
+    "I.22",
+    "I.23",
+    "I.24",
+    "I.25",
+    "I.26",
+    "I.27",
+    "I.39",
+    "I.40",
+    "I.41",
+    "I.42",
+    "I.44",
+    "I.45",
+    "I.46",
+    "I.47",
+    "I.48",
+    "I.49",
+    "I.50",
+    "I.51",
+    "I.52"
+  ],
+  "warnings": [],
+  "perPlanilla": [
+    {
+      "label": "Central 2025-2026 · 2025",
+      "cohorte": "2025-2026",
+      "anio": 2025,
+      "jardin": 319,
+      "salas": 1229
+    },
+    {
+      "label": "Central 2025-2026 · 2026",
+      "cohorte": "2025-2026",
+      "anio": 2026,
+      "jardin": 343,
+      "salas": 1444
+    },
+    {
+      "label": "Central 2026-2027 · 2026",
+      "cohorte": "2026-2027",
+      "anio": 2026,
+      "jardin": 204,
+      "salas": 809
+    }
+  ]
+}

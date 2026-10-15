@@ -7,7 +7,7 @@ deleting it. Decisions behind the items are in [`adr/`](adr/README.md).
 **Priority** — P1: can show wrong data or lock people out. P2: will need a
 developer when a foreseeable event happens. P3: cleanliness.
 
-Last reviewed: 2026-09-30.
+Last reviewed: 2026-10-15.
 
 ## Open
 
@@ -33,6 +33,11 @@ Last reviewed: 2026-09-30.
 | TD-20 | P3 | Frontend | The main bundle is over 500 kB minified. | Slower first load. | Code-split the admin and comparator views. |
 | TD-21 | P3 | Aggregates | `aggregatesTerritorio_real` is recomputed only at night. | After a sostenedor change, peer averages are stale until the next run. | Recompute the affected SLEPs from the admin function. |
 | TD-22 | P3 | Registry | A platform-edited field cannot be handed back to the planilla, and there is no history of who changed what beyond `editadoPor`. | Corrections of a wrong edit need a second edit; no audit trail. | "Volver a la planilla" action; append-only change log. |
+| TD-24 | P2 | Catalog | Escolar I.20 "Inicio" is corrected in code (`INICIO_OVERRIDE` in `parseCatalogs.mjs`: "Primer año" instead of the Excel's "Segundo año"; original kept in `inicioExcel`). | A regenerated catalog from a corrected Excel would silently keep the override; two sources of truth for one field. | Sebastián corrects the Excel "Sistema indicadores PAF Escolar 2026.xlsx"; then drop the override. |
+| TD-25 | P1 | Security | `functions/.env` (SMTP user, app password, recipients) is tracked in git. | Anyone with the repository can send mail as the pipeline account; rotating the password requires a commit. | Move secrets to Firebase Functions params / Secret Manager, keep only recipients in the repo, rotate the app password, purge from history if the repo is ever shared. |
+| TD-26 | P2 | Parvulario ingest | A silent renumbering of the planillas cannot be detected: every column still carries a valid `I.n`. Found the hard way on 2026-10-15 (ADR-0007). | Values land under the wrong indicator with no warning. | Compare the indicator name in the planilla header with the catalog name and raise a 🟡 in the daily email on mismatch. |
+| TD-27 | P2 | Escolar ingest | "Realizado" for formative instances is derived from attendance (a column with at least one TRUE). I.13/I.14 still show a count against the planned 5; the territorial encounters (I.6, I.7, I.17, I.18) have no "realizado" source at all. | A held module with no attendance counts as not held; attendance ratios of directors/coordinators are read against the plan, not against what happened. | Decide with Sebastián (meeting 2026-10-16): dynamic meta = realized instances (like `nSalas`), and where the planilla marks a territorial encounter as held. |
+| TD-28 | P3 | Catalog | Parvulario Excel: the "Listado indicadores" sheet has a stray I.54 ("talleres Entre Familias") and I.51 is named differently in the Excel ("Baúl MFC") and in the planillas ("actividades de Narración"). | Confusing for whoever compares the two. | Luis cleans the Excel; the catalog follows the Excel (D-05). |
 
 ## Closed
 

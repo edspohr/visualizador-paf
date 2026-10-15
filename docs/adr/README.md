@@ -17,6 +17,7 @@ the retro plan linked from `CLAUDE.md`; they are not repeated here.
 | [0004](0004-admin-writes-through-function.md) | Privileged writes go through a Cloud Function; users cannot write their own profile | Accepted | 2026-09-30 |
 | [0005](0005-one-slep-per-sostenedor-user.md) | A sostenedor user has exactly one SLEP | Accepted | 2026-09-30 |
 | [0006](0006-local-emulators.md) | Rules, functions and profile checks are verified on local emulators | Accepted | 2026-09-30 |
+| [0007](0007-parvulario-canonical-excel.md) | The Parvulario catalog and planillas are read in canonical numbering, without translation | Accepted | 2026-10-15 |
 
 ## Writing one
 

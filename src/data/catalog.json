@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T16:54:04.102Z",
+  "generatedAt": "2026-10-23T12:29:03.957Z",
   "source": {
     "escolar": "src/data/catalogs/Sistema indicadores PAF Escolar 2026.xlsx",
     "parvulario": "src/data/catalogs/Sistema indicadores PAF Parvulario.xlsx"
@@ -1490,7 +1490,7 @@
         "meta": "—",
         "metaNum": null,
         "tipoMeta": "sin_meta",
-        "unidad": "sin_meta",
+        "unidad": "%",
         "tipo": "actividad",
         "fuente": "Registro establecimiento",
         "frecuencia": "anual",

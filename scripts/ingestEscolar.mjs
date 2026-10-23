@@ -208,9 +208,10 @@ function leerActividadesCurso(rows) {
     // presenciales para apoderados sin estudiantes ("Taller presencial: …" en
     // año 1, "TFn: …" en año 2; nunca los digitales/cápsulas ni los
     // "(apoderado y estudiante)"). Son 2 en PK/K y 3 en 1º–8º, en ambos años.
+    // Varias planillas escriben "Talle presencial" (sin r): también cuenta.
     const esAplicacion = (h) => {
       const n = normalize(h);
-      return !!n && (/^tf\s*\d/.test(n) || /talle?r presencial/.test(n))
+      return !!n && (/^tf\s*\d/.test(n) || /taller? presencial/.test(n))
         && !/apoderad[oa]s? y estudiante|apoderado-estudiante/.test(n)
         && !/digital|capsula/.test(n);
     };
@@ -315,6 +316,15 @@ function parseNum(v) {
   return Number.isFinite(n) ? n : null;
 }
 
+// Percentage cell as a 0..1 fraction. "45%" and 45 are 45 %; 0.45 is 45 %.
+// A bare 1 is read as 100 % (the cell is declared as a percentage).
+function parsePct(v) {
+  const n = parseNum(v);
+  if (n === null) return null;
+  if (/%/.test(String(v)) || n > 1) return n / 100;
+  return n;
+}
+
 function logMismatch(schoolName, indId, expected, tab) {
   HEADER_MISMATCHES.push({ schoolName, indId, expected, tab });
   console.warn(`  ✗ ${schoolName} · ${indId} · esperaba "${expected}" en ${tab} — sin dato`);
@@ -397,12 +407,10 @@ const ACTIVIDADES_MULTI = [
   { id: 'I8',  label: /^director asiste$/, subCol: /reunion director\/?a/,             aggregate: 'first_bool', estado: 'provisional', headerHint: 'Director asiste × Reunión director/a' },
   // I6  — Director asiste (Encuentro territorial I & II)   Consultor, validado
   { id: 'I6',  label: /^director asiste$/, subCols: [/encuentro territorial i$/, /encuentro territorial ii$/], aggregate: 'count_true', estado: 'validado', headerHint: 'Director asiste × Encuentro territorial I+II' },
-  // I17 — Director asiste (Encuentro territorial I & II)   Sin esp → provisional (mismo dato que I6; catálogo lo lista separado)
-  { id: 'I17', label: /^director asiste$/, subCols: [/encuentro territorial i$/, /encuentro territorial ii$/], aggregate: 'count_true', estado: 'provisional', headerHint: 'Director asiste × Encuentro territorial I+II' },
   // I7  — Coordinador asiste (Encuentro territorial I & II)  Sin esp → provisional
   { id: 'I7',  label: /^coordinador asiste$/, subCols: [/encuentro territorial i$/, /encuentro territorial ii$/], aggregate: 'count_true', estado: 'provisional', headerHint: 'Coordinador asiste × Encuentro territorial I+II' },
-  // I18 — Coordinador asiste (Encuentro territorial I & II)  Sin esp → provisional (mismo que I7)
-  { id: 'I18', label: /^coordinador asiste$/, subCols: [/encuentro territorial i$/, /encuentro territorial ii$/], aggregate: 'count_true', estado: 'provisional', headerHint: 'Coordinador asiste × Encuentro territorial I+II' },
+  // I17 / I18 (formaciones territoriales) se leen de Datos docentes, columnas
+  // I y J (Sebastián, 2026-10-22); antes repetían el dato de I6 / I7.
 ];
 
 // ─── Actividades tab reader ───────────────────────────────────────────────
@@ -477,6 +485,15 @@ function ingestActividades(rows, schoolName, wbId, wbLabel) {
     if (valor === null) { logMismatch(schoolName, spec.id, `${spec.headerHint} (celdas vacías)`, 'Actividades'); continue; }
     results.push({ indId: spec.id, valor, raw: values.join('|'), estado: spec.estado, tab: 'Actividades', row: rowIdx + 1, wbId, wbLabel });
   }
+
+  // I24 — % de visualizaciones de los talleres digitales: promedio de las
+  // filas "% de visualizaciones…" (1° y 2° taller digital), columna B
+  // (Sebastián, 2026-10-22). Sin meta: informativo. Celdas vacías no cuentan.
+  const visRows = rows.map((r, i) => (/^% de visualizaciones de los talleres digitales/.test(normalize(r?.[0])) ? i : -1)).filter(i => i >= 0);
+  const vis = visRows.map(i => parsePct(rows[i]?.[1])).filter(v => v !== null);
+  if (vis.length) {
+    results.push({ indId: 'I24', valor: vis.reduce((a, b) => a + b, 0) / vis.length, raw: `promedio de ${vis.length} de ${visRows.length} talleres digitales`, estado: 'provisional', tab: 'Actividades', row: visRows[0] + 1, wbId, wbLabel });
+  } else if (!visRows.length) logMismatch(schoolName, 'I24', '% de visualizaciones de los talleres digitales', 'Actividades');
   return results;
 }
 
@@ -551,13 +568,29 @@ function ingestReuniones(rows, schoolName, wbId, wbLabel) {
     else logMismatch(schoolName, 'I4', 'asistencia coordinadores (sin datos)', 'Reuniones equipo de Gestión');
   } else logMismatch(schoolName, 'I4', 'personas con Cargo=Coordinador', 'Reuniones equipo de Gestión');
 
-  // I5 — número de reuniones de coordinación. Semántica ambigua (mismo tab). Marcamos provisional
-  // usando el mismo total de sesiones con asistencia. Sebastián debe confirmar la semántica.
+  // I5 — número de reuniones de coordinación (Sebastián, 2026-10-22): bloque
+  // "Reunión Coordinación" de la misma pestaña, fila de checks bajo los
+  // encuentros numerados 1..10 (fila 19, D..M). Antes repetía el valor de I2.
   {
-    const valor = sessionAnyTrue.filter(Boolean).length;
-    results.push({ indId: 'I5', valor, raw: 'igual que I2 — confirmar semántica', estado: 'provisional', tab: 'Reuniones equipo de Gestión', row: subHdrIdx + 1, wbId, wbLabel });
+    const r = reunionesCoordinacion(rows);
+    if (r) results.push({ indId: 'I5', valor: r.valor, raw: `${r.valor}/${r.total} encuentros realizados`, estado: 'validado', tab: 'Reuniones equipo de Gestión', row: r.row, wbId, wbLabel });
+    else logMismatch(schoolName, 'I5', 'bloque "Reunión Coordinación" con encuentros numerados', 'Reuniones equipo de Gestión');
   }
   return results;
+}
+
+// Bloque "Reunión Coordinación": título en cualquier columna, luego una fila
+// con los encuentros numerados y debajo la fila de checks. Se ubica por texto.
+function reunionesCoordinacion(rows) {
+  const titulo = rows.findIndex(r => (r || []).some(v => /^reunion(es)? (de )?coordinacion$/.test(normalize(v))));
+  if (titulo < 0) return null;
+  for (let i = titulo + 1; i < Math.min(rows.length, titulo + 5); i++) {
+    const cols = (rows[i] || []).map((v, j) => (/^\d+$/.test(String(v || '').trim()) ? j : -1)).filter(j => j >= 0);
+    if (cols.length < 2) continue;
+    const checks = rows[i + 1] || [];
+    return { valor: cols.filter(j => parseBool(checks[j]) === 1).length, total: cols.length, row: i + 2 };
+  }
+  return null;
 }
 
 // ─── Datos docentes tab ───────────────────────────────────────────────────
@@ -661,6 +694,18 @@ function ingestDatosDocentes(rows, schoolName, wbId, wbLabel) {
       results.push({ indId, valor: n, raw: `${quien}: ${n} de ${heldModCols.length} instancias realizadas (${modCols.length} planificadas)`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
     }
   } else logMismatch(schoolName, 'I13/I14', 'columnas sensibilización / CD1..CD4 no encontradas', 'Datos docentes');
+
+  // I17 / I18 — N° de formaciones territoriales (Instancias de formación 1 y 2,
+  // columnas I y J) a las que asiste el Director/a y el Coordinador/a.
+  if (insCols.length) {
+    const directorRow = rowsConCargo.find(r => /^director(a|\/a)?$/i.test(String(r[cargoCol] || '').trim()));
+    const coordRow    = rowsConCargo.find(r => /^coordinador(a|\/a)?$/i.test(String(r[cargoCol] || '').trim()));
+    for (const [indId, row, quien] of [['I17', directorRow, 'director'], ['I18', coordRow, 'coordinador']]) {
+      if (!row) { logMismatch(schoolName, indId, `row con Cargo=${quien}`, 'Datos docentes'); continue; }
+      const n = insCols.filter(c => parseBool(row[c]) === 1).length;
+      results.push({ indId, valor: n, raw: `${quien}: ${n} de ${insCols.length} formaciones territoriales`, estado: 'provisional', tab: 'Datos docentes', row: hdrIdx + 1, wbId, wbLabel });
+    }
+  } else logMismatch(schoolName, 'I17/I18', 'columnas Instancias de formación 1, 2', 'Datos docentes');
 
   return results;
 }

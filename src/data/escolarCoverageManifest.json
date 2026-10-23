@@ -530,8 +530,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -1254,8 +1254,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -1978,8 +1978,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -2702,8 +2702,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -3426,8 +3426,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -4150,8 +4150,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -4874,8 +4874,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -5598,8 +5598,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -6322,8 +6322,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -7046,8 +7046,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -7770,8 +7770,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -8494,8 +8494,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -9218,8 +9218,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -9586,7 +9586,7 @@
           "indicadorId": "I.24",
           "curso": null,
           "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "razon": "Sin fuente declarada para año 2025"
         },
         {
           "anio": 2025,
@@ -9942,8 +9942,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -10310,7 +10310,7 @@
           "indicadorId": "I.24",
           "curso": null,
           "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "razon": "Sin fuente declarada para año 2025"
         },
         {
           "anio": 2025,
@@ -10666,8 +10666,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -11034,7 +11034,7 @@
           "indicadorId": "I.24",
           "curso": null,
           "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "razon": "Sin fuente declarada para año 2025"
         },
         {
           "anio": 2025,
@@ -11390,8 +11390,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -11758,7 +11758,7 @@
           "indicadorId": "I.24",
           "curso": null,
           "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "razon": "Sin fuente declarada para año 2025"
         },
         {
           "anio": 2025,
@@ -12114,8 +12114,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -12482,7 +12482,7 @@
           "indicadorId": "I.24",
           "curso": null,
           "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "razon": "Sin fuente declarada para año 2025"
         },
         {
           "anio": 2025,
@@ -12838,8 +12838,8 @@
           "anio": 2026,
           "indicadorId": "I.24",
           "curso": null,
-          "estado": "SIN_FUENTE_MAPEADA",
-          "razon": "Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián."
+          "estado": "MAPEADO_NO_VERIFICADO",
+          "razon": "Corre con --with-firestore para resolver SIN_DATO vs CON_DATO"
         },
         {
           "anio": 2026,
@@ -13033,12 +13033,12 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-15T16:57:41.202Z",
+  "generatedAt": "2026-10-23T12:34:58.231Z",
   "stats": {
     "estados": {
       "NO_CORRESPONDE_AUN": 663,
-      "MAPEADO_NO_VERIFICADO": 900,
-      "SIN_FUENTE_MAPEADA": 273
+      "MAPEADO_NO_VERIFICADO": 918,
+      "SIN_FUENTE_MAPEADA": 255
     },
     "porIndicador": {
       "I.1": {
@@ -13158,7 +13158,8 @@
       },
       "I.24": {
         "NO_CORRESPONDE_AUN": 13,
-        "SIN_FUENTE_MAPEADA": 23
+        "MAPEADO_NO_VERIFICADO": 18,
+        "SIN_FUENTE_MAPEADA": 5
       },
       "I.25": {
         "NO_CORRESPONDE_AUN": 13,

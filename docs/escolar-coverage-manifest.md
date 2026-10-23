@@ -1,6 +1,6 @@
 # Manifiesto de cobertura Escolar
 
-Generado 2026-10-15 (sin consulta a Firestore).
+Generado 2026-10-23 (sin consulta a Firestore).
 
 Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 
@@ -10,12 +10,12 @@ Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 |---|---:|---:|---|
 | NO_CORRESPONDE_AUN | 663 | 36.1% | Nadie (diseño del programa) |
 | NO_CORRESPONDE | 0 | 0.0% | Nadie (estructura) |
-| SIN_FUENTE_MAPEADA | 273 | 14.9% | **Nosotros** |
+| SIN_FUENTE_MAPEADA | 255 | 13.9% | **Nosotros** |
 | FUENTE_NO_ACCESIBLE | 0 | 0.0% | **Nosotros** |
 | SIN_DATO_REPORTADO | 0 | 0.0% | Focus |
 | CON_DATO_REPORTADO | 0 | 0.0% | — |
 | CERO_REPORTADO | 0 | 0.0% | — |
-| MAPEADO_NO_VERIFICADO | 900 | 49.0% | Correr con `--with-firestore` |
+| MAPEADO_NO_VERIFICADO | 918 | 50.0% | Correr con `--with-firestore` |
 
 ## Indicadores con estado SIN_FUENTE_MAPEADA
 
@@ -42,7 +42,7 @@ Total de tuplas (escuela × indicador × curso × año) declaradas: **1836**.
 - **I.21 · Número de talleres para apoderados presenciales realizados en promedio**: 5 tuplas — 
 - **I.22 · %  promedio de asistencia anual de apoderados a taller para apoderados**: 5 tuplas — 
 - **I.23 · Número de Taller digitales para Apoderados enviados en promedio por sa**: 5 tuplas — 
-- **I.24 · Cantidad de visualizaciones promedio de los Talleres digitales para Ap**: 23 tuplas — Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián.
+- **I.24 · Cantidad de visualizaciones promedio de los Talleres digitales para Ap**: 5 tuplas — 
 - **I.25 · Número de formaciones realizadas a apoderados monitores**: 5 tuplas — 
 - **I.26 · Número de apoderados monitores formados (que hayan asistido a al menos**: 5 tuplas — 
 - **I.27 · Número de salas cubiertas por apoderados monitores**: 5 tuplas — 

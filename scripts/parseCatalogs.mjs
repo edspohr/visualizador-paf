@@ -365,6 +365,13 @@ const INICIO_OVERRIDE = {
   escolar2026: { 'I.20': 'Primer año' },
 };
 
+// Unit corrections the Excel cannot express: Escolar I.24 has no meta (so the
+// parser marks it 'sin_meta') but its value is a percentage, the average of
+// "% de visualizaciones" of the two digital workshops (Sebastián, 2026-10-22).
+const UNIDAD_OVERRIDE = {
+  escolar2026: { 'I.24': '%' },
+};
+
 // Indicators whose meta is set per school instead of the territorial total
 // (Sebastián, 2026-09-03 + D-08): meta = number of salas of the school, read
 // from establecimientos_real.nSalas at runtime (canonical ids).
@@ -386,10 +393,12 @@ function applyVigenciaYMetas(list, programaKey) {
   const prov = VIGENCIA_PROVISIONAL[programaKey] ?? {};
   const porEst = META_POR_ESTABLECIMIENTO[programaKey] ?? {};
   const inicioOv = INICIO_OVERRIDE[programaKey] ?? {};
+  const unidadOv = UNIDAD_OVERRIDE[programaKey] ?? {};
   for (const ind of list) {
     if (!ind.vigencia && prov[ind.id]) { ind.vigencia = prov[ind.id]; ind.vigenciaProvisional = true; }
     if (porEst[ind.id]) ind.metaPorEstablecimiento = porEst[ind.id];
     if (inicioOv[ind.id]) { ind.inicioExcel = ind.inicio; ind.inicio = inicioOv[ind.id]; }
+    if (unidadOv[ind.id]) ind.unidad = unidadOv[ind.id];
   }
 }
 

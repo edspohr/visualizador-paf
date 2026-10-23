@@ -81,7 +81,7 @@ export const ESCOLAR_MAPPING = [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Reuniones equipo de Gestión', columna: '"Coordinador"', transformacion: 'first_number_from_col1', estado: 'provisional' },
   ]},
   { id: 'I.5',  scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Reuniones equipo de Gestión', notas: 'semántica igual a I.2, marcada provisional', transformacion: 'igual_a_I.2', estado: 'provisional' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Reuniones equipo de Gestión', columna: '"Reunión Coordinación" · encuentros 1..10 (fila 19, D..M)', transformacion: 'count_true', estado: 'validado' },
   ]},
   { id: 'I.6',  scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Director asiste × Encuentro territorial I+II"', transformacion: 'count_true', estado: 'validado' },
@@ -128,10 +128,10 @@ export const ESCOLAR_MAPPING = [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', rango: 'sobre docentes activos × formaciones realizadas (cols 1/2 con asistencia)', transformacion: 'mean_attendance_over_held', estado: 'provisional', notas: 'no se distingue Prof. Jefe explícitamente en Cargo; 2026-10-09 solo formaciones realizadas' },
   ]},
   { id: 'I.17', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Director asiste × Encuentro territorial I+II"', transformacion: 'count_true', estado: 'provisional' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', columna: 'fila Director/a × Instancias de formación 1, 2 (I, J)', transformacion: 'count_true', estado: 'provisional' },
   ]},
   { id: 'I.18', scope: 'escuela', fuentes: [
-    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Coordinador asiste × Encuentro territorial I+II"', transformacion: 'count_true', estado: 'provisional' },
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Datos docentes', columna: 'fila Coordinador/a × Instancias de formación 1, 2 (I, J)', transformacion: 'count_true', estado: 'provisional' },
   ]},
   { id: 'I.19', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'registro-coordinacion', tab: 'Registro Coordinación · PKA..8B', rango: 'entrevistas anual', transformacion: 'with1_over_active', estado: 'provisional' },
@@ -159,7 +159,9 @@ export const ESCOLAR_MAPPING = [
   { id: 'I.23', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'curso', tab: 'Actividades', columna: '"Taller Entre Familias para Apoderados/as" × columnas "Taller digital"', transformacion: 'count_true_mean_over_salas', estado: 'provisional', notas: 'Sebastián 2026-09-03; fila ubicada por texto.' },
   ]},
-  { id: 'I.24', mapeo: 'NO_MAPEADO', razon: 'Visualizaciones de talleres digitales. Sin fuente declarada. Confirmar con Sebastián.' },
+  { id: 'I.24', scope: 'escuela', fuentes: [
+    { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"% de visualizaciones de los talleres digitales" (1° y 2° taller, col. B)', transformacion: 'mean_pct', estado: 'provisional' },
+  ]},
   { id: 'I.25', scope: 'escuela', fuentes: [
     { anio: 2026, arquetipo: 'datos-consultor', tab: 'Actividades', columna: '"Instancia de formación para apoderados monitores"', transformacion: 'count_true_from_col1', estado: 'validado' },
   ]},

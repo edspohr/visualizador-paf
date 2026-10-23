@@ -16,7 +16,7 @@ export default function PendienteAsignacion() {
             />
             <div>
               <h1 className="text-lg md:text-xl font-medium text-gray-dark tracking-tight leading-tight">
-                Visualizador PAF 2026
+                Panel de Monitoreo PAF 2026
               </h1>
               <p className="text-gray-ui text-sm font-light">Programa Aprender en Familia · Fundación CAP</p>
             </div>
@@ -67,7 +67,7 @@ export default function PendienteAsignacion() {
 
       <footer className="border-t border-border bg-white py-4">
         <div className="max-w-6xl mx-auto px-8 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Fundación CAP</span>
+          <span className="text-xs text-gray-ui font-light">Panel de Monitoreo PAF · Fundación CAP</span>
           <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-50" />
         </div>
       </footer>

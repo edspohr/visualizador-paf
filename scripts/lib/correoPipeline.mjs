@@ -102,16 +102,16 @@ function bloqueRegistro(establecimientos) {
 export function construirCorreo({ exitoso, fallo, pasos, inicio, fin, resumen, advertencias, detalles = [] }) {
   const estado = !exitoso ? 'falla' : advertencias.length ? 'atencion' : 'ok';
   const cfg = {
-    ok: { icono: '🟢', titulo: 'Actualización diaria OK', color: '#15803d', fondo: '#dcfce7', texto: 'Los datos del visualizador se actualizaron correctamente.' },
+    ok: { icono: '🟢', titulo: 'Actualización diaria OK', color: '#15803d', fondo: '#dcfce7', texto: 'Los datos del panel se actualizaron correctamente.' },
     atencion: { icono: '🟡', titulo: 'Actualización completada con advertencias', color: '#a16207', fondo: '#fef9c3', texto: 'Los datos se actualizaron, pero hay cosas que revisar.' },
-    falla: { icono: '🔴', titulo: 'FALLÓ la actualización diaria', color: '#b91c1c', fondo: '#fee2e2', texto: 'Los datos NO se actualizaron completamente. El visualizador sigue mostrando la última carga exitosa.' },
+    falla: { icono: '🔴', titulo: 'FALLÓ la actualización diaria', color: '#b91c1c', fondo: '#fee2e2', texto: 'Los datos NO se actualizaron completamente. El panel sigue mostrando la última carga exitosa.' },
   }[estado];
   const dia = fechaChile(inicio).split(',')[0];
   const subject = estado === 'falla'
-    ? `🔴 FALLÓ · Visualizador PAF · carga ${dia} · paso: ${fallo?.paso ?? 'desconocido'}`
+    ? `🔴 FALLÓ · Panel de Monitoreo PAF · carga ${dia} · paso: ${fallo?.paso ?? 'desconocido'}`
     : estado === 'atencion'
-      ? `🟡 ATENCIÓN · Visualizador PAF · carga ${dia} · ${advertencias.length} advertencia${advertencias.length > 1 ? 's' : ''}`
-      : `🟢 OK · Visualizador PAF · carga ${dia}`;
+      ? `🟡 ATENCIÓN · Panel de Monitoreo PAF · carga ${dia} · ${advertencias.length} advertencia${advertencias.length > 1 ? 's' : ''}`
+      : `🟢 OK · Panel de Monitoreo PAF · carga ${dia}`;
 
   const filasPasos = pasos.map(p => `
     <tr>
@@ -155,7 +155,7 @@ export function construirCorreo({ exitoso, fallo, pasos, inicio, fin, resumen, a
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f5f6f8;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1f2937">
   <div style="max-width:640px;margin:0 auto;padding:20px 16px">
     <div style="background:${cfg.color};color:#fff;border-radius:12px;padding:20px 22px">
-      <p style="margin:0;font-size:13px;opacity:.85;letter-spacing:.04em">VISUALIZADOR PAF · CARGA DIARIA</p>
+      <p style="margin:0;font-size:13px;opacity:.85;letter-spacing:.04em">PANEL DE MONITOREO PAF · CARGA DIARIA</p>
       <p style="margin:6px 0 0;font-size:24px;font-weight:700">${cfg.icono} ${cfg.titulo}</p>
       <p style="margin:6px 0 0;font-size:15px">${cfg.texto}</p>
     </div>
@@ -166,7 +166,7 @@ export function construirCorreo({ exitoso, fallo, pasos, inicio, fin, resumen, a
       ${bloqueRegistro(resumen.establecimientos)}
       <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:8px">${filasPasos}</table>
       ${bloqueDetalle}
-      <p style="margin:16px 0 0;font-size:13px"><a href="${SITIO}">Abrir el visualizador</a> · <a href="${LOGS}">Logs</a> · <a href="${FIRESTORE}">Estado en Firestore</a></p>
+      <p style="margin:16px 0 0;font-size:13px"><a href="${SITIO}">Abrir el panel</a> · <a href="${LOGS}">Logs</a> · <a href="${FIRESTORE}">Estado en Firestore</a></p>
     </div>
     <p style="color:#9ca3af;font-size:12px;margin:10px 4px">Correo automático de la función pipelineNocturno. Para recibir solo avisos de problemas, cambiar PIPELINE_CORREO a "solo-problemas" en functions/.env.</p>
   </div></body></html>`;
@@ -195,7 +195,7 @@ export async function enviarCorreo(correo) {
   const { default: nodemailer } = await import('nodemailer');
   const t = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass } });
   await t.sendMail({
-    from: `"Visualizador PAF" <${user}>`,
+    from: `"Panel de Monitoreo PAF" <${user}>`,
     to,
     subject: correo.subject,
     text: correo.text,

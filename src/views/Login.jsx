@@ -44,7 +44,7 @@ export default function Login() {
             />
             <div>
               <h1 className="text-2xl md:text-3xl font-medium text-gray-dark tracking-tight leading-tight">
-                Visualizador PAF 2026
+                Panel de Monitoreo PAF 2026
               </h1>
               <p className="text-gray-ui mt-1 text-base font-light">Programa Aprender en Familia · Fundación CAP</p>
             </div>
@@ -101,7 +101,7 @@ export default function Login() {
           </div>
 
           <p className="text-xs text-gray-ui font-light text-center mt-6">
-            El acceso al Visualizador PAF está reservado para el equipo del programa.
+            El acceso al Panel de Monitoreo PAF está reservado para el equipo del programa.
             Si tienes dudas, comunícate con Consultora Focus.
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function Login() {
 
       <footer className="border-t border-border bg-white py-4">
         <div className="max-w-6xl mx-auto px-8 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-gray-ui font-light">Visualizador PAF · Fundación CAP</span>
+          <span className="text-xs text-gray-ui font-light">Panel de Monitoreo PAF · Fundación CAP</span>
           <img src="/paf-cap-logo.jpg" alt="Aprender en Familia · Fundación CAP" className="h-6 w-auto opacity-50" />
         </div>
       </footer>

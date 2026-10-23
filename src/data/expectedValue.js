@@ -43,6 +43,10 @@ export function expectedToDate(indicador, mes) {
  * sala). Percentages (attendance, coverage) and Sí/No indicators have no
  * proportional progress, so they return null. Also null outside the school
  * year's span or when the meta is missing.
+ *
+ * Rounded down to a whole count (Retro 2, 2026-10-22): an event happens or
+ * not, so with 2 territorial meetings a year "1,6 expected" read as a debt
+ * while the second one had not taken place. A floor of 0 shows no mark.
  */
 export const MES_INICIO_ANIO_ESCOLAR = 3;
 export const MES_FIN_ANIO_ESCOLAR = 12;
@@ -53,7 +57,8 @@ export function esperadoALaFecha(indicador, mes) {
   const total = MES_FIN_ANIO_ESCOLAR - MES_INICIO_ANIO_ESCOLAR + 1;
   const transcurridos = Math.max(0, Math.min(total, mes - MES_INICIO_ANIO_ESCOLAR + 1));
   if (transcurridos === 0 || transcurridos === total) return null;
-  return metaNum * (transcurridos / total);
+  const esperado = Math.floor(metaNum * (transcurridos / total));
+  return esperado > 0 ? esperado : null;
 }
 
 /** Format a raw value for display given the indicator's unit.

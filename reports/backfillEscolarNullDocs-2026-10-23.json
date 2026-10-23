@@ -1,0 +1,143 @@
+{
+  "generatedAt": "2026-10-23T13:14:15.934Z",
+  "dryRun": false,
+  "totalWritten": 17,
+  "slots": [
+    {
+      "docId": "esc_esc-abate-molina_I.24_2026",
+      "establecimientoId": "esc-abate-molina",
+      "establecimientoNombre": "Escuela Abate Molina",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-basica-sendero-del-saber_I.24_2026",
+      "establecimientoId": "esc-basica-sendero-del-saber",
+      "establecimientoNombre": "Escuela Básica Sendero del Saber",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-ciudad-de-barcelona_I.24_2026",
+      "establecimientoId": "esc-ciudad-de-barcelona",
+      "establecimientoNombre": "Escuela Ciudad de Barcelona",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-espana_I.24_2026",
+      "establecimientoId": "esc-espana",
+      "establecimientoNombre": "Escuela España",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-esperanza-joven_I.24_2026",
+      "establecimientoId": "esc-esperanza-joven",
+      "establecimientoNombre": "Escuela Esperanza Joven",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-gil-de-castro_I.24_2026",
+      "establecimientoId": "esc-gil-de-castro",
+      "establecimientoNombre": "Escuela Gil de Castro",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-inglaterra_I.24_2026",
+      "establecimientoId": "esc-inglaterra",
+      "establecimientoNombre": "Escuela Inglaterra",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-lo-valledor_I.24_2026",
+      "establecimientoId": "esc-lo-valledor",
+      "establecimientoNombre": "Escuela Lo Valledor",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-pedro-aguirre-cerda_I.24_2026",
+      "establecimientoId": "esc-pedro-aguirre-cerda",
+      "establecimientoNombre": "Escuela Pedro Aguirre Cerda",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-platon_I.24_2026",
+      "establecimientoId": "esc-platon",
+      "establecimientoNombre": "Escuela Platón",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-LP"
+    },
+    {
+      "docId": "esc_esc-profesor-ramon-del-rio_I.24_2026",
+      "establecimientoId": "esc-profesor-ramon-del-rio",
+      "establecimientoNombre": "Escuela Profesor Ramón del Río",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-ramon-freire_I.24_2026",
+      "establecimientoId": "esc-ramon-freire",
+      "establecimientoNombre": "Escuela Ramón Freire",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-republica-de-austria_I.24_2026",
+      "establecimientoId": "esc-republica-de-austria",
+      "establecimientoNombre": "República de Austria",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SC"
+    },
+    {
+      "docId": "esc_esc-republica-de-las-filipinas_I.24_2026",
+      "establecimientoId": "esc-republica-de-las-filipinas",
+      "establecimientoNombre": "Escuela República De Las Filipinas",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-ricardo-latcham_I.24_2026",
+      "establecimientoId": "esc-ricardo-latcham",
+      "establecimientoNombre": "Escuela Ricardo Latcham",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-territorio-antartico_I.24_2026",
+      "establecimientoId": "esc-territorio-antartico",
+      "establecimientoNombre": "Escuela Territorio Antártico",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    },
+    {
+      "docId": "esc_esc-villa-san-miguel_I.24_2026",
+      "establecimientoId": "esc-villa-san-miguel",
+      "establecimientoNombre": "Escuela Villa San Miguel",
+      "indicadorId": "I.24",
+      "indicadorNombre": "Cantidad de visualizaciones promedio de los Talleres digitales para Apoderados",
+      "slep": "SLEP-SR"
+    }
+  ]
+}

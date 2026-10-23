@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, ArrowLeftRight, RotateCcw } from 'lucide-react';
-import { calcularLogro, resolverIndicador } from '../../data/establecimientos.js';
+import { resolverIndicador } from '../../data/establecimientos.js';
 import { isAplicable2026 } from '../../data/scope.js';
 import { formatValue } from '../../data/expectedValue.js';
 import { ambitoCodigo, ambitoNombre, indicadorCodigo } from '../../lib/labels.js';
@@ -91,33 +91,32 @@ function conteoFiltrosAvanzados({ cohorte, comuna, nivel }) {
   return n;
 }
 
-function promedioValor(ind, ests, valores, mesRef) {
+// One indicator for one side, in the indicator's own unit (R2-15, 2026-10-22):
+// mean of the reported values (centres without a value do not enter), how
+// many centres reported out of those it applies to, and the mean meta of
+// those centres (metas change with the year of implementation and, for
+// I.26/I.46, with each school's salas; see resolverIndicador).
+function resumenNativo(ind, ests, valores, mesRef) {
   const aplican = ests.filter(e => isAplicable2026(ind, e, mesRef));
-  if (!aplican.length) return null;
-  let suma = 0, n = 0;
+  let suma = 0, n = 0, sumaMeta = 0, nMeta = 0;
   for (const e of aplican) {
+    const meta = resolverIndicador(ind, e).metaNum;
+    if (meta !== null && meta !== undefined) { sumaMeta += meta; nMeta += 1; }
     const v = valores.get(e.id)?.get(ind.id);
     if (v === null || v === undefined) continue;
     suma += v;
     n += 1;
   }
-  return n ? suma / n : null;
-}
-
-function ratioLogro(ind, ests, valores, mesRef) {
-  const aplican = ests.filter(e => isAplicable2026(ind, e, mesRef));
-  if (!aplican.length) return null;
-  let suma = 0;
-  for (const e of aplican) {
-    const v = valores.get(e.id)?.get(ind.id) ?? null;
-    const l = calcularLogro(v, ind, e);
-    suma += l === null ? 0 : Math.min(1, l);
-  }
-  return suma / aplican.length;
+  return {
+    valor: n ? suma / n : null,
+    nConDato: n,
+    nAplican: aplican.length,
+    meta: nMeta ? sumaMeta / nMeta : (ind.metaNum ?? null),
+  };
 }
 
 // Devuelve las filas del bar chart para un lado (A o B).
-//   - Modo agrupado + indicadorFocal='TODOS': una fila por indicador (ratio normalizado 0..1).
+//   - Modo agrupado + indicadorFocal='TODOS': una fila por indicador, en su unidad.
 //   - Modo agrupado + indicadorFocal fijo: una fila con el promedio del indicador focal.
 //   - Modo desglose 'establecimiento' + indicadorFocal fijo: una fila por establecimiento.
 //   - Modo desglose 'nivel' + indicadorFocal fijo con `desagregaNivel:true`: una fila por nivel.
@@ -138,9 +137,10 @@ export function computeSideData({
   const nivelActivo = filters.nivel && filters.nivel !== 'TODOS';
   const valoresAgregados = valoresMapByYear.get(filters.year) ?? new Map();
 
+  // Indicators without a meta but with a unit (Escolar I.24) are shown too:
+  // the comparison is in the indicator's unit, not against the meta.
   const indsElegibles = INDS.filter(ind =>
     ind.unidad !== 'sin_meta' &&
-    ind.metaNum !== null &&
     (ambitoScope === 'TODOS' || ind.ambito === ambitoScope) &&
     (indicadorFocal === 'TODOS' || ind.id === indicadorFocal)
   );
@@ -161,22 +161,19 @@ export function computeSideData({
         valor: null,
         meta: ind?.metaNum ?? null,
         unidad: ind?.unidad,
-        ratio: null,
         ind,
         aplica: false,
       }));
     }
     return NIVELES_OPTS.filter(n => n.v !== 'TODOS').map(n => {
       const fuente = valoresPorNivelBucket.get(n.v);
-      const valor = fuente ? promedioValor(ind, ests, fuente, mesRef) : null;
-      const ratio = fuente ? ratioLogro(ind, ests, fuente, mesRef) : null;
+      const r = fuente ? resumenNativo(ind, ests, fuente, mesRef) : { valor: null, meta: ind.metaNum };
       return {
         key: n.v,
         nombre: n.l,
-        valor,
-        meta: ind.metaNum,
+        valor: r.valor,
+        meta: r.meta,
         unidad: ind.unidad,
-        ratio,
         ind,
         aplica: true,
       };
@@ -190,14 +187,13 @@ export function computeSideData({
     if (nivelActivo && !soportaNivel) {
       return ests.map(e => ({
         key: e.id, nombre: e.nombre, valor: null, meta: ind.metaNum,
-        unidad: ind.unidad, ratio: null, ind, aplica: false, cobertura: null,
+        unidad: ind.unidad, ind, aplica: false, cobertura: null,
       }));
     }
     const fuente = fuenteValores(ind);
     return ests.map(e => {
       const applies = isAplicable2026(ind, e, mesRef);
       const v = applies ? (fuente.get(e.id)?.get(ind.id) ?? null) : null;
-      const r = calcularLogro(v, ind, e);
       // For Escolar, surface the manifest state so a missing value renders as
       // "sin fuente" vs "sin dato" vs "cero" instead of a bare "—".
       // Parvulario has no manifest — cobertura stays null and row falls back to "—".
@@ -210,7 +206,6 @@ export function computeSideData({
         valor: v,
         meta: resolverIndicador(ind, e).metaNum,
         unidad: ind.unidad,
-        ratio: r === null ? null : Math.min(1, r),
         ind,
         aplica: applies,
         cobertura,
@@ -227,21 +222,19 @@ export function computeSideData({
         valor: null,
         meta: ind.metaNum,
         unidad: ind.unidad,
-        ratio: null,
         ind,
         aplica: false,
       };
     }
-    const fuente = fuenteValores(ind);
-    const valor = promedioValor(ind, ests, fuente, mesRef);
-    const ratio = ratioLogro(ind, ests, fuente, mesRef);
+    const r = resumenNativo(ind, ests, fuenteValores(ind), mesRef);
     return {
       key: ind.id,
       nombre: ind.nombre,
-      valor,
-      meta: ind.metaNum,
+      valor: r.valor,
+      meta: r.meta,
+      nConDato: r.nConDato,
+      nAplican: r.nAplican,
       unidad: ind.unidad,
-      ratio,
       ind,
       aplica: true,
     };
@@ -430,6 +423,80 @@ function ChartTooltip({ active, payload, valueFormat, labelA, labelB }) {
   );
 }
 
+// ─── "Todos los indicadores": una fila por indicador en su propia unidad ────
+// Each row has its own scale (the larger of its metas and values) because a
+// count, a grade and a percentage cannot share one axis (R2-15, ADR-0008).
+
+// A group mean of a Sí/No indicator is a share of centres, so 1 reads
+// "100% Sí" and not "Sí" (formatValue's per-centre reading).
+function formatPromedio(ind, v) {
+  if (ind?.unidad === 'binario' && v !== null && v !== undefined && v >= 0 && v <= 1) return `${Math.round(v * 100)}% Sí`;
+  return formatValue(ind, v);
+}
+
+function escalaFila(r) {
+  const xs = [r.A, r.B, r.metaA, r.metaB].filter(v => v !== null && v !== undefined);
+  const base = (r.ind?.unidad === '%' || r.ind?.unidad === 'binario') ? 1 : 0;
+  return Math.max(base, ...xs) || 1;
+}
+
+function textoMeta(r) {
+  const { ind, metaA, metaB } = r;
+  if (metaA === null && metaB === null) return 'Sin meta';
+  const fa = metaA === null ? '—' : formatValue(ind, metaA);
+  const fb = metaB === null ? '—' : formatValue(ind, metaB);
+  return fa === fb ? `Meta ${fa}` : `Meta A ${fa} · B ${fb}`;
+}
+
+function BarraNativa({ valor, meta, escala, ind, color, nDato, nAplican, label, aplica, cobertura }) {
+  const pct = (v) => `${Math.min(100, (v / escala) * 100)}%`;
+  const razon = valor === null ? razonAusencia(aplica, cobertura) : null;
+  const detalle = nAplican ? ` · ${nDato} de ${nAplican} centros con dato` : '';
+  return (
+    <div className="flex items-center gap-2" title={`${label}: ${formatPromedio(ind, valor)}${detalle}${razon ? ` · ${razon}` : ''}`}>
+      <div className="relative flex-1 h-3.5 rounded-sm" style={{ background: 'var(--color-bg)' }}>
+        {valor !== null && (
+          <div className="absolute inset-y-0 left-0 rounded-sm" style={{ width: pct(valor), background: color }}/>
+        )}
+        {meta !== null && (
+          <div className="absolute -top-0.5 -bottom-0.5 border-l-2" style={{ left: `calc(${pct(meta)} - 1px)`, borderColor: 'var(--color-gray-dark)' }}/>
+        )}
+      </div>
+      <span className="w-24 shrink-0 text-[11px] text-gray-dark tabular-nums">
+        <strong>{formatPromedio(ind, valor)}</strong>
+        {nAplican ? <span className="text-gray-ui"> · {nDato}/{nAplican}</span> : null}
+      </span>
+    </div>
+  );
+}
+
+function FilasNativas({ filas, labelA, labelB }) {
+  return (
+    <div role="list" className="divide-y divide-border">
+      {filas.map(r => {
+        const escala = escalaFila(r);
+        return (
+          <div role="listitem" key={r.key} className="py-2 grid grid-cols-1 sm:grid-cols-[220px_1fr] gap-x-3 gap-y-1">
+            <div className="min-w-0">
+              <p className="text-[11px] text-gray-dark leading-snug truncate" title={r.ind ? `${indicadorCodigo(r.ind.id)} — ${r.ind.nombre}` : r.nombre}>{r.nombre}</p>
+              <p className="text-[10px] text-gray-ui">{textoMeta(r)}</p>
+            </div>
+            <div className="space-y-1">
+              <BarraNativa valor={r.A} meta={r.metaA} escala={escala} ind={r.ind} color="var(--color-cyan)"
+                nDato={r.nA} nAplican={r.nAplicanA} label={labelA} aplica={r.aplicaA} cobertura={r.coberturaA}/>
+              <BarraNativa valor={r.B} meta={r.metaB} escala={escala} ind={r.ind} color="var(--color-magenta)"
+                nDato={r.nB} nAplican={r.nAplicanB} label={labelB} aplica={r.aplicaB} cobertura={r.coberturaB}/>
+            </div>
+          </div>
+        );
+      })}
+      <p className="pt-2 text-[10px] text-gray-ui">
+        Cada fila tiene su propia escala. La línea vertical marca la meta; "n/m" indica cuántos centros reportan de los que corresponde.
+      </p>
+    </div>
+  );
+}
+
 // ─── Componente principal ──────────────────────────────────────────────────
 
 const DEFAULT_TOP_N = 15;
@@ -477,7 +544,7 @@ export default function ComparadorIndicador({
   // Ingest writes tipo 'Jardín'; the old strict 'jardin' check never matched.
   const showNivelFilter = programa === 'parvulario' || todos.some(e => /jard/i.test(String(e.tipo ?? '')));
 
-  const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta' && i.metaNum !== null);
+  const indicadoresElegibles = INDS.filter(i => i.unidad !== 'sin_meta');
   const focalInd = indicadorFocal !== 'TODOS' ? indicadoresElegibles.find(i => i.id === indicadorFocal) : null;
   const focalDesagregaNivel = focalInd?.desagregaNivel === true;
 
@@ -592,9 +659,6 @@ export default function ComparadorIndicador({
     [todos, filtersB, INDS, ambitoScope, indicadorFocal, valoresMapByYear, defaultMes, desgloseEfectivo, nivelMapB, bucketsB]
   );
 
-  // Modo del eje: 'nativo' cuando hay indicador focal (misma unidad); 'ratio' para "Todos".
-  const chartMode = useMemo(() => (focalInd ? 'nativo' : 'ratio'), [focalInd]);
-
   const chartDataAll = useMemo(() => {
     const keys = [...new Set([...dataA.map(d => d.key), ...dataB.map(d => d.key)])];
     return keys.map(k => {
@@ -607,24 +671,24 @@ export default function ComparadorIndicador({
         const ind = (a || b)?.ind;
         nombre = ind ? truncNombreInd(ind) : k;
       }
-      const rawA = chartMode === 'nativo' ? (a?.valor ?? null) : (a?.ratio ?? null);
-      const rawB = chartMode === 'nativo' ? (b?.valor ?? null) : (b?.ratio ?? null);
       return {
-        key: k, nombre, ind: (a || b)?.ind, A: rawA, B: rawB,
+        key: k, nombre, ind: (a || b)?.ind, A: a?.valor ?? null, B: b?.valor ?? null,
+        metaA: a?.meta ?? null, metaB: b?.meta ?? null,
+        nA: a?.nConDato ?? null, nAplicanA: a?.nAplican ?? null,
+        nB: b?.nConDato ?? null, nAplicanB: b?.nAplican ?? null,
         coberturaA: a?.cobertura ?? null, aplicaA: a?.aplica ?? true,
         coberturaB: b?.cobertura ?? null, aplicaB: b?.aplica ?? true,
       };
     });
-  }, [dataA, dataB, desgloseEfectivo, chartMode]);
+  }, [dataA, dataB, desgloseEfectivo]);
 
   const chartDataOrdenada = useMemo(() => {
     const arr = [...chartDataAll];
     if (orden === 'diferencia') {
-      arr.sort((r1, r2) => {
-        const d1 = (r1.A ?? 0) - (r1.B ?? 0);
-        const d2 = (r2.A ?? 0) - (r2.B ?? 0);
-        return Math.abs(d2) - Math.abs(d1);
-      });
+      // Rows can be in different units, so the difference is measured
+      // against each row's own scale (meta or largest value).
+      const dif = (r) => (r.A === null || r.B === null) ? 0 : Math.abs(r.A - r.B) / escalaFila(r);
+      arr.sort((r1, r2) => dif(r2) - dif(r1));
     } else if (orden === 'codigo') {
       // En modo agrupado ordenar por código de indicador; en desglose por 'nombre'.
       arr.sort((r1, r2) => {
@@ -676,22 +740,16 @@ export default function ComparadorIndicador({
   }
 
   const { xDomain, xTickFormat, valueFormat } = useMemo(() => {
-    if (chartMode === 'ratio') {
-      return {
-        xDomain: [0, 1],
-        xTickFormat: (v) => `${Math.round(v * 100)}%`,
-        valueFormat: (v) => v === null || v === undefined ? '—' : `${Math.round(v * 100)}%`,
-      };
-    }
     const ind = focalInd || chartData[0]?.ind;
     if (!ind) {
       return { xDomain: [0, 1], xTickFormat: v => `${v}`, valueFormat: v => v ?? '—' };
     }
     if (ind.unidad === '%' || ind.unidad === 'binario') {
+      const vals = chartData.flatMap(d => [d.A, d.B]).filter(v => v !== null && v !== undefined);
       return {
-        xDomain: [0, Math.max(1, ind.metaNum)],
+        xDomain: [0, Math.max(1, ind.metaNum ?? 0, ...vals)],
         xTickFormat: (v) => `${Math.round(v * 100)}%`,
-        valueFormat: (v) => formatValue(ind, v),
+        valueFormat: (v) => (desgloseEfectivo === 'establecimiento' ? formatValue(ind, v) : formatPromedio(ind, v)),
       };
     }
     const vals = chartData.flatMap(d => [d.A, d.B]).filter(v => v !== null && v !== undefined);
@@ -701,7 +759,7 @@ export default function ComparadorIndicador({
       xTickFormat: (v) => Number.isInteger(v) ? String(v) : v.toFixed(1),
       valueFormat: (v) => formatValue(ind, v),
     };
-  }, [chartMode, chartData, focalInd]);
+  }, [chartData, focalInd, desgloseEfectivo]);
 
   const intercambiar = () => {
     setFiltersA(filtersB);
@@ -834,21 +892,13 @@ export default function ComparadorIndicador({
         </div>
       )}
 
-      {chartMode === 'ratio' && !focalInd && (
-        <div className="mb-3 p-2.5 rounded-xl text-[11px] text-gray-ui" style={{ background: 'var(--color-bg)' }}>
-          Muestra el <strong>% de cumplimiento vs meta</strong> por indicador. Los centros sin dato reportado
-          cuentan como 0 en el promedio, según la fórmula de cumplimiento acordada. Selecciona un indicador
-          para ver el valor promedio en su unidad nativa (sin capear a la meta).
-        </div>
-      )}
-
-      {chartMode === 'nativo' && focalInd && (
-        <div className="mb-3 p-2.5 rounded-xl text-[11px] text-gray-ui" style={{ background: 'var(--color-bg)' }}>
-          Muestra la <strong>media reportada</strong> por los centros (unidad nativa, meta = {formatValue(focalInd, focalInd.metaNum)}).
-          Los centros sin dato no entran en el promedio. Este número es distinto del "% de cumplimiento":
-          el cumplimiento capea a la meta y cuenta los faltantes como 0.
-        </div>
-      )}
+      <div className="mb-3 p-2.5 rounded-xl text-[11px] text-gray-ui" style={{ background: 'var(--color-bg)' }}>
+        Muestra el <strong>promedio reportado</strong> por los centros en la unidad de cada indicador
+        (cantidad, nota, porcentaje o Sí/No){focalInd && focalInd.metaNum !== null ? <>, con meta {formatValue(focalInd, focalInd.metaNum)}</> : null}.
+        Los centros sin dato no entran en el promedio{modoAgrupadoTodos ? '; cada fila indica cuántos centros reportan' : ''}.
+        Este promedio es distinto del % de cumplimiento de las vistas por centro y por sostenedor, donde un dato faltante cuenta como 0.
+        {filtersA.year !== filtersB.year && <> Al comparar años distintos, las metas pueden cambiar entre un año y otro: cada fila muestra la meta de cada grupo.</>}
+      </div>
 
       {/* Leyenda compacta A/B con año explícito + chip de qué muestra el eje */}
       <div className="flex flex-wrap gap-3 items-center text-xs text-gray-ui mb-3">
@@ -863,13 +913,28 @@ export default function ComparadorIndicador({
         <span className="ml-auto inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border">
           <span>Eje:</span>
           <strong className="text-gray-dark">
-            {chartMode === 'ratio' ? '% cumplimiento vs meta' : 'Media reportada (unidad nativa)'}
+            {modoAgrupadoTodos ? 'Promedio en la unidad de cada indicador' : 'Promedio reportado'}
           </strong>
         </span>
       </div>
 
       {chartData.length === 0 ? (
         <p className="text-sm text-gray-ui text-center py-8">Sin indicadores en común para los filtros seleccionados.</p>
+      ) : modoAgrupadoTodos ? (
+        <>
+          <FilasNativas filas={chartData} labelA={labelA} labelB={labelB}/>
+          {excedeTope && (
+            <div className="flex justify-center mt-2">
+              <button
+                type="button"
+                onClick={() => setMostrarTodos(m => !m)}
+                className="text-xs text-gray-dark hover:underline"
+              >
+                {mostrarTodos ? 'Mostrar menos' : `Mostrar los ${chartDataOrdenada.length} indicadores`}
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <>
           <div style={{ height: Math.max(220, chartData.length * 30 + 60) }}>
